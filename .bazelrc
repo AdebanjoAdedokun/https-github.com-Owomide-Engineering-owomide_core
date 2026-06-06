@@ -1,0 +1,21 @@
+# Bzlmod (default for Bazel 7+, explicit for clarity)
+build --enable_bzlmod
+
+# Reproducibility
+build --incompatible_strict_action_env
+
+# Test output
+test --test_output=errors
+test --test_summary=short
+
+# Convenience: show progress
+build --show_progress_rate_limit=0.5
+
+# Platform-specific
+build:macos --apple_crosstool_top=@local_config_apple_cc//:toolchain
+build:macos --crosstool_top=@local_config_apple_cc//:toolchain
+build:macos --host_crosstool_top=@local_config_apple_cc//:toolchain
+
+# CI configuration
+build:ci --remote_download_minimal
+test:ci --test_output=all
