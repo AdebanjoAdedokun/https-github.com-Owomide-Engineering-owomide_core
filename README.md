@@ -150,11 +150,11 @@ Stubbed targets print a message and exit cleanly. They'll be wired up as Phase 0
 
 | Service | Language | Role |
 |---------|----------|------|
-| Proposal | Node.js | Pricing Proposal lifecycle — state machine, approvals, comments |
+| Proposal | Node.js | Pricing Proposal lifecycle — state machine, approvals, publish, comments |
 | Margin | Go | Margin rules, batch validation, breach detection |
 | Repricing | Node.js | Bulk change-sets, scope builder, preview, scheduled rollouts |
-| Governance | Node.js | Append-only audit log, version snapshots, restore (event subscriber only) |
-| Catalog | Node.js | Canonical pricing data — products, SKUs, costs, prices, channels |
+| Governance | Node.js | Org-scoped append-only audit log, version snapshots, restore (event subscriber only) |
+| Catalog | Node.js | Org-scoped canonical pricing data — products, SKUs, costs, prices, channels |
 | Import/Export | Python | File ingest, column profiling, mapping, transformation, canonical commit |
 | Gateway | Node.js | Edge — JWT auth, REST-to-gRPC, rate limiting |
 | Notify | Node.js | Email + in-app notifications (event subscriber) |
@@ -165,6 +165,7 @@ Stubbed targets print a message and exit cleanly. They'll be wired up as Phase 0
 - **Branches:** `agent/<service>-<feature-id>` (e.g. `agent/margin-F3.2`)
 - **Commits:** conventional commits (`feat:`, `fix:`, `chore:`)
 - **PRs:** title references the BUILD_PLAN.md feature ID; description includes Definition-of-Done checklist
+- **Tenant boundary:** customer-owned data is scoped by `org_id` from day one
 - **gRPC for internal calls**, REST only at the gateway
 - **Events through `src/lib/bus`** — never import Redis/Kafka clients directly
 

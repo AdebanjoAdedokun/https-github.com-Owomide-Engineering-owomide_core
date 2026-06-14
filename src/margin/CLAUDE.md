@@ -11,6 +11,7 @@ The job is simple: given a batch of SKUs and proposed prices, return a list of v
 - Margin rule definitions and storage (`margin_rule` table).
 - The `ValidateBatch` validation engine.
 - Background margin-breach monitor (scans recent canonical prices, emits breach signals).
+- Org-scoped rule lookup and validation.
 
 ## What this does not own
 
@@ -29,6 +30,7 @@ The job is simple: given a batch of SKUs and proposed prices, return a list of v
 - `ValidateBatch(ValidateBatchRequest) → ValidateBatchResponse`
   - **Input:** array of `{sku_id, channel_id, proposed_price, currency}`.
   - **Output:** array of `Violation` objects: `{sku_id, rule_id, severity, message, floor, proposed, gap}`.
+  - `org_id` comes from authenticated gRPC metadata, not from the body.
   - **Severity:** `block` (below cost or below floor) or `warn` (within margin of floor).
   - **Never returns per-SKU.** Always batched.
 - `ListRules(ListRulesRequest) → ListRulesResponse` — admin read.
@@ -54,8 +56,8 @@ None. Pure RPC service.
 
 ## Database (schema: `margin`)
 
-- `margin_rule` — id, scope (channel_id, category_id, sku_id — any may be null for broader scope), floor_type (`pct_margin`, `pct_markup`, `absolute_minimum`), floor_value, currency, effective_at, effective_until, created_by, version.
-- `margin_rule_application` — log of which rule applied to which validation, for transparency.
+- `margin_rule` — id, org_id, scope (channel_id, category_id, sku_id — any may be null for broader scope), floor_type (`pct_margin`, `pct_markup`, `absolute_minimum`), floor_value, currency, effective_at, effective_until, created_by, version.
+- `margin_rule_application` — id, org_id, rule_id, proposal_id, proposal_line_id, applied_at, meta JSONB; log of which rule applied to which validation, for transparency.
 
 Postgres role `margin_svc` has access to schema `margin` only.
 
@@ -71,17 +73,18 @@ Postgres role `margin_svc` has access to schema `margin` only.
 ## Critical rules
 
 1. **Batched only.** Reject single-SKU requests at the API level. If a caller needs to validate one SKU, they wrap it in a one-element batch.
-2. **Costs are read at validation time.** Use the cost's `effective_at` to pick the right historical row. This makes validation reproducible after the fact.
-3. **Rule precedence:** most specific wins. A rule scoped to `(sku_id=X)` beats `(channel_id=Y)` beats `(category_id=Z)` beats a global rule.
-4. **Return violations, never decisions.** Don't return `{blocked: true}`. Return `severity` and let Proposal decide.
-5. **Currency mismatch is a `block` violation**, not an error. The proposed price's currency must match the rule's currency; otherwise the line cannot be evaluated.
-6. **Stateless server.** No session, no per-request caching beyond an in-process LRU for rule lookups (with TTL).
+2. **Every rule lookup is scoped by `org_id`.** A request cannot validate one org's proposed prices against another org's margin rules or costs.
+3. **Costs are read at validation time.** Use Catalog as-of reads to pick the right historical row. This makes validation reproducible after the fact.
+4. **Rule precedence:** most specific wins. A rule scoped to `(sku_id=X)` beats `(channel_id=Y)` beats `(category_id=Z)` beats an org-wide rule.
+5. **Return violations, never decisions.** Don't return `{blocked: true}`. Return `severity` and let Proposal decide.
+6. **Currency mismatch is a `block` violation**, not an error. The proposed price's currency must match the rule's currency; otherwise the line cannot be evaluated.
+7. **Stateless server.** No session, no per-request caching beyond an in-process LRU for rule lookups (with TTL).
 
 ---
 
 ## Definition of done (MVP)
 
-- [ ] Schema migration applied
+- [ ] Schema migration applied with `org_id` on margin-owned customer data
 - [ ] `ValidateBatch` gRPC handler implemented
 - [ ] Rule precedence resolved in pure logic + unit-tested
 - [ ] Catalog `BatchGetCosts` integration tested against real Catalog
@@ -122,4 +125,4 @@ src/margin/
 
 - The rule resolver and floor calculator are pure functions with deterministic outputs. They have no DB access. The handler fetches inputs (rules, costs) and feeds them in.
 - Violations include a `gap` field — how far below the floor (in the rule's units). Useful for sorting in the UI.
-- Never log proposed prices alongside customer identity (PII consideration; revisit when multi-tenant lands).
+- Never log proposed prices alongside identifiable customer/user data.

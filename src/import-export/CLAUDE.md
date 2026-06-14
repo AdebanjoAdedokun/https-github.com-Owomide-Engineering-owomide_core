@@ -2,7 +2,7 @@
 
 The bridge from messy outside-world data to canonical truth.
 
-This service is everything to the left of the **trust boundary**. The three-layer data model (Raw → Staging → Canonical) lives here. By the time data crosses into Catalog, it's been profiled, mapped, transformed, validated, and committed — and the rest of the system can read it with confidence.
+This service is everything to the left of the **trust boundary**. The three-layer data model (Raw → Staging → Canonical) lives here. By the time data crosses into Catalog, it's been profiled, mapped, transformed, validated, and committed — and the rest of the system can read it with confidence. Every import batch, row, template, and export pack is scoped by `org_id`.
 
 ---
 
@@ -12,13 +12,13 @@ Eight internal components:
 
 | Component | Responsibility |
 |---|---|
-| **ImportBatch** | One upload job. File ref, status, owner, lifecycle. |
-| **ImportRow** | Per-row staging. `raw_data JSONB` + `mapped_data JSONB` + `row_status`. |
+| **ImportBatch** | One upload job. Org, file ref, status, owner, lifecycle. |
+| **ImportRow** | Per-row staging. `org_id` + `raw_data JSONB` + `mapped_data JSONB` + `row_status`. |
 | **ColumnProfiler** | Detects headers, types, sample values, currency hints, suggested mappings. |
 | **MappingTemplate** | Reusable source→canonical column mapping. Saved per customer/channel. One-click re-import once mapped. |
 | **TransformationRules** | Currency conversion, tax inclusion/exclusion, units, pack-size normalisation, discounts. |
 | **ValidationEvent** | Row-level errors, warnings, and blocking issues. |
-| **CanonicalCommit** | Upserts clean rows into Catalog; emits `import.committed`. |
+| **CanonicalCommit** | Upserts clean single-org rows into Catalog; emits `import.committed`. |
 | **ExportPacks** | Per-channel CSV / XLSX builders for outbound files. |
 
 ## What this does not own
@@ -62,7 +62,7 @@ Eight internal components:
 
 ### Events emitted
 
-- `import.committed` — payload: batch_id, file_url, row_counts {ok, warned, excluded}, template_id, actor_id, at.
+- `import.committed` — payload: org_id, batch_id, file_url, row_counts {ok, warned, excluded}, template_id, actor_id, at.
 
 ### Events consumed
 
@@ -72,11 +72,11 @@ None.
 
 ## Database (schema: `import_export`)
 
-- `import_batch` — id, owner_id, source_file_url, source_filename, status (`uploaded` | `profiled` | `mapped` | `validated` | `committed` | `discarded`), customer_id, channel_id, template_id (nullable), created_at, committed_at.
-- `import_row` — id, batch_id, row_number, raw_data JSONB, mapped_data JSONB (nullable until mapping), row_status (`pending` | `mapped` | `validated` | `committed` | `excluded` | `errored`), excluded_reason (nullable).
-- `mapping_template` — id, customer_id, channel_id, name, mappings JSONB (column → canonical_field), transformation_rules JSONB, created_at, updated_at, created_by.
-- `validation_event` — id, batch_id, row_id (nullable for batch-level), severity (`error` | `warning` | `info`), code, message, field, created_at.
-- `column_profile` — id, batch_id, column_name, detected_type, sample_values JSONB, suggested_mapping, confidence.
+- `import_batch` — id, org_id, owner_id, source_file_url, source_filename, status (`uploaded` | `profiled` | `mapped` | `validated` | `committed` | `discarded`), customer_id, channel_id, template_id (nullable), created_at, committed_at.
+- `import_row` — id, org_id, batch_id, row_number, raw_data JSONB, mapped_data JSONB (nullable until mapping), row_status (`pending` | `mapped` | `validated` | `committed` | `excluded` | `errored`), excluded_reason (nullable).
+- `mapping_template` — id, org_id, customer_id, channel_id, name, mappings JSONB (column → canonical_field), transformation_rules JSONB, created_at, updated_at, created_by.
+- `validation_event` — id, org_id, batch_id, row_id (nullable for batch-level), severity (`error` | `warning` | `info`), code, message, field, created_at.
+- `column_profile` — id, org_id, batch_id, column_name, detected_type, sample_values JSONB, suggested_mapping, confidence.
 
 Postgres role `import_export_svc` has access to schema `import_export` only. **No GRANTs to `catalog` tables.** Writes to Catalog happen via the gRPC `UpsertCanonical` call, authenticated as the import service identity.
 
@@ -93,18 +93,20 @@ Postgres role `import_export_svc` has access to schema `import_export` only. **N
 ## Critical rules
 
 1. **`raw_data` is preserved forever.** Even after successful commit. The original file in MinIO + the parsed `raw_data` JSONB are the forensic record. Re-mappable if the customer's source format changes.
-2. **`mapped_data` is workspace.** Throwaway after successful commit (retained ~30 days for review then garbage-collected via a scheduled job).
-3. **Canonical writes are restricted to this service.** Catalog accepts `UpsertCanonical` only from `import_export_svc` and `ApplyPriceChanges` only from `proposal_svc`. Other identities are rejected at the Catalog handler level.
-4. **Validation runs in two passes.** First against `TransformationRules` (does this value convert?), then against canonical schema constraints (does this fit the target column? is the referenced SKU known?).
-5. **Mapping templates are reusable.** Once a customer's POS or ERP format is mapped, every future upload from that source applies the saved template automatically. The user reviews the validation report and commits.
-6. **Validation is non-destructive.** A row with errors is not deleted — it's marked `errored` and presented to the user for fix or exclude.
-7. **Commit is atomic per row.** A batch with 1,230 rows where 5 fail validation commits the 1,225 clean rows + warned-but-acceptable rows; the 5 stay in `errored` state and the user can fix-and-recommit them.
+2. **Every import query is scoped by `org_id`.** A batch cannot apply a mapping template or commit rows from another org.
+3. **`mapped_data` is workspace.** Throwaway after successful commit (retained ~30 days for review then garbage-collected via a scheduled job).
+4. **Canonical writes are restricted to this service.** Catalog accepts `UpsertCanonical` only from `import_export_svc` and `ApplyPriceChanges` only from `proposal_svc`. Other identities are rejected at the Catalog handler level.
+5. **Canonical commits are single-org.** Mixed-org commit payloads are rejected before Catalog is called.
+6. **Validation runs in two passes.** First against `TransformationRules` (does this value convert?), then against canonical schema constraints (does this fit the target column? is the referenced SKU known?).
+7. **Mapping templates are reusable within an org.** Once a customer's POS or ERP format is mapped, every future upload from that source applies the saved template automatically. The user reviews the validation report and commits.
+8. **Validation is non-destructive.** A row with errors is not deleted — it's marked `errored` and presented to the user for fix or exclude.
+9. **Commit is atomic per row.** A batch with 1,230 rows where 5 fail validation commits the 1,225 clean rows + warned-but-acceptable rows; the 5 stay in `errored` state and the user can fix-and-recommit them.
 
 ---
 
 ## Definition of done (MVP)
 
-- [ ] Schema migration applied
+- [ ] Schema migration applied with `org_id` on every customer-owned import/export table
 - [ ] File upload + MinIO storage
 - [ ] Raw row streaming into `import_row.raw_data` (handles CSV and XLSX)
 - [ ] ColumnProfiler implementation with confidence scoring

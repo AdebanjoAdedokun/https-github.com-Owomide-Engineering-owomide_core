@@ -14,7 +14,8 @@ This is the hub. Margin validates for it. Repricing wraps change-sets in it. Gov
 - Approval logic, including separation-of-duties checks.
 - The override request flow (`POST /override-requests`, different-actor enforcement).
 - Comments and the proposal-level activity feed.
-- All five `proposal.*` and `override.*` events on the bus.
+- Org-scoped proposal access and state transitions.
+- All six `proposal.*` and `override.*` events on the bus.
 
 ## What this does not own
 
@@ -37,7 +38,7 @@ This is the hub. Margin validates for it. Repricing wraps change-sets in it. Gov
 - `UpdateDraft(UpdateDraftRequest) → Proposal` — only valid in `draft` state.
 - `SubmitProposal(SubmitRequest) → SubmitResponse` — runs margin validation; transitions to `submitted` or `blocked`. Returns violations on block.
 - `ApproveProposal(ApproveRequest) → Proposal` — different-actor check; transitions to `approved`. Approver role required.
-- `PublishProposal(PublishRequest) → Proposal` — `approved → published`. Triggers catalog price updates.
+- `PublishProposal(PublishRequest) → Proposal` — `approved → published`. This is the only proposal transition that triggers Catalog price updates.
 - `RequestOverride(OverrideRequest) → OverrideRequestResult` — creates override request on a `blocked` proposal.
 - `ApproveOverride(ApproveOverrideRequest) → Proposal` — different actor than override requester.
 
@@ -58,6 +59,7 @@ This is the hub. Margin validates for it. Repricing wraps change-sets in it. Gov
 - `proposal.submitted` — on `draft → submitted`
 - `proposal.blocked` — on `submitted → blocked` (margin violations)
 - `proposal.approved` — on `submitted → approved`
+- `proposal.published` — on `approved → published`
 - `override.requested` — on new override request
 - `override.approved` — on override approval (re-evaluates the blocked proposal)
 
@@ -69,11 +71,11 @@ None. This service is upstream.
 
 ## Database (schema: `proposal`)
 
-- `proposal` — id, state, owner_id, title, created_at, updated_at, change_set_ref (nullable, set if originated from Repricing).
-- `proposal_line` — id, proposal_id, sku_id, channel_id, current_price, proposed_price, reason.
-- `proposal_transition` — id, proposal_id, from_state, to_state, actor_id, at, meta JSONB. Append-only.
-- `proposal_comment` — id, proposal_id, author_id, body, at.
-- `override_request` — id, proposal_id, requester_id, justification, status, requested_at, approved_at (nullable), approver_id (nullable).
+- `proposal` — id, org_id, state, owner_id, title, created_at, updated_at, change_set_ref (nullable, set if originated from Repricing).
+- `proposal_line` — id, org_id, proposal_id, sku_id, channel_id, current_price, proposed_price, reason.
+- `proposal_transition` — id, org_id, proposal_id, from_state, to_state, actor_id, at, meta JSONB. Append-only.
+- `proposal_comment` — id, org_id, proposal_id, author_id, body, at.
+- `override_request` — id, org_id, proposal_id, requester_id, justification, status, requested_at, approved_at (nullable), approver_id (nullable).
 
 Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Catalog via gRPC, not SQL.
 
@@ -90,21 +92,24 @@ Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Ca
 ## Critical rules
 
 1. **State transitions are atomic.** Use a Postgres transaction wrapping the state update and the transition-log insert.
-2. **Approver must differ from owner.** Enforced server-side. Returns 403 if same actor.
-3. **Override approver must differ from override requester.** Same rule, separate check.
-4. **`blocked` returns HTTP 422**, not 400. The submission was syntactically valid; it failed a business rule.
-5. **Never write to Catalog tables directly.** Publishing triggers a Catalog gRPC call to apply price changes.
-6. **Override token does not bypass margin.** It's a recorded exception with a justification; margin still runs, the override evidence is logged.
+2. **Every proposal query is scoped by `org_id`.** The org comes from authenticated request context, never from a user-editable body field.
+3. **Approver must differ from owner.** Enforced server-side. Returns 403 if same actor.
+4. **Approval is not publish.** Approval records authorization and emits `proposal.approved`; Catalog remains unchanged.
+5. **Publish is the only Catalog mutation.** `PublishProposal` requires `approved`, calls Catalog `ApplyPriceChanges`, emits `proposal.published`, then moves the proposal to `published`.
+6. **Override approver must differ from override requester.** Same rule, separate check.
+7. **`blocked` returns HTTP 422**, not 400. The submission was syntactically valid; it failed a business rule.
+8. **Never write to Catalog tables directly.** Publishing triggers a Catalog gRPC call to apply price changes.
+9. **Override token does not bypass margin.** It's a recorded exception with a justification; margin still runs, the override evidence is logged.
 
 ---
 
 ## Definition of done (MVP)
 
-- [ ] Schema migration applied
+- [ ] Schema migration applied with `org_id` on all customer-owned proposal tables
 - [ ] State machine with all transitions covered by unit tests (including illegal transitions)
 - [ ] gRPC server with all nine methods
 - [ ] REST routes wired through the gateway
-- [ ] `proposal.*` and `override.*` events published on transitions
+- [ ] `proposal.*` and `override.*` events published on transitions, including `proposal.published`
 - [ ] Integration test: full happy path (create → submit → approve → publish) against real Postgres + Margin stub
 - [ ] Integration test: blocked path (submit returns 422 with violations)
 - [ ] Integration test: override path (different actor, ends in approval)

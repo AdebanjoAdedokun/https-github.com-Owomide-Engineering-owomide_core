@@ -11,6 +11,7 @@ A change-set is a *draft*, not a proposal. It only becomes a Proposal on submit.
 - Change-set composition: scope queries, line-by-line diffs, preview state.
 - Scheduled rollout workers (delayed-apply queue keyed on `effective_at`).
 - The scope DSL (filter syntax for selecting SKUs by channel, category, customer, tag, etc.).
+- Org-scoped draft state for change-sets and scheduled rollouts.
 
 ## What this does not own
 
@@ -55,15 +56,15 @@ None directly. The proposal-hand-off triggers `proposal.submitted` from Proposal
 
 ### Events consumed
 
-- `proposal.approved` — when a proposal that originated from us is approved, our scheduled rollout worker (if applicable) starts watching the `effective_at`.
+- `proposal.approved` — when a proposal that originated from us is approved, our scheduled rollout worker (if applicable) starts watching the `effective_at` and calls Proposal publish at the scheduled time.
 
 ---
 
 ## Database (schema: `repricing`)
 
-- `change_set` — id, status (`draft` | `submitted` | `discarded`), owner_id, scope JSONB, rule JSONB, created_at, submitted_at (nullable), proposal_id (nullable, set on submit).
-- `change_set_line` — id, change_set_id, sku_id, channel_id, current_price, proposed_price, diff_pct, diff_absolute, currency.
-- `scheduled_rollout` — id, proposal_id, effective_at, status (`pending` | `dispatched` | `failed`), attempts, last_attempted_at.
+- `change_set` — id, org_id, status (`draft` | `submitted` | `discarded`), owner_id, scope JSONB, rule JSONB, created_at, submitted_at (nullable), proposal_id (nullable, set on submit).
+- `change_set_line` — id, org_id, change_set_id, sku_id, channel_id, current_price, proposed_price, diff_pct, diff_absolute, currency.
+- `scheduled_rollout` — id, org_id, proposal_id, effective_at, status (`pending` | `dispatched` | `failed`), attempts, last_attempted_at.
 
 Postgres role `repricing_svc` has access to schema `repricing` only.
 
@@ -80,16 +81,17 @@ Postgres role `repricing_svc` has access to schema `repricing` only.
 ## Critical rules
 
 1. **A change-set is not a proposal.** Drafts are local to Repricing. Only after submit does the data move to Proposal's schema. After submit, the change-set row stays in `submitted` state for traceability (line data lives in Proposal now).
-2. **The diff is computed at preview time, not submit time.** A change-set captures a moment-in-time price comparison. Submitting much later is safe; the diff is informational.
-3. **Scope DSL is versioned.** Store the scope payload as JSONB; never re-execute a saved scope without confirming it still resolves the same SKUs (or warning the user it changed).
-4. **Scheduled rollouts respect approval order.** A proposal scheduled for next Monday but approved Tuesday morning runs immediately on dispatch; one scheduled for next Monday and approved last week waits.
-5. **Never apply prices.** That's Catalog's job, triggered by Proposal's publish.
+2. **Every query is scoped by `org_id`.** Drafts, schedules, and submitted proposal references cannot cross org boundaries.
+3. **The diff is computed at preview time, not submit time.** A change-set captures a moment-in-time price comparison. Submitting much later is safe; the diff is informational.
+4. **Scope DSL is versioned.** Store the scope payload as JSONB; never re-execute a saved scope without confirming it still resolves the same SKUs (or warning the user it changed).
+5. **Scheduled rollouts respect approval order.** A proposal scheduled for next Monday but approved Tuesday morning publishes immediately on dispatch; one scheduled for next Monday and approved last week waits.
+6. **Never apply prices.** That's Catalog's job, triggered by Proposal's publish.
 
 ---
 
 ## Definition of done (MVP)
 
-- [ ] Schema migration applied
+- [ ] Schema migration applied with `org_id` on change-set and schedule tables
 - [ ] Scope DSL parser + validator (pure logic)
 - [ ] gRPC server with all eight methods
 - [ ] REST routes wired through gateway
