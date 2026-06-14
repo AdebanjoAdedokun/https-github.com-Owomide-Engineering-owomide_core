@@ -90,7 +90,7 @@ The skeleton everything sits on. Build this first, ship nothing user-visible, ge
 |---|---|---|
 | F0.1 | Bazel monorepo scaffold | `WORKSPACE.bazel`, root `BUILD.bazel`, `src/` (services + packages), `tools/` (bazel macros, deploy manifests, scripts). Rules for Node + Python; rules for Go pre-registered but unused. |
 | F0.2 | **Minikube + Skaffold dev stack** | k8s manifests for Postgres, Redis, MinIO, and a hello-world service; Skaffold for hot reload; `make dev` brings up the cluster; Kustomize overlays for `local` / `staging` / `prod` |
-| F0.3 | Shared proto package | `src/lib/proto/{events,services}` with the six locked events. Cross-language codegen (Node, Python; Go later). |
+| F0.3 | Shared proto package | `src/lib/proto/{events,services}` with the locked events. Every customer-owned event includes `org_id`. Cross-language codegen (Node, Python; Go later). |
 | F0.4 | Gateway / BFF skeleton | Node, JWT verify, route table, gRPC client factory |
 | F0.5 | **Provider-agnostic bus library** | `src/lib/bus` — uniform `Publisher` / `Subscriber` contract across **three native implementations**: Node.js (`js/`), Python (`py/`), and Go (`go/`). **Phase 0 ships `js/` and `py/`** (covers every MVP service); Go subfolder exists with a README stub for when the first Go service lands. Redis Streams provider in each language; Kafka provider stubbed. Cross-language interop test mandatory. See `src/lib/bus/CLAUDE.md`. |
 | F0.6 | Per-service migration runner | `make migrate svc=<name>`; isolated Postgres roles created from a manifest |
@@ -106,9 +106,9 @@ Without canonical pricing data, nothing else matters. Build Catalog and Import t
 
 | ID | Feature | Notes |
 |---|---|---|
-| F1.1 | Catalog schema | `products`, `skus`, `cost_records`, `price_records`, `channels`, `locations` |
+| F1.1 | Catalog schema | `products`, `skus`, `cost_records`, `price_records`, `channels`, `locations`; every customer-owned table includes `org_id`; cost/price records include `effective_at`, `effective_until`, `recorded_at`, and `superseded_at` |
 | F1.2 | Catalog read APIs | gRPC: `GetProduct`, `GetSku`, `ListSkus`, `BatchGetCosts` |
-| F1.3 | Import schema | `import_batch`, `import_row` (raw_data + mapped_data JSONB), `validation_event`, `mapping_template` |
+| F1.3 | Import schema | `import_batch`, `import_row` (raw_data + mapped_data JSONB), `validation_event`, `mapping_template`; import batches and templates are scoped by `org_id` |
 | F1.4 | File upload endpoint | Gateway → Import; stores original to MinIO; creates ImportBatch; streams rows into raw_data |
 | F1.5 | ColumnProfiler | Detects headers, types, samples, currency hints; returns suggested mappings |
 | F1.6 | Mapping UI + save template | SPA flow; persisted as `MappingTemplate` keyed on customer/channel |
@@ -124,15 +124,16 @@ The hub everything else attaches to. State machine first; pretty UI later.
 
 | ID | Feature | Notes |
 |---|---|---|
-| F2.1 | Proposal schema | `proposal`, `proposal_line`, `proposal_comment`, `proposal_event` |
+| F2.1 | Proposal schema | `proposal`, `proposal_line`, `proposal_comment`, `proposal_event`; every table carries `org_id` |
 | F2.2 | State machine | `draft → submitted → blocked|approved → published`, with override branch; persisted in `proposal.state` + transition log |
 | F2.3 | CRUD APIs | gRPC: `CreateProposal`, `GetProposal`, `UpdateDraft`, `ListProposals` |
 | F2.4 | Submit endpoint | Validates state precondition; emits `proposal.submitted`; no margin check yet (stub returns "no violations") |
-| F2.5 | Approve endpoint | Role check; emits `proposal.approved`; moves to `published` |
-| F2.6 | Comments + activity feed | `POST /proposals/:id/comments`, append-only |
-| F2.7 | Web UI: list + detail | Minimal — list with status filter, detail with state actions |
+| F2.5 | Approve endpoint | Role check; emits `proposal.approved`; moves to `approved`; does not mutate Catalog |
+| F2.6 | Publish endpoint | Requires `approved`; calls Catalog `ApplyPriceChanges`; emits `proposal.published`; moves to `published` |
+| F2.7 | Comments + activity feed | `POST /proposals/:id/comments`, append-only |
+| F2.8 | Web UI: list + detail | Minimal — list with status filter, detail with state actions |
 
-**Phase 2 exit criteria:** A user can create a proposal, submit it, have it approved by a different user, see comments. Events fire. Governance receives them (logged only — Phase 5 builds the audit UI).
+**Phase 2 exit criteria:** A user can create a proposal, submit it, have it approved by a different user, publish it, and see comments. Events fire, including `proposal.published`. Governance receives them (logged only — Phase 5 builds the audit UI).
 
 ### Phase 3 — Margin (theme 1)
 
@@ -171,8 +172,8 @@ The audit layer. Read-only API; write path is purely the event bus.
 
 | ID | Feature | Notes |
 |---|---|---|
-| F5.1 | Audit log schema | `audit_log` (append-only; event_type, actor, payload JSONB, occurred_at) |
-| F5.2 | Event subscriber | Consumes all six locked events; idempotent on `event_id` |
+| F5.1 | Audit log schema | `audit_log` (append-only; org_id, event_type, actor, payload JSONB, occurred_at) |
+| F5.2 | Event subscriber | Consumes all locked events; idempotent on `event_id`; stores `org_id` for every customer-owned event |
 | F5.3 | Version snapshots | Periodic snapshot of canonical state (Catalog tables) for restore |
 | F5.4 | Restore endpoint | Replays from snapshot + log up to a target timestamp |
 | F5.5 | Web UI: activity feed | Reverse-chronological event list, filterable by entity + actor |
@@ -197,7 +198,7 @@ The nice-to-haves that move the product from "works" to "feels finished".
 
 ### Phase 7 — Hardening (open-ended)
 
-- Multi-tenant isolation
+- Org administration UI and enterprise tenant-management hardening
 - SSO / SAML
 - Customer-facing API
 - Webhooks

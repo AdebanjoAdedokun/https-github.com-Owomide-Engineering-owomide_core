@@ -92,7 +92,10 @@ The Excalidraw canvas (architecture + flows + import boundary) is the visual com
 4. **Override is a state transition, not a flag retry.** Requires a different actor than the proposal owner (separation of duties from day one). Endpoint: `POST /override-requests`.
 5. **Validation is batched.** `Margin.validateBatch(skus[])` only — never per-SKU loops in callers.
 6. **Proposal Service is the sole canonical writer of proposals.** Other services emit events; Proposal mutates state.
-7. **A bulk preview is a draft change-set, not a proposal.** Only wrapped in a Proposal on submit.
+7. **Approval is not publish.** Approval authorizes a proposal; only publish applies price changes to Catalog.
+8. **Every customer-owned record is scoped by `org_id`.** The org comes from authenticated context and is propagated through gRPC metadata and events.
+9. **Cost and price history preserve business time and system knowledge time.** Current price is derived from versioned records, not overwritten in place.
+10. **A bulk preview is a draft change-set, not a proposal.** Only wrapped in a Proposal on submit.
 
 ---
 
@@ -103,11 +106,12 @@ The Excalidraw canvas (architecture + flows + import boundary) is the visual com
 | `proposal.submitted` | Proposal | Governance, Notify |
 | `proposal.blocked` | Proposal | Governance, Notify |
 | `proposal.approved` | Proposal | Governance, Notify |
+| `proposal.published` | Proposal | Governance, Notify |
 | `override.requested` | Proposal | Governance, Notify |
 | `override.approved` | Proposal | Governance, Notify |
 | `import.committed` | Import/Export | Governance, Notify |
 
-Payload schemas live in `src/lib/proto/events/`. Versioning: bump major on breaking field changes; consumers tolerate unknown fields.
+Payload schemas live in `src/lib/proto/events/`. Customer-owned events include `org_id`. Versioning: bump major on breaking field changes; consumers tolerate unknown fields.
 
 ---
 
@@ -149,6 +153,7 @@ make manifests-validate
 - **Python services:** Type hints required; `ruff` for lint, `pyright` for typecheck. Validate inputs at gRPC handlers.
 - **Go services:** when they come — standard `go fmt` / `golangci-lint`; protobuf-first for contracts.
 - **Schema-per-service.** Migrations live in `src/<name>/migrations/`. Each service connects with its own Postgres role.
+- **Tenant boundary.** Customer-owned tables include `org_id`; indexes and uniqueness constraints start with it where applicable.
 - **gRPC for service-to-service.** REST only at the gateway (BFF pattern).
 - **Events:** dotted `noun.verb` names. Payloads are protobuf-encoded (defined in `src/lib/proto/events/`). Versioned; consumers tolerate unknown fields.
 - **Bus access is always through `src/lib/bus`** — never import a provider (Redis client, Kafka client) directly from service code.
@@ -174,11 +179,12 @@ make manifests-validate
 
 ## Glossary
 
-- **Pricing Proposal** — the canonical artifact. Lifecycle: `draft → submitted → blocked|approved → published`. Owned by the Proposal Service.
+- **Pricing Proposal** — the canonical artifact. Lifecycle: `draft → submitted → blocked|approved → published`. Approval authorizes the change; publish applies it to Catalog. Owned by the Proposal Service.
 - **Change-Set** — staged batch of price changes. Owned by Repricing. Wrapped in a Proposal on submit.
 - **Override Request** — separate object granting a one-time exception to a margin floor. Requires different actor approval.
 - **ImportBatch / ImportRow** — staging structures inside Import/Export. Not readable from outside.
 - **Canonical layer** — `products`, `skus`, `cost_records`, `price_records`, `channels`, `locations`. Validated. Typed. Indexed. The system of record.
+- **System knowledge time** — when Owomide recorded or superseded a cost/price value. Used with business-effective time for historical "as of" answers.
 - **Mapping Template** — reusable column-mapping per customer/channel. One-click re-import once saved.
 
 ---

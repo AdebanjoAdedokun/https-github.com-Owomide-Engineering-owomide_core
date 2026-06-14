@@ -39,17 +39,17 @@ The "Language" column is the **starting** language. The bus and gRPC contracts a
 
 ### Service-by-service summary
 
-**Proposal.** Owns the lifecycle of a Pricing Proposal: `draft → submitted → blocked|approved → published`. Receives writes via REST through the gateway; emits the `proposal.*` events; orchestrates the override flow. Calls Margin synchronously during submit (batched validation). Never reads from raw or mapped import data.
+**Proposal.** Owns the lifecycle of a Pricing Proposal: `draft → submitted → blocked|approved → published`. Receives writes via REST through the gateway; emits the `proposal.*` events; orchestrates the override flow. Calls Margin synchronously during submit (batched validation). Never reads from raw or mapped import data. Approval authorizes a change; publish is the only transition that applies price changes to Catalog.
 
 **Margin.** Stateless validation service. Exposes `validateBatch(skus[]) → violations[]`. Loads margin rules from its own schema. Reads cost & price data from Catalog. Returns structured violations (not just booleans) so the Proposal Service can return HTTP 422 with actionable detail.
 
 **Repricing.** Owns change-sets — staged batches of price moves not yet visible to the world. A change-set is built via a scope query (channel, category, customer), previewed (diff vs. current canonical prices), then committed by wrapping in a Proposal. Repricing never publishes prices directly; that path always goes through Proposal.
 
-**Governance.** Event-subscriber-only. Listens on the bus for the six locked events plus catalog mutations; writes an append-only `audit_log` row per event; periodically snapshots canonical state for restore. Exposes only read APIs (timeline, snapshot diff, restore). The fact that no service can call Governance directly is the guarantee that audit cannot be sidestepped.
+**Governance.** Event-subscriber-only. Listens on the bus for the locked events plus catalog mutations; writes an append-only `audit_log` row per event; periodically snapshots canonical state for restore. Exposes only read APIs (timeline, snapshot diff, restore). The fact that no service can call Governance directly is the guarantee that audit cannot be sidestepped.
 
-**Catalog.** The canonical pricing data store. Tables: `products`, `skus`, `cost_records`, `price_records`, `channels`, `locations`. Holds versioned cost snapshots so historical margin math is reproducible. Read-heavy from Margin and Proposal; written by Import/Export's canonical-commit phase and by published Proposals.
+**Catalog.** The canonical pricing data store. Tables: `products`, `skus`, `cost_records`, `price_records`, `channels`, `locations`. Holds tenant-scoped, versioned cost and price records so historical margin math is reproducible. Read-heavy from Margin and Proposal; written by Import/Export's canonical-commit phase and by published Proposals.
 
-**Import/Export.** The bridge from messy outside-world data to canonical truth. See section 5 (Three-layer data boundary) for the deep dive. Holds eight internal components: `ImportBatch`, `ImportRow`, `ColumnProfiler`, `MappingTemplate`, `TransformationRules`, `ValidationEvent`, `CanonicalCommit`, and `ExportPacks`.
+**Import/Export.** The bridge from messy outside-world data to canonical truth. See section 3.4 (Three-layer data boundary) for the deep dive. Holds eight internal components: `ImportBatch`, `ImportRow`, `ColumnProfiler`, `MappingTemplate`, `TransformationRules`, `ValidationEvent`, `CanonicalCommit`, and `ExportPacks`.
 
 **Notify.** Event-subscriber-only, mirror of Governance for user-facing comms. Listens on the bus, fans out emails (SES/Postmark TBD) and in-app banners. Never blocks an upstream flow.
 
@@ -78,11 +78,26 @@ postgres://owomide
   └── notify         (Notify Service)
 ```
 
-### 3.2 Versioned canonical data
+### 3.2 Tenant boundary
 
-`cost_records` and `price_records` in Catalog are append-only with `effective_at` / `effective_until` columns. Past margin calculations are reproducible. Restores from Governance snapshots are deterministic.
+Owomide may launch with one customer organization, but the schema must be multi-tenant-compatible from day one. The tenant boundary is `org_id`.
 
-### 3.3 Three-layer data boundary (Import path)
+Every customer-owned table includes `org_id`, including import batches, mapping templates, products, SKUs, cost records, price records, proposals, proposal lines, margin rules, change-sets, audit rows, and notifications. Service-owned reference tables may omit it only when the data is truly global, such as ISO currency metadata.
+
+All service requests carry the authenticated `org_id` from Gateway to downstream services as gRPC metadata. Handlers must reject any request that tries to read or write across organizations. Database indexes and uniqueness constraints for customer-owned records start with `org_id`.
+
+For MVP, there is no org administration UI, cross-org reporting, or enterprise tenant management. There is still an `org_id` on the data model so isolation is not retrofitted later.
+
+### 3.3 Versioned canonical data
+
+`cost_records` and `price_records` in Catalog are versioned by both business time and system knowledge time:
+
+- `effective_at` / `effective_until` answer: "When was this cost or price valid in the business?"
+- `recorded_at` / `superseded_at` answer: "When did Owomide learn this value, and when was that belief superseded?"
+
+Past margin calculations are reproducible, backdated imports are explainable, and Governance restores are deterministic. "Current price" is a query over versioned records, not a mutable field on a SKU.
+
+### 3.4 Three-layer data boundary (Import path)
 
 Customer pricing data arrives messy — different column names, currencies, units, formats. The boundary keeps the pricing core clean.
 
@@ -112,17 +127,18 @@ The event bus is the second backbone, sitting alongside gRPC. gRPC is used when 
 
 | Event | When | Payload (core fields) |
 |---|---|---|
-| `proposal.submitted` | Proposal moves to `submitted` | proposal_id, change_set_id, actor_id, at |
-| `proposal.blocked` | Margin returned violations on submit | proposal_id, violations[], actor_id, at |
-| `proposal.approved` | Approver clicks approve | proposal_id, approver_id, actor_id, at |
-| `override.requested` | User initiates override for blocked proposal | override_request_id, proposal_id, justification, actor_id, at |
-| `override.approved` | Different actor approves override | override_request_id, approver_id, at |
-| `import.committed` | Canonical commit completes | batch_id, file_url, row_counts {ok, warned, excluded}, template_id, actor_id, at |
+| `proposal.submitted` | Proposal moves to `submitted` | org_id, proposal_id, change_set_id, actor_id, at |
+| `proposal.blocked` | Margin returned violations on submit | org_id, proposal_id, violations[], actor_id, at |
+| `proposal.approved` | Approver clicks approve | org_id, proposal_id, approver_id, actor_id, at |
+| `proposal.published` | Approved proposal applies changes to Catalog | org_id, proposal_id, actor_id, effective_at, at |
+| `override.requested` | User initiates override for blocked proposal | org_id, override_request_id, proposal_id, justification, actor_id, at |
+| `override.approved` | Different actor approves override | org_id, override_request_id, approver_id, at |
+| `import.committed` | Canonical commit completes | org_id, batch_id, file_url, row_counts {ok, warned, excluded}, template_id, actor_id, at |
 
 ### 4.2 Subscribers
 
-- **Governance** — subscribes to all six. Writes audit rows. Snapshots after `proposal.approved` and `import.committed`.
-- **Notify** — subscribes to all six. Fans out emails and in-app notifications based on role + preferences.
+- **Governance** — subscribes to all locked events. Writes audit rows. Snapshots after `proposal.published` and `import.committed`.
+- **Notify** — subscribes to all locked events. Fans out emails and in-app notifications based on role + preferences.
 - Future: search index, analytics warehouse, webhooks for customers.
 
 ### 4.3 Bus: provider-agnostic abstraction
@@ -141,19 +157,20 @@ The abstraction design — what's hidden, what's exposed, and what the migration
 
 The Excalidraw canvas carries each of these as a full sequence diagram. Summarised here in prose.
 
-### 5.1 Flow 1 — Create proposal → margin check → approval → export
+### 5.1 Flow 1 — Create proposal → margin check → approval → publish → export
 
 1. User drafts in SPA → `POST /proposals` → Proposal stores draft.
 2. User submits → Proposal calls `Margin.validateBatch(skus[])`.
-3. If clean → state moves to `submitted`, emit `proposal.submitted`. Approver reviews → `POST /proposals/:id/approve` → state moves to `approved`, emit `proposal.approved`. User triggers export → Import/Export builds per-channel pack.
-4. Governance writes audit at each event. Notify pings the approver and the original author.
+3. If clean → state moves to `submitted`, emit `proposal.submitted`. Approver reviews → `POST /proposals/:id/approve` → state moves to `approved`, emit `proposal.approved`.
+4. A permitted user publishes → `POST /proposals/:id/publish` → Proposal calls Catalog to insert versioned `price_records`, state moves to `published`, emit `proposal.published`.
+5. User triggers export → Import/Export builds per-channel pack. Governance writes audit at each event. Notify pings the approver and the original author.
 
 ### 5.2 Flow 2 — Bulk repricing
 
 1. User defines scope in SPA (filters) → `POST /change-sets/preview` → Repricing computes diff vs. current canonical prices, returns preview.
 2. User adjusts, then submits → Repricing wraps the change-set in a Proposal, transfers to Proposal Service, deletes its own preview state.
 3. Proposal runs the same submit → margin-validate → approve flow as Flow 1.
-4. On approval, Catalog applies the price changes (versioned, with `effective_at`). Scheduled rollouts handled via a delayed apply worker.
+4. On publish, Catalog applies the price changes (versioned, with `effective_at`). Scheduled rollouts publish at the scheduled effective time via a delayed apply worker.
 
 ### 5.3 Flow 3 — Below-cost block + override
 
@@ -161,12 +178,12 @@ The Excalidraw canvas carries each of these as a full sequence diagram. Summaris
 2. Proposal moves to `blocked`, returns HTTP 422 with structured violations, emits `proposal.blocked`.
 3. User initiates override → `POST /override-requests` with justification.
 4. **Different actor** (enforced server-side — same actor returns 403) receives the request and approves → emit `override.approved`.
-5. Proposal re-evaluates with the override token attached; state moves to `approved`.
+5. Proposal re-evaluates with the override token attached; state moves to `approved`. Catalog is unchanged until the proposal is published.
 6. Governance has every step in the audit log; Notify pinged both parties.
 
 ### 5.4 Flow 4 — Import → map → validate → commit
 
-See section 3.3 above. Full sequence on the Excalidraw canvas.
+See section 3.4 above. Full sequence on the Excalidraw canvas.
 
 ---
 
@@ -187,12 +204,14 @@ These are decisions made early and locked. Changing them requires explicit ADR (
 | ADR-009 | gRPC server-to-server, REST only at gateway | Type-safe internal contracts; REST for external clients only |
 | ADR-010 | Proposal is the sole canonical writer of proposals | Centralised state machine; no race conditions on lifecycle |
 | ADR-011 | Kubernetes for orchestration (minikube local, k8s on Hetzner) | Industry-standard tooling, parity between local and prod via Kustomize overlays, ecosystem of controllers and operators we may want later (cert-manager, external-secrets, etc.) |
+| ADR-012 | `org_id` is present on customer-owned data from day one | Avoids retrofitting tenant isolation after customer data exists; enables RLS and per-org analytics later |
+| ADR-013 | Catalog cost and price records keep business time and system knowledge time | Supports backdated imports, reproducible margin math, and "what did we know then?" audits |
 
 ---
 
 ## 7 · Non-goals (MVP)
 
-- **No multi-tenant isolation** — single-tenant initially. Schema-per-tenant possible later but out of scope.
+- **No org administration UI** — MVP may operate a single customer organization, but customer-owned tables still include `org_id`.
 - **No mobile app** — responsive web only.
 - **No real-time collaborative editing** — single-editor at a time, optimistic locking.
 - **No ML / pricing optimization** — Intelligence service ships Phase-6 with FX + rule engine only.
