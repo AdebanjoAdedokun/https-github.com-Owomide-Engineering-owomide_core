@@ -195,3 +195,6 @@ make manifests-validate
 - For features spanning multiple services, draft the contract change in `src/lib/proto/` first, then build producers and consumers in parallel worktrees.
 - When you learn something new about this project that isn't in CLAUDE.md, propose adding it. Conventions evolve; this file is the constitution.
 - Subagent recipes live in `.claude/agents/`. See `BUILD_PLAN.md` for the architect / schema / implementer / tester / reviewer pattern.
+- Use `.claude/agents/data-architect.md` for Catalog, tenant boundary, price history, and analytics-readiness decisions.
+- Use `.claude/agents/schema-reviewer.md` before merging migrations or schema-changing PRs.
+- Use `.claude/agents/import-pipeline.md` for CSV/XLSX ingestion, mapping templates, validation, and canonical commit behavior.

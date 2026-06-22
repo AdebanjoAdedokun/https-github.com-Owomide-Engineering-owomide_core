@@ -48,6 +48,7 @@ owomide_core/
 ├── Makefile                    # Developer commands
 ├── ARCHITECTURE.md             # System spec + ADRs
 ├── BUILD_PLAN.md               # Phased roadmap + agentic workflow
+├── docs/                       # Research and implementation notes
 └── CLAUDE.md                   # Project constitution for Claude Code
 ```
 
@@ -174,4 +175,10 @@ Stubbed targets print a message and exit cleanly. They'll be wired up as Phase 0
 - [ARCHITECTURE.md](ARCHITECTURE.md) — system spec, data architecture, ADRs, sequence flows
 - [BUILD_PLAN.md](BUILD_PLAN.md) — phased roadmap (F0-F7), agentic workflow, Definition of Done
 - [CLAUDE.md](CLAUDE.md) — project constitution, conventions, invariants
+- [docs/data-model.md](docs/data-model.md) — canonical data model assumptions
+- [docs/import-pipeline.md](docs/import-pipeline.md) — raw/staging/canonical import path
+- [docs/price-history.md](docs/price-history.md) — business-time and recorded-time pricing semantics
+- [docs/data-quality-rules.md](docs/data-quality-rules.md) — import validation severities and rules
+- [docs/analytics-strategy.md](docs/analytics-strategy.md) — MVP analytics and future Iceberg/Trino path
+- [docs/research/pricing-platform-research.md](docs/research/pricing-platform-research.md) — source-backed product/data research
 - Per-service docs in `src/<service>/CLAUDE.md`
