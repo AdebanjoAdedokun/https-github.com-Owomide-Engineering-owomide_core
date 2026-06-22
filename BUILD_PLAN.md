@@ -34,6 +34,12 @@ Claude Code supports subagents — focused personas for specific work. Recommend
 - **tester** — writes integration tests against the real stack (testcontainers Postgres, real Redis). Covers happy path + key failure modes.
 - **reviewer** — final pass against the DoD checklist before PR. Reads the diff, runs the tests, flags inconsistencies with CLAUDE.md.
 
+Data-heavy work should also use the specialized repo agents:
+
+- **data-architect** — reviews Catalog, tenant boundary, price history, import-to-canonical contracts, and analytics-readiness decisions.
+- **schema-reviewer** — reviews migrations for tenant isolation, indexes, constraints, rollback safety, and append-only pricing semantics.
+- **import-pipeline** — reviews CSV/XLSX ingestion, mapping templates, validation events, partial-fail behavior, and canonical commit.
+
 A typical feature run: **architect** drafts → human reviews → **schema** writes migration → **implementer** writes service code → **tester** writes integration tests → **reviewer** runs DoD → PR opens.
 
 For small features, one agent can wear all the hats. The point is the *order*, not the role count.
