@@ -34,11 +34,15 @@ Claude Code supports subagents — focused personas for specific work. Recommend
 - **tester** — writes integration tests against the real stack (testcontainers Postgres, real Redis). Covers happy path + key failure modes.
 - **reviewer** — final pass against the DoD checklist before PR. Reads the diff, runs the tests, flags inconsistencies with CLAUDE.md.
 
-Data-heavy work should also use the specialized repo agents:
+Data-heavy and cross-cutting work should also use the specialized repo agents:
 
 - **data-architect** — reviews Catalog, tenant boundary, price history, import-to-canonical contracts, and analytics-readiness decisions.
 - **schema-reviewer** — reviews migrations for tenant isolation, indexes, constraints, rollback safety, and append-only pricing semantics.
 - **import-pipeline** — reviews CSV/XLSX ingestion, mapping templates, validation events, partial-fail behavior, and canonical commit.
+- **event-contract** — reviews event proto changes, bus integration, idempotency, and cross-language wire format.
+- **proposal-reviewer** — reviews state machine transitions, approval logic, bulk repricing, overrides, and scheduled rollouts.
+- **api-contract** — reviews gRPC/REST contract changes, gateway routing, and cross-service dependencies.
+- **security-reviewer** — reviews auth, org_id tenant isolation, DB roles, and data exposure.
 
 A typical feature run: **architect** drafts → human reviews → **schema** writes migration → **implementer** writes service code → **tester** writes integration tests → **reviewer** runs DoD → PR opens.
 
@@ -98,13 +102,13 @@ The skeleton everything sits on. Build this first, ship nothing user-visible, ge
 | F0.2 | **Minikube + Skaffold dev stack** | k8s manifests for Postgres, Redis, MinIO, and a hello-world service; Skaffold for hot reload; `make dev` brings up the cluster; Kustomize overlays for `local` / `staging` / `prod` |
 | F0.3 | Shared proto package | `src/lib/proto/{events,services}` with the locked events. Every customer-owned event includes `org_id`. Cross-language codegen (Node, Python; Go later). |
 | F0.4 | Gateway / BFF skeleton | Node, JWT verify, route table, gRPC client factory |
-| F0.5 | **Provider-agnostic bus library** | `src/lib/bus` — uniform `Publisher` / `Subscriber` contract across **three native implementations**: Node.js (`js/`), Python (`py/`), and Go (`go/`). **Phase 0 ships `js/` and `py/`** (covers every MVP service); Go subfolder exists with a README stub for when the first Go service lands. Redis Streams provider in each language; Kafka provider stubbed. Cross-language interop test mandatory. See `src/lib/bus/CLAUDE.md`. |
+| F0.5 | **Event bus library (Kafka)** | `src/lib/bus` — uniform `Publisher` / `Subscriber` contract across **three native implementations**: Node.js (`js/`), Python (`py/`), and Go (`go/`). Kafka provider from day one in all three languages. Cross-language interop test mandatory. See `src/lib/bus/CLAUDE.md`. |
 | F0.6 | Per-service migration runner | `make migrate svc=<name>`; isolated Postgres roles created from a manifest |
 | F0.7 | CI pipeline | GitHub Actions: `bazel test //...`, lint (TS / Python), container image build per service, **k8s manifest validation** (`kubeval` / `kustomize build`), no deploy yet |
 | F0.8 | Auth scaffolding | JWT issue + verify, single hardcoded user for dev |
 | F0.9 | **Bus smoke test across services** | A test service publishes `test.ping`; another consumes it; integration test asserts end-to-end delivery via `src/lib/bus`. Proves the abstraction works before Phase 1 leans on it. |
 
-**Phase 0 exit criteria:** `make dev` brings up the full stack on minikube. `bazel test //...` passes (on empty services). CI green on `main`. **A test event published via `src/lib/bus` is received by a subscriber in another service** — proves the abstraction works end-to-end before any real feature depends on it.
+**Phase 0 exit criteria:** `make dev` brings up the full stack on minikube (including Kafka). `bazel test //...` passes (on empty services). CI green on `main`. **A test event published via `src/lib/bus` is received by a subscriber in another service** — proves the abstraction works end-to-end before any real feature depends on it.
 
 ### Phase 1 — Catalog + Import end-to-end
 
@@ -124,12 +128,13 @@ Without canonical pricing data, nothing else matters. Build Catalog and Import t
 
 **Phase 1 exit criteria:** Upload a real customer CSV → see profile → apply mapping → see validation report → commit → query Catalog and see canonical rows. `import.committed` lands on the bus. Restart-safe.
 
-### Phase 2 — Proposal core
+### Phase 2 — Proposal core (includes bulk repricing)
 
-The hub everything else attaches to. State machine first; pretty UI later.
+The hub everything else attaches to. State machine first; pretty UI later. Repricing (scope builder, change-sets, preview, scheduled rollouts) lives inside Proposal as a module — not a separate service.
 
 | ID | Feature | Notes |
 |---|---|---|
+| F2.0 | **Seed fixtures** | Realistic test data (~1k SKUs across 3 channels, sample orgs, users) for integration tests + demos. Prerequisite for all Proposal work since Proposal reads from Catalog. |
 | F2.1 | Proposal schema | `proposal`, `proposal_line`, `proposal_comment`, `proposal_event`; every table carries `org_id` |
 | F2.2 | State machine | `draft → submitted → blocked|approved → published`, with override branch; persisted in `proposal.state` + transition log |
 | F2.3 | CRUD APIs | gRPC: `CreateProposal`, `GetProposal`, `UpdateDraft`, `ListProposals` |
@@ -157,13 +162,13 @@ Now Proposal grows teeth. Below-cost prevents bad submissions; override is the e
 
 **Phase 3 exit criteria:** Submitting a below-cost proposal blocks it. Requesting an override and having a different user approve it lets the proposal proceed. All steps appear in Governance's audit table.
 
-### Phase 4 — Repricing (theme 2)
+### Phase 4 — Bulk Repricing (theme 2, inside Proposal service)
 
-Bulk operations. The key trick: preview is a draft change-set, not a proposal.
+Bulk operations. The key trick: preview is a draft change-set, not a proposal. All code lives in `src/proposal/` — Repricing is a module, not a service.
 
 | ID | Feature | Notes |
 |---|---|---|
-| F4.1 | Change-set schema | `change_set`, `change_set_line` (sku, old_price, new_price, reason) |
+| F4.1 | Change-set schema | `change_set`, `change_set_line` (sku, old_price, new_price, reason) — tables in `proposal` schema |
 | F4.2 | Scope builder | gRPC: query Catalog with filters (channel, category, customer, tag) → returns SKU list |
 | F4.3 | Preview endpoint | Given a scope + price rule, compute diff vs. current canonical prices; persist as draft change-set |
 | F4.4 | Commit endpoint | Wraps change-set in a new Proposal (transfers ownership), deletes draft state |
@@ -193,10 +198,10 @@ The nice-to-haves that move the product from "works" to "feels finished".
 
 | ID | Feature | Notes |
 |---|---|---|
-| F6.1 | Notify service | Email (Postmark) + in-app banner; subscriber on all events |
+| F6.1 | Notify service | Email (Zoho ZeptoMail) + in-app banner; subscriber on all events |
 | F6.2 | Export packs per channel | CSV / XLSX builders, signed S3 URLs |
-| F6.3 | Intelligence: FX calculator | Python gRPC; called by Import TransformationRules |
-| F6.4 | Intelligence: margin rule engine | Python gRPC; offloads complex rule evaluation from Margin |
+| F6.3 | Data Pipeline intelligence: FX calculator | Python gRPC; called by Data Pipeline TransformationRules (lives in `src/data-pipeline/intelligence/`) |
+| F6.4 | Data Pipeline intelligence: margin rule engine | Python gRPC; offloads complex rule evaluation from Margin (lives in `src/data-pipeline/intelligence/`) |
 | F6.5 | UI polish | Loading states, error states, empty states, keyboard shortcuts |
 | F6.6 | Performance | Catalog query caching, batched gRPC calls, Postgres index review |
 
@@ -219,7 +224,7 @@ Not on the MVP critical path; gated on customer signal.
 - **F0.* must complete first.** Nothing else builds without it.
 - **F1.* (Catalog + Import) is the next gate.** Margin, Proposal, and Repricing all read from Catalog.
 - **F2.* (Proposal core) before any theme.** The themes attach to Proposal.
-- **F3, F4, F5 can run partially in parallel.** Margin (F3) is the most coupled to Proposal so do it first; Repricing (F4) and Governance (F5) can interleave.
+- **F3, F4, F5 can run partially in parallel.** Margin (F3) is the most coupled to Proposal so do it first; Bulk Repricing (F4, inside Proposal) and Governance (F5) can interleave.
 - **F6 always last.** Polish on a working system, not a half-built one.
 
 ---

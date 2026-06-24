@@ -28,16 +28,13 @@ owomide/
 │   └── commands/              ← repeatable slash commands
 │
 ├── src/                       ← EVERYTHING RUNTIME — services + shared libraries
-│   ├── proposal/              ← Proposal service (Node.js)
+│   ├── proposal/              ← Proposal + bulk repricing service (Node.js)
 │   ├── margin/                ← Margin service (Go)
-│   ├── repricing/             ← Repricing service (Node.js)
 │   ├── governance/            ← Governance service (Node.js)
 │   ├── catalog/               ← Catalog service (Node.js)
-│   ├── import-export/         ← Import/Export service (Python)
-│   ├── notify/                ← Notify service (Node.js, Phase 6)
-│   ├── intelligence/          ← Intelligence service (Python, Phase 6)
+│   ├── data-pipeline/         ← Data Pipeline service — ingestion + intelligence (Python)
 │   ├── gateway/               ← Gateway / BFF (Node.js)
-│   ├── web/                   ← React SPA
+│   ├── notify/                ← Notify service (Node.js)
 │   └── lib/                   ← SHARED PACKAGES — imported by services
 │       ├── bus/               ← Provider-agnostic event bus
 │       │   ├── CLAUDE.md      ←   single contract doc for all three impls
@@ -74,12 +71,12 @@ The Excalidraw canvas (architecture + flows + import boundary) is the visual com
 ## Stack
 
 - **Frontend:** React + Vite SPA (TypeScript)
-- **Backend:** **Node.js (TypeScript) primary; Python where math-heavy or library-driven** (FX, rule engines). **Go is welcome for services that earn it** (high-fanout consumers, hot validation paths). Pick the language that fits the problem; default to Node.
-- **Build:** Bazel (`bazel build //...`, `bazel test //...`) — wraps Node, Python, and (later) Go in the same graph.
-- **DB:** PostgreSQL — single instance, **schema-per-service**
+- **Backend:** **Node.js (TypeScript) primary; Python for data-heavy services** (Data Pipeline). **Go for hot paths** (Margin). Pick the language that fits the problem; default to Node.
+- **Build:** Bazel (`bazel build //...`, `bazel test //...`) — wraps Node, Python, and Go in the same graph.
+- **DB:** PostgreSQL via **Supabase** — **schema-per-service**
 - **Object store:** MinIO (S3-compatible) for raw import files
 - **Cache:** Redis
-- **Event bus:** **Provider-agnostic abstraction** in `src/lib/bus` with **three native implementations** — Node.js (`js/`), Python (`py/`), Go (`go/`). Each service uses the one matching its language; all three share the same wire format and contract. Redis Streams provider at MVP; **Kafka provider added at scale** without touching application code. See `src/lib/bus/CLAUDE.md`.
+- **Event bus:** **Kafka from day one** via `src/lib/bus` with **three native implementations** — Node.js (`js/`), Python (`py/`), Go (`go/`). Each service uses the one matching its language; all three share the same wire format and contract. See `src/lib/bus/CLAUDE.md`.
 - **Orchestration:** **Kubernetes** — minikube locally, self-managed k8s (k3s or kubeadm) on Hetzner Cloud.
 
 ---
@@ -109,7 +106,7 @@ The Excalidraw canvas (architecture + flows + import boundary) is the visual com
 | `proposal.published` | Proposal | Governance, Notify |
 | `override.requested` | Proposal | Governance, Notify |
 | `override.approved` | Proposal | Governance, Notify |
-| `import.committed` | Import/Export | Governance, Notify |
+| `import.committed` | Data Pipeline | Governance, Notify |
 
 Payload schemas live in `src/lib/proto/events/`. Customer-owned events include `org_id`. Versioning: bump major on breaking field changes; consumers tolerate unknown fields.
 
@@ -151,7 +148,7 @@ make manifests-validate
 
 - **Node services:** TypeScript strict mode. No `any`. Validate inputs at boundaries with Zod.
 - **Python services:** Type hints required; `ruff` for lint, `pyright` for typecheck. Validate inputs at gRPC handlers.
-- **Go services:** when they come — standard `go fmt` / `golangci-lint`; protobuf-first for contracts.
+- **Go services:** standard `go fmt` / `golangci-lint`; protobuf-first for contracts.
 - **Schema-per-service.** Migrations live in `src/<name>/migrations/`. Each service connects with its own Postgres role.
 - **Tenant boundary.** Customer-owned tables include `org_id`; indexes and uniqueness constraints start with it where applicable.
 - **gRPC for service-to-service.** REST only at the gateway (BFF pattern).
@@ -160,7 +157,7 @@ make manifests-validate
 - **Branches:** `agent/<service>-<feature-id>` e.g. `agent/margin-F3.2`.
 - **PRs:** title references the `BUILD_PLAN.md` feature ID; description lists Definition-of-Done checkboxes.
 - **Commits:** conventional commits (`feat:`, `fix:`, `chore:`, etc.).
-- **Tests:** integration tests run against real Postgres + real Redis (via testcontainers, parity with the cluster). Bus tests use the Redis Streams provider in CI; an optional Kafka job validates Kafka provider once it exists.
+- **Tests:** integration tests run against real Postgres + real Kafka (via testcontainers, parity with the cluster).
 - **k8s manifests:** Kustomize, layered `base/` + overlays (`local`, `staging`, `prod`). Manifests live in `infra/k8s/`.
 
 ---
@@ -169,20 +166,20 @@ make manifests-validate
 
 - Need to read pricing data → **Catalog**
 - Need to validate prices against margin floors → **Margin** (batched)
-- Building a change-set of multiple price moves → **Repricing** (preview-first)
+- Building a change-set of multiple price moves → **Proposal** (bulk repricing — preview-first)
 - Anything that should be auditable → **emit an event**, do not call Governance
-- File upload → **Import/Export** → canonical commit → done
+- File upload → **Data Pipeline** → canonical commit → done
 - Sending email or in-app notification → emit an event, **Notify** subscribes
-- FX, currency conversion, ML-flavored math → **Intelligence** (Python via gRPC)
+- FX, currency conversion, ML-flavored math → **Data Pipeline** (intelligence sub-package, Python via gRPC)
 
 ---
 
 ## Glossary
 
 - **Pricing Proposal** — the canonical artifact. Lifecycle: `draft → submitted → blocked|approved → published`. Approval authorizes the change; publish applies it to Catalog. Owned by the Proposal Service.
-- **Change-Set** — staged batch of price changes. Owned by Repricing. Wrapped in a Proposal on submit.
+- **Change-Set** — staged batch of price changes. Owned by Proposal (bulk repricing module). Wrapped in a Proposal on submit.
 - **Override Request** — separate object granting a one-time exception to a margin floor. Requires different actor approval.
-- **ImportBatch / ImportRow** — staging structures inside Import/Export. Not readable from outside.
+- **ImportBatch / ImportRow** — staging structures inside Data Pipeline. Not readable from outside.
 - **Canonical layer** — `products`, `skus`, `cost_records`, `price_records`, `channels`, `locations`. Validated. Typed. Indexed. The system of record.
 - **System knowledge time** — when Owomide recorded or superseded a cost/price value. Used with business-effective time for historical "as of" answers.
 - **Mapping Template** — reusable column-mapping per customer/channel. One-click re-import once saved.

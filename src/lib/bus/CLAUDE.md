@@ -2,9 +2,9 @@
 
 The provider-agnostic event bus library. **Three native implementations — Node.js, Python, Go — under one shared contract and one wire format.**
 
-This package is the abstraction between application code and whatever transport carries events today (Redis Streams) or tomorrow (Kafka). No service ever imports a provider client directly. Services import their language's bus binding, get a `Publisher` and `Subscriber`, and don't know — and don't care — what's underneath.
+This package is the abstraction between application code and the event transport (Kafka). No service ever imports a Kafka client directly. Services import their language's bus binding, get a `Publisher` and `Subscriber`, and don't know — and don't care — what's underneath.
 
-That portability is the entire point. We run lean on Redis Streams for MVP. We switch to Kafka the day the numbers say we have to. We let each service pick the language that fits its problem. **None of those moves requires changing event schemas, wire format, or any consumer's idempotency logic.**
+**Kafka is the production and development bus from day one.** The abstraction still has value: it isolates services from Kafka client specifics, standardizes the wire format, and keeps the door open for testing with lighter transports if needed. But the primary provider is Kafka — no Redis Streams migration path.
 
 ---
 
@@ -20,8 +20,7 @@ src/lib/bus/
 │   │   ├── envelope.ts         (wire serialization)
 │   │   ├── consume-idempotent.ts
 │   │   ├── providers/
-│   │   │   ├── redis-streams.ts
-│   │   │   └── kafka.ts        (stub)
+│   │   │   └── kafka.ts
 │   │   └── tests/
 │   ├── package.json
 │   └── BUILD.bazel
@@ -31,8 +30,7 @@ src/lib/bus/
 │   │   ├── envelope.py
 │   │   ├── consume_idempotent.py
 │   │   ├── providers/
-│   │   │   ├── redis_streams.py
-│   │   │   └── kafka.py        (stub)
+│   │   │   └── kafka.py
 │   │   └── tests/
 │   ├── pyproject.toml
 │   └── BUILD.bazel
@@ -42,8 +40,7 @@ src/lib/bus/
     │   ├── envelope.go
     │   ├── consume_idempotent.go
     │   ├── providers/
-    │   │   ├── redisstreams.go
-    │   │   └── kafka.go        (stub)
+    │   │   └── kafka.go
     │   └── *_test.go
     ├── go.mod
     └── BUILD.bazel
@@ -70,7 +67,7 @@ The envelope every event carries:
 | `id` | string (ULID / UUIDv7) | yes | Idempotency key — consumers dedupe by this |
 | `type` | string | yes | Dotted name, e.g. `proposal.submitted` |
 | `occurred_at` | ISO-8601 string (UTC) | yes | When the event happened |
-| `partition_key` | string | recommended | Aggregate id (e.g. `proposal_id`). Kafka uses this for ordering; Redis Streams currently ignores it but having it set keeps us forward-compatible. |
+| `partition_key` | string | recommended | Aggregate id (e.g. `proposal_id`). Kafka uses this for partition-level ordering. |
 | `payload` | protobuf-encoded bytes | yes | Schema lives in `src/lib/proto/events/` |
 | `metadata.trace_id` | string | optional | OpenTelemetry trace context |
 | `metadata.span_id` | string | optional | OpenTelemetry span |
@@ -106,12 +103,10 @@ Factory. Returns a `{Publisher, Subscriber}` pair. The `config` chooses the prov
 
 ```yaml
 bus:
-  provider: redis-streams       # or "kafka" later
-  redis:
-    url: redis://localhost:6379
-  # kafka:
-  #   brokers: [...]
-  #   client_id: ...
+  provider: kafka
+  kafka:
+    brokers: ["localhost:9092"]
+    client_id: proposal-svc
 ```
 
 ---
@@ -123,7 +118,7 @@ bus:
 ```ts
 import { createBus, Event } from '@owomide/bus';
 
-const { publisher, subscriber } = createBus({ provider: 'redis-streams', redis: { url } });
+const { publisher, subscriber } = createBus({ provider: 'kafka', kafka: { brokers: ['localhost:9092'], clientId: 'proposal-svc' } });
 
 await publisher.publish('proposal.submitted', {
   id: ulid(),
@@ -145,7 +140,7 @@ await subscriber.subscribe(
 from owomide_bus import create_bus, Event
 from ulid import ULID
 
-publisher, subscriber = create_bus(config={"provider": "redis-streams", "redis": {"url": url}})
+publisher, subscriber = create_bus(config={"provider": "kafka", "kafka": {"brokers": ["localhost:9092"], "client_id": "data-pipeline-svc"}})
 
 await publisher.publish("proposal.submitted", Event(
     id=str(ULID()),
@@ -166,7 +161,7 @@ await subscriber.subscribe(SubscribeOptions(topic="proposal.submitted", group="g
 ```go
 import "github.com/owomide/bus/pkg/bus"
 
-pub, sub, err := bus.New(bus.Config{Provider: "redis-streams", Redis: bus.RedisConfig{URL: url}})
+pub, sub, err := bus.New(bus.Config{Provider: "kafka", Kafka: bus.KafkaConfig{Brokers: []string{"localhost:9092"}, ClientID: "margin-svc"}})
 if err != nil { ... }
 
 err = pub.Publish(ctx, "proposal.submitted", &bus.Event{
@@ -232,7 +227,7 @@ Across all three languages, the bus library hides:
 
 - **At-least-once delivery** — Both providers support it. Consumers MUST be idempotent.
 - **Consumer groups** — N consumers in one group split partitions/streams; N consumers in different groups each see every event.
-- **Ordering per `partition_key`** — Kafka guarantees this per partition. Redis Streams currently has one stream per topic, ordered globally — strictly stronger than per-partition. Application code can rely on "events with the same `partition_key` arrive in order" in both worlds.
+- **Ordering per `partition_key`** — Kafka guarantees ordering within a partition. Events with the same `partition_key` arrive in order.
 - **Replay** — From beginning / timestamp / latest. Both translate cleanly.
 - **DLQ access** — Read failed events from `{topic}.dlq`.
 
@@ -240,10 +235,10 @@ Across all three languages, the bus library hides:
 
 Doesn't translate cleanly, so it's provider-specific config — not API:
 
-- **Exactly-once semantics** — Kafka supports it (transactions); Redis Streams does not. The abstraction is at-least-once; that's the floor.
-- **Cross-partition transactions** — Kafka-only. Don't design features that require this until Kafka is live.
+- **Exactly-once semantics** — Kafka supports it (transactions) but the abstraction targets at-least-once; that's the floor. Consumers must be idempotent.
+- **Cross-partition transactions** — Kafka supports them but the abstraction does not expose them. Don't design features that require this.
 - **Topic configuration (partition count, retention, MAXLEN)** — Lives in deployment manifests (`infra/k8s/`), not application code.
-- **Provider-specific tooling** — `kafka-console-consumer`, `redis-cli XRANGE`, etc. Operators use these; application code doesn't.
+- **Provider-specific tooling** — `kafka-console-consumer`, `kafka-topics`, etc. Operators use these; application code doesn't.
 
 ---
 
@@ -257,7 +252,7 @@ These apply identically to all three implementations.
 
 3. **Payloads are protobuf, not freeform JSON.** Schemas live in `src/lib/proto/events/`. Adding fields is non-breaking; removing them is breaking (bump major, namespace under `v2/`).
 
-4. **Never import a provider directly.** No `import { Redis } from 'ioredis'` or `import redis` outside `src/lib/bus/<lang>/providers/`. There's a lint rule in each language enforcing this; CI fails on violation.
+4. **Never import Kafka clients directly.** No `import { Kafka } from 'kafkajs'` or `from aiokafka import` outside `src/lib/bus/<lang>/providers/`. There's a lint rule in each language enforcing this; CI fails on violation.
 
 5. **DLQ is monitored, not ignored.** `{topic}.dlq` is checked daily. Growing DLQ = P1.
 
@@ -267,33 +262,16 @@ These apply identically to all three implementations.
 
 ---
 
-## Providers
+## Provider
 
-### `redis-streams` (MVP, all three languages)
-
-- Mechanics: `XADD` for publish, `XREADGROUP` + `XACK` for consume, `XCLAIM` for stuck-message retry, `XADD {topic}.dlq` for dead-lettering.
-- Stream key per topic: `bus:proposal.submitted`.
-- Consumer group key: `<topic>:<group>`, e.g. `bus:proposal.submitted:governance.audit`.
-- `MAXLEN ~ 1000000` on every stream to bound memory.
-- Clients: `ioredis` (js), `redis-py` (py), `go-redis` (go).
-
-### `kafka` (added at scale, all three languages)
+### `kafka` (production + development)
 
 - Mechanics: producer/consumer per language's client; one Kafka topic per bus topic; partition count from manifest.
 - Consumer groups map 1:1.
 - Offsets stored in `__consumer_offsets` (Kafka-managed).
 - DLQ topic: `{topic}.dlq`.
 - Clients: `kafkajs` (js), `aiokafka` (py), `confluent-kafka-go` or `franz-go` (go).
-
-The migration playbook (used the day Kafka is added):
-
-1. Deploy Kafka alongside Redis. Both run.
-2. Change one low-stakes service's bus config to `kafka` (e.g. Notify).
-3. **Bridge worker** in `src/lib/bus/<any-lang>/bridge/` subscribes to every Redis topic and republishes to the equivalent Kafka topic. This means Kafka subscribers see Redis-published events and vice versa during cutover.
-4. Move services one at a time. Validate after each.
-5. When all services are on Kafka, decommission the bridge and the Redis Streams provider config.
-
-The bridge is throwaway code — written for the migration, deleted after.
+- Local dev: single-node Kafka via Docker (Bitnami image) in minikube.
 
 ---
 
@@ -305,45 +283,34 @@ The bridge is throwaway code — written for the migration, deleted after.
 | Event schemas (protos in `src/lib/proto/`) | **No** |
 | Consumer idempotency logic | **No** |
 | `partition_key` usage | **No** (set from day one) |
-| Bus config in deployment manifest | **Yes** (`provider: redis-streams` → `provider: kafka`) |
-| Operational runbooks (DLQ inspection, replay) | **Yes** (different CLI tools) |
-| Capacity / partition planning | **Yes** (Kafka requires explicit partition count per topic) |
-| Topic creation | **Yes** (Kafka topics managed via manifests; Redis streams auto-create on first publish) |
-
-Application code stays still; operational practices change. We accept the operational change as the cost of the throughput gain.
+| Bus config in deployment manifest | Provider-specific (brokers, client_id) |
+| Operational runbooks (DLQ inspection, replay) | Kafka CLI tools (`kafka-console-consumer`, etc.) |
+| Capacity / partition planning | Kafka requires explicit partition count per topic |
+| Topic creation | Managed via infra manifests |
 
 ---
 
 ## Definition of done
 
-### F0.5 — JS + Python (Phase 0)
+### F0.5 — JS + Python + Go (Phase 0)
 
 - [ ] `js/src/index.ts` exports `createBus`, `Publisher`, `Subscriber`, `Event`, `Handler`, `SubscribeOptions`
-- [ ] `js/src/providers/redis-streams.ts` — full implementation
-- [ ] `js/src/providers/kafka.ts` — stub that throws on `createBus({provider: 'kafka'})`
+- [ ] `js/src/providers/kafka.ts` — full Kafka implementation
 - [ ] `js/src/consume-idempotent.ts` — Postgres-backed dedup helper
 - [ ] `py/owomide_bus/__init__.py` — full parity with JS public API
-- [ ] `py/owomide_bus/providers/redis_streams.py` — full implementation
-- [ ] `py/owomide_bus/providers/kafka.py` — stub
+- [ ] `py/owomide_bus/providers/kafka.py` — full Kafka implementation
 - [ ] `py/owomide_bus/consume_idempotent.py` — Postgres-backed dedup
-- [ ] Lint rule enforcing no direct provider-client import outside `providers/` (ESLint for JS, custom ruff rule or grep-based for Py)
+- [ ] `go/pkg/bus/bus.go` exports `New`, `Publisher`, `Subscriber`, `Event`, `Handler`, `SubscribeOptions`
+- [ ] `go/pkg/bus/providers/kafka.go` — full Kafka implementation
+- [ ] `go/pkg/bus/consume_idempotent.go` — Postgres-backed dedup
+- [ ] Lint rule enforcing no direct Kafka client import outside `providers/` (ESLint for JS, ruff for Py, golangci-lint for Go)
 - [ ] Integration test: JS publish → JS subscribe with replay-from-beginning
 - [ ] Integration test: Py publish → Py subscribe with replay-from-beginning
-- [ ] **Cross-language interop test:** JS publishes, Py subscribes (same event id round-trips). Py publishes, JS subscribes.
+- [ ] Integration test: Go publish → Go subscribe with replay-from-beginning
+- [ ] **Cross-language interop test:** JS publishes, Py subscribes (same event id round-trips). Py publishes, Go subscribes. All combos work.
 - [ ] Handler throws → retry → eventually DLQ after `max_retries`
 - [ ] Duplicate delivery → `consumeIdempotent` suppresses the duplicate
-- [ ] `go/` directory exists with `README.md` documenting "implementation deferred until first Go service"
 - [ ] `make lint` clean, `bazel test //src/lib/bus/...` green
-
-### When the first Go service ships (post-MVP)
-
-- [ ] `go/pkg/bus/bus.go` exports `New`, `Publisher`, `Subscriber`, `Event`, `Handler`, `SubscribeOptions` — same shape as JS/Py
-- [ ] `go/pkg/bus/providers/redisstreams.go` — full implementation
-- [ ] `go/pkg/bus/providers/kafka.go` — stub
-- [ ] `go/pkg/bus/consume_idempotent.go`
-- [ ] golangci-lint rule for provider isolation
-- [ ] Integration tests in Go
-- [ ] Three-way interop test: any-to-any across JS, Py, Go round-trips correctly
 
 ---
 

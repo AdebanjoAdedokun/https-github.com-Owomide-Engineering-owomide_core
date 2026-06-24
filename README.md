@@ -13,12 +13,12 @@ The canonical object is the **Pricing Proposal**. Three product themes orbit it:
 | Layer | Technology |
 |-------|-----------|
 | Frontend | React + Vite (TypeScript) |
-| Backend | Node.js (TypeScript) primary; Python for math-heavy services; Go welcome later |
+| Backend | Node.js (TypeScript) primary; Python for data-heavy services; Go for hot paths (Margin) |
 | Build | Bazel 7 (bzlmod) |
-| Database | PostgreSQL — single instance, schema-per-service |
+| Database | PostgreSQL via Supabase — schema-per-service |
 | Cache | Redis |
 | Object store | MinIO (S3-compatible) |
-| Event bus | Provider-agnostic abstraction (`src/lib/bus`); Redis Streams at MVP, Kafka at scale |
+| Event bus | Kafka from day one (`src/lib/bus` abstraction) |
 | Orchestration | Kubernetes — minikube locally, k3s/kubeadm on Hetzner Cloud |
 | IPC | gRPC service-to-service; REST only at the gateway |
 
@@ -28,15 +28,13 @@ The canonical object is the **Pricing Proposal**. Three product themes orbit it:
 owomide_core/
 ├── src/                        # All runtime code
 │   ├── catalog/                # Canonical pricing data (Node.js)
-│   ├── proposal/               # Pricing Proposal state machine (Node.js)
+│   ├── proposal/               # Pricing Proposal + bulk repricing (Node.js)
 │   ├── margin/                 # Margin rules + validation (Go)
-│   ├── repricing/              # Bulk change-sets (Node.js)
 │   ├── governance/             # Audit log, snapshots (Node.js)
-│   ├── import-export/          # File ingest + canonical commit (Python)
+│   ├── catalog/                # Canonical pricing data (Node.js)
+│   ├── data-pipeline/          # File ingest + intelligence (Python)
 │   ├── gateway/                # BFF — auth, REST→gRPC (Node.js)
 │   ├── notify/                 # Email + in-app notifications (Node.js)
-│   ├── intelligence/           # FX, rule engine (Python)
-│   ├── web/                    # React SPA
 │   └── lib/
 │       ├── bus/                # Event bus abstraction (js/, py/, go/)
 │       └── proto/              # Shared protobuf (events + service contracts)
@@ -72,7 +70,7 @@ Docker Desktop or Colima also work — minikube just needs a Docker-compatible s
 |------|---------|---------|
 | Bazelisk | latest | Bazel version manager (reads `.bazelversion`) |
 | Node.js | 20+ | Backend services + gateway |
-| Python | 3.12+ | Intelligence service |
+| Python | 3.12+ | Data Pipeline service |
 | pnpm | 9+ | Node package manager |
 | OrbStack | latest | Container runtime (Docker-compatible) |
 | minikube | latest | Local Kubernetes cluster |
@@ -151,15 +149,13 @@ Stubbed targets print a message and exit cleanly. They'll be wired up as Phase 0
 
 | Service | Language | Role |
 |---------|----------|------|
-| Proposal | Node.js | Pricing Proposal lifecycle — state machine, approvals, publish, comments |
+| Proposal | Node.js | Pricing Proposal lifecycle + bulk repricing — state machine, approvals, scope builder, preview, scheduled rollouts |
 | Margin | Go | Margin rules, batch validation, breach detection |
-| Repricing | Node.js | Bulk change-sets, scope builder, preview, scheduled rollouts |
 | Governance | Node.js | Org-scoped append-only audit log, version snapshots, restore (event subscriber only) |
 | Catalog | Node.js | Org-scoped canonical pricing data — products, SKUs, costs, prices, channels |
-| Import/Export | Python | File ingest, column profiling, mapping, transformation, canonical commit |
+| Data Pipeline | Python | File ingest, column profiling, mapping, transformation, canonical commit, FX, intelligence |
 | Gateway | Node.js | Edge — JWT auth, REST-to-gRPC, rate limiting |
-| Notify | Node.js | Email + in-app notifications (event subscriber) |
-| Intelligence | Python | FX calculator, margin rule engine (gRPC) |
+| Notify | Node.js | Email (Zoho ZeptoMail) + in-app notifications (event subscriber) |
 
 ## Development workflow
 

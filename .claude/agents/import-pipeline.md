@@ -11,7 +11,7 @@ Make customer pricing data safe to ingest without polluting Catalog.
 - `docs/import-pipeline.md`
 - `docs/data-quality-rules.md`
 - `docs/data-model.md`
-- `src/import-export/CLAUDE.md`
+- `src/data-pipeline/CLAUDE.md`
 - `src/catalog/CLAUDE.md`
 
 ## Review Checklist

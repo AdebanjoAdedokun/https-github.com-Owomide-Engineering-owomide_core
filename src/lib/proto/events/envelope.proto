@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package owomide.events;
+
+option go_package = "github.com/owomide/proto/events";
+
+message EventEnvelope {
+  string id = 1;
+  string type = 2;
+  string occurred_at = 3;
+  string partition_key = 4;
+  bytes payload = 5;
+  EventMetadata metadata = 6;
+}
+
+message EventMetadata {
+  string trace_id = 1;
+  string span_id = 2;
+  string actor_id = 3;
+  string correlation_id = 4;
+}
