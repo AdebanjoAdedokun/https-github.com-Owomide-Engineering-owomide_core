@@ -1,0 +1,15 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+genrule(
+    name = "generate",
+    srcs = glob(["**/*.proto"]),
+    outs = ["gen_marker"],
+    cmd = """
+        cd $$(dirname $(location buf.yaml)) && \
+        buf generate && \
+        touch $(OUTS)
+    """,
+    tools = ["buf.yaml", "buf.gen.yaml"],
+)

@@ -4,18 +4,20 @@ package owomide.events.override.v1;
 
 option go_package = "github.com/owomide/proto/events/override/v1";
 
+import "google/protobuf/timestamp.proto";
+
 message OverrideRequested {
   string org_id = 1;
   string override_request_id = 2;
   string proposal_id = 3;
   string justification = 4;
   string actor_id = 5;
-  string at = 6;
+  google.protobuf.Timestamp created_at = 6;
 }
 
 message OverrideApproved {
   string org_id = 1;
   string override_request_id = 2;
   string approver_id = 3;
-  string at = 4;
+  google.protobuf.Timestamp created_at = 4;
 }

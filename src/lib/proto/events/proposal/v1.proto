@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package owomide.events.proposal.v1;
+
+option go_package = "github.com/owomide/proto/events/proposal/v1";
+
+import "google/protobuf/timestamp.proto";
+import "common/v1/common.proto";
+
+message ProposalSubmitted {
+  string org_id = 1;
+  string proposal_id = 2;
+  string change_set_id = 3;
+  string actor_id = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message ProposalBlocked {
+  string org_id = 1;
+  string proposal_id = 2;
+  repeated Violation violations = 3;
+  string actor_id = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message ProposalApproved {
+  string org_id = 1;
+  string proposal_id = 2;
+  string approver_id = 3;
+  string actor_id = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message ProposalPublished {
+  string org_id = 1;
+  string proposal_id = 2;
+  string actor_id = 3;
+  google.protobuf.Timestamp effective_at = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message Violation {
+  string sku_id = 1;
+  string channel_id = 2;
+  string rule_id = 3;
+  string message = 4;
+  owomide.common.v1.Money proposed_price = 5;
+  owomide.common.v1.Money floor_price = 6;
+}

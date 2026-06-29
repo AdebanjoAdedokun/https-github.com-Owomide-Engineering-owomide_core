@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package owomide.services.notify.v1;
+
+option go_package = "github.com/owomide/proto/services/notify/v1";
+
+import "google/protobuf/timestamp.proto";
+import "common/v1/common.proto";
+
+service NotifyService {
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc MarkRead(MarkReadRequest) returns (MarkReadResponse);
+  rpc GetPreferences(GetPreferencesRequest) returns (GetPreferencesResponse);
+  rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse);
+}
+
+// --- Messages ---
+
+message Notification {
+  string id = 1;
+  string org_id = 2;
+  string user_id = 3;
+  string event_type = 4;
+  string title = 5;
+  string body = 6;
+  bool read = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message Preferences {
+  string org_id = 1;
+  string user_id = 2;
+  repeated EventPreference event_preferences = 3;
+}
+
+message EventPreference {
+  string event_type = 1;
+  bool email_enabled = 2;
+  bool in_app_enabled = 3;
+}
+
+// --- Requests / Responses ---
+
+message ListNotificationsRequest {
+  bool unread_only = 1;
+  owomide.common.v1.Pagination pagination = 2;
+}
+
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message MarkReadRequest {
+  repeated string notification_ids = 1;
+}
+
+message MarkReadResponse {}
+
+message GetPreferencesRequest {}
+
+message UpdatePreferencesRequest {
+  repeated EventPreference event_preferences = 1;
+}
+
+message GetPreferencesResponse {
+  Preferences preferences = 1;
+}
+
+message UpdatePreferencesResponse {
+  Preferences preferences = 1;
+}

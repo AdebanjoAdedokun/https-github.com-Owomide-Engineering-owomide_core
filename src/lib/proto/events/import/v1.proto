@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package owomide.events.import.v1;
+
+option go_package = "github.com/owomide/proto/events/import/v1";
+
+import "google/protobuf/timestamp.proto";
+
+message ImportCommitted {
+  string org_id = 1;
+  string batch_id = 2;
+  string file_url = 3;
+  RowCounts row_counts = 4;
+  string template_id = 5;
+  string actor_id = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message RowCounts {
+  int32 ok = 1;
+  int32 warned = 2;
+  int32 excluded = 3;
+}

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package owomide.common.v1;
+
+option go_package = "github.com/owomide/proto/common/v1";
+
+message Money {
+  int64 amount = 1;
+  string currency = 2;
+}
+
+message Pagination {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message PaginatedResponse {
+  string next_page_token = 1;
+  int32 total_count = 2;
+}
