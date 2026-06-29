@@ -1,0 +1,29 @@
+load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
+
+ts_project(
+    name = "gateway_ts",
+    srcs = glob(["src/**/*.ts"]),
+    declaration = True,
+    resolve_json_module = True,
+    tsconfig = ":tsconfig.json",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//:node_modules/fastify",
+        "//:node_modules/@fastify/cors",
+        "//:node_modules/@fastify/rate-limit",
+        "//:node_modules/@connectrpc/connect",
+        "//:node_modules/@connectrpc/connect-node",
+        "//:node_modules/@bufbuild/protobuf",
+        "//:node_modules/jose",
+        "//:node_modules/zod",
+        "//src/lib/proto:gen_ts",
+    ],
+)
+
+js_binary(
+    name = "server",
+    data = [":gateway_ts"],
+    entry_point = "src/server.js",
+    visibility = ["//visibility:public"],
+)

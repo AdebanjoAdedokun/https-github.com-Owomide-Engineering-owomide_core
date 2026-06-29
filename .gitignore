@@ -1,0 +1,19 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+
+# Bazel
+bazel-bin/
+bazel-out/
+bazel-testlogs/
+bazel-owomide_core/
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+*.swp
+*.swo

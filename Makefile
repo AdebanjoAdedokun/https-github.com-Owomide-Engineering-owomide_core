@@ -18,6 +18,14 @@ lint: ## Run linters (TS, Python, Go)
 fmt: ## Auto-format code
 	@echo "[fmt] Not yet configured — will wire up prettier, ruff format, and gofmt in F0.7"
 
+.PHONY: gateway-dev
+gateway-dev: ## Run gateway in dev mode with hot reload
+	cd src/gateway && JWT_SECRET=dev-secret-for-local-testing-only pnpm dev
+
+.PHONY: gateway-test
+gateway-test: ## Run gateway unit tests
+	cd src/gateway && pnpm test
+
 # --- Stubbed targets (F0.2+) ---
 
 .PHONY: dev
