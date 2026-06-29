@@ -8,3 +8,9 @@ plugins:
     out: gen/ts
     opt:
       - target=ts
+  - remote: buf.build/protocolbuffers/python
+    out: gen/py
+  - remote: buf.build/protocolbuffers/go
+    out: gen/go
+    opt:
+      - paths=source_relative

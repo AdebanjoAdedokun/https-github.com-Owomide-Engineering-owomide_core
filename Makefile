@@ -48,8 +48,18 @@ migrate: ## Apply pending migrations across all services [F0.6]
 migrate-create: ## Create a new migration (usage: make migrate-create svc=<name> name=<desc>) [F0.6]
 	@echo "[migrate-create] Not yet implemented — see F0.6 in BUILD_PLAN.md"
 
+.PHONY: bus-test
+bus-test: ## Run all bus library tests (JS, Python, Go)
+	cd src/lib/bus/js && pnpm test
+	cd src/lib/bus/py && python -m pytest owomide_bus/tests/ -v
+	cd src/lib/bus/go && go test ./...
+
+.PHONY: bus-interop-test
+bus-interop-test: ## Run cross-language bus interop test
+	src/lib/bus/tests/interop.sh
+
 .PHONY: proto
-proto: ## Generate TypeScript clients from protobuf definitions
+proto: ## Generate protobuf stubs (TypeScript, Python, Go)
 	cd src/lib/proto && buf generate
 
 .PHONY: gazelle

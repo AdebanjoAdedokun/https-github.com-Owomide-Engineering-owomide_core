@@ -11,60 +11,54 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file events/import/v1.proto.
  */
-export const file_events_import_v1: GenFile =
-  /*@__PURE__*/
-  fileDesc(
-    "ChZldmVudHMvaW1wb3J0L3YxLnByb3RvEhhvd29taWRlLmV2ZW50cy5pbXBvcnQudjEi1QEKD0ltcG9ydENvbW1pdHRlZBIOCgZvcmdfaWQYASABKAkSEAoIYmF0Y2hfaWQYAiABKAkSEAoIZmlsZV91cmwYAyABKAkSNwoKcm93X2NvdW50cxgEIAEoCzIjLm93b21pZGUuZXZlbnRzLmltcG9ydC52MS5Sb3dDb3VudHMSEwoLdGVtcGxhdGVfaWQYBSABKAkSEAoIYWN0b3JfaWQYBiABKAkSLgoKY3JlYXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiOQoJUm93Q291bnRzEgoKAm9rGAEgASgFEg4KBndhcm5lZBgCIAEoBRIQCghleGNsdWRlZBgDIAEoBUIrWilnaXRodWIuY29tL293b21pZGUvcHJvdG8vZXZlbnRzL2ltcG9ydC92MWIGcHJvdG8z",
-    [file_google_protobuf_timestamp],
-  );
+export const file_events_import_v1: GenFile = /*@__PURE__*/
+  fileDesc("ChZldmVudHMvaW1wb3J0L3YxLnByb3RvEhhvd29taWRlLmV2ZW50cy5pbXBvcnQudjEi1QEKD0ltcG9ydENvbW1pdHRlZBIOCgZvcmdfaWQYASABKAkSEAoIYmF0Y2hfaWQYAiABKAkSEAoIZmlsZV91cmwYAyABKAkSNwoKcm93X2NvdW50cxgEIAEoCzIjLm93b21pZGUuZXZlbnRzLmltcG9ydC52MS5Sb3dDb3VudHMSEwoLdGVtcGxhdGVfaWQYBSABKAkSEAoIYWN0b3JfaWQYBiABKAkSLgoKY3JlYXRlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiOQoJUm93Q291bnRzEgoKAm9rGAEgASgFEg4KBndhcm5lZBgCIAEoBRIQCghleGNsdWRlZBgDIAEoBUIrWilnaXRodWIuY29tL293b21pZGUvcHJvdG8vZXZlbnRzL2ltcG9ydC92MWIGcHJvdG8z", [file_google_protobuf_timestamp]);
 
 /**
  * @generated from message owomide.events.import.v1.ImportCommitted
  */
-export type ImportCommitted =
-  Message<"owomide.events.import.v1.ImportCommitted"> & {
-    /**
-     * @generated from field: string org_id = 1;
-     */
-    orgId: string;
+export type ImportCommitted = Message<"owomide.events.import.v1.ImportCommitted"> & {
+  /**
+   * @generated from field: string org_id = 1;
+   */
+  orgId: string;
 
-    /**
-     * @generated from field: string batch_id = 2;
-     */
-    batchId: string;
+  /**
+   * @generated from field: string batch_id = 2;
+   */
+  batchId: string;
 
-    /**
-     * @generated from field: string file_url = 3;
-     */
-    fileUrl: string;
+  /**
+   * @generated from field: string file_url = 3;
+   */
+  fileUrl: string;
 
-    /**
-     * @generated from field: owomide.events.import.v1.RowCounts row_counts = 4;
-     */
-    rowCounts?: RowCounts | undefined;
+  /**
+   * @generated from field: owomide.events.import.v1.RowCounts row_counts = 4;
+   */
+  rowCounts?: RowCounts | undefined;
 
-    /**
-     * @generated from field: string template_id = 5;
-     */
-    templateId: string;
+  /**
+   * @generated from field: string template_id = 5;
+   */
+  templateId: string;
 
-    /**
-     * @generated from field: string actor_id = 6;
-     */
-    actorId: string;
+  /**
+   * @generated from field: string actor_id = 6;
+   */
+  actorId: string;
 
-    /**
-     * @generated from field: google.protobuf.Timestamp created_at = 7;
-     */
-    createdAt?: Timestamp | undefined;
-  };
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 7;
+   */
+  createdAt?: Timestamp | undefined;
+};
 
 /**
  * Describes the message owomide.events.import.v1.ImportCommitted.
  * Use `create(ImportCommittedSchema)` to create a new message.
  */
-export const ImportCommittedSchema: GenMessage<ImportCommitted> =
-  /*@__PURE__*/
+export const ImportCommittedSchema: GenMessage<ImportCommitted> = /*@__PURE__*/
   messageDesc(file_events_import_v1, 0);
 
 /**
@@ -91,6 +85,6 @@ export type RowCounts = Message<"owomide.events.import.v1.RowCounts"> & {
  * Describes the message owomide.events.import.v1.RowCounts.
  * Use `create(RowCountsSchema)` to create a new message.
  */
-export const RowCountsSchema: GenMessage<RowCounts> =
-  /*@__PURE__*/
+export const RowCountsSchema: GenMessage<RowCounts> = /*@__PURE__*/
   messageDesc(file_events_import_v1, 1);
+
