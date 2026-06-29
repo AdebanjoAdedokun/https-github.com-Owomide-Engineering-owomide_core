@@ -1,0 +1,23 @@
+{
+  "name": "@owomide/bus",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.12.1",
+    "kafkajs": "^2.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsx": "^4",
+    "typescript": "^5.7",
+    "vitest": "^3"
+  }
+}

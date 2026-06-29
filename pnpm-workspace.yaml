@@ -1,3 +1,4 @@
 packages:
   - "src/*"
   - "src/lib/*"
+  - "src/lib/bus/js"

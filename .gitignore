@@ -10,6 +10,12 @@ bazel-out/
 bazel-testlogs/
 bazel-owomide_core/
 
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
 # OS
 .DS_Store
 

@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file events/envelope.proto.
  */
 export const file_events_envelope: GenFile = /*@__PURE__*/
-  fileDesc("ChVldmVudHMvZW52ZWxvcGUucHJvdG8SDm93b21pZGUuZXZlbnRzIpcBCg1FdmVudEVudmVsb3BlEgoKAmlkGAEgASgJEgwKBHR5cGUYAiABKAkSEwoLb2NjdXJyZWRfYXQYAyABKAkSFQoNcGFydGl0aW9uX2tleRgEIAEoCRIPCgdwYXlsb2FkGAUgASgMEi8KCG1ldGFkYXRhGAYgASgLMh0ub3dvbWlkZS5ldmVudHMuRXZlbnRNZXRhZGF0YSJcCg1FdmVudE1ldGFkYXRhEhAKCHRyYWNlX2lkGAEgASgJEg8KB3NwYW5faWQYAiABKAkSEAoIYWN0b3JfaWQYAyABKAkSFgoOY29ycmVsYXRpb25faWQYBCABKAlCIVofZ2l0aHViLmNvbS9vd29taWRlL3Byb3RvL2V2ZW50c2IGcHJvdG8z");
+  fileDesc("ChVldmVudHMvZW52ZWxvcGUucHJvdG8SDm93b21pZGUuZXZlbnRzIpcBCg1FdmVudEVudmVsb3BlEgoKAmlkGAEgASgJEgwKBHR5cGUYAiABKAkSEwoLb2NjdXJyZWRfYXQYAyABKAkSFQoNcGFydGl0aW9uX2tleRgEIAEoCRIPCgdwYXlsb2FkGAUgASgMEi8KCG1ldGFkYXRhGAYgASgLMh0ub3dvbWlkZS5ldmVudHMuRXZlbnRNZXRhZGF0YSJKCg1FdmVudE1ldGFkYXRhEhAKCHRyYWNlX2lkGAEgASgJEg8KB3NwYW5faWQYAiABKAkSFgoOY29ycmVsYXRpb25faWQYAyABKAlCIVofZ2l0aHViLmNvbS9vd29taWRlL3Byb3RvL2V2ZW50c2IGcHJvdG8z");
 
 /**
  * @generated from message owomide.events.EventEnvelope
@@ -69,12 +69,7 @@ export type EventMetadata = Message<"owomide.events.EventMetadata"> & {
   spanId: string;
 
   /**
-   * @generated from field: string actor_id = 3;
-   */
-  actorId: string;
-
-  /**
-   * @generated from field: string correlation_id = 4;
+   * @generated from field: string correlation_id = 3;
    */
   correlationId: string;
 };
