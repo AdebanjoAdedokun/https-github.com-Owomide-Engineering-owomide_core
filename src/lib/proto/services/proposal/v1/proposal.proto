@@ -1,0 +1,271 @@
+syntax = "proto3";
+
+package owomide.services.proposal.v1;
+
+option go_package = "github.com/owomide/proto/services/proposal/v1";
+
+import "google/protobuf/timestamp.proto";
+import "common/v1/common.proto";
+import "services/margin/v1/margin.proto";
+
+service ProposalService {
+  // Lifecycle
+  rpc CreateProposal(CreateProposalRequest) returns (CreateProposalResponse);
+  rpc GetProposal(GetProposalRequest) returns (GetProposalResponse);
+  rpc ListProposals(ListProposalsRequest) returns (ListProposalsResponse);
+  rpc UpdateDraft(UpdateDraftRequest) returns (UpdateDraftResponse);
+  rpc SubmitProposal(SubmitProposalRequest) returns (SubmitProposalResponse);
+  rpc ApproveProposal(ApproveProposalRequest) returns (ApproveProposalResponse);
+  rpc PublishProposal(PublishProposalRequest) returns (PublishProposalResponse);
+  rpc RequestOverride(RequestOverrideRequest) returns (RequestOverrideResponse);
+  rpc ApproveOverride(ApproveOverrideRequest) returns (ApproveOverrideResponse);
+
+  // Bulk repricing
+  rpc BuildScope(BuildScopeRequest) returns (BuildScopeResponse);
+  rpc PreviewChangeSet(PreviewChangeSetRequest) returns (PreviewChangeSetResponse);
+  rpc GetChangeSet(GetChangeSetRequest) returns (GetChangeSetResponse);
+  rpc ListChangeSets(ListChangeSetsRequest) returns (ListChangeSetsResponse);
+  rpc UpdateChangeSet(UpdateChangeSetRequest) returns (UpdateChangeSetResponse);
+  rpc SubmitChangeSet(SubmitChangeSetRequest) returns (SubmitChangeSetResponse);
+  rpc DiscardChangeSet(DiscardChangeSetRequest) returns (DiscardChangeSetResponse);
+  rpc ScheduleRollout(ScheduleRolloutRequest) returns (ScheduleRolloutResponse);
+}
+
+// --- Core messages ---
+
+enum ProposalState {
+  PROPOSAL_STATE_UNSPECIFIED = 0;
+  PROPOSAL_STATE_DRAFT = 1;
+  PROPOSAL_STATE_SUBMITTED = 2;
+  PROPOSAL_STATE_BLOCKED = 3;
+  PROPOSAL_STATE_APPROVED = 4;
+  PROPOSAL_STATE_PUBLISHED = 5;
+}
+
+message Proposal {
+  string id = 1;
+  string org_id = 2;
+  ProposalState state = 3;
+  string owner_id = 4;
+  string title = 5;
+  string change_set_id = 6;
+  repeated ProposalLine lines = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ProposalLine {
+  string id = 1;
+  string org_id = 2;
+  string proposal_id = 3;
+  string sku_id = 4;
+  string channel_id = 5;
+  owomide.common.v1.Money current_price = 6;
+  owomide.common.v1.Money proposed_price = 7;
+  string reason = 8;
+}
+
+message OverrideRequest {
+  string id = 1;
+  string org_id = 2;
+  string proposal_id = 3;
+  string requester_id = 4;
+  string justification = 5;
+  string status = 6;
+  google.protobuf.Timestamp requested_at = 7;
+  google.protobuf.Timestamp approved_at = 8;
+  string approver_id = 9;
+}
+
+enum ChangeSetStatus {
+  CHANGE_SET_STATUS_UNSPECIFIED = 0;
+  CHANGE_SET_STATUS_DRAFT = 1;
+  CHANGE_SET_STATUS_SUBMITTED = 2;
+  CHANGE_SET_STATUS_DISCARDED = 3;
+}
+
+message ChangeSet {
+  string id = 1;
+  string org_id = 2;
+  ChangeSetStatus status = 3;
+  string owner_id = 4;
+  string scope_json = 5;
+  string rule_json = 6;
+  repeated ChangeSetLine lines = 7;
+  string proposal_id = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp submitted_at = 10;
+}
+
+message ChangeSetLine {
+  string id = 1;
+  string org_id = 2;
+  string change_set_id = 3;
+  string sku_id = 4;
+  string channel_id = 5;
+  owomide.common.v1.Money current_price = 6;
+  owomide.common.v1.Money proposed_price = 7;
+  int32 diff_pct = 8;
+  owomide.common.v1.Money diff_absolute = 9;
+}
+
+// --- Lifecycle requests ---
+
+message CreateProposalRequest {
+  string title = 1;
+  repeated ProposalLine lines = 2;
+}
+
+message GetProposalRequest {
+  string id = 1;
+}
+
+message ListProposalsRequest {
+  ProposalState state = 1;
+  string owner_id = 2;
+  owomide.common.v1.Pagination pagination = 3;
+}
+
+message ListProposalsResponse {
+  repeated Proposal proposals = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message UpdateDraftRequest {
+  string id = 1;
+  string title = 2;
+  repeated ProposalLine lines = 3;
+}
+
+message SubmitProposalRequest {
+  string id = 1;
+}
+
+message SubmitProposalResponse {
+  Proposal proposal = 1;
+  repeated owomide.services.margin.v1.Violation violations = 2;
+}
+
+message ApproveProposalRequest {
+  string id = 1;
+}
+
+message PublishProposalRequest {
+  string id = 1;
+}
+
+message RequestOverrideRequest {
+  string proposal_id = 1;
+  string justification = 2;
+}
+
+message ApproveOverrideRequest {
+  string override_request_id = 1;
+}
+
+// --- Bulk repricing requests ---
+
+message BuildScopeRequest {
+  string scope_json = 1;
+}
+
+message BuildScopeResponse {
+  repeated ScopedSku skus = 1;
+}
+
+message ScopedSku {
+  string sku_id = 1;
+  string channel_id = 2;
+  owomide.common.v1.Money current_price = 3;
+}
+
+message PreviewChangeSetRequest {
+  string scope_json = 1;
+  string rule_json = 2;
+}
+
+message GetChangeSetRequest {
+  string id = 1;
+}
+
+message ListChangeSetsRequest {
+  owomide.common.v1.Pagination pagination = 1;
+}
+
+message ListChangeSetsResponse {
+  repeated ChangeSet change_sets = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message UpdateChangeSetRequest {
+  string id = 1;
+  string scope_json = 2;
+  string rule_json = 3;
+  repeated ChangeSetLine lines = 4;
+}
+
+message SubmitChangeSetRequest {
+  string id = 1;
+  string title = 2;
+}
+
+message DiscardChangeSetRequest {
+  string id = 1;
+}
+
+message DiscardChangeSetResponse {}
+
+message ScheduleRolloutRequest {
+  string proposal_id = 1;
+  google.protobuf.Timestamp effective_at = 2;
+}
+
+// --- Response wrappers ---
+
+message CreateProposalResponse {
+  Proposal proposal = 1;
+}
+
+message GetProposalResponse {
+  Proposal proposal = 1;
+}
+
+message UpdateDraftResponse {
+  Proposal proposal = 1;
+}
+
+message ApproveProposalResponse {
+  Proposal proposal = 1;
+}
+
+message PublishProposalResponse {
+  Proposal proposal = 1;
+}
+
+message RequestOverrideResponse {
+  OverrideRequest override_request = 1;
+}
+
+message ApproveOverrideResponse {
+  Proposal proposal = 1;
+}
+
+message PreviewChangeSetResponse {
+  ChangeSet change_set = 1;
+}
+
+message GetChangeSetResponse {
+  ChangeSet change_set = 1;
+}
+
+message UpdateChangeSetResponse {
+  ChangeSet change_set = 1;
+}
+
+message SubmitChangeSetResponse {
+  Proposal proposal = 1;
+}
+
+message ScheduleRolloutResponse {
+  Proposal proposal = 1;
+}

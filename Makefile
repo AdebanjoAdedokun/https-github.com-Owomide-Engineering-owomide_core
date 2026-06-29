@@ -41,8 +41,12 @@ migrate-create: ## Create a new migration (usage: make migrate-create svc=<name>
 	@echo "[migrate-create] Not yet implemented — see F0.6 in BUILD_PLAN.md"
 
 .PHONY: proto
-proto: ## Generate clients from protobuf definitions [F0.3]
-	@echo "[proto] Not yet implemented — see F0.3 in BUILD_PLAN.md"
+proto: ## Generate TypeScript clients from protobuf definitions
+	cd src/lib/proto && buf generate
+
+.PHONY: gazelle
+gazelle: ## Auto-generate BUILD.bazel files
+	bazel run //:gazelle
 
 .PHONY: manifests-validate
 manifests-validate: ## Validate k8s manifests (kubeval + kustomize build) [F0.7]

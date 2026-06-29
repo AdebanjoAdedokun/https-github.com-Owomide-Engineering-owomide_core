@@ -1,0 +1,11 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "governance_proto",
+    srcs = ["governance.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/lib/proto/common/v1:common_proto",
+        "@com_google_protobuf//:timestamp_proto",
+    ],
+)

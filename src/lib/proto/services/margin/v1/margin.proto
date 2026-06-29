@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package owomide.services.margin.v1;
+
+option go_package = "github.com/owomide/proto/services/margin/v1";
+
+import "google/protobuf/timestamp.proto";
+import "common/v1/common.proto";
+
+service MarginService {
+  rpc ValidateBatch(ValidateBatchRequest) returns (ValidateBatchResponse);
+  rpc ListRules(ListRulesRequest) returns (ListRulesResponse);
+  rpc UpsertRule(UpsertRuleRequest) returns (UpsertRuleResponse);
+  rpc DeactivateRule(DeactivateRuleRequest) returns (DeactivateRuleResponse);
+}
+
+// --- Messages ---
+
+message MarginRule {
+  string id = 1;
+  string org_id = 2;
+  string channel_id = 3;
+  string category_id = 4;
+  string sku_id = 5;
+  FloorType floor_type = 6;
+  int64 floor_value = 7;
+  string currency = 8;
+  google.protobuf.Timestamp effective_at = 9;
+  google.protobuf.Timestamp effective_until = 10;
+  string created_by = 11;
+  int32 version = 12;
+}
+
+enum FloorType {
+  FLOOR_TYPE_UNSPECIFIED = 0;
+  FLOOR_TYPE_PCT_MARGIN = 1;
+  FLOOR_TYPE_PCT_MARKUP = 2;
+  FLOOR_TYPE_ABSOLUTE_MINIMUM = 3;
+}
+
+enum ViolationSeverity {
+  VIOLATION_SEVERITY_UNSPECIFIED = 0;
+  VIOLATION_SEVERITY_BLOCK = 1;
+  VIOLATION_SEVERITY_WARN = 2;
+}
+
+message Violation {
+  string sku_id = 1;
+  string rule_id = 2;
+  ViolationSeverity severity = 3;
+  string message = 4;
+  owomide.common.v1.Money floor = 5;
+  owomide.common.v1.Money proposed = 6;
+  owomide.common.v1.Money gap = 7;
+}
+
+// --- Requests / Responses ---
+
+message ValidateBatchRequest {
+  repeated ValidateItem items = 1;
+}
+
+message ValidateItem {
+  string sku_id = 1;
+  string channel_id = 2;
+  owomide.common.v1.Money proposed_price = 3;
+}
+
+message ValidateBatchResponse {
+  repeated Violation violations = 1;
+}
+
+message ListRulesRequest {
+  string channel_id = 1;
+  string category_id = 2;
+  string sku_id = 3;
+  owomide.common.v1.Pagination pagination = 4;
+}
+
+message ListRulesResponse {
+  repeated MarginRule rules = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message UpsertRuleRequest {
+  MarginRule rule = 1;
+}
+
+message DeactivateRuleRequest {
+  string id = 1;
+}
+
+message UpsertRuleResponse {
+  MarginRule rule = 1;
+}
+
+message DeactivateRuleResponse {
+  MarginRule rule = 1;
+}

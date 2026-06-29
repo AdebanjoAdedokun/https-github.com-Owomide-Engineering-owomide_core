@@ -1,1 +1,5 @@
 # Root BUILD file — required by Bazel
+
+load("@gazelle//:def.bzl", "gazelle")
+
+gazelle(name = "gazelle")

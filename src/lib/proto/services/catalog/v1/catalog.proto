@@ -1,0 +1,206 @@
+syntax = "proto3";
+
+package owomide.services.catalog.v1;
+
+option go_package = "github.com/owomide/proto/services/catalog/v1";
+
+import "google/protobuf/timestamp.proto";
+import "common/v1/common.proto";
+
+service CatalogService {
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc BatchGetProducts(BatchGetProductsRequest) returns (BatchGetProductsResponse);
+  rpc GetSku(GetSkuRequest) returns (GetSkuResponse);
+  rpc BatchGetSkus(BatchGetSkusRequest) returns (BatchGetSkusResponse);
+  rpc ListSkus(ListSkusRequest) returns (ListSkusResponse);
+  rpc BatchGetCosts(BatchGetCostsRequest) returns (BatchGetCostsResponse);
+  rpc BatchGetPrices(BatchGetPricesRequest) returns (BatchGetPricesResponse);
+  rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse);
+  rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse);
+  rpc UpsertCanonical(UpsertCanonicalRequest) returns (UpsertCanonicalResponse);
+  rpc ApplyPriceChanges(ApplyPriceChangesRequest) returns (ApplyPriceChangesResponse);
+}
+
+// --- Messages ---
+
+message Product {
+  string id = 1;
+  string org_id = 2;
+  string name = 3;
+  string description = 4;
+  string category = 5;
+  string manufacturer = 6;
+  repeated string tags = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message Sku {
+  string id = 1;
+  string org_id = 2;
+  string product_id = 3;
+  string sku_code = 4;
+  int32 pack_size = 5;
+  string unit = 6;
+  string attributes_json = 7;
+}
+
+message CostRecord {
+  string id = 1;
+  string org_id = 2;
+  string sku_id = 3;
+  owomide.common.v1.Money cost = 4;
+  google.protobuf.Timestamp effective_at = 5;
+  google.protobuf.Timestamp effective_until = 6;
+  google.protobuf.Timestamp recorded_at = 7;
+  google.protobuf.Timestamp superseded_at = 8;
+  string source = 9;
+  string source_ref = 10;
+}
+
+message PriceRecord {
+  string id = 1;
+  string org_id = 2;
+  string sku_id = 3;
+  string channel_id = 4;
+  owomide.common.v1.Money price = 5;
+  google.protobuf.Timestamp effective_at = 6;
+  google.protobuf.Timestamp effective_until = 7;
+  google.protobuf.Timestamp recorded_at = 8;
+  google.protobuf.Timestamp superseded_at = 9;
+  string source = 10;
+  string source_ref = 11;
+}
+
+message Channel {
+  string id = 1;
+  string org_id = 2;
+  string name = 3;
+  string code = 4;
+  string currency = 5;
+}
+
+message Location {
+  string id = 1;
+  string org_id = 2;
+  string name = 3;
+  string region = 4;
+  string country = 5;
+}
+
+// --- Requests / Responses ---
+
+message GetProductRequest {
+  string id = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+message BatchGetProductsRequest {
+  repeated string ids = 1;
+}
+
+message BatchGetProductsResponse {
+  repeated Product products = 1;
+}
+
+message GetSkuRequest {
+  string id = 1;
+}
+
+message GetSkuResponse {
+  Sku sku = 1;
+}
+
+message BatchGetSkusRequest {
+  repeated string ids = 1;
+}
+
+message BatchGetSkusResponse {
+  repeated Sku skus = 1;
+}
+
+message ListSkusRequest {
+  string product_id = 1;
+  string channel_id = 2;
+  string category = 3;
+  owomide.common.v1.Pagination pagination = 4;
+}
+
+message ListSkusResponse {
+  repeated Sku skus = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message BatchGetCostsRequest {
+  repeated string sku_ids = 1;
+  google.protobuf.Timestamp effective_as_of = 2;
+  google.protobuf.Timestamp recorded_as_of = 3;
+}
+
+message BatchGetCostsResponse {
+  repeated CostRecord costs = 1;
+}
+
+message BatchGetPricesRequest {
+  repeated string sku_ids = 1;
+  string channel_id = 2;
+  google.protobuf.Timestamp effective_as_of = 3;
+  google.protobuf.Timestamp recorded_as_of = 4;
+}
+
+message BatchGetPricesResponse {
+  repeated PriceRecord prices = 1;
+}
+
+message ListChannelsRequest {
+  owomide.common.v1.Pagination pagination = 1;
+}
+
+message ListChannelsResponse {
+  repeated Channel channels = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message ListLocationsRequest {
+  owomide.common.v1.Pagination pagination = 1;
+}
+
+message ListLocationsResponse {
+  repeated Location locations = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message UpsertCanonicalRequest {
+  repeated CanonicalRow rows = 1;
+}
+
+message CanonicalRow {
+  Sku sku = 1;
+  CostRecord cost = 2;
+  repeated PriceRecord prices = 3;
+}
+
+message UpsertCanonicalResponse {
+  int32 created = 1;
+  int32 updated = 2;
+  int32 skipped = 3;
+}
+
+message ApplyPriceChangesRequest {
+  string proposal_id = 1;
+  repeated PriceChange changes = 2;
+}
+
+message PriceChange {
+  string sku_id = 1;
+  string channel_id = 2;
+  owomide.common.v1.Money new_price = 3;
+  google.protobuf.Timestamp effective_at = 4;
+}
+
+message ApplyPriceChangesResponse {
+  int32 applied = 1;
+}

@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package owomide.services.governance.v1;
+
+option go_package = "github.com/owomide/proto/services/governance/v1";
+
+import "google/protobuf/timestamp.proto";
+import "common/v1/common.proto";
+
+service GovernanceService {
+  rpc GetActivityFeed(GetActivityFeedRequest) returns (GetActivityFeedResponse);
+  rpc GetEntityHistory(GetEntityHistoryRequest) returns (GetEntityHistoryResponse);
+  rpc ListSnapshots(ListSnapshotsRequest) returns (ListSnapshotsResponse);
+  rpc Restore(RestoreRequest) returns (RestoreResponse);
+}
+
+// --- Messages ---
+
+message AuditEntry {
+  string id = 1;
+  string org_id = 2;
+  string event_id = 3;
+  string event_type = 4;
+  string entity_type = 5;
+  string entity_id = 6;
+  string actor_id = 7;
+  google.protobuf.Timestamp occurred_at = 8;
+  string payload_json = 9;
+}
+
+message Snapshot {
+  string id = 1;
+  string org_id = 2;
+  google.protobuf.Timestamp snapshot_at = 3;
+  string scope = 4;
+  string storage_url = 5;
+  string row_counts_json = 6;
+  string checksum = 7;
+}
+
+// --- Requests / Responses ---
+
+message GetActivityFeedRequest {
+  string entity_type = 1;
+  string actor_id = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  owomide.common.v1.Pagination pagination = 5;
+}
+
+message GetActivityFeedResponse {
+  repeated AuditEntry entries = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message GetEntityHistoryRequest {
+  string entity_type = 1;
+  string entity_id = 2;
+  owomide.common.v1.Pagination pagination = 3;
+}
+
+message GetEntityHistoryResponse {
+  repeated AuditEntry entries = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message ListSnapshotsRequest {
+  owomide.common.v1.Pagination pagination = 1;
+}
+
+message ListSnapshotsResponse {
+  repeated Snapshot snapshots = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message RestoreRequest {
+  string snapshot_id = 1;
+  google.protobuf.Timestamp target_timestamp = 2;
+  string target_environment = 3;
+  string approval_id = 4;
+}
+
+message RestoreResponse {
+  string restore_id = 1;
+  string status = 2;
+}
