@@ -80,18 +80,30 @@ src/gateway/
 ├── CLAUDE.md
 ├── BUILD.bazel
 ├── package.json
+├── tsconfig.json
+├── vitest.config.ts
 └── src/
-    ├── server.ts
+    ├── server.ts                  (Fastify app + plugin registration)
+    ├── config.ts                  (Zod-validated env config)
+    ├── context.ts                 (RequestContext type + Fastify augmentation)
     ├── middleware/
-    │   ├── auth.ts              (JWT validation)
-    │   ├── rate-limit.ts
-    │   ├── cors.ts
-    │   └── error-envelope.ts
+    │   ├── auth.ts                (JWT verification via jose)
+    │   ├── cors.ts                (@fastify/cors config)
+    │   ├── rate-limit.ts          (per-org rate limiting)
+    │   └── error-envelope.ts      (ConnectError → HTTP status + envelope)
+    ├── clients/
+    │   └── factory.ts             (ConnectRPC v2 typed gRPC client factory)
     ├── routes/
-    │   ├── proposals.ts
-    │   ├── imports.ts
-    │   ├── catalog.ts
-    │   └── ...
-    ├── clients/                 (gRPC client stubs)
+    │   ├── health.ts              (GET /health)
+    │   ├── proposals.ts           (REST → ProposalService gRPC)
+    │   ├── override-requests.ts   (REST → ProposalService gRPC)
+    │   ├── change-sets.ts         (REST → ProposalService gRPC)
+    │   ├── catalog.ts             (REST → CatalogService gRPC)
+    │   ├── margin.ts              (REST → MarginService gRPC)
+    │   ├── governance.ts          (REST → GovernanceService gRPC)
+    │   └── data-pipeline.ts       (stubbed 501 — data scientist scope)
     └── tests/
+        ├── auth.test.ts
+        ├── error-envelope.test.ts
+        └── factory.test.ts
 ```
