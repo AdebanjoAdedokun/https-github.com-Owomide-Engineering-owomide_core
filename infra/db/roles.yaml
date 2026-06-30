@@ -1,0 +1,46 @@
+# Postgres role manifest — source of truth for service schemas and roles.
+#
+# Each service listed here gets:
+#   - A dedicated schema created (idempotent)
+#   - A dedicated Postgres role created (idempotent)
+#   - USAGE + default DML privileges on its own schema only
+#
+# Gateway is absent — it has no database access.
+#
+# Role passwords come from env vars: <ROLE_UPPER>_PASSWORD
+# e.g. catalog_svc → CATALOG_SVC_PASSWORD
+#
+# Run migrations:  make migrate [svc=<name>]
+# Roll back:       make migrate-down svc=<name> [steps=N]
+# Create new file: make migrate-create svc=<name> name=<description>
+
+services:
+  - name: catalog
+    role: catalog_svc
+    schema: catalog
+    migrations_dir: src/catalog/migrations
+
+  - name: proposal
+    role: proposal_svc
+    schema: proposal
+    migrations_dir: src/proposal/migrations
+
+  - name: margin
+    role: margin_svc
+    schema: margin
+    migrations_dir: src/margin/migrations
+
+  - name: governance
+    role: governance_svc
+    schema: governance
+    migrations_dir: src/governance/migrations
+
+  - name: notify
+    role: notify_svc
+    schema: notify
+    migrations_dir: src/notify/migrations
+
+  - name: data_pipeline
+    role: data_pipeline_svc
+    schema: data_pipeline
+    migrations_dir: src/data-pipeline/migrations

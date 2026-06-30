@@ -41,12 +41,19 @@ dev-down: ## Tear down minikube cluster [F0.2]
 	@echo "[dev-down] Not yet implemented — see F0.2 in BUILD_PLAN.md"
 
 .PHONY: migrate
-migrate: ## Apply pending migrations across all services [F0.6]
-	@echo "[migrate] Not yet implemented — see F0.6 in BUILD_PLAN.md"
+migrate: ## Apply pending migrations [svc=<name> for one service] [F0.6]
+	@cd tools/scripts/migrate && pnpm run migrate apply $(if $(svc),--svc $(svc),)
+
+.PHONY: migrate-down
+migrate-down: ## Roll back migrations — svc=<name> required, steps=N optional (default 1) [F0.6]
+	@[ -n "$(svc)" ] || (echo "Error: svc= is required. Usage: make migrate-down svc=catalog [steps=2]"; exit 1)
+	@cd tools/scripts/migrate && pnpm run migrate down --svc $(svc) $(if $(steps),--steps $(steps),)
 
 .PHONY: migrate-create
-migrate-create: ## Create a new migration (usage: make migrate-create svc=<name> name=<desc>) [F0.6]
-	@echo "[migrate-create] Not yet implemented — see F0.6 in BUILD_PLAN.md"
+migrate-create: ## Scaffold a new migration (usage: make migrate-create svc=<name> name=<desc>) [F0.6]
+	@[ -n "$(svc)" ] || (echo "Error: svc= is required"; exit 1)
+	@[ -n "$(name)" ] || (echo "Error: name= is required"; exit 1)
+	@cd tools/scripts/migrate && pnpm run migrate create --svc $(svc) --name "$(name)"
 
 .PHONY: bus-test
 bus-test: ## Run all bus library tests (JS, Python, Go)

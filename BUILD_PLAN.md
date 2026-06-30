@@ -104,7 +104,7 @@ The skeleton everything sits on. Build this first, ship nothing user-visible, ge
 | F0.4 | Gateway / BFF skeleton | Node, JWT verify, route table, gRPC client factory |
 | F0.5 | **Event bus library (Kafka)** | `src/lib/bus` — uniform `Publisher` / `Subscriber` contract across **three native implementations**: Node.js (`js/`), Python (`py/`), and Go (`go/`). Kafka provider from day one in all three languages. Cross-language interop test mandatory. See `src/lib/bus/CLAUDE.md`. |
 | F0.6 | Per-service migration runner | `make migrate svc=<name>`; isolated Postgres roles created from a manifest |
-| F0.7 | CI pipeline | GitHub Actions: `bazel test //...`, lint (TS / Python), container image build per service, **k8s manifest validation** (`kubeval` / `kustomize build`), no deploy yet |
+| F0.7 | CI pipeline | GitHub Actions: `bazel test //...`, lint (TS / Python), container image build per service, **k8s manifest validation** (`kubeval` / `kustomize build`), **DB migration step** (`make migrate` via `.github/workflows/migrate.yml` on push to `main`; reads `DATABASE_URL` + `*_SVC_PASSWORD` from GitHub Actions secrets per environment; idempotent so safe to run on every merge), no deploy yet |
 | F0.8 | Auth scaffolding | JWT issue + verify, single hardcoded user for dev |
 | F0.9 | **Bus smoke test across services** | A test service publishes `test.ping`; another consumes it; integration test asserts end-to-end delivery via `src/lib/bus`. Proves the abstraction works before Phase 1 leans on it. |
 

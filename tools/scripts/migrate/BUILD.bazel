@@ -1,0 +1,84 @@
+load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages(name = "node_modules")
+
+ts_project(
+    name = "migrate_ts",
+    srcs = glob(
+        ["src/**/*.ts"],
+        exclude = ["src/tests/**"],
+    ),
+    declaration = True,
+    tsconfig = ":tsconfig.json",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":node_modules/dotenv",
+        ":node_modules/js-yaml",
+        ":node_modules/pg",
+        ":node_modules/yargs",
+        ":node_modules/@types/js-yaml",
+        ":node_modules/@types/node",
+        ":node_modules/@types/pg",
+        ":node_modules/@types/yargs",
+    ],
+)
+
+js_binary(
+    name = "migrate",
+    data = [":migrate_ts"],
+    entry_point = "src/index.js",
+    visibility = ["//visibility:public"],
+)
+
+ts_project(
+    name = "unit_tests_ts",
+    srcs = glob(["src/tests/unit/**/*.ts"]),
+    declaration = False,
+    tsconfig = ":tsconfig.json",
+    deps = [
+        ":migrate_ts",
+        ":node_modules/vitest",
+        ":node_modules/@types/node",
+    ],
+)
+
+js_test(
+    name = "unit_tests",
+    data = [
+        ":unit_tests_ts",
+        ":migrate_ts",
+    ],
+    entry_point = "src/tests/unit/run.js",
+    visibility = ["//visibility:public"],
+)
+
+ts_project(
+    name = "integration_tests_ts",
+    srcs = glob(["src/tests/integration/**/*.ts"]),
+    declaration = False,
+    tsconfig = ":tsconfig.json",
+    deps = [
+        ":migrate_ts",
+        ":node_modules/vitest",
+        ":node_modules/testcontainers",
+        ":node_modules/@testcontainers/postgresql",
+        ":node_modules/@types/node",
+    ],
+)
+
+js_test(
+    name = "integration_tests",
+    data = [
+        ":integration_tests_ts",
+        ":migrate_ts",
+    ],
+    entry_point = "src/tests/integration/run.js",
+    tags = [
+        "integration",
+        "manual",
+        "requires-docker",
+    ],
+    visibility = ["//visibility:public"],
+)
