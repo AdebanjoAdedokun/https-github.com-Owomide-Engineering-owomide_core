@@ -126,6 +126,56 @@ minikube delete   # destroy the cluster entirely
 
 > **Coming in F0.2:** `make dev` will automate cluster setup + Skaffold deployment of all services with hot-reload. For now, these manual steps get you a running cluster.
 
+## Database setup (local dev)
+
+The migration runner creates schemas and Postgres roles, then applies SQL migrations per service. You need a running local Postgres instance before running migrations.
+
+### 1. Create your local `.env`
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` to match your local Postgres connection. The defaults in `.env.example` assume Postgres running on `localhost:5432` with a database named `owomide`. Adjust if yours differs.
+
+The `*_SVC_PASSWORD` values can be any non-empty string locally — the runner uses them to create isolated roles per service.
+
+### 2. Run migrations
+
+```bash
+make migrate                               # create all schemas, roles, and apply all migrations
+make migrate svc=catalog                   # apply for one service only
+```
+
+On first run this will:
+- Create a `public.schema_migrations` tracking table
+- Create one Postgres schema per service (`catalog`, `proposal`, `margin`, etc.)
+- Create one Postgres role per service (`catalog_svc`, `proposal_svc`, etc.)
+- Apply any pending `.sql` files from `src/<service>/migrations/`
+
+Subsequent runs are idempotent — already-applied migrations are skipped.
+
+### 3. Create a new migration file
+
+```bash
+make migrate-create svc=catalog name=add_products_table
+# → creates src/catalog/migrations/0002_add_products_table.up.sql
+# → creates src/catalog/migrations/0002_add_products_table.down.sql
+```
+
+Fill in the generated files and run `make migrate` again to apply.
+
+### 4. Roll back
+
+```bash
+make migrate-down svc=catalog              # roll back the last applied migration
+make migrate-down svc=catalog steps=3      # roll back the last 3
+```
+
+### CI/CD (staging / prod)
+
+Migrations run automatically in GitHub Actions on every push to `main` (wired in F0.7). The pipeline reads the same env vars from GitHub Actions secrets — one set per environment (staging, production). Use the Supabase **direct connection string** (not the pooler URL) for `DATABASE_URL` in those secrets.
+
 ## Make commands
 
 | Command | Status | Description |
@@ -138,8 +188,9 @@ minikube delete   # destroy the cluster entirely
 | `make dev` | F0.2 | Start minikube + Skaffold dev stack |
 | `make dev-infra` | F0.2 | Start infra only (Postgres, Redis, MinIO) |
 | `make dev-down` | F0.2 | Tear down minikube |
-| `make migrate` | F0.6 | Apply pending DB migrations |
-| `make migrate-create svc=X name=Y` | F0.6 | Create a new migration file |
+| `make migrate [svc=X]` | F0.6 | Apply pending DB migrations (all services or one) |
+| `make migrate-down svc=X [steps=N]` | F0.6 | Roll back last N migrations for a service |
+| `make migrate-create svc=X name=Y` | F0.6 | Scaffold a new paired .up.sql + .down.sql |
 | `make proto` | F0.3 | Regenerate protobuf clients |
 | `make manifests-validate` | F0.7 | Validate k8s manifests |
 

@@ -127,9 +127,16 @@ make dev                                  # equivalent to: skaffold dev
 make dev-infra                            # only Postgres / Redis / MinIO — useful when running a service bare-metal for debugging
 make dev-down                             # tear minikube down
 
-# DB migrations
+# DB migrations (F0.6)
+# Local dev: DATABASE_URL points at local Postgres (see .env.example).
+# CI/CD (staging/prod): DATABASE_URL is the Supabase DIRECT connection string (not the pooler).
+# Role passwords come from env vars: CATALOG_SVC_PASSWORD, PROPOSAL_SVC_PASSWORD, etc.
+# Copy .env.example → .env for local dev; CI/CD injects these as GitHub Actions secrets.
 make migrate                              # apply pending across all services
-make migrate-create svc=<name> name=<desc>
+make migrate svc=catalog                  # apply for one service only
+make migrate-down svc=catalog             # roll back last migration
+make migrate-down svc=catalog steps=3     # roll back last 3 migrations
+make migrate-create svc=<name> name=<desc> # scaffold a new paired .up.sql + .down.sql
 
 # Lint & format
 make lint
