@@ -258,7 +258,7 @@ Stubbed targets print a message and exit cleanly. They'll be wired up as Phase 0
 
 ## Development workflow
 
-- **Branches:** `agent/<service>-<feature-id>` (e.g. `agent/margin-F3.2`)
+- **Branches:** `agent/<service>-<feature-id>` (e.g. `agent/margin-F4.2`)
 - **Commits:** conventional commits (`feat:`, `fix:`, `chore:`)
 - **PRs:** title references the BUILD_PLAN.md feature ID; description includes Definition-of-Done checklist
 - **Tenant boundary:** customer-owned data is scoped by `org_id` from day one
