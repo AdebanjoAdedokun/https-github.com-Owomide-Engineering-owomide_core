@@ -1,0 +1,95 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: owomide
+
+build:
+  # OrbStack k8s shares the Docker daemon with the host — build locally and load
+  # directly into the cluster without pushing to a remote registry.
+  local:
+    push: false
+  artifacts:
+    - image: owomide/gateway
+      # Context is the repo root — pnpm-lock.yaml and pnpm-workspace.yaml live here.
+      context: .
+      docker:
+        dockerfile: src/gateway/Dockerfile
+
+manifests:
+  kustomize:
+    paths:
+      - infra/k8s/overlays/local
+
+deploy:
+  kubectl: {}
+
+# Port-forward cluster services to localhost for local development.
+# Gateway on 5000 (3000 is reserved for the frontend SPA).
+portForward:
+  - resourceType: Service
+    resourceName: gateway
+    namespace: default
+    port: 5000
+    localPort: 5000
+  - resourceType: Service
+    resourceName: postgres
+    namespace: default
+    port: 5432
+    localPort: 5432
+  - resourceType: Service
+    resourceName: redis
+    namespace: default
+    port: 6379
+    localPort: 6379
+  - resourceType: Service
+    resourceName: minio
+    namespace: default
+    port: 9000
+    localPort: 9000
+  - resourceType: Service
+    resourceName: minio
+    namespace: default
+    port: 9001
+    localPort: 9001
+  - resourceType: Service
+    resourceName: kafka
+    namespace: default
+    port: 9092
+    localPort: 9092
+
+profiles:
+  # Used by `make dev-infra` — deploys only backing services, no gateway.
+  # Useful when running a service bare-metal locally and pointing it at in-cluster infra.
+  - name: infra-only
+    build:
+      artifacts: []
+    manifests:
+      kustomize:
+        paths:
+          - infra/k8s/overlays/local-infra
+    portForward:
+      - resourceType: Service
+        resourceName: postgres
+        namespace: default
+        port: 5432
+        localPort: 5432
+      - resourceType: Service
+        resourceName: redis
+        namespace: default
+        port: 6379
+        localPort: 6379
+      - resourceType: Service
+        resourceName: minio
+        namespace: default
+        port: 9000
+        localPort: 9000
+      - resourceType: Service
+        resourceName: minio
+        namespace: default
+        port: 9001
+        localPort: 9001
+      - resourceType: Service
+        resourceName: kafka
+        namespace: default
+        port: 9092
+        localPort: 9092

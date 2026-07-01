@@ -1,0 +1,48 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+# Pin gateway to a staging image tag built by CI.
+images:
+  - name: owomide/gateway
+    newTag: staging
+
+# Staging-sized resource requests and larger storage.
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: gateway
+      spec:
+        template:
+          spec:
+            containers:
+              - name: gateway
+                resources:
+                  requests:
+                    cpu: 200m
+                    memory: 256Mi
+                  limits:
+                    cpu: 1000m
+                    memory: 512Mi
+  - patch: |-
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: postgres-pvc
+      spec:
+        resources:
+          requests:
+            storage: 10Gi
+  - patch: |-
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: minio-pvc
+      spec:
+        resources:
+          requests:
+            storage: 20Gi

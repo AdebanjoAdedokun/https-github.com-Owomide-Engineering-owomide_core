@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.12.1",
+    "@owomide/proto": "workspace:*",
     "@connectrpc/connect": "^2.1.2",
     "@connectrpc/connect-node": "^2.1.2",
     "@fastify/cors": "^11.0.0",

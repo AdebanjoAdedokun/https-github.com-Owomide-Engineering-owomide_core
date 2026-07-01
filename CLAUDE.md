@@ -50,7 +50,7 @@ owomide/
 │   ├── k8s/
 │   │   ├── base/              ← Kustomize base
 │   │   └── overlays/
-│   │       ├── local/         ← minikube
+│   │       ├── local/         ← OrbStack
 │   │       ├── staging/
 │   │       └── prod/          ← Hetzner k8s
 │   └── skaffold.yaml
@@ -77,7 +77,7 @@ The Excalidraw canvas (architecture + flows + import boundary) is the visual com
 - **Object store:** MinIO (S3-compatible) for raw import files
 - **Cache:** Redis
 - **Event bus:** **Kafka from day one** via `src/lib/bus` with **three native implementations** — Node.js (`js/`), Python (`py/`), Go (`go/`). Each service uses the one matching its language; all three share the same wire format and contract. See `src/lib/bus/CLAUDE.md`.
-- **Orchestration:** **Kubernetes** — minikube locally, self-managed k8s (k3s or kubeadm) on Hetzner Cloud.
+- **Orchestration:** **Kubernetes** — OrbStack locally, self-managed k8s (k3s or kubeadm) on Hetzner Cloud.
 
 ---
 
@@ -122,10 +122,11 @@ bazel test //...
 # Run a single service locally (out of cluster, for fast iterate)
 bazel run //src/proposal:server
 
-# Local k8s dev stack (minikube + Skaffold; hot reload on change)
-make dev                                  # equivalent to: skaffold dev
-make dev-infra                            # only Postgres / Redis / MinIO — useful when running a service bare-metal for debugging
-make dev-down                             # tear minikube down
+# Local k8s dev stack (OrbStack k8s + Skaffold; hot reload on change)
+# Gateway listens on port 5000. Port 3000 is reserved for the frontend SPA.
+make dev                                  # equivalent to: kubectl config use-context orbstack && skaffold dev
+make dev-infra                            # only Postgres / Redis / MinIO / Kafka — useful when running a service bare-metal for debugging
+make dev-down                             # tear down deployed resources (OrbStack cluster stays up)
 
 # DB migrations (F0.6)
 # Local dev: DATABASE_URL points at local Postgres (see .env.example).

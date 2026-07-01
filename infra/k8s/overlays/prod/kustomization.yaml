@@ -1,0 +1,53 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+# Pin gateway to a prod image tag built by CI.
+images:
+  - name: owomide/gateway
+    newTag: prod
+
+# Run 2 gateway replicas in production for availability.
+replicas:
+  - name: gateway
+    count: 2
+
+# Production-grade resource requests and storage.
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: gateway
+      spec:
+        template:
+          spec:
+            containers:
+              - name: gateway
+                resources:
+                  requests:
+                    cpu: 500m
+                    memory: 512Mi
+                  limits:
+                    cpu: 2000m
+                    memory: 1Gi
+  - patch: |-
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: postgres-pvc
+      spec:
+        resources:
+          requests:
+            storage: 100Gi
+  - patch: |-
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: minio-pvc
+      spec:
+        resources:
+          requests:
+            storage: 500Gi
