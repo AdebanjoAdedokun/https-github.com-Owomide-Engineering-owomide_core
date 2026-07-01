@@ -1,7 +1,8 @@
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
-RUN corepack enable
+ARG PNPM_VERSION=8.12.0
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # Copy workspace manifest and lockfile first for layer caching
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -15,10 +16,11 @@ COPY src/gateway ./src/gateway
 
 RUN pnpm --filter @owomide/gateway build
 
-FROM node:20-alpine
+FROM node:24-alpine
 WORKDIR /app
 
-RUN corepack enable
+ARG PNPM_VERSION=8.12.0
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY src/gateway/package.json ./src/gateway/
