@@ -1,0 +1,5 @@
+[tools]
+go = "1.23.1"
+node = "24"
+python = "3.12"
+pnpm = "9"
