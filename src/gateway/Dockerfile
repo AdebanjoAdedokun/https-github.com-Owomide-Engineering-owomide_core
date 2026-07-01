@@ -4,7 +4,7 @@ WORKDIR /app
 RUN corepack enable
 
 # Copy workspace manifest and lockfile first for layer caching
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY src/gateway/package.json ./src/gateway/
 COPY tsconfig.base.json ./
 
@@ -20,7 +20,7 @@ WORKDIR /app
 
 RUN corepack enable
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY src/gateway/package.json ./src/gateway/
 
 RUN pnpm install --frozen-lockfile --filter @owomide/gateway --prod
