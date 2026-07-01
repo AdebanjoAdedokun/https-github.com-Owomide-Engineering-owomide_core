@@ -52,29 +52,30 @@ owomide_core/
 
 ## Prerequisites
 
-Install via [Homebrew](https://brew.sh/):
+Install the full local toolchain:
 
 ```bash
-brew install bazelisk node@20 python@3.12 pnpm kubectl skaffold kustomize kubeval
+make bootstrap
 ```
 
-We use [OrbStack](https://orbstack.dev/) as our container runtime and local Kubernetes cluster (recommended for macOS — ships built-in k8s, no minikube needed):
-
-```bash
-brew install orbstack
-```
+The bootstrap script uses [Homebrew](https://brew.sh/) for macOS applications and CLIs, and [mise](https://mise.jdx.dev/) for pinned runtimes from `.mise.toml`.
+We use [OrbStack](https://orbstack.dev/) as our container runtime and local Kubernetes cluster (recommended for macOS — ships built-in k8s, no minikube needed).
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Bazelisk | latest | Bazel version manager (reads `.bazelversion`) |
-| Node.js | 20+ | Backend services + gateway |
-| Python | 3.12+ | Data Pipeline service |
-| pnpm | 9+ | Node package manager |
+| Bazelisk | latest | Bazel version manager (reads `.bazelversion`, currently Bazel 7.4.0) |
+| Node.js | 24 | Backend services + gateway |
+| Python | 3.12 | Data Pipeline service |
+| Go | 1.23.1 | Bus library and hot-path services |
+| pnpm | 9 | Node package manager |
 | OrbStack | latest | Container runtime + built-in Kubernetes |
 | kubectl | latest | Kubernetes CLI |
 | Skaffold | latest | Dev loop — build, deploy, hot-reload |
 | kustomize | latest | k8s manifest composition (local/staging/prod overlays) |
-| kubeval | latest | k8s manifest schema validation |
+| kubeconform | latest | k8s manifest schema validation |
+| buf | latest | Protobuf generation |
+| ruff | latest | Python linting / formatting |
+| golangci-lint | latest | Go linting |
 
 ## Local Kubernetes setup (OrbStack)
 

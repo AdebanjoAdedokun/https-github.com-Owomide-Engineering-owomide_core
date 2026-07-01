@@ -6,6 +6,10 @@
 build: ## Build all targets
 	bazel build //...
 
+.PHONY: bootstrap
+bootstrap: ## Install local dev tooling (macOS: Homebrew + mise + OrbStack)
+	tools/dev/bootstrap.sh
+
 .PHONY: test
 test: ## Run all tests
 	bazel test //...
