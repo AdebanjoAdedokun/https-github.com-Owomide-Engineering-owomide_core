@@ -109,8 +109,18 @@ This builds the gateway image locally, deploys all backing services (Postgres, R
 | MinIO API | `localhost:9000` |
 | MinIO Console | `localhost:9001` |
 | Kafka | `localhost:9092` |
+| Bus smoke subscriber | `localhost:5100` |
 
 > Port 3000 is **not** forwarded — it is reserved for the frontend SPA.
+
+Verify the F0.9 bus smoke path after `make dev` is running:
+
+```bash
+make bus-smoke-test
+```
+
+This checks that the local smoke publisher emitted `test.ping` through Kafka and
+the local smoke subscriber received it through `src/lib/bus`.
 
 ### 4. Apply database migrations
 

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package owomide.events.test.v1;
+
+option go_package = "github.com/owomide/proto/events/test/v1";
+
+message TestPing {
+  string ping_id = 1;
+  string source = 2;
+  string sent_at = 3;
+}

@@ -71,6 +71,10 @@ bus-test: ## Run all bus library tests (JS, Python, Go)
 bus-interop-test: ## Run cross-language bus interop test
 	src/lib/bus/tests/interop.sh
 
+.PHONY: bus-smoke-test
+bus-smoke-test: ## Verify local Kafka bus smoke publisher -> subscriber delivery [F0.9]
+	tools/scripts/bus-smoke-test.sh
+
 .PHONY: proto
 proto: ## Generate protobuf stubs (TypeScript, Python, Go)
 	cd src/lib/proto && buf generate

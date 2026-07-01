@@ -5,3 +5,4 @@ kind: Kustomization
 # Minimal overrides: this is local dev, so the base dev values are fine as-is.
 resources:
   - ../../base
+  # - bus-smoke
