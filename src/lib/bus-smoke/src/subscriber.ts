@@ -1,6 +1,6 @@
 import { fromBinary } from "@bufbuild/protobuf";
 import { TestPingSchema } from "@owomide/proto/events/test/v1_pb.js";
-import { createBus, type Bus } from "@owomide/bus";
+import { createBus, type Bus, type Event } from "@owomide/bus";
 import Fastify from "fastify";
 import { loadConfig, sleep } from "./config.js";
 
@@ -53,7 +53,7 @@ async function subscribeWithRetry(): Promise<void> {
           concurrency: 1,
           maxRetries: 3,
         },
-        async (event) => {
+        async (event: Event) => {
           const ping = fromBinary(TestPingSchema, event.payload);
           lastPing = {
             pingId: ping.pingId,
@@ -98,5 +98,6 @@ process.on("SIGINT", () => {
   void shutdown().then(() => process.exit(0));
 });
 
-await app.listen({ host: "0.0.0.0", port: config.port });
-void subscribeWithRetry();
+void app.listen({ host: "0.0.0.0", port: config.port }).then(() => {
+  void subscribeWithRetry();
+});
