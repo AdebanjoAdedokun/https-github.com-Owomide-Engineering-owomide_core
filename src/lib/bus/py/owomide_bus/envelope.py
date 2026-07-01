@@ -1,12 +1,5 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-_proto_gen = str(Path(__file__).resolve().parent.parent.parent.parent / "proto" / "gen" / "py")
-if _proto_gen not in sys.path:
-    sys.path.insert(0, _proto_gen)
-
 from events.envelope_pb2 import EventEnvelope, EventMetadata as EventMetadataPb  # type: ignore[import-untyped]
 
 from owomide_bus.types import Event, EventMetadata

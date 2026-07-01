@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from aiokafka import AIOKafkaProducer
+try:
+    from aiokafka import AIOKafkaProducer
+except ModuleNotFoundError:
+    AIOKafkaProducer = None
 
 from owomide_bus.types import Event, KafkaConfig
 from owomide_bus.envelope import serialize
@@ -13,6 +16,8 @@ class KafkaPublisher:
 
     async def _ensure_connected(self) -> AIOKafkaProducer:
         if self._producer is None:
+            if AIOKafkaProducer is None:
+                raise RuntimeError("aiokafka is required to use KafkaPublisher")
             self._producer = AIOKafkaProducer(
                 bootstrap_servers=",".join(self._config.brokers),
                 client_id=self._config.client_id,

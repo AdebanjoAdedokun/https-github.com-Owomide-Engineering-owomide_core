@@ -1,16 +1,26 @@
 import type { FastifyInstance } from "fastify";
-import { jwtVerify, createRemoteJWKSet } from "jose";
-import type { JWTVerifyGetKey } from "jose";
 import type { Config } from "../config.js";
 import type { RequestContext } from "../context.js";
 
 export async function registerAuth(app: FastifyInstance, config: Config) {
-  let keyOrJwks: Uint8Array | JWTVerifyGetKey;
+  const { jwtVerify, createRemoteJWKSet } = await import("jose");
+  type RemoteJWKSet = ReturnType<typeof createRemoteJWKSet>;
+  type JwtVerifier =
+    | { kind: "jwks"; key: RemoteJWKSet }
+    | { kind: "secret"; key: Uint8Array };
+
+  let verifier: JwtVerifier;
 
   if (config.jwksUrl) {
-    keyOrJwks = createRemoteJWKSet(new URL(config.jwksUrl));
+    verifier = {
+      kind: "jwks",
+      key: createRemoteJWKSet(new URL(config.jwksUrl)),
+    };
   } else if (config.jwtSecret) {
-    keyOrJwks = new TextEncoder().encode(config.jwtSecret);
+    verifier = {
+      kind: "secret",
+      key: new TextEncoder().encode(config.jwtSecret),
+    };
   } else {
     throw new Error("Either JWT_SECRET or JWKS_URL must be configured");
   }
@@ -36,7 +46,10 @@ export async function registerAuth(app: FastifyInstance, config: Config) {
     const token = authHeader.slice(7);
 
     try {
-      const { payload } = await jwtVerify(token, keyOrJwks, verifyOptions);
+      const { payload } =
+        verifier.kind === "jwks"
+          ? await jwtVerify(token, verifier.key, verifyOptions)
+          : await jwtVerify(token, verifier.key, verifyOptions);
 
       const orgId = payload["org_id"];
       const userId = payload["sub"];

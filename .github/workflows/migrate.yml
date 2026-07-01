@@ -1,0 +1,50 @@
+name: DB Migrate
+
+# Runs on every merge to main. The migration runner is idempotent — safe to run
+# on every merge even when there are no new migrations.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  migrate:
+    name: Apply Migrations
+    runs-on: ubuntu-latest
+    # environment: staging  # uncomment once the staging environment is created in GitHub repo Settings → Environments
+
+    # Required secrets — configure these in GitHub repo Settings → Secrets → Actions:
+    #   DATABASE_URL              Supabase direct connection string (not the pooler URL)
+    #   CATALOG_SVC_PASSWORD      Password for the catalog Postgres role
+    #   PROPOSAL_SVC_PASSWORD     Password for the proposal Postgres role
+    #   MARGIN_SVC_PASSWORD       Password for the margin Postgres role
+    #   GOVERNANCE_SVC_PASSWORD   Password for the governance Postgres role
+    #   NOTIFY_SVC_PASSWORD       Password for the notify Postgres role
+    #   DATA_PIPELINE_SVC_PASSWORD Password for the data_pipeline Postgres role
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install migration runner deps
+        run: pnpm install --frozen-lockfile
+        working-directory: tools/scripts/migrate
+
+      - name: Apply migrations
+        run: make migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CATALOG_SVC_PASSWORD: ${{ secrets.CATALOG_SVC_PASSWORD }}
+          PROPOSAL_SVC_PASSWORD: ${{ secrets.PROPOSAL_SVC_PASSWORD }}
+          MARGIN_SVC_PASSWORD: ${{ secrets.MARGIN_SVC_PASSWORD }}
+          GOVERNANCE_SVC_PASSWORD: ${{ secrets.GOVERNANCE_SVC_PASSWORD }}
+          NOTIFY_SVC_PASSWORD: ${{ secrets.NOTIFY_SVC_PASSWORD }}
+          DATA_PIPELINE_SVC_PASSWORD: ${{ secrets.DATA_PIPELINE_SVC_PASSWORD }}

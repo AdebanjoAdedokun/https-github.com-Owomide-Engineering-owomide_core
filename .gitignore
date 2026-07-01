@@ -5,11 +5,16 @@ dist/
 .env.*
 !.env.example
 
-# Bazel
+# Bazel (symlinks created by Bazel — no trailing slash so symlinks are also matched)
+bazel-bin
 bazel-bin/
+bazel-out
 bazel-out/
+bazel-testlogs
 bazel-testlogs/
+bazel-owomide_core
 bazel-owomide_core/
+MODULE.bazel.lock
 
 # Python
 __pycache__/

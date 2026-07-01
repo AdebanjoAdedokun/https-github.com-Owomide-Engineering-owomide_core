@@ -1,0 +1,40 @@
+# gazelle:prefix github.com/owomide/bus-interop-test
+# gazelle:python_library_naming_convention $package_name$_py
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+
+go_library(
+    name = "lib",
+    srcs = ["interop_go.go"],
+    importpath = "",
+    visibility = ["//visibility:private"],
+    deps = ["//src/lib/bus/go/pkg/bus"],
+)
+
+go_binary(
+    name = "tests",
+    embed = [":bus-interop-test_lib"],
+    visibility = ["//visibility:public"],
+)
+
+go_library(
+    name = "bus-interop-test_lib",
+    srcs = ["interop_go.go"],
+    importpath = "github.com/owomide/bus-interop-test",
+    visibility = ["//visibility:private"],
+    deps = ["//src/lib/bus/go/pkg/bus"],
+)
+
+py_binary(
+    name = "interop_py",
+    srcs = ["interop_py.py"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/lib/bus/py/owomide_bus"],
+)
+
+py_library(
+    name = "tests_py",
+    srcs = ["interop_py.py"],
+    visibility = ["//:__subpackages__"],
+    deps = ["//src/lib/bus/py/owomide_bus"],
+)

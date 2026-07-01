@@ -1,7 +1,16 @@
+# gazelle:proto disable
+load("@rules_python//python:proto.bzl", "py_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 proto_library(
     name = "envelope_proto",
     srcs = ["envelope.proto"],
+    strip_import_prefix = "/src/lib/proto",
     visibility = ["//visibility:public"],
+)
+
+py_proto_library(
+    name = "envelope_py_pb2",
+    visibility = ["//visibility:public"],
+    deps = [":envelope_proto"],
 )

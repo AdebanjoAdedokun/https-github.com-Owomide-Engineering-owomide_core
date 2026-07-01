@@ -1,0 +1,26 @@
+# gazelle:resolve go github.com/owomide/proto/events //src/lib/proto/gen/go/events:events
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "bus",
+    srcs = [
+        "bus.go",
+        "envelope.go",
+        "kafka_publisher.go",
+        "kafka_subscriber.go",
+        "types.go",
+    ],
+    importpath = "github.com/owomide/bus/pkg/bus",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/lib/proto/gen/go/events",
+        "@com_github_twmb_franz_go//pkg/kgo",
+        "@org_golang_google_protobuf//proto",
+    ],
+)
+
+go_test(
+    name = "bus_test",
+    srcs = ["envelope_test.go"],
+    embed = [":bus"],
+)

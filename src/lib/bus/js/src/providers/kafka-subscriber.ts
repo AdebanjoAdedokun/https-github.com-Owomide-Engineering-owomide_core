@@ -6,13 +6,13 @@ import type {
   Handler,
   KafkaConfig,
 } from "../types.js";
-import { deserialize  } from "../envelope.js";
+import { deserialize } from "../envelope.js";
 
 export class KafkaSubscriber implements Subscriber {
   private kafka: Kafka;
   private consumers: Consumer[] = [];
 
-  constructor(private config: KafkaConfig) {
+  constructor(config: KafkaConfig) {
     this.kafka = new Kafka({
       clientId: config.clientId,
       brokers: config.brokers,

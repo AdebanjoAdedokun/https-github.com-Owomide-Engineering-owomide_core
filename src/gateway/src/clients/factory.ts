@@ -17,5 +17,5 @@ export function createServiceClient<T extends DescService>(
   service: T,
   baseUrl: string,
 ) {
-  return createClient(service, getTransport(baseUrl));
+  return createClient(service, getTransport(baseUrl)) as any;
 }

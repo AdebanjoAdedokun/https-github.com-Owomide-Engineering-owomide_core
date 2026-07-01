@@ -1,0 +1,13 @@
+load("@rules_python//python:defs.bzl", "py_library")
+
+py_library(
+    name = "providers",
+    srcs = [
+        "__init__.py",
+        "kafka_publisher.py",
+        "kafka_subscriber.py",
+    ],
+    imports = ["../.."],
+    visibility = ["//visibility:public"],
+    deps = ["//src/lib/bus/py/owomide_bus"],
+)

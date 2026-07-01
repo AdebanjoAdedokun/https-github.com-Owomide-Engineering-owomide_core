@@ -1,6 +1,11 @@
 # Bzlmod (default for Bazel 7+, explicit for clarity)
 build --enable_bzlmod
 
+# TypeScript: honour the skipLibCheck setting from tsconfig.json
+common --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+# TypeScript: use tsc as the transpiler (produces .js from .ts)
+common --@aspect_rules_ts//ts:default_to_tsc_transpiler
+
 # Reproducibility
 build --incompatible_strict_action_env
 
@@ -15,6 +20,14 @@ build --show_progress_rate_limit=0.5
 build:macos --apple_crosstool_top=@local_config_apple_cc//:toolchain
 build:macos --crosstool_top=@local_config_apple_cc//:toolchain
 build:macos --host_crosstool_top=@local_config_apple_cc//:toolchain
+
+# Go: ensure Bazel fetch and build actions use the Homebrew Go, not the system default
+# repo_env applies during repository fetch (go_repository / go_deps); action_env covers build actions
+common --repo_env=GOROOT=/opt/homebrew/opt/go/libexec
+common --repo_env=GOTOOLCHAIN=auto
+common --repo_env=PATH=/opt/homebrew/opt/go/libexec/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin
+build --action_env=GOROOT=/opt/homebrew/opt/go/libexec
+build --action_env=GOTOOLCHAIN=auto
 
 # CI configuration
 build:ci --remote_download_minimal

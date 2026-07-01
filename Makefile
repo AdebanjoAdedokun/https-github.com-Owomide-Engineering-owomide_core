@@ -11,12 +11,16 @@ test: ## Run all tests
 	bazel test //...
 
 .PHONY: lint
-lint: ## Run linters (TS, Python, Go)
-	@echo "[lint] Not yet configured — will wire up ESLint, ruff, and golangci-lint in F0.7"
+lint: ## Run linters (TS, Python, Go — skips languages with no implementation yet)
+	cd src/gateway && pnpm eslint "src/**/*.ts"
+	@if find src -name "main.py" | grep -q .; then ruff check src; fi
+	@if find src -name "main.go" | grep -q .; then golangci-lint run src/...; fi
 
 .PHONY: fmt
-fmt: ## Auto-format code
-	@echo "[fmt] Not yet configured — will wire up prettier, ruff format, and gofmt in F0.7"
+fmt: ## Auto-format code (skips languages with no implementation yet)
+	cd src/gateway && pnpm prettier --write "src/**/*.ts"
+	@if find src -name "main.py" | grep -q .; then ruff format src; fi
+	@if find src -name "main.go" | grep -q .; then gofmt -w src; fi
 
 .PHONY: gateway-dev
 gateway-dev: ## Run gateway in dev mode with hot reload

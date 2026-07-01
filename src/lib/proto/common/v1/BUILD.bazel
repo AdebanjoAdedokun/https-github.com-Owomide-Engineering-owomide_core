@@ -1,8 +1,9 @@
+# gazelle:proto disable
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 proto_library(
     name = "common_proto",
     srcs = ["common.proto"],
+    strip_import_prefix = "/src/lib/proto",
     visibility = ["//visibility:public"],
-    deps = ["@com_google_protobuf//:timestamp_proto"],
 )

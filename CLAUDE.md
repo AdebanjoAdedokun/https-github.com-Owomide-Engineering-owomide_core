@@ -46,7 +46,7 @@ owomide/
 │           ├── events/
 │           └── services/
 │
-├── infra/                     ← DEPLOYMENT MANIFESTS (top-level — not runtime code)
+├── infra/                     ← DEPLOYMENT MANIFESTS (top-level — not runtime code; manifests stay here — see FUTURE.md for deferred infra-repo split)
 │   ├── k8s/
 │   │   ├── base/              ← Kustomize base
 │   │   └── overlays/

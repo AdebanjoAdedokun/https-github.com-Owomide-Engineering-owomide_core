@@ -1,5 +1,4 @@
-load("@rules_proto//proto:defs.bzl", "proto_library")
-
+# gazelle:proto disable_global
 package(default_visibility = ["//visibility:public"])
 
 genrule(
@@ -11,5 +10,27 @@ genrule(
         buf generate && \
         touch $(OUTS)
     """,
-    tools = ["buf.yaml", "buf.gen.yaml"],
+    tags = ["manual"],
+    tools = [
+        "buf.gen.yaml",
+        "buf.yaml",
+    ],
+)
+
+# Generated TypeScript types — populated after `make proto` / `buf generate`
+filegroup(
+    name = "gen_ts",
+    srcs = glob(
+        ["gen/ts/**/*.ts"],
+        allow_empty = True,
+    ),
+)
+
+# Generated Python types — populated after `make proto` / `buf generate`
+filegroup(
+    name = "gen_py",
+    srcs = glob(
+        ["gen/py/**/*.py"],
+        allow_empty = True,
+    ),
 )
