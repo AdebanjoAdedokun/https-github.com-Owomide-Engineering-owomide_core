@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bus-smoke-subscriber
+spec:
+  selector:
+    matchLabels:
+      app: bus-smoke-subscriber
+  template:
+    metadata:
+      labels:
+        app: bus-smoke-subscriber
+    spec:
+      containers:
+        - name: subscriber
+          image: owomide/bus-smoke
+          imagePullPolicy: Never
+          command: ["node", "src/lib/bus-smoke/dist/subscriber.js"]
+          ports:
+            - containerPort: 5100
+          env:
+            - name: KAFKA_BROKERS
+              value: kafka:9092
+            - name: KAFKA_CLIENT_ID
+              value: bus-smoke-subscriber
+            - name: BUS_SMOKE_TOPIC
+              value: test.ping
+            - name: PORT
+              value: "5100"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5100
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 5100
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

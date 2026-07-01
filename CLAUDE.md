@@ -127,6 +127,7 @@ bazel run //src/proposal:server
 make dev                                  # equivalent to: kubectl config use-context orbstack && skaffold dev
 make dev-infra                            # only Postgres / Redis / MinIO / Kafka — useful when running a service bare-metal for debugging
 make dev-down                             # tear down deployed resources (OrbStack cluster stays up)
+make bus-smoke-test                       # verify local Kafka test.ping publisher -> subscriber delivery
 
 # DB migrations (F0.6)
 # Local dev: DATABASE_URL points at local Postgres (see .env.example).

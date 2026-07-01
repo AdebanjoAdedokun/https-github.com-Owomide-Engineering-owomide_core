@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bus-smoke-subscriber
+spec:
+  selector:
+    app: bus-smoke-subscriber
+  ports:
+    - name: http
+      port: 5100
+      targetPort: 5100

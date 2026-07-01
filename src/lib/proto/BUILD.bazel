@@ -1,5 +1,16 @@
 # gazelle:proto disable_global
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+
 package(default_visibility = ["//visibility:public"])
+
+js_library(
+    name = "pkg",
+    srcs = [
+        "package.json",
+    ] + glob([
+        "gen/ts/**/*.js",
+    ]),
+)
 
 genrule(
     name = "generate",

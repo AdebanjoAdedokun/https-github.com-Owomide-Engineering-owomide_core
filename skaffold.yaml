@@ -14,6 +14,10 @@ build:
       context: .
       docker:
         dockerfile: src/gateway/Dockerfile
+    # - image: owomide/bus-smoke
+    #   context: .
+    #   docker:
+    #     dockerfile: src/lib/bus-smoke/Dockerfile
 
 manifests:
   kustomize:
@@ -56,6 +60,11 @@ portForward:
     namespace: default
     port: 9092
     localPort: 9092
+  - resourceType: Service
+    resourceName: bus-smoke-subscriber
+    namespace: default
+    port: 5100
+    localPort: 5100
 
 profiles:
   # Used by `make dev-infra` — deploys only backing services, no gateway.

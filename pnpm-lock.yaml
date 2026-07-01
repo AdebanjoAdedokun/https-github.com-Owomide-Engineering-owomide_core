@@ -69,6 +69,9 @@ importers:
       '@bufbuild/protobuf':
         specifier: ^2.12.1
         version: 2.12.1
+      '@owomide/proto':
+        specifier: workspace:*
+        version: link:../../proto
       kafkajs:
         specifier: ^2.2.4
         version: 2.2.4
@@ -85,6 +88,31 @@ importers:
       vitest:
         specifier: ^3
         version: 3.2.6(@types/node@22.20.0)(tsx@4.22.4)
+
+  src/lib/bus-smoke:
+    dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^2.12.1
+        version: 2.12.1
+      '@owomide/bus':
+        specifier: workspace:*
+        version: link:../bus/js
+      '@owomide/proto':
+        specifier: workspace:*
+        version: link:../proto
+      fastify:
+        specifier: ^5.3.3
+        version: 5.9.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22
+        version: 22.20.0
+      tsx:
+        specifier: ^4
+        version: 4.22.4
+      typescript:
+        specifier: ^5.7
+        version: 5.9.3
 
   src/lib/proto:
     dependencies:

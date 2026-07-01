@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
@@ -12,6 +20,7 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.12.1",
+    "@owomide/proto": "workspace:*",
     "kafkajs": "^2.2.4"
   },
   "devDependencies": {

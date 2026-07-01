@@ -1,0 +1,24 @@
+{
+  "name": "@owomide/bus-smoke",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "publisher": "node dist/publisher.js",
+    "subscriber": "node dist/subscriber.js",
+    "dev:publisher": "tsx src/publisher.ts",
+    "dev:subscriber": "tsx src/subscriber.ts"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.12.1",
+    "@owomide/bus": "workspace:*",
+    "@owomide/proto": "workspace:*",
+    "fastify": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsx": "^4",
+    "typescript": "^5.7"
+  }
+}
