@@ -99,7 +99,7 @@ The skeleton everything sits on. Build this first, ship nothing user-visible, ge
 | ID | Feature | Notes |
 |---|---|---|
 | F0.1 | Bazel monorepo scaffold | `WORKSPACE.bazel`, root `BUILD.bazel`, `src/` (services + packages), `tools/` (bazel macros, deploy manifests, scripts). Rules for Node + Python; rules for Go pre-registered but unused. |
-| F0.2 | **Minikube + Skaffold dev stack** | k8s manifests for Postgres, Redis, MinIO, and a hello-world service; Skaffold for hot reload; `make dev` brings up the cluster; Kustomize overlays for `local` / `staging` / `prod` |
+| F0.2 | **Minikube + Skaffold dev stack** | k8s manifests for Postgres, Redis, MinIO, and a hello-world service; Skaffold for hot reload; `make dev` brings up the cluster; Kustomize overlays for `local` / `staging` / `prod`. Manifests live in `infra/k8s/` within this repo — extraction to a dedicated `owomide_infra` repo is deferred until GitOps tooling (ArgoCD/Flux) lands; see `FUTURE.md`. |
 | F0.3 | Shared proto package | `src/lib/proto/{events,services}` with the locked events. Every customer-owned event includes `org_id`. Cross-language codegen (Node, Python; Go later). |
 | F0.4 | Gateway / BFF skeleton | Node, JWT verify, route table, gRPC client factory |
 | F0.5 | **Event bus library (Kafka)** | `src/lib/bus` — uniform `Publisher` / `Subscriber` contract across **three native implementations**: Node.js (`js/`), Python (`py/`), and Go (`go/`). Kafka provider from day one in all three languages. Cross-language interop test mandatory. See `src/lib/bus/CLAUDE.md`. |
