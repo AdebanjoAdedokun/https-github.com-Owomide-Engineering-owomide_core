@@ -8,6 +8,12 @@ data:
   LOG_LEVEL: info
   CORS_ORIGIN: "*"
   JWT_SECRET: dev-secret-for-local-testing-only
+  JWT_EXPIRES_IN: "3600"
+  DEV_USER_EMAIL: dev@owomide.local
+  DEV_USER_PASSWORD: dev
+  DEV_USER_ORG_ID: org-dev
+  DEV_USER_ID: user-dev
+  DEV_USER_ROLES: admin
   PROPOSAL_SERVICE_URL: http://proposal:50051
   CATALOG_SERVICE_URL: http://catalog:50052
   MARGIN_SERVICE_URL: http://margin:50053

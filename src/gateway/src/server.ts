@@ -5,6 +5,7 @@ import { registerCors } from "./middleware/cors.js";
 import { registerRateLimit } from "./middleware/rate-limit.js";
 import { registerErrorEnvelope } from "./middleware/error-envelope.js";
 import { registerHealthRoutes } from "./routes/health.js";
+import { registerAuthRoutes } from "./routes/auth.js";
 import { registerProposalRoutes } from "./routes/proposals.js";
 import { registerOverrideRequestRoutes } from "./routes/override-requests.js";
 import { registerChangeSetRoutes } from "./routes/change-sets.js";
@@ -28,6 +29,7 @@ export async function buildApp() {
   registerErrorEnvelope(app);
 
   await registerHealthRoutes(app);
+  await registerAuthRoutes(app, config);
   await registerProposalRoutes(app, config);
   await registerOverrideRequestRoutes(app, config);
   await registerChangeSetRoutes(app, config);

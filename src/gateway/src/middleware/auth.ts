@@ -33,6 +33,7 @@ export async function registerAuth(app: FastifyInstance, config: Config) {
 
   app.addHook("onRequest", async (request, reply) => {
     if (request.url === "/health") return;
+    if (request.url === "/auth/login" && request.method === "POST") return;
 
     const authHeader = request.headers.authorization;
     if (!authHeader?.startsWith("Bearer ")) {

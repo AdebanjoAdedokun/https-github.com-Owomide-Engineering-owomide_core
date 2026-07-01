@@ -132,6 +132,21 @@ make dev-down   # removes deployed resources; OrbStack cluster stays up
 so you reach them directly — e.g. `curl localhost:5000/health` for the gateway,
 `psql …@localhost:5432` for Postgres, MinIO console at `localhost:9001`.
 
+Get a dev JWT (single hardcoded dev user, replaced by a real IdP later):
+
+```bash
+curl -sXPOST localhost:5000/auth/login \
+  -H 'content-type: application/json' \
+  -d '{"email":"dev@owomide.local","password":"dev"}'
+# => {"token":"eyJ...","expiresIn":3600}
+```
+
+Use the token on any protected route:
+
+```bash
+curl localhost:5000/proposals -H "Authorization: Bearer <token>"
+```
+
 ```bash
 # Inspect cluster state
 kubectl get pods
