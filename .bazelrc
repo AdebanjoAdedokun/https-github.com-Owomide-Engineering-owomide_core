@@ -1,6 +1,11 @@
 # Bzlmod (default for Bazel 7+, explicit for clarity)
 build --enable_bzlmod
 
+# TypeScript: honour the skipLibCheck setting from tsconfig.json
+common --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+# TypeScript: use tsc as the transpiler (produces .js from .ts)
+common --@aspect_rules_ts//ts:default_to_tsc_transpiler
+
 # Reproducibility
 build --incompatible_strict_action_env
 

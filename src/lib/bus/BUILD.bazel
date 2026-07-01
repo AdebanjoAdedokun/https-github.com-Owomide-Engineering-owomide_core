@@ -1,18 +1,21 @@
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
-load("@rules_python//python:defs.bzl", "py_library", "py_test")
-load("@rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_python//python:defs.bzl", "py_library")
 
 # --- Node.js / TypeScript ---
+# Go targets are Gazelle-managed: //src/lib/bus/go/pkg/bus
 
 ts_project(
     name = "bus_js",
-    srcs = glob(["js/src/**/*.ts"], exclude = ["js/src/tests/**"]),
+    srcs = glob(
+        ["js/src/**/*.ts"],
+        exclude = ["js/src/tests/**"],
+    ),
     declaration = True,
     tsconfig = "js/tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [
-        "//:node_modules/kafkajs",
         "//:node_modules/@bufbuild/protobuf",
+        "//:node_modules/kafkajs",
         "//src/lib/proto:gen_ts",
     ],
 )
@@ -21,30 +24,13 @@ ts_project(
 
 py_library(
     name = "bus_py",
-    srcs = glob(["py/owomide_bus/**/*.py"], exclude = ["py/owomide_bus/tests/**"]),
+    srcs = glob(
+        ["py/owomide_bus/**/*.py"],
+        exclude = ["py/owomide_bus/tests/**"],
+    ),
     imports = ["py"],
     visibility = ["//visibility:public"],
     deps = [
         "//src/lib/proto:gen_py",
     ],
-)
-
-# --- Go ---
-
-go_library(
-    name = "bus_go",
-    srcs = glob(["go/pkg/bus/*.go"], exclude = ["go/pkg/bus/*_test.go"]),
-    importpath = "github.com/owomide/bus/pkg/bus",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//src/lib/proto/gen/go/events:events_go_proto",
-        "@com_github_twmb_franz_go//pkg/kgo",
-        "@org_golang_google_protobuf//proto",
-    ],
-)
-
-go_test(
-    name = "bus_go_test",
-    srcs = glob(["go/pkg/bus/*_test.go"]),
-    embed = [":bus_go"],
 )

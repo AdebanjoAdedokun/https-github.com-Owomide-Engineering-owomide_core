@@ -1,3 +1,5 @@
+load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//proto:def.bzl", "go_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 proto_library(
@@ -5,8 +7,27 @@ proto_library(
     srcs = ["proposal.proto"],
     visibility = ["//visibility:public"],
     deps = [
-        "//src/lib/proto/common/v1:common_proto",
-        "//src/lib/proto/services/margin/v1:margin_proto",
-        "@com_google_protobuf//:timestamp_proto",
+        "//common/v1:v1_proto",
+        "//services/margin/v1:v1_proto",
+        "@protobuf//:timestamp_proto",
     ],
+)
+
+go_proto_library(
+    name = "v1_go_proto",
+    compilers = ["@io_bazel_rules_go//proto:go_grpc"],
+    importpath = "github.com/owomide/proto/services/proposal/v1",
+    proto = ":proposal_proto",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//common/v1:common_proto",
+        "//services/margin/v1:margin_proto",
+    ],
+)
+
+go_library(
+    name = "proposal",
+    embed = [":v1_go_proto"],
+    importpath = "github.com/owomide/proto/services/proposal/v1",
+    visibility = ["//visibility:public"],
 )

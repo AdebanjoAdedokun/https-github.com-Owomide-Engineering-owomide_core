@@ -1,5 +1,8 @@
-load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
 load("@aspect_rules_js//js:defs.bzl", "js_binary")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages()
 
 ts_project(
     name = "gateway_ts",
@@ -9,14 +12,15 @@ ts_project(
     tsconfig = ":tsconfig.json",
     visibility = ["//visibility:public"],
     deps = [
-        "//:node_modules/fastify",
-        "//:node_modules/@fastify/cors",
-        "//:node_modules/@fastify/rate-limit",
-        "//:node_modules/@connectrpc/connect",
-        "//:node_modules/@connectrpc/connect-node",
-        "//:node_modules/@bufbuild/protobuf",
-        "//:node_modules/jose",
-        "//:node_modules/zod",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
+        ":node_modules/@connectrpc/connect-node",
+        ":node_modules/@fastify/cors",
+        ":node_modules/@fastify/rate-limit",
+        ":node_modules/fastify",
+        ":node_modules/jose",
+        ":node_modules/zod",
+        "//:tsconfig_base_json",
         "//src/lib/proto:gen_ts",
     ],
 )
