@@ -19,7 +19,7 @@ export function grpcCodeToHttpStatus(code: number): number {
 }
 
 export function registerErrorEnvelope(app: FastifyInstance) {
-  app.setErrorHandler((error, _request, reply) => {
+  app.setErrorHandler((error: any, _request, reply) => {
     if (error instanceof ConnectError) {
       const status = grpcCodeToHttpStatus(error.code);
       return reply.status(status).send({

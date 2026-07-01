@@ -1,0 +1,29 @@
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
+
+py_library(
+    name = "tests",
+    srcs = ["__init__.py"],
+    imports = ["../.."],
+    visibility = ["//visibility:public"],
+)
+
+py_test(
+    name = "test_envelope",
+    srcs = ["test_envelope.py"],
+    imports = ["../.."],
+    deps = ["//src/lib/bus/py/owomide_bus"],
+)
+
+py_test(
+    name = "test_publisher",
+    srcs = ["test_publisher.py"],
+    imports = ["../.."],
+    deps = ["//src/lib/bus/py/owomide_bus"],
+)
+
+py_test(
+    name = "test_subscriber",
+    srcs = ["test_subscriber.py"],
+    imports = ["../.."],
+    deps = ["//src/lib/bus/py/owomide_bus"],
+)

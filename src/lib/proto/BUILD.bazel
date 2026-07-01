@@ -10,6 +10,7 @@ genrule(
         buf generate && \
         touch $(OUTS)
     """,
+    tags = ["manual"],
     tools = [
         "buf.gen.yaml",
         "buf.yaml",

@@ -1,3 +1,5 @@
+import type { SASLOptions } from "kafkajs";
+
 export interface EventMetadata {
   traceId?: string;
   spanId?: string;
@@ -17,11 +19,7 @@ export interface KafkaConfig {
   brokers: string[];
   clientId: string;
   ssl?: boolean;
-  sasl?: {
-    mechanism: "plain" | "scram-sha-256" | "scram-sha-512";
-    username: string;
-    password: string;
-  };
+  sasl?: SASLOptions;
 }
 
 export interface BusConfig {

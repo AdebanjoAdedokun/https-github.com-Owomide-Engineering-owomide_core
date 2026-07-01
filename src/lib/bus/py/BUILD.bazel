@@ -1,0 +1,4 @@
+# gazelle:python_root
+# gazelle:python_validate_import_statements false
+# gazelle:python_generation_mode package
+# gazelle:python_default_visibility //visibility:public

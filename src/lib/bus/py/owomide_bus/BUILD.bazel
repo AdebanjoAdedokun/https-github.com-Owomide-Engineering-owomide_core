@@ -1,0 +1,13 @@
+# gazelle:python_ignore_dependencies owomide_bus.providers.kafka_publisher,owomide_bus.providers.kafka_subscriber
+load("@rules_python//python:defs.bzl", "py_library")
+
+py_library(
+    name = "owomide_bus",
+    srcs = [
+        "__init__.py",
+        "envelope.py",
+        "types.py",
+    ],
+    imports = [".."],
+    visibility = ["//visibility:public"],
+)

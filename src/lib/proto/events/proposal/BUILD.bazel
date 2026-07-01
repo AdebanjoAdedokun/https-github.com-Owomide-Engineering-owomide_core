@@ -1,20 +1,13 @@
-load("@rules_go//proto:def.bzl", "go_proto_library")
+# gazelle:proto disable
 load("@rules_proto//proto:defs.bzl", "proto_library")
 
 proto_library(
     name = "proposal_events_proto",
     srcs = ["v1.proto"],
+    strip_import_prefix = "/src/lib/proto",
     visibility = ["//visibility:public"],
     deps = [
-        "//common/v1:v1_proto",
+        "//src/lib/proto/common/v1:common_proto",
         "@protobuf//:timestamp_proto",
     ],
-)
-
-go_proto_library(
-    name = "v1_go_proto",
-    importpath = "github.com/owomide/proto/events/proposal/v1",
-    proto = ":proposal_events_proto",
-    visibility = ["//visibility:public"],
-    deps = ["//common/v1:common_proto"],
 )

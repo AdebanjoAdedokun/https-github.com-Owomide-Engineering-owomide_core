@@ -1,22 +1,10 @@
+# gazelle:importpath github.com/owomide/proto/events/proposal/v1
 load("@rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "v1",
-    srcs = ["v1.pb.go"],
-    importpath = "",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//src/lib/proto/common/v1:common",
-        "@org_golang_google_protobuf//reflect/protoreflect",
-        "@org_golang_google_protobuf//runtime/protoimpl",
-        "@org_golang_google_protobuf//types/known/timestamppb",
-    ],
-)
 
 go_library(
     name = "proposal",
     srcs = ["v1.pb.go"],
-    importpath = "github.com/owomide/proto/events/proposal",
+    importpath = "github.com/owomide/proto/events/proposal/v1",
     visibility = ["//visibility:public"],
     deps = [
         "//src/lib/proto/gen/go/common/v1:common",

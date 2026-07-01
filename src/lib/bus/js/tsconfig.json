@@ -2,10 +2,7 @@
   "extends": "../../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    "paths": {
-      "@owomide/proto/*": ["../../proto/gen/ts/*"]
-    }
+    "rootDir": "src"
   },
   "include": ["src"]
 }

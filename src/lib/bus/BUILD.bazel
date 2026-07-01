@@ -1,24 +1,7 @@
-load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
 load("@rules_python//python:defs.bzl", "py_library")
 
-# --- Node.js / TypeScript ---
+# JS target lives in //src/lib/bus/js:bus_js (its own npm workspace package)
 # Go targets are Gazelle-managed: //src/lib/bus/go/pkg/bus
-
-ts_project(
-    name = "bus_js",
-    srcs = glob(
-        ["js/src/**/*.ts"],
-        exclude = ["js/src/tests/**"],
-    ),
-    declaration = True,
-    tsconfig = "js/tsconfig.json",
-    visibility = ["//visibility:public"],
-    deps = [
-        "//:node_modules/@bufbuild/protobuf",
-        "//:node_modules/kafkajs",
-        "//src/lib/proto:gen_ts",
-    ],
-)
 
 # --- Python ---
 
@@ -29,6 +12,7 @@ py_library(
         exclude = ["py/owomide_bus/tests/**"],
     ),
     imports = ["py"],
+    tags = ["manual"],
     visibility = ["//visibility:public"],
     deps = [
         "//src/lib/proto:gen_py",

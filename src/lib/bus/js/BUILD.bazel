@@ -1,0 +1,34 @@
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages()
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = ["//:tsconfig_base_json"],
+)
+
+ts_project(
+    name = "bus_js",
+    srcs = glob(
+        [
+            "src/**/*.d.ts",
+            "src/**/*.ts",
+        ],
+        exclude = ["src/tests/**"],
+    ),
+    declaration = True,
+    declaration_map = True,
+    out_dir = "dist",
+    resolve_json_module = True,
+    root_dir = "src",
+    source_map = True,
+    tsconfig = ":tsconfig",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@types/node",
+        ":node_modules/kafkajs",
+    ],
+)
