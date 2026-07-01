@@ -10,7 +10,7 @@ jobs:
   migrate:
     name: Apply Migrations
     runs-on: ubuntu-latest
-    environment: staging  # swap to prod when that environment is live
+    # environment: staging  # uncomment once the staging environment is created in GitHub repo Settings → Environments
 
     # Required secrets — configure these in GitHub repo Settings → Secrets → Actions:
     #   DATABASE_URL              Supabase direct connection string (not the pooler URL)
@@ -27,7 +27,7 @@ jobs:
       - name: Set up Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
