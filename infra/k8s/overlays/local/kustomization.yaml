@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Extend the shared base — inherits all resources (postgres, redis, minio, kafka, gateway).
+# Minimal overrides: this is local dev, so the base dev values are fine as-is.
+resources:
+  - ../../base

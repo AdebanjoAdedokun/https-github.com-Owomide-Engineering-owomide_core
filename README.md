@@ -19,7 +19,7 @@ The canonical object is the **Pricing Proposal**. Three product themes orbit it:
 | Cache | Redis |
 | Object store | MinIO (S3-compatible) |
 | Event bus | Kafka from day one (`src/lib/bus` abstraction) |
-| Orchestration | Kubernetes — minikube locally, k3s/kubeadm on Hetzner Cloud |
+| Orchestration | Kubernetes — OrbStack locally, k3s/kubeadm on Hetzner Cloud |
 | IPC | gRPC service-to-service; REST only at the gateway |
 
 ## Repository layout
@@ -55,16 +55,14 @@ owomide_core/
 Install via [Homebrew](https://brew.sh/):
 
 ```bash
-brew install bazelisk node@20 python@3.12 pnpm minikube kubectl skaffold
+brew install bazelisk node@20 python@3.12 pnpm kubectl skaffold kustomize kubeval
 ```
 
-You also need a container runtime. We use [OrbStack](https://orbstack.dev/) (recommended for macOS):
+We use [OrbStack](https://orbstack.dev/) as our container runtime and local Kubernetes cluster (recommended for macOS — ships built-in k8s, no minikube needed):
 
 ```bash
 brew install orbstack
 ```
-
-Docker Desktop or Colima also work — minikube just needs a Docker-compatible socket.
 
 | Tool | Version | Purpose |
 |------|---------|---------|
@@ -72,56 +70,80 @@ Docker Desktop or Colima also work — minikube just needs a Docker-compatible s
 | Node.js | 20+ | Backend services + gateway |
 | Python | 3.12+ | Data Pipeline service |
 | pnpm | 9+ | Node package manager |
-| OrbStack | latest | Container runtime (Docker-compatible) |
-| minikube | latest | Local Kubernetes cluster |
+| OrbStack | latest | Container runtime + built-in Kubernetes |
 | kubectl | latest | Kubernetes CLI |
-| Skaffold | latest | Dev loop — build, deploy, hot-reload on minikube |
+| Skaffold | latest | Dev loop — build, deploy, hot-reload |
+| kustomize | latest | k8s manifest composition (local/staging/prod overlays) |
+| kubeval | latest | k8s manifest schema validation |
 
-## Local Kubernetes setup (minikube)
+## Local Kubernetes setup (OrbStack)
 
-### 1. Start the cluster
+OrbStack ships with a built-in Kubernetes cluster — no extra cluster setup needed.
 
-```bash
-minikube start --cpus=4 --memory=8192 --driver=docker
-```
+### 1. Enable Kubernetes in OrbStack
 
-OrbStack's Docker socket is picked up automatically. If you have multiple Docker contexts, make sure OrbStack is the active one:
+Open **OrbStack → Settings → Kubernetes → Enable**. Wait for the cluster to become ready (usually under 30 seconds).
 
-```bash
-docker context use orbstack
-```
-
-### 2. Enable addons
+### 2. Verify
 
 ```bash
-minikube addons enable ingress
-minikube addons enable storage-provisioner
-```
-
-### 3. Verify
-
-```bash
-minikube status
+kubectl config use-context orbstack
 kubectl get nodes
 ```
 
 You should see a single node in `Ready` state.
 
-### 4. Access services
+### 3. Start the dev stack
 
 ```bash
-# Open the minikube dashboard
-minikube dashboard
+make dev
+```
 
-# Get the cluster IP for a service
-minikube service <service-name> --url
+This builds the gateway image locally, deploys all backing services (Postgres, Redis, MinIO, Kafka) and the gateway to OrbStack k8s, and starts port-forwarding:
+
+| Service | Local port |
+|---------|-----------|
+| Gateway (REST API) | `localhost:5000` |
+| Postgres | `localhost:5432` |
+| Redis | `localhost:6379` |
+| MinIO API | `localhost:9000` |
+| MinIO Console | `localhost:9001` |
+| Kafka | `localhost:9092` |
+
+> Port 3000 is **not** forwarded — it is reserved for the frontend SPA.
+
+### 4. Apply database migrations
+
+```bash
+make migrate
+```
+
+Runs against the in-cluster Postgres via the port-forward on `localhost:5432`.
+
+### 5. Tear down
+
+```bash
+make dev-down   # removes deployed resources; OrbStack cluster stays up
+```
+
+### 4. Access services
+
+`make dev` port-forwards cluster services to localhost (see the port table above),
+so you reach them directly — e.g. `curl localhost:5000/health` for the gateway,
+`psql …@localhost:5432` for Postgres, MinIO console at `localhost:9001`.
+
+```bash
+# Inspect cluster state
+kubectl get pods
+kubectl logs deploy/gateway -f
+
+# OrbStack ships a built-in dashboard — open the OrbStack app → Kubernetes
 ```
 
 ### 5. Tear down
 
 ```bash
-minikube stop     # pause the cluster (preserves state)
-minikube delete   # destroy the cluster entirely
+make dev-down     # removes deployed resources; the OrbStack cluster stays up
 ```
 
 > **Coming in F0.2:** `make dev` will automate cluster setup + Skaffold deployment of all services with hot-reload. For now, these manual steps get you a running cluster.
@@ -185,9 +207,9 @@ Migrations run automatically in GitHub Actions on every push to `main` (wired in
 | `make test` | Ready | `bazel test //...` |
 | `make lint` | F0.7 | Run ESLint, ruff, golangci-lint |
 | `make fmt` | F0.7 | Auto-format (prettier, ruff, gofmt) |
-| `make dev` | F0.2 | Start minikube + Skaffold dev stack |
-| `make dev-infra` | F0.2 | Start infra only (Postgres, Redis, MinIO) |
-| `make dev-down` | F0.2 | Tear down minikube |
+| `make dev` | F0.2 | Start OrbStack + Skaffold dev stack |
+| `make dev-infra` | F0.2 | Start infra only (Postgres, Redis, MinIO, Kafka) |
+| `make dev-down` | F0.2 | Tear down deployed dev resources (OrbStack cluster stays up) |
 | `make migrate [svc=X]` | F0.6 | Apply pending DB migrations (all services or one) |
 | `make migrate-down svc=X [steps=N]` | F0.6 | Roll back last N migrations for a service |
 | `make migrate-create svc=X name=Y` | F0.6 | Scaffold a new paired .up.sql + .down.sql |

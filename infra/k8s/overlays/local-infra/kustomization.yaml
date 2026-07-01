@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Infra-only overlay: no gateway. Used by `make dev-infra` for bare-metal service debugging
+# where you run a service locally and point it at the in-cluster backing services.
+resources:
+  - ../../base/postgres
+  - ../../base/redis
+  - ../../base/minio
+  - ../../base/kafka

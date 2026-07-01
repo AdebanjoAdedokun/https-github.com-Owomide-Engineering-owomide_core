@@ -108,7 +108,7 @@ The skeleton everything sits on. Build this first, ship nothing user-visible, ge
 | F0.8 | Auth scaffolding | JWT issue + verify, single hardcoded user for dev |
 | F0.9 | **Bus smoke test across services** | A test service publishes `test.ping`; another consumes it; integration test asserts end-to-end delivery via `src/lib/bus`. Proves the abstraction works before Phase 1 leans on it. |
 
-**Phase 0 exit criteria:** `make dev` brings up the full stack on minikube (including Kafka). `bazel test //...` passes (on empty services). CI green on `main`. **A test event published via `src/lib/bus` is received by a subscriber in another service** — proves the abstraction works end-to-end before any real feature depends on it.
+**Phase 0 exit criteria:** `make dev` brings up the full stack on OrbStack (including Kafka). `bazel test //...` passes (on empty services). CI green on `main`. **A test event published via `src/lib/bus` is received by a subscriber in another service** — proves the abstraction works end-to-end before any real feature depends on it.
 
 ### Phase 1 — Catalog + Import end-to-end
 
@@ -214,6 +214,7 @@ The nice-to-haves that move the product from "works" to "feels finished".
 - Customer-facing API
 - Webhooks
 - ML pricing optimization
+- **Helm adoption** — introduce Helm for heavyweight third-party dependencies (production-grade Kafka, Postgres HA, observability stack like Prometheus + Grafana, cert-manager). Use official vendor charts via `helm install` rather than hand-writing those manifests. Kustomize stays the tool for Owomide's own first-party manifests. Optionally: package Owomide itself as a Helm chart for enterprise self-host deployments.
 
 Not on the MVP critical path; gated on customer signal.
 

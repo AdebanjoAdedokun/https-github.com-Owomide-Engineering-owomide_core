@@ -95,23 +95,23 @@ jobs:
         if: steps.guard.outputs.exists == 'true'
         uses: imranismail/setup-kustomize@v2
 
-      - name: Install kubeval
+      - name: Install kubeconform
         if: steps.guard.outputs.exists == 'true'
         run: |
-          curl -sL https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz \
-            | tar xz && sudo mv kubeval /usr/local/bin/
+          curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
+            | tar xz && sudo mv kubeconform /usr/local/bin/
 
       - name: Validate local overlay
         if: steps.guard.outputs.exists == 'true'
-        run: kustomize build infra/k8s/overlays/local | kubeval --strict
+        run: kustomize build infra/k8s/overlays/local | kubeconform -strict -summary
 
       - name: Validate staging overlay
         if: steps.guard.outputs.exists == 'true'
-        run: kustomize build infra/k8s/overlays/staging | kubeval --strict
+        run: kustomize build infra/k8s/overlays/staging | kubeconform -strict -summary
 
       - name: Validate prod overlay
         if: steps.guard.outputs.exists == 'true'
-        run: kustomize build infra/k8s/overlays/prod | kubeval --strict
+        run: kustomize build infra/k8s/overlays/prod | kubeconform -strict -summary
 
   # Detect which services have changed so we only build affected images
   changes:

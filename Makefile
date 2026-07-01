@@ -33,16 +33,18 @@ gateway-test: ## Run gateway unit tests
 # --- Stubbed targets (F0.2+) ---
 
 .PHONY: dev
-dev: ## Start local dev stack (minikube + Skaffold) [F0.2]
-	@echo "[dev] Not yet implemented — see F0.2 in BUILD_PLAN.md"
+dev: ## Start local dev stack (OrbStack k8s + Skaffold) [F0.2]
+	kubectl config use-context orbstack
+	skaffold dev
 
 .PHONY: dev-infra
-dev-infra: ## Start infra only (Postgres, Redis, MinIO) [F0.2]
-	@echo "[dev-infra] Not yet implemented — see F0.2 in BUILD_PLAN.md"
+dev-infra: ## Start infra only (Postgres, Redis, MinIO, Kafka) — no gateway [F0.2]
+	kubectl config use-context orbstack
+	skaffold dev -p infra-only
 
 .PHONY: dev-down
-dev-down: ## Tear down minikube cluster [F0.2]
-	@echo "[dev-down] Not yet implemented — see F0.2 in BUILD_PLAN.md"
+dev-down: ## Tear down deployed resources from OrbStack k8s [F0.2]
+	skaffold delete
 
 .PHONY: migrate
 migrate: ## Apply pending migrations [svc=<name> for one service] [F0.6]
@@ -78,8 +80,10 @@ gazelle: ## Auto-generate BUILD.bazel files
 	bazel run //:gazelle
 
 .PHONY: manifests-validate
-manifests-validate: ## Validate k8s manifests (kubeval + kustomize build) [F0.7]
-	@echo "[manifests-validate] Not yet implemented — see F0.7 in BUILD_PLAN.md"
+manifests-validate: ## Validate k8s manifests (kubeconform strict) [F0.2/F0.7]
+	kustomize build infra/k8s/overlays/local | kubeconform -strict -summary
+	kustomize build infra/k8s/overlays/staging | kubeconform -strict -summary
+	kustomize build infra/k8s/overlays/prod | kubeconform -strict -summary
 
 # --- Help ---
 
