@@ -1,17 +1,15 @@
-from unittest.mock import AsyncMock, patch, MagicMock
 import asyncio
-import pytest
+import unittest
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from owomide_bus.types import Event, KafkaConfig, SubscribeOptions
 from owomide_bus.envelope import serialize
+from owomide_bus.types import Event, KafkaConfig, SubscribeOptions
 
 
-@pytest.fixture
 def config():
     return KafkaConfig(brokers=["localhost:9092"], client_id="test-subscriber")
 
 
-@pytest.fixture
 def test_event():
     return Event(
         id="evt_sub_001",
@@ -43,71 +41,77 @@ class FakeConsumer:
         return self._messages.pop(0)
 
 
-@patch("owomide_bus.providers.kafka_subscriber.AIOKafkaProducer")
-@patch("owomide_bus.providers.kafka_subscriber.AIOKafkaConsumer")
-async def test_subscribes_and_receives_event(mock_consumer_cls, mock_dlq_cls, config, test_event):
-    serialized = serialize(test_event)
-    fake_consumer = FakeConsumer([FakeMessage(serialized)])
-    mock_consumer_cls.return_value = fake_consumer
+class KafkaSubscriberTest(unittest.IsolatedAsyncioTestCase):
+    @patch("owomide_bus.providers.kafka_subscriber.AIOKafkaProducer")
+    @patch("owomide_bus.providers.kafka_subscriber.AIOKafkaConsumer")
+    async def test_subscribes_and_receives_event(self, mock_consumer_cls, mock_dlq_cls):
+        serialized = serialize(test_event())
+        fake_consumer = FakeConsumer([FakeMessage(serialized)])
+        mock_consumer_cls.return_value = fake_consumer
 
-    handler = AsyncMock()
+        handler = AsyncMock()
 
-    from owomide_bus.providers.kafka_subscriber import KafkaSubscriber
-    subscriber = KafkaSubscriber(config)
-    opts = SubscribeOptions(topic="proposal.submitted", group="test.handler")
-    sub = await subscriber.subscribe(opts, handler)
+        from owomide_bus.providers.kafka_subscriber import KafkaSubscriber
 
-    await asyncio.sleep(0.1)
+        subscriber = KafkaSubscriber(config())
+        opts = SubscribeOptions(topic="proposal.submitted", group="test.handler")
+        sub = await subscriber.subscribe(opts, handler)
 
-    handler.assert_awaited_once()
-    received = handler.call_args[0][0]
-    assert received.id == "evt_sub_001"
-    assert received.type == "proposal.submitted"
+        await asyncio.sleep(0.1)
 
-    await sub.unsubscribe()
+        handler.assert_awaited_once()
+        received = handler.call_args[0][0]
+        self.assertEqual(received.id, "evt_sub_001")
+        self.assertEqual(received.type, "proposal.submitted")
+
+        await sub.unsubscribe()
+
+    @patch("owomide_bus.providers.kafka_subscriber.AIOKafkaProducer")
+    @patch("owomide_bus.providers.kafka_subscriber.AIOKafkaConsumer")
+    async def test_skips_null_messages(self, mock_consumer_cls, mock_dlq_cls):
+        fake_consumer = FakeConsumer([FakeMessage(None)])
+        mock_consumer_cls.return_value = fake_consumer
+
+        handler = AsyncMock()
+
+        from owomide_bus.providers.kafka_subscriber import KafkaSubscriber
+
+        subscriber = KafkaSubscriber(config())
+        opts = SubscribeOptions(topic="proposal.submitted", group="test.null")
+        sub = await subscriber.subscribe(opts, handler)
+
+        await asyncio.sleep(0.1)
+
+        handler.assert_not_awaited()
+        await sub.unsubscribe()
+
+    @patch("owomide_bus.providers.kafka_subscriber.AIOKafkaProducer")
+    @patch("owomide_bus.providers.kafka_subscriber.AIOKafkaConsumer")
+    async def test_sends_to_dlq_after_max_retries(self, mock_consumer_cls, mock_dlq_cls):
+        serialized = serialize(test_event())
+        fake_consumer = FakeConsumer([FakeMessage(serialized)])
+        mock_consumer_cls.return_value = fake_consumer
+
+        mock_dlq_producer = AsyncMock()
+        mock_dlq_cls.return_value = mock_dlq_producer
+
+        handler = AsyncMock(side_effect=Exception("handler failed"))
+
+        from owomide_bus.providers.kafka_subscriber import KafkaSubscriber
+
+        subscriber = KafkaSubscriber(config())
+        opts = SubscribeOptions(topic="proposal.submitted", group="test.dlq", max_retries=1)
+        sub = await subscriber.subscribe(opts, handler)
+
+        await asyncio.sleep(2.5)
+
+        self.assertEqual(handler.await_count, 2)
+        mock_dlq_producer.send_and_wait.assert_awaited_once()
+        dlq_call = mock_dlq_producer.send_and_wait.call_args
+        self.assertEqual(dlq_call[0][0], "proposal.submitted.dlq")
+
+        await sub.unsubscribe()
 
 
-@patch("owomide_bus.providers.kafka_subscriber.AIOKafkaProducer")
-@patch("owomide_bus.providers.kafka_subscriber.AIOKafkaConsumer")
-async def test_skips_null_messages(mock_consumer_cls, mock_dlq_cls, config):
-    fake_consumer = FakeConsumer([FakeMessage(None)])
-    mock_consumer_cls.return_value = fake_consumer
-
-    handler = AsyncMock()
-
-    from owomide_bus.providers.kafka_subscriber import KafkaSubscriber
-    subscriber = KafkaSubscriber(config)
-    opts = SubscribeOptions(topic="proposal.submitted", group="test.null")
-    sub = await subscriber.subscribe(opts, handler)
-
-    await asyncio.sleep(0.1)
-
-    handler.assert_not_awaited()
-    await sub.unsubscribe()
-
-
-@patch("owomide_bus.providers.kafka_subscriber.AIOKafkaProducer")
-@patch("owomide_bus.providers.kafka_subscriber.AIOKafkaConsumer")
-async def test_sends_to_dlq_after_max_retries(mock_consumer_cls, mock_dlq_cls, config, test_event):
-    serialized = serialize(test_event)
-    fake_consumer = FakeConsumer([FakeMessage(serialized)])
-    mock_consumer_cls.return_value = fake_consumer
-
-    mock_dlq_producer = AsyncMock()
-    mock_dlq_cls.return_value = mock_dlq_producer
-
-    handler = AsyncMock(side_effect=Exception("handler failed"))
-
-    from owomide_bus.providers.kafka_subscriber import KafkaSubscriber
-    subscriber = KafkaSubscriber(config)
-    opts = SubscribeOptions(topic="proposal.submitted", group="test.dlq", max_retries=1)
-    sub = await subscriber.subscribe(opts, handler)
-
-    await asyncio.sleep(2.5)
-
-    assert handler.await_count == 2
-    mock_dlq_producer.send_and_wait.assert_awaited_once()
-    dlq_call = mock_dlq_producer.send_and_wait.call_args
-    assert dlq_call[0][0] == "proposal.submitted.dlq"
-
-    await sub.unsubscribe()
+if __name__ == "__main__":
+    unittest.main()

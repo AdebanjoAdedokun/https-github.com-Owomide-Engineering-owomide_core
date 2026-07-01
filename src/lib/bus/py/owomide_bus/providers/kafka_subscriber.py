@@ -4,7 +4,11 @@ import asyncio
 import logging
 from datetime import datetime, timezone
 
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+try:
+    from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+except ModuleNotFoundError:
+    AIOKafkaConsumer = None
+    AIOKafkaProducer = None
 
 from owomide_bus.types import KafkaConfig, SubscribeOptions, Handler
 from owomide_bus.envelope import deserialize
@@ -32,6 +36,9 @@ class KafkaSubscriber:
         self._subscriptions: list[_KafkaSubscription] = []
 
     async def subscribe(self, opts: SubscribeOptions, handler: Handler) -> _KafkaSubscription:
+        if AIOKafkaConsumer is None:
+            raise RuntimeError("aiokafka is required to use KafkaSubscriber")
+
         auto_offset_reset = "earliest" if opts.replay_from == "beginning" else "latest"
 
         consumer = AIOKafkaConsumer(
@@ -84,6 +91,9 @@ class KafkaSubscriber:
             return
 
     async def _send_to_dlq(self, topic: str, original_value: bytes) -> None:
+        if AIOKafkaProducer is None:
+            raise RuntimeError("aiokafka is required to use KafkaSubscriber DLQ")
+
         producer = AIOKafkaProducer(
             bootstrap_servers=",".join(self._config.brokers),
             client_id=self._config.client_id,
