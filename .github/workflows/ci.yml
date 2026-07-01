@@ -68,26 +68,39 @@ jobs:
   manifests-validate:
     name: Validate k8s Manifests
     runs-on: ubuntu-latest
-    # Skip until infra/k8s/ exists (F0.2)
-    if: ${{ hashFiles('infra/k8s/**') != '' }}
     steps:
       - uses: actions/checkout@v4
 
+      # Guard: skip all subsequent steps until infra/k8s/ exists (F0.2)
+      - name: Check if infra/k8s exists
+        id: guard
+        run: |
+          if [ -d infra/k8s ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set up Kustomize
+        if: steps.guard.outputs.exists == 'true'
         uses: imranismail/setup-kustomize@v2
 
       - name: Install kubeval
+        if: steps.guard.outputs.exists == 'true'
         run: |
           curl -sL https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz \
             | tar xz && sudo mv kubeval /usr/local/bin/
 
       - name: Validate local overlay
+        if: steps.guard.outputs.exists == 'true'
         run: kustomize build infra/k8s/overlays/local | kubeval --strict
 
       - name: Validate staging overlay
+        if: steps.guard.outputs.exists == 'true'
         run: kustomize build infra/k8s/overlays/staging | kubeval --strict
 
       - name: Validate prod overlay
+        if: steps.guard.outputs.exists == 'true'
         run: kustomize build infra/k8s/overlays/prod | kubeval --strict
 
   # Detect which services have changed so we only build affected images
