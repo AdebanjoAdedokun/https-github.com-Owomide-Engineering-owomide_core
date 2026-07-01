@@ -11,10 +11,10 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
+      - name: Set up Node 24
+        uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -52,7 +52,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Cache Bazel
         uses: actions/cache@v4
@@ -69,7 +69,7 @@ jobs:
     name: Validate k8s Manifests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Guard: skip all subsequent steps until infra/k8s/ exists (F0.2)
       - name: Check if infra/k8s exists
@@ -116,7 +116,7 @@ jobs:
       data-pipeline: ${{ steps.filter.outputs.data-pipeline }}
       margin: ${{ steps.filter.outputs.margin }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -145,7 +145,7 @@ jobs:
     needs: [test, changes]
     if: needs.changes.outputs.gateway == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
@@ -162,7 +162,7 @@ jobs:
     needs: [test, changes]
     if: needs.changes.outputs.catalog == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
@@ -179,7 +179,7 @@ jobs:
     needs: [test, changes]
     if: needs.changes.outputs.proposal == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
@@ -196,7 +196,7 @@ jobs:
     needs: [test, changes]
     if: needs.changes.outputs.governance == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
@@ -213,7 +213,7 @@ jobs:
     needs: [test, changes]
     if: needs.changes.outputs.notify == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
@@ -230,7 +230,7 @@ jobs:
     needs: [test, changes]
     if: needs.changes.outputs.data-pipeline == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
@@ -247,7 +247,7 @@ jobs:
     needs: [test, changes]
     if: needs.changes.outputs.margin == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:

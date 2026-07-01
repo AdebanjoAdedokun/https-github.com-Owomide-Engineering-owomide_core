@@ -12,7 +12,7 @@ bazel_dep(name = "rules_go", version = "0.50.1")
 bazel_dep(name = "gazelle", version = "0.39.1")
 
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
-go_deps.from_file(go_mod = "//:go.mod")
+go_deps.from_file(go_mod = "//src/lib/bus/go:go.mod")
 
 # Python
 bazel_dep(name = "rules_python", version = "1.1.0")
