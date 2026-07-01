@@ -163,7 +163,7 @@ make manifests-validate
 - **gRPC for service-to-service.** REST only at the gateway (BFF pattern).
 - **Events:** dotted `noun.verb` names. Payloads are protobuf-encoded (defined in `src/lib/proto/events/`). Versioned; consumers tolerate unknown fields.
 - **Bus access is always through `src/lib/bus`** — never import a provider (Redis client, Kafka client) directly from service code.
-- **Branches:** `agent/<service>-<feature-id>` e.g. `agent/margin-F3.2`.
+- **Branches:** `agent/<service>-<feature-id>` e.g. `agent/margin-F4.2`.
 - **PRs:** title references the `BUILD_PLAN.md` feature ID; description lists Definition-of-Done checkboxes.
 - **Commits:** conventional commits (`feat:`, `fix:`, `chore:`, etc.).
 - **Tests:** integration tests run against real Postgres + real Kafka (via testcontainers, parity with the cluster).
