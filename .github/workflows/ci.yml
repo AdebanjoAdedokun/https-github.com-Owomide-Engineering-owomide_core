@@ -35,15 +35,25 @@ jobs:
       - name: Install ruff
         run: pip install ruff
 
-      - name: Set up Go 1.23
-        uses: actions/setup-go@v5
+      - name: Set up Go
+        uses: actions/setup-go@v6
         with:
-          go-version: "1.23"
+          go-version: stable
 
-      - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v6
+      - name: Check for Go services
+        id: go-check
+        run: |
+          if find src -name "main.go" | grep -q .; then
+            echo "has_go=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_go=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: golangci-lint
+        if: steps.go-check.outputs.has_go == 'true'
+        uses: golangci/golangci-lint-action@v9
         with:
-          install-mode: binary
+          version: v2.12
 
       - name: Run lint
         run: make lint
@@ -108,19 +118,19 @@ jobs:
     name: Detect Changed Services
     runs-on: ubuntu-latest
     outputs:
-      gateway: ${{ steps.filter.outputs.gateway }}
-      catalog: ${{ steps.filter.outputs.catalog }}
-      proposal: ${{ steps.filter.outputs.proposal }}
-      governance: ${{ steps.filter.outputs.governance }}
-      notify: ${{ steps.filter.outputs.notify }}
-      data-pipeline: ${{ steps.filter.outputs.data-pipeline }}
-      margin: ${{ steps.filter.outputs.margin }}
+      gateway: ${{ steps.filter.outputs.gateway_any_changed }}
+      catalog: ${{ steps.filter.outputs.catalog_any_changed }}
+      proposal: ${{ steps.filter.outputs.proposal_any_changed }}
+      governance: ${{ steps.filter.outputs.governance_any_changed }}
+      notify: ${{ steps.filter.outputs.notify_any_changed }}
+      data-pipeline: ${{ steps.filter.outputs.data-pipeline_any_changed }}
+      margin: ${{ steps.filter.outputs.margin_any_changed }}
     steps:
       - uses: actions/checkout@v6
-      - uses: dorny/paths-filter@v3
+      - uses: tj-actions/changed-files@v45
         id: filter
         with:
-          filters: |
+          files_yaml: |
             gateway:
               - 'src/gateway/**'
             catalog:
