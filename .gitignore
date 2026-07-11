@@ -14,6 +14,7 @@ bazel-testlogs
 bazel-testlogs/
 bazel-owomide_core
 bazel-owomide_core/
+bazel-*
 MODULE.bazel.lock
 
 # Python

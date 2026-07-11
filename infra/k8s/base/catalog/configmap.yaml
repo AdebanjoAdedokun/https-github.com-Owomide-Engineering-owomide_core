@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: catalog-config
+data:
+  PORT: "50052"
+  HEALTH_PORT: "8080"
+  HOST: "0.0.0.0"
+  LOG_LEVEL: info
+  CATALOG_SERVICE_JWT_ISSUER: owomide-internal
+  CATALOG_DATABASE_POOL_SIZE: "20"
+  CATALOG_DATABASE_STATEMENT_TIMEOUT_MS: "15000"
+  KAFKA_BROKERS: kafka:9092
+  KAFKA_CLIENT_ID: catalog
+  CATALOG_OUTBOX_POLL_MS: "1000"
+  CATALOG_OUTBOX_BATCH_SIZE: "100"

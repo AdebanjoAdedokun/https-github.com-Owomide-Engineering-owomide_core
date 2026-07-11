@@ -1,6 +1,6 @@
 # Canonical Data Model
 
-This document defines the proposed data spine for Owomide's first implementation pass.
+This document defines the accepted data spine for Owomide's first implementation pass. The Catalog portion is implemented by `src/catalog/migrations/0001_create_schema.up.sql`; later service sections remain contracts for their owners.
 
 The design principle is:
 
@@ -17,7 +17,7 @@ This document covers:
 - price/cost dimensions;
 - fields that should stay flexible until customer data proves they deserve canonical columns.
 
-It does not define final migrations. Migrations should be created service-by-service after this model is accepted.
+Migrations remain service-owned. This document explains the cross-service model and must stay aligned with those executable migrations.
 
 ## Tenant Boundary
 
@@ -37,13 +37,14 @@ Rules:
 
 Represents the commercial product concept.
 
-Required fields:
+Typed fields:
 
 - `id`
 - `org_id`
 - `name`
+- `description`
 - `category`
-- `manufacturer` or `brand`
+- `manufacturer`
 - `attributes JSONB`
 - `created_at`
 - `updated_at`
@@ -57,29 +58,26 @@ Notes:
 
 Represents the sellable unit being priced.
 
-Required fields:
+Fields:
 
 - `id`
 - `org_id`
-- `product_id`
+- `product_id` nullable
 - `sku_code`
-- `internal_id` nullable
-- `gtin` nullable
-- `ean` nullable
-- `upc` nullable
-- `mpn` nullable
 - `pack_size` nullable
 - `unit` nullable
 - `attributes JSONB`
 - `created_at`
 - `updated_at`
 
+Identifiers live in `sku_identifier`, with `identifier_type`, `namespace`, `raw_value`, `normalized_value`, and `is_primary`. This supports GTIN, EAN, UPC, MPN, ERP, POS, vendor, and future identifiers without adding nullable columns.
+
 MVP uniqueness:
 
 - unique active `sku_code` per `org_id`;
-- optional unique indexes for identifiers only where the source data quality supports it.
+- unique active `(identifier_type, namespace, normalized_value)` per `org_id`.
 
-Do not assume every product has a clean GTIN. Research from pricing and feed platforms shows private-label or local-market products may lack global identifiers.
+Do not assume every SKU has a product hierarchy or clean GTIN. Exact SKU code or namespaced identifier resolution is permitted; fuzzy matching belongs in Data Pipeline review, not Catalog commit.
 
 ### `channel`
 
@@ -198,7 +196,7 @@ Required fields:
 
 ## Import-Facing Entities
 
-These live in `import_export`, not Catalog.
+These live in `data_pipeline`, not Catalog.
 
 ### `import_batch`
 
@@ -295,14 +293,16 @@ Use this decision rule:
 
 ## First Migration Implications
 
-The first Catalog migration should prioritize:
+The first Catalog migration enforces:
 
 - `org_id` on every table;
 - integer minor-unit money fields;
 - currency code fields;
 - effective and recorded timestamps on price/cost records;
-- uniqueness for current records within a dimension;
+- non-overlap for current beliefs with GiST exclusion constraints;
 - foreign keys scoped in a way that prevents cross-org references;
+- forced row-level security using transaction-local `app.org_id`;
+- immutable economic rows, idempotent writes, and a transactional outbox;
 - indexes for common reads:
   - current price by org/sku/channel;
   - price as-of by org/sku/channel/effective date;

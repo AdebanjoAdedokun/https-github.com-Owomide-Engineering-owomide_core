@@ -84,7 +84,7 @@ MVP default:
 - rows with `error` do not commit;
 - rows with only `warning` can commit after user confirmation;
 - rows with only `info` commit normally;
-- excluded rows are preserved in Import/Export;
+- excluded rows are preserved in Data Pipeline;
 - commit summary includes counts:
   - `ok`
   - `warned`

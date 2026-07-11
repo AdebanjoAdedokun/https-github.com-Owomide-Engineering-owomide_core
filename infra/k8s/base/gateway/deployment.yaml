@@ -20,6 +20,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: gateway-config
+          env:
+            - name: CATALOG_GATEWAY_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-secrets
+                  key: gateway-service-secret
           livenessProbe:
             httpGet:
               path: /health

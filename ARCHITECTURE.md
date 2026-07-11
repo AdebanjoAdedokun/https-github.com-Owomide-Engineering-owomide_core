@@ -31,11 +31,10 @@ The "Language" column is the **starting** language. The bus and gRPC contracts a
 | **Margin** | **Go** | Margin rules, validation, breach detection. Theme 1. |
 | **Repricing** | Node.js | Bulk change-sets, scope builder, preview, scheduled rollouts. Theme 2. |
 | **Governance** | Node.js | Append-only audit log, version snapshots, restore. Theme 3. Event subscriber only. |
-| **Catalog** | Node.js | Shared canonical pricing data — products, SKUs, costs, prices, channels, locations. |
-| **Import/Export** | **Python** | File ingest, column profiling, mapping templates, transformation rules, canonical commit, export packs. |
+| **Catalog** | Node.js | Org-scoped canonical products, SKUs, identifiers, controlled dimensions, and bitemporal costs/prices. |
+| **Data Pipeline** | **Python** | Async file ingest, profiling, mapping, validation, canonical commit, later export and intelligence. |
 | **Notify** | Node.js | Email + in-app notifications. Event subscriber. |
 | **Gateway / BFF** | Node.js | Edge — auth, REST → gRPC translation, rate limiting. |
-| **Intelligence** | **Python** | FX/volatility calculator, margin rule engine. gRPC. Deferred ML/optimization. |
 
 ### Service-by-service summary
 
@@ -47,15 +46,13 @@ The "Language" column is the **starting** language. The bus and gRPC contracts a
 
 **Governance.** Event-subscriber-only. Listens on the bus for the locked events plus catalog mutations; writes an append-only `audit_log` row per event; periodically snapshots canonical state for restore. Exposes only read APIs (timeline, snapshot diff, restore). The fact that no service can call Governance directly is the guarantee that audit cannot be sidestepped.
 
-**Catalog.** The canonical pricing data store. Tables: `products`, `skus`, `cost_records`, `price_records`, `channels`, `locations`. Holds tenant-scoped, versioned cost and price records so historical margin math is reproducible. Read-heavy from Margin and Proposal; written by Import/Export's canonical-commit phase and by published Proposals.
+**Catalog.** The canonical pricing data store. Owns products, SKUs, namespaced identities, channels, locations, customer segments, and immutable bitemporal cost/price beliefs. Reads are broadly available through RPC. Data Pipeline and Proposal are the only canonical writers, through authenticated idempotent RPCs rather than direct SQL.
 
-**Import/Export.** The bridge from messy outside-world data to canonical truth. See section 3.4 (Three-layer data boundary) for the deep dive. Holds eight internal components: `ImportBatch`, `ImportRow`, `ColumnProfiler`, `MappingTemplate`, `TransformationRules`, `ValidationEvent`, `CanonicalCommit`, and `ExportPacks`.
+**Data Pipeline.** The bridge from messy outside-world data to canonical truth. See section 3.4 for the deep dive. It owns import staging, profiling, mapping, transformations, validation, canonical commit, and later export/intelligence modules.
 
 **Notify.** Event-subscriber-only, mirror of Governance for user-facing comms. Listens on the bus, fans out emails (SES/Postmark TBD) and in-app banners. Never blocks an upstream flow.
 
 **Gateway.** Single REST entry point. JWT auth at the edge. Routes to gRPC services. Returns canonical error envelopes. The only place CORS, rate limiting, and request logging live.
-
-**Intelligence (Python).** A second service in the same monorepo, exposed via gRPC. Phase-0 scope: FX rate calculator + margin rule engine. Bazel wraps both Node and Python; the runtime boundary is purely gRPC. Shared protobuf in `src/lib/proto/`.
 
 ---
 
@@ -74,7 +71,7 @@ postgres://owomide
   ├── repricing      (Repricing Service)
   ├── governance     (Governance Service)
   ├── catalog        (Catalog Service)
-  ├── import_export  (Import/Export Service)
+  ├── data_pipeline  (Data Pipeline Service)
   └── notify         (Notify Service)
 ```
 
@@ -90,7 +87,7 @@ For MVP, there is no org administration UI, cross-org reporting, or enterprise t
 
 ### 3.3 Versioned canonical data
 
-`cost_records` and `price_records` in Catalog are versioned by both business time and system knowledge time:
+`cost_record` and `price_record` in Catalog are versioned by both business time and system knowledge time:
 
 - `effective_at` / `effective_until` answer: "When was this cost or price valid in the business?"
 - `recorded_at` / `superseded_at` answer: "When did Owomide learn this value, and when was that belief superseded?"
@@ -103,9 +100,9 @@ Customer pricing data arrives messy — different column names, currencies, unit
 
 | Layer | Tables | Trust | Read by |
 |---|---|---|---|
-| **Raw** | `import_export.import_row.raw_data` (JSONB); original file in MinIO | None | Import/Export only |
-| **Staging** | `import_export.import_row.mapped_data` (JSONB); `validation_event` | Partial | Import/Export only |
-| **Canonical** | `catalog.products`, `skus`, `cost_records`, `price_records`, `channels`, `locations` | Full | Margin, Proposal, Governance, Export |
+| **Raw** | `data_pipeline.import_row.raw_data` (JSONB); original file in MinIO | None | Data Pipeline only |
+| **Staging** | `data_pipeline.import_row.mapped_data` (JSONB); `validation_event` | Partial | Data Pipeline only |
+| **Canonical** | Catalog RPC over `product`, `sku`, `sku_identifier`, `cost_record`, `price_record`, and controlled dimensions | Full | Margin, Proposal, Governance, Data Pipeline |
 
 The path from raw → staging → canonical:
 
@@ -113,9 +110,9 @@ The path from raw → staging → canonical:
 2. **Profile** → `ColumnProfiler` detects headers, types, sample values, currency hints; returns suggested mappings.
 3. **Map** → user accepts a `MappingTemplate` (saved per customer/channel, reusable forever) or builds a new one. The mapping plus `TransformationRules` (FX, tax, units, pack-size, discounts) writes `mapped_data` JSONB.
 4. **Validate** → row-level checks against canonical schema constraints. Failures become `ValidationEvent` rows; the user sees a report.
-5. **Commit** → `CanonicalCommit` upserts cleaned rows into Catalog tables, then emits `import.committed`.
+5. **Commit** → `CanonicalCommit` calls Catalog `UpsertCanonical`; Catalog writes records/events transactionally, then Data Pipeline emits `import.committed`.
 
-**The invariant:** the four canonical-reading services (Margin, Proposal, Governance, Export) have no GRANTs on the `import_export` schema. They cannot bypass the contract by accident or design.
+**The invariant:** canonical readers have no grants on `data_pipeline`, and Data Pipeline has no grants on `catalog`. Both boundaries are crossed through typed RPCs.
 
 ---
 
@@ -133,7 +130,10 @@ The event bus is the second backbone, sitting alongside gRPC. gRPC is used when 
 | `proposal.published` | Approved proposal applies changes to Catalog | org_id, proposal_id, actor_id, effective_at, at |
 | `override.requested` | User initiates override for blocked proposal | org_id, override_request_id, proposal_id, justification, actor_id, at |
 | `override.approved` | Different actor approves override | org_id, override_request_id, approver_id, at |
-| `import.committed` | Canonical commit completes | org_id, batch_id, file_url, row_counts {ok, warned, excluded}, template_id, actor_id, at |
+| `import.committed` | Canonical commit completes | org_id, batch_id, file_url, row_counts {ok, warned, excluded, errored}, template_id, actor_id, at |
+| `catalog.sku_added` | Catalog creates a SKU | org_id, sku_id, provenance, at |
+| `catalog.cost_updated` | Catalog records a new cost belief | org_id, sku_id, cost_record_id, provenance, at |
+| `catalog.price_updated` | Catalog records a new price belief | org_id, sku_id, price_record_id, provenance, at |
 
 ### 4.2 Subscribers
 
@@ -145,9 +145,7 @@ The event bus is the second backbone, sitting alongside gRPC. gRPC is used when 
 
 Application code never speaks to a bus provider directly. Every service publishes and subscribes through `src/lib/bus`, which exposes a uniform `Publisher` / `Subscriber` API and selects the underlying provider from config.
 
-**Phase 0 provider: Redis Streams.** Redis is already in the stack; Streams gives us consumer groups and at-least-once delivery; we avoid running a second piece of infrastructure during MVP.
-
-**Migration path: Kafka.** When sustained throughput exceeds Redis Streams' comfortable ceiling (~50k events/min) or when we need true partition-level ordering across many consumers, we add a Kafka provider to `src/lib/bus/src/providers/kafka.ts`. **Application code does not change** — only the provider config flips.
+**Provider: Kafka from day one.** Application code uses `src/lib/bus`; producers provide stable event IDs and partition keys, while consumers provide idempotent handling for at-least-once delivery.
 
 The abstraction design — what's hidden, what's exposed, and what the migration actually requires — is in `src/lib/bus/CLAUDE.md`. The short version: events carry a `partition_key` and an idempotency `id`; the bus library handles consumer groups, retries, DLQ, replay, and tracing context propagation. Provider-specific concerns (Kafka partitions vs Redis stream IDs, Kafka transactions, Redis MAXLEN) stay inside the provider implementations.
 
@@ -162,8 +160,8 @@ The Excalidraw canvas carries each of these as a full sequence diagram. Summaris
 1. User drafts in SPA → `POST /proposals` → Proposal stores draft.
 2. User submits → Proposal calls `Margin.validateBatch(skus[])`.
 3. If clean → state moves to `submitted`, emit `proposal.submitted`. Approver reviews → `POST /proposals/:id/approve` → state moves to `approved`, emit `proposal.approved`.
-4. A permitted user publishes → `POST /proposals/:id/publish` → Proposal calls Catalog to insert versioned `price_records`, state moves to `published`, emit `proposal.published`.
-5. User triggers export → Import/Export builds per-channel pack. Governance writes audit at each event. Notify pings the approver and the original author.
+4. A permitted user publishes → `POST /proposals/:id/publish` → Proposal calls Catalog `ApplyPriceChanges`, state moves to `published`, emit `proposal.published`.
+5. User triggers export → Data Pipeline builds a per-channel pack. Governance writes audit at each event. Notify pings the approver and the original author.
 
 ### 5.2 Flow 2 — Bulk repricing
 
@@ -200,7 +198,7 @@ These are decisions made early and locked. Changing them requires explicit ADR (
 | ADR-005 | Override is its own resource, not a flag | Separation of duties enforceable; auditable separately |
 | ADR-006 | Validation is batched only | Prevents N+1 hidden in callers; performance budget owned in one place |
 | ADR-007 | Three-layer data boundary | Pricing core never sees messy data; raw stays forensic; mappings reusable |
-| ADR-008 | Bus is a provider-agnostic abstraction; Redis Streams at MVP, Kafka later | Application code is portable; we don't run Kafka before we need to; growth doesn't require rewriting service code |
+| ADR-008 | Bus is a provider-agnostic abstraction backed by Kafka from day one | Partition ordering and consumer groups are available without changing application contracts later |
 | ADR-009 | gRPC server-to-server, REST only at gateway | Type-safe internal contracts; REST for external clients only |
 | ADR-010 | Proposal is the sole canonical writer of proposals | Centralised state machine; no race conditions on lifecycle |
 | ADR-011 | Kubernetes for orchestration (minikube local, k8s on Hetzner) | Industry-standard tooling, parity between local and prod via Kustomize overlays, ecosystem of controllers and operators we may want later (cert-manager, external-secrets, etc.) |

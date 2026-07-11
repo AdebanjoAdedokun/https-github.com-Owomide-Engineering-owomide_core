@@ -31,7 +31,6 @@ owomide_core/
 │   ├── proposal/               # Pricing Proposal + bulk repricing (Node.js)
 │   ├── margin/                 # Margin rules + validation (Go)
 │   ├── governance/             # Audit log, snapshots (Node.js)
-│   ├── catalog/                # Canonical pricing data (Node.js)
 │   ├── data-pipeline/          # File ingest + intelligence (Python)
 │   ├── gateway/                # BFF — auth, REST→gRPC (Node.js)
 │   ├── notify/                 # Email + in-app notifications (Node.js)
@@ -105,6 +104,8 @@ This builds the gateway image locally, deploys all backing services (Postgres, R
 | Service | Local port |
 |---------|-----------|
 | Gateway (REST API) | `localhost:5000` |
+| Catalog (Connect/gRPC) | `localhost:50052` |
+| Catalog health/readiness | `localhost:58052` |
 | Postgres | `localhost:5432` |
 | Redis | `localhost:6379` |
 | MinIO API | `localhost:9000` |

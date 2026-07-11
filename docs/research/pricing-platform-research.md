@@ -30,7 +30,7 @@ Owomide should therefore keep a strict separation:
 
 | Source | Useful evidence | Owomide implication |
 |---|---|---|
-| Price2Spy custom feed docs | Product feeds can arrive as CSV, XML, or JSON. | Import/Export should keep raw source payloads and support flexible file/feed formats over time. |
+| Price2Spy custom feed docs | Product feeds can arrive as CSV, XML, or JSON. | Data Pipeline should keep raw source payloads and support flexible file/feed formats over time. |
 | Price2Spy data import docs | Uploaded imports are processed and summarized before the user confirms. | Owomide should not commit immediately after upload; validation summary and confirm/commit are required. |
 | Jumpseller pricing import docs | Price imports validate existing product identity, price list name, variants, numeric prices, and large-file behavior before applying. | Owomide validation rules should cover identity matching, price list/channel matching, variant matching, numeric parsing, and batch sizing. |
 | Pricefx product extension docs | Users can export data to XLSX/CSV, edit, import back with validation, or use an Import Manager workflow with optional approval. | Owomide should support export/edit/import loops and optionally route high-impact imports through proposals/approval. |

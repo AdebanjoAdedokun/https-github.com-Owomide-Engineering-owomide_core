@@ -14,6 +14,10 @@ build:
       context: .
       docker:
         dockerfile: src/gateway/Dockerfile
+    - image: owomide/catalog
+      context: .
+      docker:
+        dockerfile: src/catalog/Dockerfile
     # - image: owomide/bus-smoke
     #   context: .
     #   docker:
@@ -35,6 +39,16 @@ portForward:
     namespace: default
     port: 5000
     localPort: 5000
+  - resourceType: Service
+    resourceName: catalog
+    namespace: default
+    port: 50052
+    localPort: 50052
+  - resourceType: Service
+    resourceName: catalog
+    namespace: default
+    port: 8080
+    localPort: 58052
   - resourceType: Service
     resourceName: postgres
     namespace: default

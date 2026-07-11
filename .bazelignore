@@ -1,4 +1,7 @@
 node_modules
 src/gateway/node_modules
+src/catalog/node_modules
+src/lib/bus-smoke/node_modules
 src/lib/proto/node_modules
 src/lib/bus/js/node_modules
+tools/scripts/migrate/node_modules

@@ -17,12 +17,14 @@ test: ## Run all tests
 .PHONY: lint
 lint: ## Run linters (TS, Python, Go — skips languages with no implementation yet)
 	cd src/gateway && pnpm eslint "src/**/*.ts"
+	cd src/catalog && pnpm eslint "src/**/*.ts"
 	@if find src -name "main.py" | grep -q .; then ruff check src; fi
 	@if find src -name "main.go" | grep -q .; then golangci-lint run src/...; fi
 
 .PHONY: fmt
 fmt: ## Auto-format code (skips languages with no implementation yet)
 	cd src/gateway && pnpm prettier --write "src/**/*.ts"
+	cd src/catalog && pnpm prettier --write "src/**/*.ts"
 	@if find src -name "main.py" | grep -q .; then ruff format src; fi
 	@if find src -name "main.go" | grep -q .; then gofmt -w src; fi
 
@@ -33,6 +35,11 @@ gateway-dev: ## Run gateway in dev mode with hot reload
 .PHONY: gateway-test
 gateway-test: ## Run gateway unit tests
 	cd src/gateway && pnpm test
+
+.PHONY: catalog-test
+catalog-test: ## Run Catalog unit and PostgreSQL integration tests
+	cd src/catalog && pnpm test
+	cd src/catalog && pnpm test:integration
 
 # --- Stubbed targets (F0.2+) ---
 

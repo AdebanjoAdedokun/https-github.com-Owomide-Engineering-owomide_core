@@ -1,7 +1,3 @@
-declare module "@owomide/proto/services/catalog/v1/catalog_pb.js" {
-  export const CatalogService: any;
-}
-
 declare module "@owomide/proto/services/governance/v1/governance_pb.js" {
   export const GovernanceService: any;
 }
