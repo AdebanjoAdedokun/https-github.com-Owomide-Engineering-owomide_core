@@ -80,16 +80,25 @@ Rules:
 - import emits `import.committed` with row counts and provenance;
 - original file and raw rows remain available for forensic review.
 
-## Batch Size
+## Async Execution
 
-Jumpseller warns that large CSV validation can take time and recommends splitting large files. Owomide should support large files eventually, but MVP can set clear limits.
+Import processing is asynchronous from day one. The upload endpoint returns `202` with a batch ID and operation ID after the source file is durable and the initial operation is queued. Workers claim operations with database row locking, record progress, and make retries visible through operation state.
 
-MVP recommendation:
+This avoids changing the public contract when customer files become large. Implementations must still:
 
-- validate synchronously up to a small threshold;
-- switch to background job for larger files;
-- show progress and partial validation summary;
-- keep import restart-safe.
+- stream uploads and parsers rather than loading entire files into memory;
+- enforce explicit file and row limits at the edge;
+- make every operation restart-safe and idempotent;
+- expose progress and actionable failure details.
+
+## Locked Decisions
+
+- Imports commit validated rows directly through Catalog `UpsertCanonical`.
+- Rows with errors cannot commit.
+- Rows with warnings require explicit `confirm_warnings` confirmation.
+- Original files and `raw_data` are immutable forensic records.
+- `org_id` and `user_id` come from authenticated Gateway metadata, never request bodies.
+- Kafka is the event transport from day one.
 
 ## Required User Experience
 
@@ -103,10 +112,8 @@ The UI should expose the import pipeline as a workflow, not a single upload moda
 6. Commit clean rows.
 7. See commit summary and resulting Catalog changes.
 
-## Open Engineering Decisions
+## Remaining Engineering Decisions
 
-- exact row threshold for background validation;
-- CSV parser library and XLSX parser library;
-- whether warnings require explicit user confirmation;
-- how long to retain `mapped_data`;
+- production upload and row limits;
+- when the 30-day `mapped_data` cleanup job should run;
 - whether high-impact imports should automatically create a Proposal before Catalog commit.

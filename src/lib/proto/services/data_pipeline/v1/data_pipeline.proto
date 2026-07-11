@@ -1,0 +1,318 @@
+syntax = "proto3";
+
+package owomide.services.data_pipeline.v1;
+
+option go_package = "github.com/owomide/proto/services/data_pipeline/v1";
+
+import "common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+service DataPipelineService {
+  rpc UploadImportFile(stream UploadImportFileRequest) returns (UploadImportFileResponse);
+  rpc GetImportBatch(GetImportBatchRequest) returns (GetImportBatchResponse);
+  rpc ListImportBatches(ListImportBatchesRequest) returns (ListImportBatchesResponse);
+  rpc GetImportOperation(GetImportOperationRequest) returns (GetImportOperationResponse);
+  rpc GetColumnProfile(GetColumnProfileRequest) returns (GetColumnProfileResponse);
+  rpc ApplyMapping(ApplyMappingRequest) returns (ApplyMappingResponse);
+  rpc GetValidationReport(GetValidationReportRequest) returns (GetValidationReportResponse);
+  rpc EditRow(EditRowRequest) returns (EditRowResponse);
+  rpc ExcludeRow(ExcludeRowRequest) returns (ExcludeRowResponse);
+  rpc CommitBatch(CommitBatchRequest) returns (CommitBatchResponse);
+  rpc ListMappingTemplates(ListMappingTemplatesRequest) returns (ListMappingTemplatesResponse);
+  rpc SaveMappingTemplate(SaveMappingTemplateRequest) returns (SaveMappingTemplateResponse);
+}
+
+enum ImportSourceType {
+  IMPORT_SOURCE_TYPE_UNSPECIFIED = 0;
+  IMPORT_SOURCE_TYPE_CSV = 1;
+  IMPORT_SOURCE_TYPE_XLSX = 2;
+}
+
+enum ImportBatchStatus {
+  IMPORT_BATCH_STATUS_UNSPECIFIED = 0;
+  IMPORT_BATCH_STATUS_UPLOADED = 1;
+  IMPORT_BATCH_STATUS_PARSING = 2;
+  IMPORT_BATCH_STATUS_PROFILED = 3;
+  IMPORT_BATCH_STATUS_MAPPED = 4;
+  IMPORT_BATCH_STATUS_VALIDATED = 5;
+  IMPORT_BATCH_STATUS_COMMITTING = 6;
+  IMPORT_BATCH_STATUS_COMMITTED = 7;
+  IMPORT_BATCH_STATUS_FAILED = 8;
+  IMPORT_BATCH_STATUS_DISCARDED = 9;
+}
+
+enum ImportRowStatus {
+  IMPORT_ROW_STATUS_UNSPECIFIED = 0;
+  IMPORT_ROW_STATUS_PENDING = 1;
+  IMPORT_ROW_STATUS_MAPPED = 2;
+  IMPORT_ROW_STATUS_VALIDATED = 3;
+  IMPORT_ROW_STATUS_COMMITTED = 4;
+  IMPORT_ROW_STATUS_EXCLUDED = 5;
+  IMPORT_ROW_STATUS_ERRORED = 6;
+}
+
+enum ImportOperationType {
+  IMPORT_OPERATION_TYPE_UNSPECIFIED = 0;
+  IMPORT_OPERATION_TYPE_PARSE_PROFILE = 1;
+  IMPORT_OPERATION_TYPE_APPLY_MAPPING = 2;
+  IMPORT_OPERATION_TYPE_VALIDATE = 3;
+  IMPORT_OPERATION_TYPE_COMMIT = 4;
+}
+
+enum ImportOperationStatus {
+  IMPORT_OPERATION_STATUS_UNSPECIFIED = 0;
+  IMPORT_OPERATION_STATUS_QUEUED = 1;
+  IMPORT_OPERATION_STATUS_RUNNING = 2;
+  IMPORT_OPERATION_STATUS_SUCCEEDED = 3;
+  IMPORT_OPERATION_STATUS_FAILED = 4;
+  IMPORT_OPERATION_STATUS_CANCELLED = 5;
+}
+
+enum ValidationSeverity {
+  VALIDATION_SEVERITY_UNSPECIFIED = 0;
+  VALIDATION_SEVERITY_ERROR = 1;
+  VALIDATION_SEVERITY_WARNING = 2;
+  VALIDATION_SEVERITY_INFO = 3;
+}
+
+message UploadImportFileRequest {
+  oneof payload {
+    UploadImportFileMetadata metadata = 1;
+    bytes chunk = 2;
+  }
+}
+
+message UploadImportFileMetadata {
+  string source_filename = 1;
+  ImportSourceType source_type = 2;
+  optional string source_system = 3;
+  optional string channel_id = 4;
+  optional string customer_segment_id = 5;
+}
+
+message UploadImportFileResponse {
+  string batch_id = 1;
+  string operation_id = 2;
+  ImportBatchStatus status = 3;
+}
+
+message ImportBatch {
+  string id = 1;
+  string org_id = 2;
+  string owner_id = 3;
+  string source_file_url = 4;
+  string source_filename = 5;
+  ImportSourceType source_type = 6;
+  string source_sha256 = 7;
+  ImportBatchStatus status = 8;
+  optional string source_system = 9;
+  optional string channel_id = 10;
+  optional string customer_segment_id = 11;
+  optional string template_id = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
+  google.protobuf.Timestamp committed_at = 15;
+  optional string failed_reason = 16;
+}
+
+message ImportRow {
+  string id = 1;
+  string org_id = 2;
+  string batch_id = 3;
+  int32 row_number = 4;
+  string raw_data_json = 5;
+  optional string mapped_data_json = 6;
+  ImportRowStatus status = 7;
+  optional string excluded_reason = 8;
+}
+
+message ImportOperation {
+  string id = 1;
+  string org_id = 2;
+  string batch_id = 3;
+  ImportOperationType operation_type = 4;
+  ImportOperationStatus status = 5;
+  int32 attempt_count = 6;
+  int32 max_attempts = 7;
+  int32 progress_current = 8;
+  int32 progress_total = 9;
+  optional string error_message = 10;
+  google.protobuf.Timestamp next_attempt_at = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp started_at = 13;
+  google.protobuf.Timestamp finished_at = 14;
+}
+
+message ColumnProfile {
+  string id = 1;
+  string org_id = 2;
+  string batch_id = 3;
+  string column_name = 4;
+  string detected_type = 5;
+  repeated string sample_values = 6;
+  optional string currency_hint = 7;
+  optional string date_hint = 8;
+  optional string suggested_mapping = 9;
+  double confidence = 10;
+}
+
+message MappingTemplate {
+  string id = 1;
+  string org_id = 2;
+  string name = 3;
+  optional string source_system = 4;
+  optional string channel_id = 5;
+  optional string customer_segment_id = 6;
+  string mappings_json = 7;
+  string transformation_rules_json = 8;
+  string created_by = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message ValidationEvent {
+  string id = 1;
+  string org_id = 2;
+  string batch_id = 3;
+  optional string row_id = 4;
+  ValidationSeverity severity = 5;
+  string code = 6;
+  string message = 7;
+  optional string field = 8;
+  optional string raw_value = 9;
+  optional string suggested_fix = 10;
+  google.protobuf.Timestamp created_at = 11;
+}
+
+message RowCounts {
+  int32 ok = 1;
+  int32 warned = 2;
+  int32 excluded = 3;
+  int32 errored = 4;
+}
+
+message CatalogWriteSummary {
+  int32 created = 1;
+  int32 updated = 2;
+  int32 unchanged = 3;
+  int32 rejected = 4;
+}
+
+message GetImportBatchRequest {
+  string batch_id = 1;
+}
+
+message GetImportBatchResponse {
+  ImportBatch batch = 1;
+}
+
+message ListImportBatchesRequest {
+  optional ImportBatchStatus status = 1;
+  owomide.common.v1.Pagination pagination = 2;
+}
+
+message ListImportBatchesResponse {
+  repeated ImportBatch batches = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message GetImportOperationRequest {
+  string operation_id = 1;
+}
+
+message GetImportOperationResponse {
+  ImportOperation operation = 1;
+}
+
+message GetColumnProfileRequest {
+  string batch_id = 1;
+}
+
+message GetColumnProfileResponse {
+  repeated ColumnProfile columns = 1;
+  optional ImportOperation operation = 2;
+}
+
+message ApplyMappingRequest {
+  string batch_id = 1;
+  optional string template_id = 2;
+  optional string mappings_json = 3;
+  optional string transformation_rules_json = 4;
+}
+
+message ApplyMappingResponse {
+  string batch_id = 1;
+  string operation_id = 2;
+  ImportOperationStatus status = 3;
+}
+
+message GetValidationReportRequest {
+  string batch_id = 1;
+  owomide.common.v1.Pagination pagination = 2;
+}
+
+message GetValidationReportResponse {
+  string batch_id = 1;
+  RowCounts row_counts = 2;
+  repeated ValidationEvent events = 3;
+  owomide.common.v1.PaginatedResponse pagination = 4;
+}
+
+message EditRowRequest {
+  string batch_id = 1;
+  string row_id = 2;
+  string mapped_data_json = 3;
+}
+
+message EditRowResponse {
+  ImportRow row = 1;
+}
+
+message ExcludeRowRequest {
+  string batch_id = 1;
+  string row_id = 2;
+  string reason = 3;
+}
+
+message ExcludeRowResponse {
+  ImportRow row = 1;
+}
+
+message CommitBatchRequest {
+  string batch_id = 1;
+  bool confirm_warnings = 2;
+}
+
+message CommitBatchResponse {
+  string batch_id = 1;
+  RowCounts row_counts = 2;
+  string catalog_operation_id = 3;
+  bool catalog_replayed = 4;
+  CatalogWriteSummary catalog_summary = 5;
+}
+
+message ListMappingTemplatesRequest {
+  optional string source_system = 1;
+  optional string channel_id = 2;
+  optional string customer_segment_id = 3;
+  owomide.common.v1.Pagination pagination = 4;
+}
+
+message ListMappingTemplatesResponse {
+  repeated MappingTemplate templates = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message SaveMappingTemplateRequest {
+  optional string id = 1;
+  string name = 2;
+  optional string source_system = 3;
+  optional string channel_id = 4;
+  optional string customer_segment_id = 5;
+  string mappings_json = 6;
+  string transformation_rules_json = 7;
+}
+
+message SaveMappingTemplateResponse {
+  MappingTemplate template = 1;
+}

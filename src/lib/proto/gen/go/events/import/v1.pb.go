@@ -119,6 +119,7 @@ type RowCounts struct {
 	Ok            int32                  `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
 	Warned        int32                  `protobuf:"varint,2,opt,name=warned,proto3" json:"warned,omitempty"`
 	Excluded      int32                  `protobuf:"varint,3,opt,name=excluded,proto3" json:"excluded,omitempty"`
+	Errored       int32                  `protobuf:"varint,4,opt,name=errored,proto3" json:"errored,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -174,6 +175,13 @@ func (x *RowCounts) GetExcluded() int32 {
 	return 0
 }
 
+func (x *RowCounts) GetErrored() int32 {
+	if x != nil {
+		return x.Errored
+	}
+	return 0
+}
+
 var File_events_import_v1_proto protoreflect.FileDescriptor
 
 const file_events_import_v1_proto_rawDesc = "" +
@@ -189,11 +197,12 @@ const file_events_import_v1_proto_rawDesc = "" +
 	"templateId\x12\x19\n" +
 	"\bactor_id\x18\x06 \x01(\tR\aactorId\x129\n" +
 	"\n" +
-	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"O\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"i\n" +
 	"\tRowCounts\x12\x0e\n" +
 	"\x02ok\x18\x01 \x01(\x05R\x02ok\x12\x16\n" +
 	"\x06warned\x18\x02 \x01(\x05R\x06warned\x12\x1a\n" +
-	"\bexcluded\x18\x03 \x01(\x05R\bexcludedB+Z)github.com/owomide/proto/events/import/v1b\x06proto3"
+	"\bexcluded\x18\x03 \x01(\x05R\bexcluded\x12\x18\n" +
+	"\aerrored\x18\x04 \x01(\x05R\aerroredB+Z)github.com/owomide/proto/events/import/v1b\x06proto3"
 
 var (
 	file_events_import_v1_proto_rawDescOnce sync.Once

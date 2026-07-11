@@ -1,0 +1,25 @@
+[project]
+name = "owomide-data-pipeline"
+version = "0.1.0"
+description = "Owomide import staging and canonical commit service"
+requires-python = ">=3.12"
+dependencies = [
+    "grpcio==1.82.1",
+    "protobuf==7.35.1",
+    "psycopg[binary]==3.3.4",
+    "PyJWT==2.13.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["owomide_data_pipeline"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]

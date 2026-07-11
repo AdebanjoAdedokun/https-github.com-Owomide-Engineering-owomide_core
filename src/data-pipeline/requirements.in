@@ -1,0 +1,4 @@
+grpcio==1.82.1
+protobuf==7.35.1
+psycopg[binary]==3.3.4
+PyJWT==2.13.0

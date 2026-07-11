@@ -75,6 +75,11 @@ export declare type RowCounts = Message<"owomide.events.import.v1.RowCounts"> & 
    * @generated from field: int32 excluded = 3;
    */
   excluded: number;
+
+  /**
+   * @generated from field: int32 errored = 4;
+   */
+  errored: number;
 };
 
 /**

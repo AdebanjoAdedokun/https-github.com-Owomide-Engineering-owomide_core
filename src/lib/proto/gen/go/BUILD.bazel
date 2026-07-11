@@ -8,6 +8,7 @@
 # gazelle:resolve go github.com/owomide/proto/events/override/v1 //src/lib/proto/gen/go/events/override:override
 # gazelle:resolve go github.com/owomide/proto/events/import/v1 //src/lib/proto/gen/go/events/import:import
 # gazelle:resolve go github.com/owomide/proto/services/catalog/v1 //src/lib/proto/gen/go/services/catalog/v1:catalog
+# gazelle:resolve go github.com/owomide/proto/services/data_pipeline/v1 //src/lib/proto/gen/go/services/data_pipeline/v1:data_pipeline
 # gazelle:resolve go github.com/owomide/proto/services/governance/v1 //src/lib/proto/gen/go/services/governance/v1:governance
 # gazelle:resolve go github.com/owomide/proto/services/margin/v1 //src/lib/proto/gen/go/services/margin/v1:margin
 # gazelle:resolve go github.com/owomide/proto/services/notify/v1 //src/lib/proto/gen/go/services/notify/v1:notify

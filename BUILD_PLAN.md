@@ -131,7 +131,7 @@ Owned by the Data Pipeline track (data engineer), built in parallel with Phase 3
 
 | ID | Feature | Notes |
 |---|---|---|
-| F2.1 | Import schema | `import_batch`, `import_row` (raw_data + mapped_data JSONB), `validation_event`, `mapping_template`; import batches and templates are scoped by `org_id` |
+| F2.1 | Contract, import schema, runtime scaffold | Typed gRPC surface; `import_batch`, `import_row`, `mapping_template`, `validation_event`, `column_profile`, and `import_operation`; forced tenant RLS; Python server/worker and health/readiness entrypoints |
 | F2.2 | File upload endpoint | Gateway → Import; stores original to MinIO; creates ImportBatch; streams rows into raw_data |
 | F2.3 | ColumnProfiler | Detects headers, types, samples, currency hints; returns suggested mappings |
 | F2.4 | Mapping UI + save template | SPA flow; persisted as `MappingTemplate` keyed on customer/channel |
