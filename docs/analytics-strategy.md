@@ -35,7 +35,7 @@ The first implementation should support:
 | Catalog | current and historical price/cost records |
 | Proposal | pricing change workflow, approval cycle, publish timing |
 | Margin | violations, rule coverage, override patterns |
-| Import/Export | import quality, source reliability, mapping reuse |
+| Data Pipeline | import quality, source reliability, mapping reuse |
 | Governance | immutable activity trail |
 | Repricing | change-set scope, preview deltas, scheduled rollout status |
 

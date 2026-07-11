@@ -23,19 +23,224 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type SourceType int32
+
+const (
+	SourceType_SOURCE_TYPE_UNSPECIFIED SourceType = 0
+	SourceType_SOURCE_TYPE_IMPORT      SourceType = 1
+	SourceType_SOURCE_TYPE_PROPOSAL    SourceType = 2
+	SourceType_SOURCE_TYPE_MANUAL      SourceType = 3
+	SourceType_SOURCE_TYPE_SYSTEM      SourceType = 4
+	SourceType_SOURCE_TYPE_MIGRATION   SourceType = 5
+)
+
+// Enum value maps for SourceType.
+var (
+	SourceType_name = map[int32]string{
+		0: "SOURCE_TYPE_UNSPECIFIED",
+		1: "SOURCE_TYPE_IMPORT",
+		2: "SOURCE_TYPE_PROPOSAL",
+		3: "SOURCE_TYPE_MANUAL",
+		4: "SOURCE_TYPE_SYSTEM",
+		5: "SOURCE_TYPE_MIGRATION",
+	}
+	SourceType_value = map[string]int32{
+		"SOURCE_TYPE_UNSPECIFIED": 0,
+		"SOURCE_TYPE_IMPORT":      1,
+		"SOURCE_TYPE_PROPOSAL":    2,
+		"SOURCE_TYPE_MANUAL":      3,
+		"SOURCE_TYPE_SYSTEM":      4,
+		"SOURCE_TYPE_MIGRATION":   5,
+	}
+)
+
+func (x SourceType) Enum() *SourceType {
+	p := new(SourceType)
+	*p = x
+	return p
+}
+
+func (x SourceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SourceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_services_catalog_v1_catalog_proto_enumTypes[0].Descriptor()
+}
+
+func (SourceType) Type() protoreflect.EnumType {
+	return &file_services_catalog_v1_catalog_proto_enumTypes[0]
+}
+
+func (x SourceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SourceType.Descriptor instead.
+func (SourceType) EnumDescriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{0}
+}
+
+type WriteStatus int32
+
+const (
+	WriteStatus_WRITE_STATUS_UNSPECIFIED WriteStatus = 0
+	WriteStatus_WRITE_STATUS_CREATED     WriteStatus = 1
+	WriteStatus_WRITE_STATUS_UPDATED     WriteStatus = 2
+	WriteStatus_WRITE_STATUS_UNCHANGED   WriteStatus = 3
+	WriteStatus_WRITE_STATUS_REJECTED    WriteStatus = 4
+)
+
+// Enum value maps for WriteStatus.
+var (
+	WriteStatus_name = map[int32]string{
+		0: "WRITE_STATUS_UNSPECIFIED",
+		1: "WRITE_STATUS_CREATED",
+		2: "WRITE_STATUS_UPDATED",
+		3: "WRITE_STATUS_UNCHANGED",
+		4: "WRITE_STATUS_REJECTED",
+	}
+	WriteStatus_value = map[string]int32{
+		"WRITE_STATUS_UNSPECIFIED": 0,
+		"WRITE_STATUS_CREATED":     1,
+		"WRITE_STATUS_UPDATED":     2,
+		"WRITE_STATUS_UNCHANGED":   3,
+		"WRITE_STATUS_REJECTED":    4,
+	}
+)
+
+func (x WriteStatus) Enum() *WriteStatus {
+	p := new(WriteStatus)
+	*p = x
+	return p
+}
+
+func (x WriteStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (WriteStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_services_catalog_v1_catalog_proto_enumTypes[1].Descriptor()
+}
+
+func (WriteStatus) Type() protoreflect.EnumType {
+	return &file_services_catalog_v1_catalog_proto_enumTypes[1]
+}
+
+func (x WriteStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use WriteStatus.Descriptor instead.
+func (WriteStatus) EnumDescriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{1}
+}
+
+type CatalogErrorCode int32
+
+const (
+	CatalogErrorCode_CATALOG_ERROR_CODE_UNSPECIFIED              CatalogErrorCode = 0
+	CatalogErrorCode_CATALOG_ERROR_CODE_INVALID_ARGUMENT         CatalogErrorCode = 1
+	CatalogErrorCode_CATALOG_ERROR_CODE_IDENTITY_NOT_FOUND       CatalogErrorCode = 2
+	CatalogErrorCode_CATALOG_ERROR_CODE_IDENTITY_AMBIGUOUS       CatalogErrorCode = 3
+	CatalogErrorCode_CATALOG_ERROR_CODE_SKU_CREATE_REQUIRES_CODE CatalogErrorCode = 4
+	CatalogErrorCode_CATALOG_ERROR_CODE_SKU_ATTRIBUTE_CONFLICT   CatalogErrorCode = 5
+	CatalogErrorCode_CATALOG_ERROR_CODE_IDENTIFIER_CONFLICT      CatalogErrorCode = 6
+	CatalogErrorCode_CATALOG_ERROR_CODE_UNKNOWN_PRODUCT          CatalogErrorCode = 7
+	CatalogErrorCode_CATALOG_ERROR_CODE_UNKNOWN_CHANNEL          CatalogErrorCode = 8
+	CatalogErrorCode_CATALOG_ERROR_CODE_UNKNOWN_LOCATION         CatalogErrorCode = 9
+	CatalogErrorCode_CATALOG_ERROR_CODE_UNKNOWN_SEGMENT          CatalogErrorCode = 10
+	CatalogErrorCode_CATALOG_ERROR_CODE_INVALID_CURRENCY         CatalogErrorCode = 11
+	CatalogErrorCode_CATALOG_ERROR_CODE_INVALID_PERIOD           CatalogErrorCode = 12
+	CatalogErrorCode_CATALOG_ERROR_CODE_OVERLAPPING_PERIOD       CatalogErrorCode = 13
+	CatalogErrorCode_CATALOG_ERROR_CODE_IDEMPOTENCY_CONFLICT     CatalogErrorCode = 14
+	CatalogErrorCode_CATALOG_ERROR_CODE_FORBIDDEN                CatalogErrorCode = 15
+	CatalogErrorCode_CATALOG_ERROR_CODE_INTERNAL                 CatalogErrorCode = 16
+)
+
+// Enum value maps for CatalogErrorCode.
+var (
+	CatalogErrorCode_name = map[int32]string{
+		0:  "CATALOG_ERROR_CODE_UNSPECIFIED",
+		1:  "CATALOG_ERROR_CODE_INVALID_ARGUMENT",
+		2:  "CATALOG_ERROR_CODE_IDENTITY_NOT_FOUND",
+		3:  "CATALOG_ERROR_CODE_IDENTITY_AMBIGUOUS",
+		4:  "CATALOG_ERROR_CODE_SKU_CREATE_REQUIRES_CODE",
+		5:  "CATALOG_ERROR_CODE_SKU_ATTRIBUTE_CONFLICT",
+		6:  "CATALOG_ERROR_CODE_IDENTIFIER_CONFLICT",
+		7:  "CATALOG_ERROR_CODE_UNKNOWN_PRODUCT",
+		8:  "CATALOG_ERROR_CODE_UNKNOWN_CHANNEL",
+		9:  "CATALOG_ERROR_CODE_UNKNOWN_LOCATION",
+		10: "CATALOG_ERROR_CODE_UNKNOWN_SEGMENT",
+		11: "CATALOG_ERROR_CODE_INVALID_CURRENCY",
+		12: "CATALOG_ERROR_CODE_INVALID_PERIOD",
+		13: "CATALOG_ERROR_CODE_OVERLAPPING_PERIOD",
+		14: "CATALOG_ERROR_CODE_IDEMPOTENCY_CONFLICT",
+		15: "CATALOG_ERROR_CODE_FORBIDDEN",
+		16: "CATALOG_ERROR_CODE_INTERNAL",
+	}
+	CatalogErrorCode_value = map[string]int32{
+		"CATALOG_ERROR_CODE_UNSPECIFIED":              0,
+		"CATALOG_ERROR_CODE_INVALID_ARGUMENT":         1,
+		"CATALOG_ERROR_CODE_IDENTITY_NOT_FOUND":       2,
+		"CATALOG_ERROR_CODE_IDENTITY_AMBIGUOUS":       3,
+		"CATALOG_ERROR_CODE_SKU_CREATE_REQUIRES_CODE": 4,
+		"CATALOG_ERROR_CODE_SKU_ATTRIBUTE_CONFLICT":   5,
+		"CATALOG_ERROR_CODE_IDENTIFIER_CONFLICT":      6,
+		"CATALOG_ERROR_CODE_UNKNOWN_PRODUCT":          7,
+		"CATALOG_ERROR_CODE_UNKNOWN_CHANNEL":          8,
+		"CATALOG_ERROR_CODE_UNKNOWN_LOCATION":         9,
+		"CATALOG_ERROR_CODE_UNKNOWN_SEGMENT":          10,
+		"CATALOG_ERROR_CODE_INVALID_CURRENCY":         11,
+		"CATALOG_ERROR_CODE_INVALID_PERIOD":           12,
+		"CATALOG_ERROR_CODE_OVERLAPPING_PERIOD":       13,
+		"CATALOG_ERROR_CODE_IDEMPOTENCY_CONFLICT":     14,
+		"CATALOG_ERROR_CODE_FORBIDDEN":                15,
+		"CATALOG_ERROR_CODE_INTERNAL":                 16,
+	}
+)
+
+func (x CatalogErrorCode) Enum() *CatalogErrorCode {
+	p := new(CatalogErrorCode)
+	*p = x
+	return p
+}
+
+func (x CatalogErrorCode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CatalogErrorCode) Descriptor() protoreflect.EnumDescriptor {
+	return file_services_catalog_v1_catalog_proto_enumTypes[2].Descriptor()
+}
+
+func (CatalogErrorCode) Type() protoreflect.EnumType {
+	return &file_services_catalog_v1_catalog_proto_enumTypes[2]
+}
+
+func (x CatalogErrorCode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CatalogErrorCode.Descriptor instead.
+func (CatalogErrorCode) EnumDescriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{2}
+}
+
 type Product struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OrgId         string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Category      string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
-	Manufacturer  string                 `protobuf:"bytes,6,opt,name=manufacturer,proto3" json:"manufacturer,omitempty"`
-	Tags          []string               `protobuf:"bytes,7,rep,name=tags,proto3" json:"tags,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrgId          string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Description    string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Category       string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	Manufacturer   string                 `protobuf:"bytes,6,opt,name=manufacturer,proto3" json:"manufacturer,omitempty"`
+	AttributesJson string                 `protobuf:"bytes,7,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ArchivedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Product) Reset() {
@@ -110,11 +315,11 @@ func (x *Product) GetManufacturer() string {
 	return ""
 }
 
-func (x *Product) GetTags() []string {
+func (x *Product) GetAttributesJson() string {
 	if x != nil {
-		return x.Tags
+		return x.AttributesJson
 	}
-	return nil
+	return ""
 }
 
 func (x *Product) GetCreatedAt() *timestamppb.Timestamp {
@@ -131,22 +336,109 @@ func (x *Product) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Product) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
+type SkuIdentifier struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Namespace     *string                `protobuf:"bytes,3,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
+	Value         string                 `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
+	IsPrimary     bool                   `protobuf:"varint,5,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SkuIdentifier) Reset() {
+	*x = SkuIdentifier{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SkuIdentifier) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SkuIdentifier) ProtoMessage() {}
+
+func (x *SkuIdentifier) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SkuIdentifier.ProtoReflect.Descriptor instead.
+func (*SkuIdentifier) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SkuIdentifier) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SkuIdentifier) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *SkuIdentifier) GetNamespace() string {
+	if x != nil && x.Namespace != nil {
+		return *x.Namespace
+	}
+	return ""
+}
+
+func (x *SkuIdentifier) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *SkuIdentifier) GetIsPrimary() bool {
+	if x != nil {
+		return x.IsPrimary
+	}
+	return false
+}
+
 type Sku struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	OrgId          string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	ProductId      string                 `protobuf:"bytes,3,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	ProductId      *string                `protobuf:"bytes,3,opt,name=product_id,json=productId,proto3,oneof" json:"product_id,omitempty"`
 	SkuCode        string                 `protobuf:"bytes,4,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`
-	PackSize       int32                  `protobuf:"varint,5,opt,name=pack_size,json=packSize,proto3" json:"pack_size,omitempty"`
-	Unit           string                 `protobuf:"bytes,6,opt,name=unit,proto3" json:"unit,omitempty"`
+	PackSize       *int32                 `protobuf:"varint,5,opt,name=pack_size,json=packSize,proto3,oneof" json:"pack_size,omitempty"`
+	Unit           *string                `protobuf:"bytes,6,opt,name=unit,proto3,oneof" json:"unit,omitempty"`
 	AttributesJson string                 `protobuf:"bytes,7,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	Identifiers    []*SkuIdentifier       `protobuf:"bytes,8,rep,name=identifiers,proto3" json:"identifiers,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ArchivedAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Sku) Reset() {
 	*x = Sku{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[1]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -158,7 +450,7 @@ func (x *Sku) String() string {
 func (*Sku) ProtoMessage() {}
 
 func (x *Sku) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[1]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -171,7 +463,7 @@ func (x *Sku) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Sku.ProtoReflect.Descriptor instead.
 func (*Sku) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{1}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Sku) GetId() string {
@@ -189,8 +481,8 @@ func (x *Sku) GetOrgId() string {
 }
 
 func (x *Sku) GetProductId() string {
-	if x != nil {
-		return x.ProductId
+	if x != nil && x.ProductId != nil {
+		return *x.ProductId
 	}
 	return ""
 }
@@ -203,15 +495,15 @@ func (x *Sku) GetSkuCode() string {
 }
 
 func (x *Sku) GetPackSize() int32 {
-	if x != nil {
-		return x.PackSize
+	if x != nil && x.PackSize != nil {
+		return *x.PackSize
 	}
 	return 0
 }
 
 func (x *Sku) GetUnit() string {
-	if x != nil {
-		return x.Unit
+	if x != nil && x.Unit != nil {
+		return *x.Unit
 	}
 	return ""
 }
@@ -223,25 +515,57 @@ func (x *Sku) GetAttributesJson() string {
 	return ""
 }
 
+func (x *Sku) GetIdentifiers() []*SkuIdentifier {
+	if x != nil {
+		return x.Identifiers
+	}
+	return nil
+}
+
+func (x *Sku) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Sku) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Sku) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
 type CostRecord struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	OrgId          string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	SkuId          string                 `protobuf:"bytes,3,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
-	Cost           *v1.Money              `protobuf:"bytes,4,opt,name=cost,proto3" json:"cost,omitempty"`
-	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
-	EffectiveUntil *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=effective_until,json=effectiveUntil,proto3" json:"effective_until,omitempty"`
-	RecordedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=recorded_at,json=recordedAt,proto3" json:"recorded_at,omitempty"`
-	SupersededAt   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=superseded_at,json=supersededAt,proto3" json:"superseded_at,omitempty"`
-	Source         string                 `protobuf:"bytes,9,opt,name=source,proto3" json:"source,omitempty"`
-	SourceRef      string                 `protobuf:"bytes,10,opt,name=source_ref,json=sourceRef,proto3" json:"source_ref,omitempty"`
+	LocationId     *string                `protobuf:"bytes,4,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
+	CostType       string                 `protobuf:"bytes,5,opt,name=cost_type,json=costType,proto3" json:"cost_type,omitempty"`
+	Cost           *v1.Money              `protobuf:"bytes,6,opt,name=cost,proto3" json:"cost,omitempty"`
+	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	EffectiveUntil *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=effective_until,json=effectiveUntil,proto3" json:"effective_until,omitempty"`
+	RecordedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=recorded_at,json=recordedAt,proto3" json:"recorded_at,omitempty"`
+	SupersededAt   *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=superseded_at,json=supersededAt,proto3" json:"superseded_at,omitempty"`
+	SourceType     SourceType             `protobuf:"varint,11,opt,name=source_type,json=sourceType,proto3,enum=owomide.services.catalog.v1.SourceType" json:"source_type,omitempty"`
+	SourceRef      string                 `protobuf:"bytes,12,opt,name=source_ref,json=sourceRef,proto3" json:"source_ref,omitempty"`
+	SourceItemRef  string                 `protobuf:"bytes,13,opt,name=source_item_ref,json=sourceItemRef,proto3" json:"source_item_ref,omitempty"`
+	ActorId        *string                `protobuf:"bytes,14,opt,name=actor_id,json=actorId,proto3,oneof" json:"actor_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CostRecord) Reset() {
 	*x = CostRecord{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[2]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -253,7 +577,7 @@ func (x *CostRecord) String() string {
 func (*CostRecord) ProtoMessage() {}
 
 func (x *CostRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[2]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -266,7 +590,7 @@ func (x *CostRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CostRecord.ProtoReflect.Descriptor instead.
 func (*CostRecord) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{2}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CostRecord) GetId() string {
@@ -286,6 +610,20 @@ func (x *CostRecord) GetOrgId() string {
 func (x *CostRecord) GetSkuId() string {
 	if x != nil {
 		return x.SkuId
+	}
+	return ""
+}
+
+func (x *CostRecord) GetLocationId() string {
+	if x != nil && x.LocationId != nil {
+		return *x.LocationId
+	}
+	return ""
+}
+
+func (x *CostRecord) GetCostType() string {
+	if x != nil {
+		return x.CostType
 	}
 	return ""
 }
@@ -325,11 +663,11 @@ func (x *CostRecord) GetSupersededAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *CostRecord) GetSource() string {
+func (x *CostRecord) GetSourceType() SourceType {
 	if x != nil {
-		return x.Source
+		return x.SourceType
 	}
-	return ""
+	return SourceType_SOURCE_TYPE_UNSPECIFIED
 }
 
 func (x *CostRecord) GetSourceRef() string {
@@ -339,26 +677,44 @@ func (x *CostRecord) GetSourceRef() string {
 	return ""
 }
 
+func (x *CostRecord) GetSourceItemRef() string {
+	if x != nil {
+		return x.SourceItemRef
+	}
+	return ""
+}
+
+func (x *CostRecord) GetActorId() string {
+	if x != nil && x.ActorId != nil {
+		return *x.ActorId
+	}
+	return ""
+}
+
 type PriceRecord struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OrgId          string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	SkuId          string                 `protobuf:"bytes,3,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
-	ChannelId      string                 `protobuf:"bytes,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Price          *v1.Money              `protobuf:"bytes,5,opt,name=price,proto3" json:"price,omitempty"`
-	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
-	EffectiveUntil *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=effective_until,json=effectiveUntil,proto3" json:"effective_until,omitempty"`
-	RecordedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=recorded_at,json=recordedAt,proto3" json:"recorded_at,omitempty"`
-	SupersededAt   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=superseded_at,json=supersededAt,proto3" json:"superseded_at,omitempty"`
-	Source         string                 `protobuf:"bytes,10,opt,name=source,proto3" json:"source,omitempty"`
-	SourceRef      string                 `protobuf:"bytes,11,opt,name=source_ref,json=sourceRef,proto3" json:"source_ref,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrgId             string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	SkuId             string                 `protobuf:"bytes,3,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
+	ChannelId         string                 `protobuf:"bytes,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	LocationId        *string                `protobuf:"bytes,5,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
+	CustomerSegmentId *string                `protobuf:"bytes,6,opt,name=customer_segment_id,json=customerSegmentId,proto3,oneof" json:"customer_segment_id,omitempty"`
+	Price             *v1.Money              `protobuf:"bytes,7,opt,name=price,proto3" json:"price,omitempty"`
+	EffectiveAt       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	EffectiveUntil    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=effective_until,json=effectiveUntil,proto3" json:"effective_until,omitempty"`
+	RecordedAt        *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=recorded_at,json=recordedAt,proto3" json:"recorded_at,omitempty"`
+	SupersededAt      *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=superseded_at,json=supersededAt,proto3" json:"superseded_at,omitempty"`
+	SourceType        SourceType             `protobuf:"varint,12,opt,name=source_type,json=sourceType,proto3,enum=owomide.services.catalog.v1.SourceType" json:"source_type,omitempty"`
+	SourceRef         string                 `protobuf:"bytes,13,opt,name=source_ref,json=sourceRef,proto3" json:"source_ref,omitempty"`
+	SourceItemRef     string                 `protobuf:"bytes,14,opt,name=source_item_ref,json=sourceItemRef,proto3" json:"source_item_ref,omitempty"`
+	ActorId           *string                `protobuf:"bytes,15,opt,name=actor_id,json=actorId,proto3,oneof" json:"actor_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *PriceRecord) Reset() {
 	*x = PriceRecord{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[3]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -370,7 +726,7 @@ func (x *PriceRecord) String() string {
 func (*PriceRecord) ProtoMessage() {}
 
 func (x *PriceRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[3]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -383,7 +739,7 @@ func (x *PriceRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PriceRecord.ProtoReflect.Descriptor instead.
 func (*PriceRecord) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{3}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *PriceRecord) GetId() string {
@@ -410,6 +766,20 @@ func (x *PriceRecord) GetSkuId() string {
 func (x *PriceRecord) GetChannelId() string {
 	if x != nil {
 		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *PriceRecord) GetLocationId() string {
+	if x != nil && x.LocationId != nil {
+		return *x.LocationId
+	}
+	return ""
+}
+
+func (x *PriceRecord) GetCustomerSegmentId() string {
+	if x != nil && x.CustomerSegmentId != nil {
+		return *x.CustomerSegmentId
 	}
 	return ""
 }
@@ -449,11 +819,11 @@ func (x *PriceRecord) GetSupersededAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *PriceRecord) GetSource() string {
+func (x *PriceRecord) GetSourceType() SourceType {
 	if x != nil {
-		return x.Source
+		return x.SourceType
 	}
-	return ""
+	return SourceType_SOURCE_TYPE_UNSPECIFIED
 }
 
 func (x *PriceRecord) GetSourceRef() string {
@@ -463,20 +833,38 @@ func (x *PriceRecord) GetSourceRef() string {
 	return ""
 }
 
+func (x *PriceRecord) GetSourceItemRef() string {
+	if x != nil {
+		return x.SourceItemRef
+	}
+	return ""
+}
+
+func (x *PriceRecord) GetActorId() string {
+	if x != nil && x.ActorId != nil {
+		return *x.ActorId
+	}
+	return ""
+}
+
 type Channel struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OrgId         string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`
-	Currency      string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrgId           string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	Name            string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Code            string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`
+	DefaultCurrency string                 `protobuf:"bytes,5,opt,name=default_currency,json=defaultCurrency,proto3" json:"default_currency,omitempty"`
+	AttributesJson  string                 `protobuf:"bytes,6,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ArchivedAt      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Channel) Reset() {
 	*x = Channel{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[4]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -488,7 +876,7 @@ func (x *Channel) String() string {
 func (*Channel) ProtoMessage() {}
 
 func (x *Channel) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[4]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -501,7 +889,7 @@ func (x *Channel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Channel.ProtoReflect.Descriptor instead.
 func (*Channel) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{4}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Channel) GetId() string {
@@ -532,27 +920,60 @@ func (x *Channel) GetCode() string {
 	return ""
 }
 
-func (x *Channel) GetCurrency() string {
+func (x *Channel) GetDefaultCurrency() string {
 	if x != nil {
-		return x.Currency
+		return x.DefaultCurrency
 	}
 	return ""
 }
 
+func (x *Channel) GetAttributesJson() string {
+	if x != nil {
+		return x.AttributesJson
+	}
+	return ""
+}
+
+func (x *Channel) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Channel) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Channel) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
 type Location struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OrgId         string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Region        string                 `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
-	Country       string                 `protobuf:"bytes,5,opt,name=country,proto3" json:"country,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrgId          string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Code           string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`
+	Region         *string                `protobuf:"bytes,5,opt,name=region,proto3,oneof" json:"region,omitempty"`
+	Country        string                 `protobuf:"bytes,6,opt,name=country,proto3" json:"country,omitempty"`
+	AttributesJson string                 `protobuf:"bytes,7,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ArchivedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Location) Reset() {
 	*x = Location{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[5]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -564,7 +985,7 @@ func (x *Location) String() string {
 func (*Location) ProtoMessage() {}
 
 func (x *Location) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[5]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -577,7 +998,7 @@ func (x *Location) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Location.ProtoReflect.Descriptor instead.
 func (*Location) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{5}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Location) GetId() string {
@@ -601,9 +1022,16 @@ func (x *Location) GetName() string {
 	return ""
 }
 
-func (x *Location) GetRegion() string {
+func (x *Location) GetCode() string {
 	if x != nil {
-		return x.Region
+		return x.Code
+	}
+	return ""
+}
+
+func (x *Location) GetRegion() string {
+	if x != nil && x.Region != nil {
+		return *x.Region
 	}
 	return ""
 }
@@ -615,6 +1043,876 @@ func (x *Location) GetCountry() string {
 	return ""
 }
 
+func (x *Location) GetAttributesJson() string {
+	if x != nil {
+		return x.AttributesJson
+	}
+	return ""
+}
+
+func (x *Location) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Location) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Location) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
+type CustomerSegment struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrgId          string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Code           string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`
+	AttributesJson string                 `protobuf:"bytes,5,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ArchivedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CustomerSegment) Reset() {
+	*x = CustomerSegment{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CustomerSegment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CustomerSegment) ProtoMessage() {}
+
+func (x *CustomerSegment) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CustomerSegment.ProtoReflect.Descriptor instead.
+func (*CustomerSegment) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CustomerSegment) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CustomerSegment) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *CustomerSegment) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CustomerSegment) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *CustomerSegment) GetAttributesJson() string {
+	if x != nil {
+		return x.AttributesJson
+	}
+	return ""
+}
+
+func (x *CustomerSegment) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *CustomerSegment) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *CustomerSegment) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
+type SkuIdentity struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Key:
+	//
+	//	*SkuIdentity_SkuId
+	//	*SkuIdentity_SkuCode
+	//	*SkuIdentity_Identifier
+	Key           isSkuIdentity_Key `protobuf_oneof:"key"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SkuIdentity) Reset() {
+	*x = SkuIdentity{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SkuIdentity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SkuIdentity) ProtoMessage() {}
+
+func (x *SkuIdentity) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SkuIdentity.ProtoReflect.Descriptor instead.
+func (*SkuIdentity) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SkuIdentity) GetKey() isSkuIdentity_Key {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *SkuIdentity) GetSkuId() string {
+	if x != nil {
+		if x, ok := x.Key.(*SkuIdentity_SkuId); ok {
+			return x.SkuId
+		}
+	}
+	return ""
+}
+
+func (x *SkuIdentity) GetSkuCode() string {
+	if x != nil {
+		if x, ok := x.Key.(*SkuIdentity_SkuCode); ok {
+			return x.SkuCode
+		}
+	}
+	return ""
+}
+
+func (x *SkuIdentity) GetIdentifier() *IdentifierReference {
+	if x != nil {
+		if x, ok := x.Key.(*SkuIdentity_Identifier); ok {
+			return x.Identifier
+		}
+	}
+	return nil
+}
+
+type isSkuIdentity_Key interface {
+	isSkuIdentity_Key()
+}
+
+type SkuIdentity_SkuId struct {
+	SkuId string `protobuf:"bytes,1,opt,name=sku_id,json=skuId,proto3,oneof"`
+}
+
+type SkuIdentity_SkuCode struct {
+	SkuCode string `protobuf:"bytes,2,opt,name=sku_code,json=skuCode,proto3,oneof"`
+}
+
+type SkuIdentity_Identifier struct {
+	Identifier *IdentifierReference `protobuf:"bytes,3,opt,name=identifier,proto3,oneof"`
+}
+
+func (*SkuIdentity_SkuId) isSkuIdentity_Key() {}
+
+func (*SkuIdentity_SkuCode) isSkuIdentity_Key() {}
+
+func (*SkuIdentity_Identifier) isSkuIdentity_Key() {}
+
+type IdentifierReference struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Namespace     *string                `protobuf:"bytes,2,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IdentifierReference) Reset() {
+	*x = IdentifierReference{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IdentifierReference) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IdentifierReference) ProtoMessage() {}
+
+func (x *IdentifierReference) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IdentifierReference.ProtoReflect.Descriptor instead.
+func (*IdentifierReference) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *IdentifierReference) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *IdentifierReference) GetNamespace() string {
+	if x != nil && x.Namespace != nil {
+		return *x.Namespace
+	}
+	return ""
+}
+
+func (x *IdentifierReference) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+type NewSku struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	SkuCode        string                 `protobuf:"bytes,1,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`
+	ProductId      *string                `protobuf:"bytes,2,opt,name=product_id,json=productId,proto3,oneof" json:"product_id,omitempty"`
+	PackSize       *int32                 `protobuf:"varint,3,opt,name=pack_size,json=packSize,proto3,oneof" json:"pack_size,omitempty"`
+	Unit           *string                `protobuf:"bytes,4,opt,name=unit,proto3,oneof" json:"unit,omitempty"`
+	AttributesJson string                 `protobuf:"bytes,5,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	Identifiers    []*NewSkuIdentifier    `protobuf:"bytes,6,rep,name=identifiers,proto3" json:"identifiers,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NewSku) Reset() {
+	*x = NewSku{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NewSku) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NewSku) ProtoMessage() {}
+
+func (x *NewSku) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NewSku.ProtoReflect.Descriptor instead.
+func (*NewSku) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *NewSku) GetSkuCode() string {
+	if x != nil {
+		return x.SkuCode
+	}
+	return ""
+}
+
+func (x *NewSku) GetProductId() string {
+	if x != nil && x.ProductId != nil {
+		return *x.ProductId
+	}
+	return ""
+}
+
+func (x *NewSku) GetPackSize() int32 {
+	if x != nil && x.PackSize != nil {
+		return *x.PackSize
+	}
+	return 0
+}
+
+func (x *NewSku) GetUnit() string {
+	if x != nil && x.Unit != nil {
+		return *x.Unit
+	}
+	return ""
+}
+
+func (x *NewSku) GetAttributesJson() string {
+	if x != nil {
+		return x.AttributesJson
+	}
+	return ""
+}
+
+func (x *NewSku) GetIdentifiers() []*NewSkuIdentifier {
+	if x != nil {
+		return x.Identifiers
+	}
+	return nil
+}
+
+type NewSkuIdentifier struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Namespace     *string                `protobuf:"bytes,2,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	IsPrimary     bool                   `protobuf:"varint,4,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NewSkuIdentifier) Reset() {
+	*x = NewSkuIdentifier{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NewSkuIdentifier) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NewSkuIdentifier) ProtoMessage() {}
+
+func (x *NewSkuIdentifier) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NewSkuIdentifier.ProtoReflect.Descriptor instead.
+func (*NewSkuIdentifier) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *NewSkuIdentifier) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *NewSkuIdentifier) GetNamespace() string {
+	if x != nil && x.Namespace != nil {
+		return *x.Namespace
+	}
+	return ""
+}
+
+func (x *NewSkuIdentifier) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *NewSkuIdentifier) GetIsPrimary() bool {
+	if x != nil {
+		return x.IsPrimary
+	}
+	return false
+}
+
+type SourceContext struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SourceType    SourceType             `protobuf:"varint,1,opt,name=source_type,json=sourceType,proto3,enum=owomide.services.catalog.v1.SourceType" json:"source_type,omitempty"`
+	SourceRef     string                 `protobuf:"bytes,2,opt,name=source_ref,json=sourceRef,proto3" json:"source_ref,omitempty"`
+	ActorId       *string                `protobuf:"bytes,3,opt,name=actor_id,json=actorId,proto3,oneof" json:"actor_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SourceContext) Reset() {
+	*x = SourceContext{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SourceContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SourceContext) ProtoMessage() {}
+
+func (x *SourceContext) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SourceContext.ProtoReflect.Descriptor instead.
+func (*SourceContext) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *SourceContext) GetSourceType() SourceType {
+	if x != nil {
+		return x.SourceType
+	}
+	return SourceType_SOURCE_TYPE_UNSPECIFIED
+}
+
+func (x *SourceContext) GetSourceRef() string {
+	if x != nil {
+		return x.SourceRef
+	}
+	return ""
+}
+
+func (x *SourceContext) GetActorId() string {
+	if x != nil && x.ActorId != nil {
+		return *x.ActorId
+	}
+	return ""
+}
+
+type CostWrite struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	LocationId     *string                `protobuf:"bytes,1,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
+	CostType       string                 `protobuf:"bytes,2,opt,name=cost_type,json=costType,proto3" json:"cost_type,omitempty"`
+	Cost           *v1.Money              `protobuf:"bytes,3,opt,name=cost,proto3" json:"cost,omitempty"`
+	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	EffectiveUntil *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=effective_until,json=effectiveUntil,proto3" json:"effective_until,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CostWrite) Reset() {
+	*x = CostWrite{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CostWrite) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CostWrite) ProtoMessage() {}
+
+func (x *CostWrite) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CostWrite.ProtoReflect.Descriptor instead.
+func (*CostWrite) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CostWrite) GetLocationId() string {
+	if x != nil && x.LocationId != nil {
+		return *x.LocationId
+	}
+	return ""
+}
+
+func (x *CostWrite) GetCostType() string {
+	if x != nil {
+		return x.CostType
+	}
+	return ""
+}
+
+func (x *CostWrite) GetCost() *v1.Money {
+	if x != nil {
+		return x.Cost
+	}
+	return nil
+}
+
+func (x *CostWrite) GetEffectiveAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveAt
+	}
+	return nil
+}
+
+func (x *CostWrite) GetEffectiveUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveUntil
+	}
+	return nil
+}
+
+type PriceWrite struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	ChannelId         string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	LocationId        *string                `protobuf:"bytes,2,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
+	CustomerSegmentId *string                `protobuf:"bytes,3,opt,name=customer_segment_id,json=customerSegmentId,proto3,oneof" json:"customer_segment_id,omitempty"`
+	Price             *v1.Money              `protobuf:"bytes,4,opt,name=price,proto3" json:"price,omitempty"`
+	EffectiveAt       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	EffectiveUntil    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=effective_until,json=effectiveUntil,proto3" json:"effective_until,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *PriceWrite) Reset() {
+	*x = PriceWrite{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PriceWrite) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PriceWrite) ProtoMessage() {}
+
+func (x *PriceWrite) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PriceWrite.ProtoReflect.Descriptor instead.
+func (*PriceWrite) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *PriceWrite) GetChannelId() string {
+	if x != nil {
+		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *PriceWrite) GetLocationId() string {
+	if x != nil && x.LocationId != nil {
+		return *x.LocationId
+	}
+	return ""
+}
+
+func (x *PriceWrite) GetCustomerSegmentId() string {
+	if x != nil && x.CustomerSegmentId != nil {
+		return *x.CustomerSegmentId
+	}
+	return ""
+}
+
+func (x *PriceWrite) GetPrice() *v1.Money {
+	if x != nil {
+		return x.Price
+	}
+	return nil
+}
+
+func (x *PriceWrite) GetEffectiveAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveAt
+	}
+	return nil
+}
+
+func (x *PriceWrite) GetEffectiveUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveUntil
+	}
+	return nil
+}
+
+type CatalogWriteError struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          CatalogErrorCode       `protobuf:"varint,1,opt,name=code,proto3,enum=owomide.services.catalog.v1.CatalogErrorCode" json:"code,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Field         *string                `protobuf:"bytes,3,opt,name=field,proto3,oneof" json:"field,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CatalogWriteError) Reset() {
+	*x = CatalogWriteError{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CatalogWriteError) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CatalogWriteError) ProtoMessage() {}
+
+func (x *CatalogWriteError) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CatalogWriteError.ProtoReflect.Descriptor instead.
+func (*CatalogWriteError) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *CatalogWriteError) GetCode() CatalogErrorCode {
+	if x != nil {
+		return x.Code
+	}
+	return CatalogErrorCode_CATALOG_ERROR_CODE_UNSPECIFIED
+}
+
+func (x *CatalogWriteError) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *CatalogWriteError) GetField() string {
+	if x != nil && x.Field != nil {
+		return *x.Field
+	}
+	return ""
+}
+
+type WriteSummary struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Created       int32                  `protobuf:"varint,1,opt,name=created,proto3" json:"created,omitempty"`
+	Updated       int32                  `protobuf:"varint,2,opt,name=updated,proto3" json:"updated,omitempty"`
+	Unchanged     int32                  `protobuf:"varint,3,opt,name=unchanged,proto3" json:"unchanged,omitempty"`
+	Rejected      int32                  `protobuf:"varint,4,opt,name=rejected,proto3" json:"rejected,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WriteSummary) Reset() {
+	*x = WriteSummary{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WriteSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WriteSummary) ProtoMessage() {}
+
+func (x *WriteSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WriteSummary.ProtoReflect.Descriptor instead.
+func (*WriteSummary) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *WriteSummary) GetCreated() int32 {
+	if x != nil {
+		return x.Created
+	}
+	return 0
+}
+
+func (x *WriteSummary) GetUpdated() int32 {
+	if x != nil {
+		return x.Updated
+	}
+	return 0
+}
+
+func (x *WriteSummary) GetUnchanged() int32 {
+	if x != nil {
+		return x.Unchanged
+	}
+	return 0
+}
+
+func (x *WriteSummary) GetRejected() int32 {
+	if x != nil {
+		return x.Rejected
+	}
+	return 0
+}
+
+type CanonicalRowResult struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	SourceItemRef  string                 `protobuf:"bytes,1,opt,name=source_item_ref,json=sourceItemRef,proto3" json:"source_item_ref,omitempty"`
+	Status         WriteStatus            `protobuf:"varint,2,opt,name=status,proto3,enum=owomide.services.catalog.v1.WriteStatus" json:"status,omitempty"`
+	SkuId          *string                `protobuf:"bytes,3,opt,name=sku_id,json=skuId,proto3,oneof" json:"sku_id,omitempty"`
+	CostRecordIds  []string               `protobuf:"bytes,4,rep,name=cost_record_ids,json=costRecordIds,proto3" json:"cost_record_ids,omitempty"`
+	PriceRecordIds []string               `protobuf:"bytes,5,rep,name=price_record_ids,json=priceRecordIds,proto3" json:"price_record_ids,omitempty"`
+	Errors         []*CatalogWriteError   `protobuf:"bytes,6,rep,name=errors,proto3" json:"errors,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CanonicalRowResult) Reset() {
+	*x = CanonicalRowResult{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CanonicalRowResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CanonicalRowResult) ProtoMessage() {}
+
+func (x *CanonicalRowResult) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CanonicalRowResult.ProtoReflect.Descriptor instead.
+func (*CanonicalRowResult) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *CanonicalRowResult) GetSourceItemRef() string {
+	if x != nil {
+		return x.SourceItemRef
+	}
+	return ""
+}
+
+func (x *CanonicalRowResult) GetStatus() WriteStatus {
+	if x != nil {
+		return x.Status
+	}
+	return WriteStatus_WRITE_STATUS_UNSPECIFIED
+}
+
+func (x *CanonicalRowResult) GetSkuId() string {
+	if x != nil && x.SkuId != nil {
+		return *x.SkuId
+	}
+	return ""
+}
+
+func (x *CanonicalRowResult) GetCostRecordIds() []string {
+	if x != nil {
+		return x.CostRecordIds
+	}
+	return nil
+}
+
+func (x *CanonicalRowResult) GetPriceRecordIds() []string {
+	if x != nil {
+		return x.PriceRecordIds
+	}
+	return nil
+}
+
+func (x *CanonicalRowResult) GetErrors() []*CatalogWriteError {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
 type GetProductRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -624,7 +1922,7 @@ type GetProductRequest struct {
 
 func (x *GetProductRequest) Reset() {
 	*x = GetProductRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[6]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -636,7 +1934,7 @@ func (x *GetProductRequest) String() string {
 func (*GetProductRequest) ProtoMessage() {}
 
 func (x *GetProductRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[6]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -649,7 +1947,7 @@ func (x *GetProductRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProductRequest.ProtoReflect.Descriptor instead.
 func (*GetProductRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{6}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetProductRequest) GetId() string {
@@ -668,7 +1966,7 @@ type GetProductResponse struct {
 
 func (x *GetProductResponse) Reset() {
 	*x = GetProductResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[7]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -680,7 +1978,7 @@ func (x *GetProductResponse) String() string {
 func (*GetProductResponse) ProtoMessage() {}
 
 func (x *GetProductResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[7]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -693,7 +1991,7 @@ func (x *GetProductResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProductResponse.ProtoReflect.Descriptor instead.
 func (*GetProductResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{7}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetProductResponse) GetProduct() *Product {
@@ -712,7 +2010,7 @@ type BatchGetProductsRequest struct {
 
 func (x *BatchGetProductsRequest) Reset() {
 	*x = BatchGetProductsRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[8]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -724,7 +2022,7 @@ func (x *BatchGetProductsRequest) String() string {
 func (*BatchGetProductsRequest) ProtoMessage() {}
 
 func (x *BatchGetProductsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[8]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -737,7 +2035,7 @@ func (x *BatchGetProductsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetProductsRequest.ProtoReflect.Descriptor instead.
 func (*BatchGetProductsRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{8}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *BatchGetProductsRequest) GetIds() []string {
@@ -756,7 +2054,7 @@ type BatchGetProductsResponse struct {
 
 func (x *BatchGetProductsResponse) Reset() {
 	*x = BatchGetProductsResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[9]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -768,7 +2066,7 @@ func (x *BatchGetProductsResponse) String() string {
 func (*BatchGetProductsResponse) ProtoMessage() {}
 
 func (x *BatchGetProductsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[9]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -781,7 +2079,7 @@ func (x *BatchGetProductsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetProductsResponse.ProtoReflect.Descriptor instead.
 func (*BatchGetProductsResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{9}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *BatchGetProductsResponse) GetProducts() []*Product {
@@ -800,7 +2098,7 @@ type GetSkuRequest struct {
 
 func (x *GetSkuRequest) Reset() {
 	*x = GetSkuRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[10]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -812,7 +2110,7 @@ func (x *GetSkuRequest) String() string {
 func (*GetSkuRequest) ProtoMessage() {}
 
 func (x *GetSkuRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[10]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -825,7 +2123,7 @@ func (x *GetSkuRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSkuRequest.ProtoReflect.Descriptor instead.
 func (*GetSkuRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{10}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetSkuRequest) GetId() string {
@@ -844,7 +2142,7 @@ type GetSkuResponse struct {
 
 func (x *GetSkuResponse) Reset() {
 	*x = GetSkuResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[11]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -856,7 +2154,7 @@ func (x *GetSkuResponse) String() string {
 func (*GetSkuResponse) ProtoMessage() {}
 
 func (x *GetSkuResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[11]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -869,7 +2167,7 @@ func (x *GetSkuResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSkuResponse.ProtoReflect.Descriptor instead.
 func (*GetSkuResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{11}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetSkuResponse) GetSku() *Sku {
@@ -888,7 +2186,7 @@ type BatchGetSkusRequest struct {
 
 func (x *BatchGetSkusRequest) Reset() {
 	*x = BatchGetSkusRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[12]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -900,7 +2198,7 @@ func (x *BatchGetSkusRequest) String() string {
 func (*BatchGetSkusRequest) ProtoMessage() {}
 
 func (x *BatchGetSkusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[12]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -913,7 +2211,7 @@ func (x *BatchGetSkusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetSkusRequest.ProtoReflect.Descriptor instead.
 func (*BatchGetSkusRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{12}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *BatchGetSkusRequest) GetIds() []string {
@@ -932,7 +2230,7 @@ type BatchGetSkusResponse struct {
 
 func (x *BatchGetSkusResponse) Reset() {
 	*x = BatchGetSkusResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[13]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -944,7 +2242,7 @@ func (x *BatchGetSkusResponse) String() string {
 func (*BatchGetSkusResponse) ProtoMessage() {}
 
 func (x *BatchGetSkusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[13]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -957,7 +2255,7 @@ func (x *BatchGetSkusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetSkusResponse.ProtoReflect.Descriptor instead.
 func (*BatchGetSkusResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{13}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *BatchGetSkusResponse) GetSkus() []*Sku {
@@ -967,19 +2265,108 @@ func (x *BatchGetSkusResponse) GetSkus() []*Sku {
 	return nil
 }
 
+type ResolveSkuRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Identity      *SkuIdentity           `protobuf:"bytes,1,opt,name=identity,proto3" json:"identity,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResolveSkuRequest) Reset() {
+	*x = ResolveSkuRequest{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResolveSkuRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResolveSkuRequest) ProtoMessage() {}
+
+func (x *ResolveSkuRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResolveSkuRequest.ProtoReflect.Descriptor instead.
+func (*ResolveSkuRequest) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *ResolveSkuRequest) GetIdentity() *SkuIdentity {
+	if x != nil {
+		return x.Identity
+	}
+	return nil
+}
+
+type ResolveSkuResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sku           *Sku                   `protobuf:"bytes,1,opt,name=sku,proto3" json:"sku,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResolveSkuResponse) Reset() {
+	*x = ResolveSkuResponse{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResolveSkuResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResolveSkuResponse) ProtoMessage() {}
+
+func (x *ResolveSkuResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResolveSkuResponse.ProtoReflect.Descriptor instead.
+func (*ResolveSkuResponse) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *ResolveSkuResponse) GetSku() *Sku {
+	if x != nil {
+		return x.Sku
+	}
+	return nil
+}
+
 type ListSkusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProductId     string                 `protobuf:"bytes,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`
-	Pagination    *v1.Pagination         `protobuf:"bytes,4,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	ProductId     *string                `protobuf:"bytes,1,opt,name=product_id,json=productId,proto3,oneof" json:"product_id,omitempty"`
+	ChannelId     *string                `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3,oneof" json:"channel_id,omitempty"`
+	Category      *string                `protobuf:"bytes,3,opt,name=category,proto3,oneof" json:"category,omitempty"`
+	Query         *string                `protobuf:"bytes,4,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	Pagination    *v1.Pagination         `protobuf:"bytes,5,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSkusRequest) Reset() {
 	*x = ListSkusRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[14]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -991,7 +2378,7 @@ func (x *ListSkusRequest) String() string {
 func (*ListSkusRequest) ProtoMessage() {}
 
 func (x *ListSkusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[14]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1004,26 +2391,33 @@ func (x *ListSkusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSkusRequest.ProtoReflect.Descriptor instead.
 func (*ListSkusRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{14}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ListSkusRequest) GetProductId() string {
-	if x != nil {
-		return x.ProductId
+	if x != nil && x.ProductId != nil {
+		return *x.ProductId
 	}
 	return ""
 }
 
 func (x *ListSkusRequest) GetChannelId() string {
-	if x != nil {
-		return x.ChannelId
+	if x != nil && x.ChannelId != nil {
+		return *x.ChannelId
 	}
 	return ""
 }
 
 func (x *ListSkusRequest) GetCategory() string {
-	if x != nil {
-		return x.Category
+	if x != nil && x.Category != nil {
+		return *x.Category
+	}
+	return ""
+}
+
+func (x *ListSkusRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
 	}
 	return ""
 }
@@ -1045,7 +2439,7 @@ type ListSkusResponse struct {
 
 func (x *ListSkusResponse) Reset() {
 	*x = ListSkusResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[15]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1057,7 +2451,7 @@ func (x *ListSkusResponse) String() string {
 func (*ListSkusResponse) ProtoMessage() {}
 
 func (x *ListSkusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[15]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1070,7 +2464,7 @@ func (x *ListSkusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSkusResponse.ProtoReflect.Descriptor instead.
 func (*ListSkusResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{15}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ListSkusResponse) GetSkus() []*Sku {
@@ -1090,15 +2484,17 @@ func (x *ListSkusResponse) GetPagination() *v1.PaginatedResponse {
 type BatchGetCostsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SkuIds        []string               `protobuf:"bytes,1,rep,name=sku_ids,json=skuIds,proto3" json:"sku_ids,omitempty"`
-	EffectiveAsOf *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=effective_as_of,json=effectiveAsOf,proto3" json:"effective_as_of,omitempty"`
-	RecordedAsOf  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=recorded_as_of,json=recordedAsOf,proto3" json:"recorded_as_of,omitempty"`
+	LocationId    *string                `protobuf:"bytes,2,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
+	CostType      *string                `protobuf:"bytes,3,opt,name=cost_type,json=costType,proto3,oneof" json:"cost_type,omitempty"`
+	EffectiveAsOf *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=effective_as_of,json=effectiveAsOf,proto3" json:"effective_as_of,omitempty"`
+	RecordedAsOf  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=recorded_as_of,json=recordedAsOf,proto3" json:"recorded_as_of,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BatchGetCostsRequest) Reset() {
 	*x = BatchGetCostsRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[16]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1110,7 +2506,7 @@ func (x *BatchGetCostsRequest) String() string {
 func (*BatchGetCostsRequest) ProtoMessage() {}
 
 func (x *BatchGetCostsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[16]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1123,7 +2519,7 @@ func (x *BatchGetCostsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetCostsRequest.ProtoReflect.Descriptor instead.
 func (*BatchGetCostsRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{16}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *BatchGetCostsRequest) GetSkuIds() []string {
@@ -1131,6 +2527,20 @@ func (x *BatchGetCostsRequest) GetSkuIds() []string {
 		return x.SkuIds
 	}
 	return nil
+}
+
+func (x *BatchGetCostsRequest) GetLocationId() string {
+	if x != nil && x.LocationId != nil {
+		return *x.LocationId
+	}
+	return ""
+}
+
+func (x *BatchGetCostsRequest) GetCostType() string {
+	if x != nil && x.CostType != nil {
+		return *x.CostType
+	}
+	return ""
 }
 
 func (x *BatchGetCostsRequest) GetEffectiveAsOf() *timestamppb.Timestamp {
@@ -1156,7 +2566,7 @@ type BatchGetCostsResponse struct {
 
 func (x *BatchGetCostsResponse) Reset() {
 	*x = BatchGetCostsResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[17]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1168,7 +2578,7 @@ func (x *BatchGetCostsResponse) String() string {
 func (*BatchGetCostsResponse) ProtoMessage() {}
 
 func (x *BatchGetCostsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[17]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1181,7 +2591,7 @@ func (x *BatchGetCostsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetCostsResponse.ProtoReflect.Descriptor instead.
 func (*BatchGetCostsResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{17}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *BatchGetCostsResponse) GetCosts() []*CostRecord {
@@ -1192,18 +2602,20 @@ func (x *BatchGetCostsResponse) GetCosts() []*CostRecord {
 }
 
 type BatchGetPricesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SkuIds        []string               `protobuf:"bytes,1,rep,name=sku_ids,json=skuIds,proto3" json:"sku_ids,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	EffectiveAsOf *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=effective_as_of,json=effectiveAsOf,proto3" json:"effective_as_of,omitempty"`
-	RecordedAsOf  *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=recorded_as_of,json=recordedAsOf,proto3" json:"recorded_as_of,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	SkuIds            []string               `protobuf:"bytes,1,rep,name=sku_ids,json=skuIds,proto3" json:"sku_ids,omitempty"`
+	ChannelId         *string                `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3,oneof" json:"channel_id,omitempty"`
+	LocationId        *string                `protobuf:"bytes,3,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
+	CustomerSegmentId *string                `protobuf:"bytes,4,opt,name=customer_segment_id,json=customerSegmentId,proto3,oneof" json:"customer_segment_id,omitempty"`
+	EffectiveAsOf     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=effective_as_of,json=effectiveAsOf,proto3" json:"effective_as_of,omitempty"`
+	RecordedAsOf      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=recorded_as_of,json=recordedAsOf,proto3" json:"recorded_as_of,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *BatchGetPricesRequest) Reset() {
 	*x = BatchGetPricesRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[18]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1215,7 +2627,7 @@ func (x *BatchGetPricesRequest) String() string {
 func (*BatchGetPricesRequest) ProtoMessage() {}
 
 func (x *BatchGetPricesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[18]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1228,7 +2640,7 @@ func (x *BatchGetPricesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetPricesRequest.ProtoReflect.Descriptor instead.
 func (*BatchGetPricesRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{18}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *BatchGetPricesRequest) GetSkuIds() []string {
@@ -1239,8 +2651,22 @@ func (x *BatchGetPricesRequest) GetSkuIds() []string {
 }
 
 func (x *BatchGetPricesRequest) GetChannelId() string {
-	if x != nil {
-		return x.ChannelId
+	if x != nil && x.ChannelId != nil {
+		return *x.ChannelId
+	}
+	return ""
+}
+
+func (x *BatchGetPricesRequest) GetLocationId() string {
+	if x != nil && x.LocationId != nil {
+		return *x.LocationId
+	}
+	return ""
+}
+
+func (x *BatchGetPricesRequest) GetCustomerSegmentId() string {
+	if x != nil && x.CustomerSegmentId != nil {
+		return *x.CustomerSegmentId
 	}
 	return ""
 }
@@ -1268,7 +2694,7 @@ type BatchGetPricesResponse struct {
 
 func (x *BatchGetPricesResponse) Reset() {
 	*x = BatchGetPricesResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[19]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1280,7 +2706,7 @@ func (x *BatchGetPricesResponse) String() string {
 func (*BatchGetPricesResponse) ProtoMessage() {}
 
 func (x *BatchGetPricesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[19]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1293,7 +2719,7 @@ func (x *BatchGetPricesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetPricesResponse.ProtoReflect.Descriptor instead.
 func (*BatchGetPricesResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{19}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *BatchGetPricesResponse) GetPrices() []*PriceRecord {
@@ -1304,15 +2730,16 @@ func (x *BatchGetPricesResponse) GetPrices() []*PriceRecord {
 }
 
 type ListChannelsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pagination    *v1.Pagination         `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	IncludeArchived bool                   `protobuf:"varint,1,opt,name=include_archived,json=includeArchived,proto3" json:"include_archived,omitempty"`
+	Pagination      *v1.Pagination         `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ListChannelsRequest) Reset() {
 	*x = ListChannelsRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[20]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1324,7 +2751,7 @@ func (x *ListChannelsRequest) String() string {
 func (*ListChannelsRequest) ProtoMessage() {}
 
 func (x *ListChannelsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[20]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1337,7 +2764,14 @@ func (x *ListChannelsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelsRequest.ProtoReflect.Descriptor instead.
 func (*ListChannelsRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{20}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *ListChannelsRequest) GetIncludeArchived() bool {
+	if x != nil {
+		return x.IncludeArchived
+	}
+	return false
 }
 
 func (x *ListChannelsRequest) GetPagination() *v1.Pagination {
@@ -1357,7 +2791,7 @@ type ListChannelsResponse struct {
 
 func (x *ListChannelsResponse) Reset() {
 	*x = ListChannelsResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[21]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1369,7 +2803,7 @@ func (x *ListChannelsResponse) String() string {
 func (*ListChannelsResponse) ProtoMessage() {}
 
 func (x *ListChannelsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[21]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1382,7 +2816,7 @@ func (x *ListChannelsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelsResponse.ProtoReflect.Descriptor instead.
 func (*ListChannelsResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{21}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ListChannelsResponse) GetChannels() []*Channel {
@@ -1399,16 +2833,225 @@ func (x *ListChannelsResponse) GetPagination() *v1.PaginatedResponse {
 	return nil
 }
 
-type ListLocationsRequest struct {
+type SaveChannelRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Code            string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	Name            string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	DefaultCurrency string                 `protobuf:"bytes,4,opt,name=default_currency,json=defaultCurrency,proto3" json:"default_currency,omitempty"`
+	AttributesJson  string                 `protobuf:"bytes,5,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SaveChannelRequest) Reset() {
+	*x = SaveChannelRequest{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveChannelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveChannelRequest) ProtoMessage() {}
+
+func (x *SaveChannelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveChannelRequest.ProtoReflect.Descriptor instead.
+func (*SaveChannelRequest) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *SaveChannelRequest) GetId() string {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return ""
+}
+
+func (x *SaveChannelRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *SaveChannelRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SaveChannelRequest) GetDefaultCurrency() string {
+	if x != nil {
+		return x.DefaultCurrency
+	}
+	return ""
+}
+
+func (x *SaveChannelRequest) GetAttributesJson() string {
+	if x != nil {
+		return x.AttributesJson
+	}
+	return ""
+}
+
+type SaveChannelResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pagination    *v1.Pagination         `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Channel       *Channel               `protobuf:"bytes,1,opt,name=channel,proto3" json:"channel,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *SaveChannelResponse) Reset() {
+	*x = SaveChannelResponse{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveChannelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveChannelResponse) ProtoMessage() {}
+
+func (x *SaveChannelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveChannelResponse.ProtoReflect.Descriptor instead.
+func (*SaveChannelResponse) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *SaveChannelResponse) GetChannel() *Channel {
+	if x != nil {
+		return x.Channel
+	}
+	return nil
+}
+
+type DeactivateChannelRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeactivateChannelRequest) Reset() {
+	*x = DeactivateChannelRequest{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeactivateChannelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeactivateChannelRequest) ProtoMessage() {}
+
+func (x *DeactivateChannelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeactivateChannelRequest.ProtoReflect.Descriptor instead.
+func (*DeactivateChannelRequest) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *DeactivateChannelRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeactivateChannelResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Channel       *Channel               `protobuf:"bytes,1,opt,name=channel,proto3" json:"channel,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeactivateChannelResponse) Reset() {
+	*x = DeactivateChannelResponse{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeactivateChannelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeactivateChannelResponse) ProtoMessage() {}
+
+func (x *DeactivateChannelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeactivateChannelResponse.ProtoReflect.Descriptor instead.
+func (*DeactivateChannelResponse) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *DeactivateChannelResponse) GetChannel() *Channel {
+	if x != nil {
+		return x.Channel
+	}
+	return nil
+}
+
+type ListLocationsRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	IncludeArchived bool                   `protobuf:"varint,1,opt,name=include_archived,json=includeArchived,proto3" json:"include_archived,omitempty"`
+	Pagination      *v1.Pagination         `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
 func (x *ListLocationsRequest) Reset() {
 	*x = ListLocationsRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[22]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1420,7 +3063,7 @@ func (x *ListLocationsRequest) String() string {
 func (*ListLocationsRequest) ProtoMessage() {}
 
 func (x *ListLocationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[22]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1433,7 +3076,14 @@ func (x *ListLocationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLocationsRequest.ProtoReflect.Descriptor instead.
 func (*ListLocationsRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{22}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *ListLocationsRequest) GetIncludeArchived() bool {
+	if x != nil {
+		return x.IncludeArchived
+	}
+	return false
 }
 
 func (x *ListLocationsRequest) GetPagination() *v1.Pagination {
@@ -1453,7 +3103,7 @@ type ListLocationsResponse struct {
 
 func (x *ListLocationsResponse) Reset() {
 	*x = ListLocationsResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[23]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1465,7 +3115,7 @@ func (x *ListLocationsResponse) String() string {
 func (*ListLocationsResponse) ProtoMessage() {}
 
 func (x *ListLocationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[23]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1478,7 +3128,7 @@ func (x *ListLocationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLocationsResponse.ProtoReflect.Descriptor instead.
 func (*ListLocationsResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{23}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ListLocationsResponse) GetLocations() []*Location {
@@ -1495,16 +3145,538 @@ func (x *ListLocationsResponse) GetPagination() *v1.PaginatedResponse {
 	return nil
 }
 
-type UpsertCanonicalRequest struct {
+type SaveLocationRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Code           string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Country        string                 `protobuf:"bytes,4,opt,name=country,proto3" json:"country,omitempty"`
+	Region         *string                `protobuf:"bytes,5,opt,name=region,proto3,oneof" json:"region,omitempty"`
+	AttributesJson string                 `protobuf:"bytes,6,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SaveLocationRequest) Reset() {
+	*x = SaveLocationRequest{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveLocationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveLocationRequest) ProtoMessage() {}
+
+func (x *SaveLocationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveLocationRequest.ProtoReflect.Descriptor instead.
+func (*SaveLocationRequest) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *SaveLocationRequest) GetId() string {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return ""
+}
+
+func (x *SaveLocationRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *SaveLocationRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SaveLocationRequest) GetCountry() string {
+	if x != nil {
+		return x.Country
+	}
+	return ""
+}
+
+func (x *SaveLocationRequest) GetRegion() string {
+	if x != nil && x.Region != nil {
+		return *x.Region
+	}
+	return ""
+}
+
+func (x *SaveLocationRequest) GetAttributesJson() string {
+	if x != nil {
+		return x.AttributesJson
+	}
+	return ""
+}
+
+type SaveLocationResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rows          []*CanonicalRow        `protobuf:"bytes,1,rep,name=rows,proto3" json:"rows,omitempty"`
+	Location      *Location              `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *SaveLocationResponse) Reset() {
+	*x = SaveLocationResponse{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveLocationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveLocationResponse) ProtoMessage() {}
+
+func (x *SaveLocationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveLocationResponse.ProtoReflect.Descriptor instead.
+func (*SaveLocationResponse) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *SaveLocationResponse) GetLocation() *Location {
+	if x != nil {
+		return x.Location
+	}
+	return nil
+}
+
+type DeactivateLocationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeactivateLocationRequest) Reset() {
+	*x = DeactivateLocationRequest{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeactivateLocationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeactivateLocationRequest) ProtoMessage() {}
+
+func (x *DeactivateLocationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeactivateLocationRequest.ProtoReflect.Descriptor instead.
+func (*DeactivateLocationRequest) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *DeactivateLocationRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeactivateLocationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Location      *Location              `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeactivateLocationResponse) Reset() {
+	*x = DeactivateLocationResponse{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeactivateLocationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeactivateLocationResponse) ProtoMessage() {}
+
+func (x *DeactivateLocationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeactivateLocationResponse.ProtoReflect.Descriptor instead.
+func (*DeactivateLocationResponse) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *DeactivateLocationResponse) GetLocation() *Location {
+	if x != nil {
+		return x.Location
+	}
+	return nil
+}
+
+type ListCustomerSegmentsRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	IncludeArchived bool                   `protobuf:"varint,1,opt,name=include_archived,json=includeArchived,proto3" json:"include_archived,omitempty"`
+	Pagination      *v1.Pagination         `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ListCustomerSegmentsRequest) Reset() {
+	*x = ListCustomerSegmentsRequest{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCustomerSegmentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCustomerSegmentsRequest) ProtoMessage() {}
+
+func (x *ListCustomerSegmentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCustomerSegmentsRequest.ProtoReflect.Descriptor instead.
+func (*ListCustomerSegmentsRequest) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *ListCustomerSegmentsRequest) GetIncludeArchived() bool {
+	if x != nil {
+		return x.IncludeArchived
+	}
+	return false
+}
+
+func (x *ListCustomerSegmentsRequest) GetPagination() *v1.Pagination {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
+type ListCustomerSegmentsResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	CustomerSegments []*CustomerSegment     `protobuf:"bytes,1,rep,name=customer_segments,json=customerSegments,proto3" json:"customer_segments,omitempty"`
+	Pagination       *v1.PaginatedResponse  `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ListCustomerSegmentsResponse) Reset() {
+	*x = ListCustomerSegmentsResponse{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCustomerSegmentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCustomerSegmentsResponse) ProtoMessage() {}
+
+func (x *ListCustomerSegmentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCustomerSegmentsResponse.ProtoReflect.Descriptor instead.
+func (*ListCustomerSegmentsResponse) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *ListCustomerSegmentsResponse) GetCustomerSegments() []*CustomerSegment {
+	if x != nil {
+		return x.CustomerSegments
+	}
+	return nil
+}
+
+func (x *ListCustomerSegmentsResponse) GetPagination() *v1.PaginatedResponse {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
+type SaveCustomerSegmentRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             *string                `protobuf:"bytes,1,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Code           string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	AttributesJson string                 `protobuf:"bytes,4,opt,name=attributes_json,json=attributesJson,proto3" json:"attributes_json,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SaveCustomerSegmentRequest) Reset() {
+	*x = SaveCustomerSegmentRequest{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveCustomerSegmentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveCustomerSegmentRequest) ProtoMessage() {}
+
+func (x *SaveCustomerSegmentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveCustomerSegmentRequest.ProtoReflect.Descriptor instead.
+func (*SaveCustomerSegmentRequest) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *SaveCustomerSegmentRequest) GetId() string {
+	if x != nil && x.Id != nil {
+		return *x.Id
+	}
+	return ""
+}
+
+func (x *SaveCustomerSegmentRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *SaveCustomerSegmentRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SaveCustomerSegmentRequest) GetAttributesJson() string {
+	if x != nil {
+		return x.AttributesJson
+	}
+	return ""
+}
+
+type SaveCustomerSegmentResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	CustomerSegment *CustomerSegment       `protobuf:"bytes,1,opt,name=customer_segment,json=customerSegment,proto3" json:"customer_segment,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SaveCustomerSegmentResponse) Reset() {
+	*x = SaveCustomerSegmentResponse{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveCustomerSegmentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveCustomerSegmentResponse) ProtoMessage() {}
+
+func (x *SaveCustomerSegmentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveCustomerSegmentResponse.ProtoReflect.Descriptor instead.
+func (*SaveCustomerSegmentResponse) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *SaveCustomerSegmentResponse) GetCustomerSegment() *CustomerSegment {
+	if x != nil {
+		return x.CustomerSegment
+	}
+	return nil
+}
+
+type DeactivateCustomerSegmentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeactivateCustomerSegmentRequest) Reset() {
+	*x = DeactivateCustomerSegmentRequest{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeactivateCustomerSegmentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeactivateCustomerSegmentRequest) ProtoMessage() {}
+
+func (x *DeactivateCustomerSegmentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeactivateCustomerSegmentRequest.ProtoReflect.Descriptor instead.
+func (*DeactivateCustomerSegmentRequest) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *DeactivateCustomerSegmentRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeactivateCustomerSegmentResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	CustomerSegment *CustomerSegment       `protobuf:"bytes,1,opt,name=customer_segment,json=customerSegment,proto3" json:"customer_segment,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DeactivateCustomerSegmentResponse) Reset() {
+	*x = DeactivateCustomerSegmentResponse{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeactivateCustomerSegmentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeactivateCustomerSegmentResponse) ProtoMessage() {}
+
+func (x *DeactivateCustomerSegmentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeactivateCustomerSegmentResponse.ProtoReflect.Descriptor instead.
+func (*DeactivateCustomerSegmentResponse) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *DeactivateCustomerSegmentResponse) GetCustomerSegment() *CustomerSegment {
+	if x != nil {
+		return x.CustomerSegment
+	}
+	return nil
+}
+
+type UpsertCanonicalRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	IdempotencyKey string                 `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	Source         *SourceContext         `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	Rows           []*CanonicalWriteRow   `protobuf:"bytes,3,rep,name=rows,proto3" json:"rows,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
 func (x *UpsertCanonicalRequest) Reset() {
 	*x = UpsertCanonicalRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[24]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1516,7 +3688,7 @@ func (x *UpsertCanonicalRequest) String() string {
 func (*UpsertCanonicalRequest) ProtoMessage() {}
 
 func (x *UpsertCanonicalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[24]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1529,40 +3701,56 @@ func (x *UpsertCanonicalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertCanonicalRequest.ProtoReflect.Descriptor instead.
 func (*UpsertCanonicalRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{24}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{52}
 }
 
-func (x *UpsertCanonicalRequest) GetRows() []*CanonicalRow {
+func (x *UpsertCanonicalRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *UpsertCanonicalRequest) GetSource() *SourceContext {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *UpsertCanonicalRequest) GetRows() []*CanonicalWriteRow {
 	if x != nil {
 		return x.Rows
 	}
 	return nil
 }
 
-type CanonicalRow struct {
+type CanonicalWriteRow struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Sku           *Sku                   `protobuf:"bytes,1,opt,name=sku,proto3" json:"sku,omitempty"`
-	Cost          *CostRecord            `protobuf:"bytes,2,opt,name=cost,proto3" json:"cost,omitempty"`
-	Prices        []*PriceRecord         `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices,omitempty"`
+	SourceItemRef string                 `protobuf:"bytes,1,opt,name=source_item_ref,json=sourceItemRef,proto3" json:"source_item_ref,omitempty"`
+	SkuIdentity   *SkuIdentity           `protobuf:"bytes,2,opt,name=sku_identity,json=skuIdentity,proto3" json:"sku_identity,omitempty"`
+	NewSku        *NewSku                `protobuf:"bytes,3,opt,name=new_sku,json=newSku,proto3" json:"new_sku,omitempty"`
+	Cost          *CostWrite             `protobuf:"bytes,4,opt,name=cost,proto3" json:"cost,omitempty"`
+	Prices        []*PriceWrite          `protobuf:"bytes,5,rep,name=prices,proto3" json:"prices,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CanonicalRow) Reset() {
-	*x = CanonicalRow{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[25]
+func (x *CanonicalWriteRow) Reset() {
+	*x = CanonicalWriteRow{}
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CanonicalRow) String() string {
+func (x *CanonicalWriteRow) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CanonicalRow) ProtoMessage() {}
+func (*CanonicalWriteRow) ProtoMessage() {}
 
-func (x *CanonicalRow) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[25]
+func (x *CanonicalWriteRow) ProtoReflect() protoreflect.Message {
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1573,26 +3761,40 @@ func (x *CanonicalRow) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CanonicalRow.ProtoReflect.Descriptor instead.
-func (*CanonicalRow) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{25}
+// Deprecated: Use CanonicalWriteRow.ProtoReflect.Descriptor instead.
+func (*CanonicalWriteRow) Descriptor() ([]byte, []int) {
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{53}
 }
 
-func (x *CanonicalRow) GetSku() *Sku {
+func (x *CanonicalWriteRow) GetSourceItemRef() string {
 	if x != nil {
-		return x.Sku
+		return x.SourceItemRef
+	}
+	return ""
+}
+
+func (x *CanonicalWriteRow) GetSkuIdentity() *SkuIdentity {
+	if x != nil {
+		return x.SkuIdentity
 	}
 	return nil
 }
 
-func (x *CanonicalRow) GetCost() *CostRecord {
+func (x *CanonicalWriteRow) GetNewSku() *NewSku {
+	if x != nil {
+		return x.NewSku
+	}
+	return nil
+}
+
+func (x *CanonicalWriteRow) GetCost() *CostWrite {
 	if x != nil {
 		return x.Cost
 	}
 	return nil
 }
 
-func (x *CanonicalRow) GetPrices() []*PriceRecord {
+func (x *CanonicalWriteRow) GetPrices() []*PriceWrite {
 	if x != nil {
 		return x.Prices
 	}
@@ -1601,16 +3803,17 @@ func (x *CanonicalRow) GetPrices() []*PriceRecord {
 
 type UpsertCanonicalResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Created       int32                  `protobuf:"varint,1,opt,name=created,proto3" json:"created,omitempty"`
-	Updated       int32                  `protobuf:"varint,2,opt,name=updated,proto3" json:"updated,omitempty"`
-	Skipped       int32                  `protobuf:"varint,3,opt,name=skipped,proto3" json:"skipped,omitempty"`
+	OperationId   string                 `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	Replayed      bool                   `protobuf:"varint,2,opt,name=replayed,proto3" json:"replayed,omitempty"`
+	Results       []*CanonicalRowResult  `protobuf:"bytes,3,rep,name=results,proto3" json:"results,omitempty"`
+	Summary       *WriteSummary          `protobuf:"bytes,4,opt,name=summary,proto3" json:"summary,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpsertCanonicalResponse) Reset() {
 	*x = UpsertCanonicalResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[26]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1622,7 +3825,7 @@ func (x *UpsertCanonicalResponse) String() string {
 func (*UpsertCanonicalResponse) ProtoMessage() {}
 
 func (x *UpsertCanonicalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[26]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1635,41 +3838,50 @@ func (x *UpsertCanonicalResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertCanonicalResponse.ProtoReflect.Descriptor instead.
 func (*UpsertCanonicalResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{26}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{54}
 }
 
-func (x *UpsertCanonicalResponse) GetCreated() int32 {
+func (x *UpsertCanonicalResponse) GetOperationId() string {
 	if x != nil {
-		return x.Created
+		return x.OperationId
 	}
-	return 0
+	return ""
 }
 
-func (x *UpsertCanonicalResponse) GetUpdated() int32 {
+func (x *UpsertCanonicalResponse) GetReplayed() bool {
 	if x != nil {
-		return x.Updated
+		return x.Replayed
 	}
-	return 0
+	return false
 }
 
-func (x *UpsertCanonicalResponse) GetSkipped() int32 {
+func (x *UpsertCanonicalResponse) GetResults() []*CanonicalRowResult {
 	if x != nil {
-		return x.Skipped
+		return x.Results
 	}
-	return 0
+	return nil
+}
+
+func (x *UpsertCanonicalResponse) GetSummary() *WriteSummary {
+	if x != nil {
+		return x.Summary
+	}
+	return nil
 }
 
 type ApplyPriceChangesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProposalId    string                 `protobuf:"bytes,1,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
-	Changes       []*PriceChange         `protobuf:"bytes,2,rep,name=changes,proto3" json:"changes,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	IdempotencyKey string                 `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	ProposalId     string                 `protobuf:"bytes,2,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	ActorId        *string                `protobuf:"bytes,3,opt,name=actor_id,json=actorId,proto3,oneof" json:"actor_id,omitempty"`
+	Changes        []*PriceChange         `protobuf:"bytes,4,rep,name=changes,proto3" json:"changes,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ApplyPriceChangesRequest) Reset() {
 	*x = ApplyPriceChangesRequest{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[27]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1681,7 +3893,7 @@ func (x *ApplyPriceChangesRequest) String() string {
 func (*ApplyPriceChangesRequest) ProtoMessage() {}
 
 func (x *ApplyPriceChangesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[27]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1694,12 +3906,26 @@ func (x *ApplyPriceChangesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyPriceChangesRequest.ProtoReflect.Descriptor instead.
 func (*ApplyPriceChangesRequest) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{27}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *ApplyPriceChangesRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
 }
 
 func (x *ApplyPriceChangesRequest) GetProposalId() string {
 	if x != nil {
 		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *ApplyPriceChangesRequest) GetActorId() string {
+	if x != nil && x.ActorId != nil {
+		return *x.ActorId
 	}
 	return ""
 }
@@ -1712,18 +3938,22 @@ func (x *ApplyPriceChangesRequest) GetChanges() []*PriceChange {
 }
 
 type PriceChange struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SkuId         string                 `protobuf:"bytes,1,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	NewPrice      *v1.Money              `protobuf:"bytes,3,opt,name=new_price,json=newPrice,proto3" json:"new_price,omitempty"`
-	EffectiveAt   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	ProposalLineId    string                 `protobuf:"bytes,1,opt,name=proposal_line_id,json=proposalLineId,proto3" json:"proposal_line_id,omitempty"`
+	SkuId             string                 `protobuf:"bytes,2,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
+	ChannelId         string                 `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	LocationId        *string                `protobuf:"bytes,4,opt,name=location_id,json=locationId,proto3,oneof" json:"location_id,omitempty"`
+	CustomerSegmentId *string                `protobuf:"bytes,5,opt,name=customer_segment_id,json=customerSegmentId,proto3,oneof" json:"customer_segment_id,omitempty"`
+	NewPrice          *v1.Money              `protobuf:"bytes,6,opt,name=new_price,json=newPrice,proto3" json:"new_price,omitempty"`
+	EffectiveAt       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	EffectiveUntil    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=effective_until,json=effectiveUntil,proto3" json:"effective_until,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *PriceChange) Reset() {
 	*x = PriceChange{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[28]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1735,7 +3965,7 @@ func (x *PriceChange) String() string {
 func (*PriceChange) ProtoMessage() {}
 
 func (x *PriceChange) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[28]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1748,7 +3978,14 @@ func (x *PriceChange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PriceChange.ProtoReflect.Descriptor instead.
 func (*PriceChange) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{28}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *PriceChange) GetProposalLineId() string {
+	if x != nil {
+		return x.ProposalLineId
+	}
+	return ""
 }
 
 func (x *PriceChange) GetSkuId() string {
@@ -1761,6 +3998,20 @@ func (x *PriceChange) GetSkuId() string {
 func (x *PriceChange) GetChannelId() string {
 	if x != nil {
 		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *PriceChange) GetLocationId() string {
+	if x != nil && x.LocationId != nil {
+		return *x.LocationId
+	}
+	return ""
+}
+
+func (x *PriceChange) GetCustomerSegmentId() string {
+	if x != nil && x.CustomerSegmentId != nil {
+		return *x.CustomerSegmentId
 	}
 	return ""
 }
@@ -1779,16 +4030,26 @@ func (x *PriceChange) GetEffectiveAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *PriceChange) GetEffectiveUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveUntil
+	}
+	return nil
+}
+
 type ApplyPriceChangesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Applied       int32                  `protobuf:"varint,1,opt,name=applied,proto3" json:"applied,omitempty"`
+	OperationId   string                 `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	Replayed      bool                   `protobuf:"varint,2,opt,name=replayed,proto3" json:"replayed,omitempty"`
+	Results       []*CanonicalRowResult  `protobuf:"bytes,3,rep,name=results,proto3" json:"results,omitempty"`
+	Summary       *WriteSummary          `protobuf:"bytes,4,opt,name=summary,proto3" json:"summary,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ApplyPriceChangesResponse) Reset() {
 	*x = ApplyPriceChangesResponse{}
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[29]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1800,7 +4061,7 @@ func (x *ApplyPriceChangesResponse) String() string {
 func (*ApplyPriceChangesResponse) ProtoMessage() {}
 
 func (x *ApplyPriceChangesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_catalog_v1_catalog_proto_msgTypes[29]
+	mi := &file_services_catalog_v1_catalog_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1813,85 +4074,254 @@ func (x *ApplyPriceChangesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyPriceChangesResponse.ProtoReflect.Descriptor instead.
 func (*ApplyPriceChangesResponse) Descriptor() ([]byte, []int) {
-	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{29}
+	return file_services_catalog_v1_catalog_proto_rawDescGZIP(), []int{57}
 }
 
-func (x *ApplyPriceChangesResponse) GetApplied() int32 {
+func (x *ApplyPriceChangesResponse) GetOperationId() string {
 	if x != nil {
-		return x.Applied
+		return x.OperationId
 	}
-	return 0
+	return ""
+}
+
+func (x *ApplyPriceChangesResponse) GetReplayed() bool {
+	if x != nil {
+		return x.Replayed
+	}
+	return false
+}
+
+func (x *ApplyPriceChangesResponse) GetResults() []*CanonicalRowResult {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
+func (x *ApplyPriceChangesResponse) GetSummary() *WriteSummary {
+	if x != nil {
+		return x.Summary
+	}
+	return nil
 }
 
 var File_services_catalog_v1_catalog_proto protoreflect.FileDescriptor
 
 const file_services_catalog_v1_catalog_proto_rawDesc = "" +
 	"\n" +
-	"!services/catalog/v1/catalog.proto\x12\x1bowomide.services.catalog.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16common/v1/common.proto\"\xb0\x02\n" +
+	"!services/catalog/v1/catalog.proto\x12\x1bowomide.services.catalog.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16common/v1/common.proto\"\x82\x03\n" +
 	"\aProduct\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x1a\n" +
 	"\bcategory\x18\x05 \x01(\tR\bcategory\x12\"\n" +
-	"\fmanufacturer\x18\x06 \x01(\tR\fmanufacturer\x12\x12\n" +
-	"\x04tags\x18\a \x03(\tR\x04tags\x129\n" +
+	"\fmanufacturer\x18\x06 \x01(\tR\fmanufacturer\x12'\n" +
+	"\x0fattributes_json\x18\a \x01(\tR\x0eattributesJson\x129\n" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xc0\x01\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12;\n" +
+	"\varchived_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"archivedAt\"\x99\x01\n" +
+	"\rSkuIdentifier\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12!\n" +
+	"\tnamespace\x18\x03 \x01(\tH\x00R\tnamespace\x88\x01\x01\x12\x14\n" +
+	"\x05value\x18\x04 \x01(\tR\x05value\x12\x1d\n" +
+	"\n" +
+	"is_primary\x18\x05 \x01(\bR\tisPrimaryB\f\n" +
+	"\n" +
+	"_namespace\"\xf6\x03\n" +
 	"\x03Sku\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
-	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x1d\n" +
+	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\"\n" +
 	"\n" +
-	"product_id\x18\x03 \x01(\tR\tproductId\x12\x19\n" +
-	"\bsku_code\x18\x04 \x01(\tR\askuCode\x12\x1b\n" +
-	"\tpack_size\x18\x05 \x01(\x05R\bpackSize\x12\x12\n" +
-	"\x04unit\x18\x06 \x01(\tR\x04unit\x12'\n" +
-	"\x0fattributes_json\x18\a \x01(\tR\x0eattributesJson\"\xb1\x03\n" +
+	"product_id\x18\x03 \x01(\tH\x00R\tproductId\x88\x01\x01\x12\x19\n" +
+	"\bsku_code\x18\x04 \x01(\tR\askuCode\x12 \n" +
+	"\tpack_size\x18\x05 \x01(\x05H\x01R\bpackSize\x88\x01\x01\x12\x17\n" +
+	"\x04unit\x18\x06 \x01(\tH\x02R\x04unit\x88\x01\x01\x12'\n" +
+	"\x0fattributes_json\x18\a \x01(\tR\x0eattributesJson\x12L\n" +
+	"\videntifiers\x18\b \x03(\v2*.owomide.services.catalog.v1.SkuIdentifierR\videntifiers\x129\n" +
+	"\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12;\n" +
+	"\varchived_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"archivedAtB\r\n" +
+	"\v_product_idB\f\n" +
+	"\n" +
+	"_pack_sizeB\a\n" +
+	"\x05_unit\"\x8b\x05\n" +
 	"\n" +
 	"CostRecord\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x15\n" +
-	"\x06sku_id\x18\x03 \x01(\tR\x05skuId\x12,\n" +
-	"\x04cost\x18\x04 \x01(\v2\x18.owomide.common.v1.MoneyR\x04cost\x12=\n" +
-	"\feffective_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12C\n" +
-	"\x0feffective_until\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x0eeffectiveUntil\x12;\n" +
-	"\vrecorded_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"\x06sku_id\x18\x03 \x01(\tR\x05skuId\x12$\n" +
+	"\vlocation_id\x18\x04 \x01(\tH\x00R\n" +
+	"locationId\x88\x01\x01\x12\x1b\n" +
+	"\tcost_type\x18\x05 \x01(\tR\bcostType\x12,\n" +
+	"\x04cost\x18\x06 \x01(\v2\x18.owomide.common.v1.MoneyR\x04cost\x12=\n" +
+	"\feffective_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12C\n" +
+	"\x0feffective_until\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x0eeffectiveUntil\x12;\n" +
+	"\vrecorded_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"recordedAt\x12?\n" +
-	"\rsuperseded_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12\x16\n" +
-	"\x06source\x18\t \x01(\tR\x06source\x12\x1d\n" +
+	"\rsuperseded_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12H\n" +
+	"\vsource_type\x18\v \x01(\x0e2'.owomide.services.catalog.v1.SourceTypeR\n" +
+	"sourceType\x12\x1d\n" +
 	"\n" +
-	"source_ref\x18\n" +
-	" \x01(\tR\tsourceRef\"\xd3\x03\n" +
+	"source_ref\x18\f \x01(\tR\tsourceRef\x12&\n" +
+	"\x0fsource_item_ref\x18\r \x01(\tR\rsourceItemRef\x12\x1e\n" +
+	"\bactor_id\x18\x0e \x01(\tH\x01R\aactorId\x88\x01\x01B\x0e\n" +
+	"\f_location_idB\v\n" +
+	"\t_actor_id\"\xdd\x05\n" +
 	"\vPriceRecord\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x15\n" +
 	"\x06sku_id\x18\x03 \x01(\tR\x05skuId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x04 \x01(\tR\tchannelId\x12.\n" +
-	"\x05price\x18\x05 \x01(\v2\x18.owomide.common.v1.MoneyR\x05price\x12=\n" +
-	"\feffective_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12C\n" +
-	"\x0feffective_until\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0eeffectiveUntil\x12;\n" +
-	"\vrecorded_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"channel_id\x18\x04 \x01(\tR\tchannelId\x12$\n" +
+	"\vlocation_id\x18\x05 \x01(\tH\x00R\n" +
+	"locationId\x88\x01\x01\x123\n" +
+	"\x13customer_segment_id\x18\x06 \x01(\tH\x01R\x11customerSegmentId\x88\x01\x01\x12.\n" +
+	"\x05price\x18\a \x01(\v2\x18.owomide.common.v1.MoneyR\x05price\x12=\n" +
+	"\feffective_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12C\n" +
+	"\x0feffective_until\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x0eeffectiveUntil\x12;\n" +
+	"\vrecorded_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"recordedAt\x12?\n" +
-	"\rsuperseded_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12\x16\n" +
-	"\x06source\x18\n" +
-	" \x01(\tR\x06source\x12\x1d\n" +
+	"\rsuperseded_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12H\n" +
+	"\vsource_type\x18\f \x01(\x0e2'.owomide.services.catalog.v1.SourceTypeR\n" +
+	"sourceType\x12\x1d\n" +
 	"\n" +
-	"source_ref\x18\v \x01(\tR\tsourceRef\"t\n" +
+	"source_ref\x18\r \x01(\tR\tsourceRef\x12&\n" +
+	"\x0fsource_item_ref\x18\x0e \x01(\tR\rsourceItemRef\x12\x1e\n" +
+	"\bactor_id\x18\x0f \x01(\tH\x02R\aactorId\x88\x01\x01B\x0e\n" +
+	"\f_location_idB\x16\n" +
+	"\x14_customer_segment_idB\v\n" +
+	"\t_actor_id\"\xdf\x02\n" +
 	"\aChannel\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x12\n" +
-	"\x04code\x18\x04 \x01(\tR\x04code\x12\x1a\n" +
-	"\bcurrency\x18\x05 \x01(\tR\bcurrency\"w\n" +
+	"\x04code\x18\x04 \x01(\tR\x04code\x12)\n" +
+	"\x10default_currency\x18\x05 \x01(\tR\x0fdefaultCurrency\x12'\n" +
+	"\x0fattributes_json\x18\x06 \x01(\tR\x0eattributesJson\x129\n" +
+	"\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12;\n" +
+	"\varchived_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"archivedAt\"\xf7\x02\n" +
 	"\bLocation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12\x16\n" +
-	"\x06region\x18\x04 \x01(\tR\x06region\x12\x18\n" +
-	"\acountry\x18\x05 \x01(\tR\acountry\"#\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x12\n" +
+	"\x04code\x18\x04 \x01(\tR\x04code\x12\x1b\n" +
+	"\x06region\x18\x05 \x01(\tH\x00R\x06region\x88\x01\x01\x12\x18\n" +
+	"\acountry\x18\x06 \x01(\tR\acountry\x12'\n" +
+	"\x0fattributes_json\x18\a \x01(\tR\x0eattributesJson\x129\n" +
+	"\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12;\n" +
+	"\varchived_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"archivedAtB\t\n" +
+	"\a_region\"\xbc\x02\n" +
+	"\x0fCustomerSegment\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
+	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x12\n" +
+	"\x04code\x18\x04 \x01(\tR\x04code\x12'\n" +
+	"\x0fattributes_json\x18\x05 \x01(\tR\x0eattributesJson\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12;\n" +
+	"\varchived_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"archivedAt\"\x9e\x01\n" +
+	"\vSkuIdentity\x12\x17\n" +
+	"\x06sku_id\x18\x01 \x01(\tH\x00R\x05skuId\x12\x1b\n" +
+	"\bsku_code\x18\x02 \x01(\tH\x00R\askuCode\x12R\n" +
+	"\n" +
+	"identifier\x18\x03 \x01(\v20.owomide.services.catalog.v1.IdentifierReferenceH\x00R\n" +
+	"identifierB\x05\n" +
+	"\x03key\"p\n" +
+	"\x13IdentifierReference\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12!\n" +
+	"\tnamespace\x18\x02 \x01(\tH\x00R\tnamespace\x88\x01\x01\x12\x14\n" +
+	"\x05value\x18\x03 \x01(\tR\x05valueB\f\n" +
+	"\n" +
+	"_namespace\"\xa2\x02\n" +
+	"\x06NewSku\x12\x19\n" +
+	"\bsku_code\x18\x01 \x01(\tR\askuCode\x12\"\n" +
+	"\n" +
+	"product_id\x18\x02 \x01(\tH\x00R\tproductId\x88\x01\x01\x12 \n" +
+	"\tpack_size\x18\x03 \x01(\x05H\x01R\bpackSize\x88\x01\x01\x12\x17\n" +
+	"\x04unit\x18\x04 \x01(\tH\x02R\x04unit\x88\x01\x01\x12'\n" +
+	"\x0fattributes_json\x18\x05 \x01(\tR\x0eattributesJson\x12O\n" +
+	"\videntifiers\x18\x06 \x03(\v2-.owomide.services.catalog.v1.NewSkuIdentifierR\videntifiersB\r\n" +
+	"\v_product_idB\f\n" +
+	"\n" +
+	"_pack_sizeB\a\n" +
+	"\x05_unit\"\x8c\x01\n" +
+	"\x10NewSkuIdentifier\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12!\n" +
+	"\tnamespace\x18\x02 \x01(\tH\x00R\tnamespace\x88\x01\x01\x12\x14\n" +
+	"\x05value\x18\x03 \x01(\tR\x05value\x12\x1d\n" +
+	"\n" +
+	"is_primary\x18\x04 \x01(\bR\tisPrimaryB\f\n" +
+	"\n" +
+	"_namespace\"\xa5\x01\n" +
+	"\rSourceContext\x12H\n" +
+	"\vsource_type\x18\x01 \x01(\x0e2'.owomide.services.catalog.v1.SourceTypeR\n" +
+	"sourceType\x12\x1d\n" +
+	"\n" +
+	"source_ref\x18\x02 \x01(\tR\tsourceRef\x12\x1e\n" +
+	"\bactor_id\x18\x03 \x01(\tH\x00R\aactorId\x88\x01\x01B\v\n" +
+	"\t_actor_id\"\x90\x02\n" +
+	"\tCostWrite\x12$\n" +
+	"\vlocation_id\x18\x01 \x01(\tH\x00R\n" +
+	"locationId\x88\x01\x01\x12\x1b\n" +
+	"\tcost_type\x18\x02 \x01(\tR\bcostType\x12,\n" +
+	"\x04cost\x18\x03 \x01(\v2\x18.owomide.common.v1.MoneyR\x04cost\x12=\n" +
+	"\feffective_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12C\n" +
+	"\x0feffective_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0eeffectiveUntilB\x0e\n" +
+	"\f_location_id\"\xe2\x02\n" +
+	"\n" +
+	"PriceWrite\x12\x1d\n" +
+	"\n" +
+	"channel_id\x18\x01 \x01(\tR\tchannelId\x12$\n" +
+	"\vlocation_id\x18\x02 \x01(\tH\x00R\n" +
+	"locationId\x88\x01\x01\x123\n" +
+	"\x13customer_segment_id\x18\x03 \x01(\tH\x01R\x11customerSegmentId\x88\x01\x01\x12.\n" +
+	"\x05price\x18\x04 \x01(\v2\x18.owomide.common.v1.MoneyR\x05price\x12=\n" +
+	"\feffective_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12C\n" +
+	"\x0feffective_until\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x0eeffectiveUntilB\x0e\n" +
+	"\f_location_idB\x16\n" +
+	"\x14_customer_segment_id\"\x95\x01\n" +
+	"\x11CatalogWriteError\x12A\n" +
+	"\x04code\x18\x01 \x01(\x0e2-.owomide.services.catalog.v1.CatalogErrorCodeR\x04code\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x19\n" +
+	"\x05field\x18\x03 \x01(\tH\x00R\x05field\x88\x01\x01B\b\n" +
+	"\x06_field\"|\n" +
+	"\fWriteSummary\x12\x18\n" +
+	"\acreated\x18\x01 \x01(\x05R\acreated\x12\x18\n" +
+	"\aupdated\x18\x02 \x01(\x05R\aupdated\x12\x1c\n" +
+	"\tunchanged\x18\x03 \x01(\x05R\tunchanged\x12\x1a\n" +
+	"\brejected\x18\x04 \x01(\x05R\brejected\"\xbf\x02\n" +
+	"\x12CanonicalRowResult\x12&\n" +
+	"\x0fsource_item_ref\x18\x01 \x01(\tR\rsourceItemRef\x12@\n" +
+	"\x06status\x18\x02 \x01(\x0e2(.owomide.services.catalog.v1.WriteStatusR\x06status\x12\x1a\n" +
+	"\x06sku_id\x18\x03 \x01(\tH\x00R\x05skuId\x88\x01\x01\x12&\n" +
+	"\x0fcost_record_ids\x18\x04 \x03(\tR\rcostRecordIds\x12(\n" +
+	"\x10price_record_ids\x18\x05 \x03(\tR\x0epriceRecordIds\x12F\n" +
+	"\x06errors\x18\x06 \x03(\v2..owomide.services.catalog.v1.CatalogWriteErrorR\x06errorsB\t\n" +
+	"\a_sku_id\"#\n" +
 	"\x11GetProductRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"T\n" +
 	"\x12GetProductResponse\x12>\n" +
@@ -1907,87 +4337,219 @@ const file_services_catalog_v1_catalog_proto_rawDesc = "" +
 	"\x13BatchGetSkusRequest\x12\x10\n" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\"L\n" +
 	"\x14BatchGetSkusResponse\x124\n" +
-	"\x04skus\x18\x01 \x03(\v2 .owomide.services.catalog.v1.SkuR\x04skus\"\xaa\x01\n" +
-	"\x0fListSkusRequest\x12\x1d\n" +
+	"\x04skus\x18\x01 \x03(\v2 .owomide.services.catalog.v1.SkuR\x04skus\"Y\n" +
+	"\x11ResolveSkuRequest\x12D\n" +
+	"\bidentity\x18\x01 \x01(\v2(.owomide.services.catalog.v1.SkuIdentityR\bidentity\"H\n" +
+	"\x12ResolveSkuResponse\x122\n" +
+	"\x03sku\x18\x01 \x01(\v2 .owomide.services.catalog.v1.SkuR\x03sku\"\x89\x02\n" +
+	"\x0fListSkusRequest\x12\"\n" +
 	"\n" +
-	"product_id\x18\x01 \x01(\tR\tproductId\x12\x1d\n" +
+	"product_id\x18\x01 \x01(\tH\x00R\tproductId\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x1a\n" +
-	"\bcategory\x18\x03 \x01(\tR\bcategory\x12=\n" +
+	"channel_id\x18\x02 \x01(\tH\x01R\tchannelId\x88\x01\x01\x12\x1f\n" +
+	"\bcategory\x18\x03 \x01(\tH\x02R\bcategory\x88\x01\x01\x12\x19\n" +
+	"\x05query\x18\x04 \x01(\tH\x03R\x05query\x88\x01\x01\x12=\n" +
 	"\n" +
-	"pagination\x18\x04 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
-	"pagination\"\x8e\x01\n" +
+	"pagination\x18\x05 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
+	"paginationB\r\n" +
+	"\v_product_idB\r\n" +
+	"\v_channel_idB\v\n" +
+	"\t_categoryB\b\n" +
+	"\x06_query\"\x8e\x01\n" +
 	"\x10ListSkusResponse\x124\n" +
 	"\x04skus\x18\x01 \x03(\v2 .owomide.services.catalog.v1.SkuR\x04skus\x12D\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2$.owomide.common.v1.PaginatedResponseR\n" +
-	"pagination\"\xb5\x01\n" +
+	"pagination\"\x9b\x02\n" +
 	"\x14BatchGetCostsRequest\x12\x17\n" +
-	"\asku_ids\x18\x01 \x03(\tR\x06skuIds\x12B\n" +
-	"\x0feffective_as_of\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\reffectiveAsOf\x12@\n" +
-	"\x0erecorded_as_of\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\frecordedAsOf\"V\n" +
+	"\asku_ids\x18\x01 \x03(\tR\x06skuIds\x12$\n" +
+	"\vlocation_id\x18\x02 \x01(\tH\x00R\n" +
+	"locationId\x88\x01\x01\x12 \n" +
+	"\tcost_type\x18\x03 \x01(\tH\x01R\bcostType\x88\x01\x01\x12B\n" +
+	"\x0feffective_as_of\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\reffectiveAsOf\x12@\n" +
+	"\x0erecorded_as_of\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\frecordedAsOfB\x0e\n" +
+	"\f_location_idB\f\n" +
+	"\n" +
+	"_cost_type\"V\n" +
 	"\x15BatchGetCostsResponse\x12=\n" +
-	"\x05costs\x18\x01 \x03(\v2'.owomide.services.catalog.v1.CostRecordR\x05costs\"\xd5\x01\n" +
+	"\x05costs\x18\x01 \x03(\v2'.owomide.services.catalog.v1.CostRecordR\x05costs\"\xec\x02\n" +
 	"\x15BatchGetPricesRequest\x12\x17\n" +
-	"\asku_ids\x18\x01 \x03(\tR\x06skuIds\x12\x1d\n" +
+	"\asku_ids\x18\x01 \x03(\tR\x06skuIds\x12\"\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12B\n" +
-	"\x0feffective_as_of\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\reffectiveAsOf\x12@\n" +
-	"\x0erecorded_as_of\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\frecordedAsOf\"Z\n" +
+	"channel_id\x18\x02 \x01(\tH\x00R\tchannelId\x88\x01\x01\x12$\n" +
+	"\vlocation_id\x18\x03 \x01(\tH\x01R\n" +
+	"locationId\x88\x01\x01\x123\n" +
+	"\x13customer_segment_id\x18\x04 \x01(\tH\x02R\x11customerSegmentId\x88\x01\x01\x12B\n" +
+	"\x0feffective_as_of\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\reffectiveAsOf\x12@\n" +
+	"\x0erecorded_as_of\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\frecordedAsOfB\r\n" +
+	"\v_channel_idB\x0e\n" +
+	"\f_location_idB\x16\n" +
+	"\x14_customer_segment_id\"Z\n" +
 	"\x16BatchGetPricesResponse\x12@\n" +
-	"\x06prices\x18\x01 \x03(\v2(.owomide.services.catalog.v1.PriceRecordR\x06prices\"T\n" +
-	"\x13ListChannelsRequest\x12=\n" +
+	"\x06prices\x18\x01 \x03(\v2(.owomide.services.catalog.v1.PriceRecordR\x06prices\"\x7f\n" +
+	"\x13ListChannelsRequest\x12)\n" +
+	"\x10include_archived\x18\x01 \x01(\bR\x0fincludeArchived\x12=\n" +
 	"\n" +
-	"pagination\x18\x01 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
+	"pagination\x18\x02 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
 	"pagination\"\x9e\x01\n" +
 	"\x14ListChannelsResponse\x12@\n" +
 	"\bchannels\x18\x01 \x03(\v2$.owomide.services.catalog.v1.ChannelR\bchannels\x12D\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2$.owomide.common.v1.PaginatedResponseR\n" +
-	"pagination\"U\n" +
-	"\x14ListLocationsRequest\x12=\n" +
+	"pagination\"\xac\x01\n" +
+	"\x12SaveChannelRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x12\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12)\n" +
+	"\x10default_currency\x18\x04 \x01(\tR\x0fdefaultCurrency\x12'\n" +
+	"\x0fattributes_json\x18\x05 \x01(\tR\x0eattributesJsonB\x05\n" +
+	"\x03_id\"U\n" +
+	"\x13SaveChannelResponse\x12>\n" +
+	"\achannel\x18\x01 \x01(\v2$.owomide.services.catalog.v1.ChannelR\achannel\"*\n" +
+	"\x18DeactivateChannelRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"[\n" +
+	"\x19DeactivateChannelResponse\x12>\n" +
+	"\achannel\x18\x01 \x01(\v2$.owomide.services.catalog.v1.ChannelR\achannel\"\x80\x01\n" +
+	"\x14ListLocationsRequest\x12)\n" +
+	"\x10include_archived\x18\x01 \x01(\bR\x0fincludeArchived\x12=\n" +
 	"\n" +
-	"pagination\x18\x01 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
+	"pagination\x18\x02 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
 	"pagination\"\xa2\x01\n" +
 	"\x15ListLocationsResponse\x12C\n" +
 	"\tlocations\x18\x01 \x03(\v2%.owomide.services.catalog.v1.LocationR\tlocations\x12D\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2$.owomide.common.v1.PaginatedResponseR\n" +
-	"pagination\"W\n" +
-	"\x16UpsertCanonicalRequest\x12=\n" +
-	"\x04rows\x18\x01 \x03(\v2).owomide.services.catalog.v1.CanonicalRowR\x04rows\"\xc1\x01\n" +
-	"\fCanonicalRow\x122\n" +
-	"\x03sku\x18\x01 \x01(\v2 .owomide.services.catalog.v1.SkuR\x03sku\x12;\n" +
-	"\x04cost\x18\x02 \x01(\v2'.owomide.services.catalog.v1.CostRecordR\x04cost\x12@\n" +
-	"\x06prices\x18\x03 \x03(\v2(.owomide.services.catalog.v1.PriceRecordR\x06prices\"g\n" +
-	"\x17UpsertCanonicalResponse\x12\x18\n" +
-	"\acreated\x18\x01 \x01(\x05R\acreated\x12\x18\n" +
-	"\aupdated\x18\x02 \x01(\x05R\aupdated\x12\x18\n" +
-	"\askipped\x18\x03 \x01(\x05R\askipped\"\x7f\n" +
-	"\x18ApplyPriceChangesRequest\x12\x1f\n" +
-	"\vproposal_id\x18\x01 \x01(\tR\n" +
-	"proposalId\x12B\n" +
-	"\achanges\x18\x02 \x03(\v2(.owomide.services.catalog.v1.PriceChangeR\achanges\"\xb9\x01\n" +
-	"\vPriceChange\x12\x15\n" +
-	"\x06sku_id\x18\x01 \x01(\tR\x05skuId\x12\x1d\n" +
+	"pagination\"\xc4\x01\n" +
+	"\x13SaveLocationRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x12\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
+	"\acountry\x18\x04 \x01(\tR\acountry\x12\x1b\n" +
+	"\x06region\x18\x05 \x01(\tH\x01R\x06region\x88\x01\x01\x12'\n" +
+	"\x0fattributes_json\x18\x06 \x01(\tR\x0eattributesJsonB\x05\n" +
+	"\x03_idB\t\n" +
+	"\a_region\"Y\n" +
+	"\x14SaveLocationResponse\x12A\n" +
+	"\blocation\x18\x01 \x01(\v2%.owomide.services.catalog.v1.LocationR\blocation\"+\n" +
+	"\x19DeactivateLocationRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"_\n" +
+	"\x1aDeactivateLocationResponse\x12A\n" +
+	"\blocation\x18\x01 \x01(\v2%.owomide.services.catalog.v1.LocationR\blocation\"\x87\x01\n" +
+	"\x1bListCustomerSegmentsRequest\x12)\n" +
+	"\x10include_archived\x18\x01 \x01(\bR\x0fincludeArchived\x12=\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x125\n" +
-	"\tnew_price\x18\x03 \x01(\v2\x18.owomide.common.v1.MoneyR\bnewPrice\x12=\n" +
-	"\feffective_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\"5\n" +
-	"\x19ApplyPriceChangesResponse\x12\x18\n" +
-	"\aapplied\x18\x01 \x01(\x05R\aapplied2\xa4\n" +
+	"pagination\x18\x02 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
+	"pagination\"\xbf\x01\n" +
+	"\x1cListCustomerSegmentsResponse\x12Y\n" +
+	"\x11customer_segments\x18\x01 \x03(\v2,.owomide.services.catalog.v1.CustomerSegmentR\x10customerSegments\x12D\n" +
 	"\n" +
+	"pagination\x18\x02 \x01(\v2$.owomide.common.v1.PaginatedResponseR\n" +
+	"pagination\"\x89\x01\n" +
+	"\x1aSaveCustomerSegmentRequest\x12\x13\n" +
+	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x12\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12'\n" +
+	"\x0fattributes_json\x18\x04 \x01(\tR\x0eattributesJsonB\x05\n" +
+	"\x03_id\"v\n" +
+	"\x1bSaveCustomerSegmentResponse\x12W\n" +
+	"\x10customer_segment\x18\x01 \x01(\v2,.owomide.services.catalog.v1.CustomerSegmentR\x0fcustomerSegment\"2\n" +
+	" DeactivateCustomerSegmentRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"|\n" +
+	"!DeactivateCustomerSegmentResponse\x12W\n" +
+	"\x10customer_segment\x18\x01 \x01(\v2,.owomide.services.catalog.v1.CustomerSegmentR\x0fcustomerSegment\"\xc9\x01\n" +
+	"\x16UpsertCanonicalRequest\x12'\n" +
+	"\x0fidempotency_key\x18\x01 \x01(\tR\x0eidempotencyKey\x12B\n" +
+	"\x06source\x18\x02 \x01(\v2*.owomide.services.catalog.v1.SourceContextR\x06source\x12B\n" +
+	"\x04rows\x18\x03 \x03(\v2..owomide.services.catalog.v1.CanonicalWriteRowR\x04rows\"\xc3\x02\n" +
+	"\x11CanonicalWriteRow\x12&\n" +
+	"\x0fsource_item_ref\x18\x01 \x01(\tR\rsourceItemRef\x12K\n" +
+	"\fsku_identity\x18\x02 \x01(\v2(.owomide.services.catalog.v1.SkuIdentityR\vskuIdentity\x12<\n" +
+	"\anew_sku\x18\x03 \x01(\v2#.owomide.services.catalog.v1.NewSkuR\x06newSku\x12:\n" +
+	"\x04cost\x18\x04 \x01(\v2&.owomide.services.catalog.v1.CostWriteR\x04cost\x12?\n" +
+	"\x06prices\x18\x05 \x03(\v2'.owomide.services.catalog.v1.PriceWriteR\x06prices\"\xe8\x01\n" +
+	"\x17UpsertCanonicalResponse\x12!\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12\x1a\n" +
+	"\breplayed\x18\x02 \x01(\bR\breplayed\x12I\n" +
+	"\aresults\x18\x03 \x03(\v2/.owomide.services.catalog.v1.CanonicalRowResultR\aresults\x12C\n" +
+	"\asummary\x18\x04 \x01(\v2).owomide.services.catalog.v1.WriteSummaryR\asummary\"\xd5\x01\n" +
+	"\x18ApplyPriceChangesRequest\x12'\n" +
+	"\x0fidempotency_key\x18\x01 \x01(\tR\x0eidempotencyKey\x12\x1f\n" +
+	"\vproposal_id\x18\x02 \x01(\tR\n" +
+	"proposalId\x12\x1e\n" +
+	"\bactor_id\x18\x03 \x01(\tH\x00R\aactorId\x88\x01\x01\x12B\n" +
+	"\achanges\x18\x04 \x03(\v2(.owomide.services.catalog.v1.PriceChangeR\achangesB\v\n" +
+	"\t_actor_id\"\xab\x03\n" +
+	"\vPriceChange\x12(\n" +
+	"\x10proposal_line_id\x18\x01 \x01(\tR\x0eproposalLineId\x12\x15\n" +
+	"\x06sku_id\x18\x02 \x01(\tR\x05skuId\x12\x1d\n" +
+	"\n" +
+	"channel_id\x18\x03 \x01(\tR\tchannelId\x12$\n" +
+	"\vlocation_id\x18\x04 \x01(\tH\x00R\n" +
+	"locationId\x88\x01\x01\x123\n" +
+	"\x13customer_segment_id\x18\x05 \x01(\tH\x01R\x11customerSegmentId\x88\x01\x01\x125\n" +
+	"\tnew_price\x18\x06 \x01(\v2\x18.owomide.common.v1.MoneyR\bnewPrice\x12=\n" +
+	"\feffective_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12C\n" +
+	"\x0feffective_until\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x0eeffectiveUntilB\x0e\n" +
+	"\f_location_idB\x16\n" +
+	"\x14_customer_segment_id\"\xea\x01\n" +
+	"\x19ApplyPriceChangesResponse\x12!\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12\x1a\n" +
+	"\breplayed\x18\x02 \x01(\bR\breplayed\x12I\n" +
+	"\aresults\x18\x03 \x03(\v2/.owomide.services.catalog.v1.CanonicalRowResultR\aresults\x12C\n" +
+	"\asummary\x18\x04 \x01(\v2).owomide.services.catalog.v1.WriteSummaryR\asummary*\xa6\x01\n" +
+	"\n" +
+	"SourceType\x12\x1b\n" +
+	"\x17SOURCE_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12SOURCE_TYPE_IMPORT\x10\x01\x12\x18\n" +
+	"\x14SOURCE_TYPE_PROPOSAL\x10\x02\x12\x16\n" +
+	"\x12SOURCE_TYPE_MANUAL\x10\x03\x12\x16\n" +
+	"\x12SOURCE_TYPE_SYSTEM\x10\x04\x12\x19\n" +
+	"\x15SOURCE_TYPE_MIGRATION\x10\x05*\x96\x01\n" +
+	"\vWriteStatus\x12\x1c\n" +
+	"\x18WRITE_STATUS_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14WRITE_STATUS_CREATED\x10\x01\x12\x18\n" +
+	"\x14WRITE_STATUS_UPDATED\x10\x02\x12\x1a\n" +
+	"\x16WRITE_STATUS_UNCHANGED\x10\x03\x12\x19\n" +
+	"\x15WRITE_STATUS_REJECTED\x10\x04*\xcd\x05\n" +
+	"\x10CatalogErrorCode\x12\"\n" +
+	"\x1eCATALOG_ERROR_CODE_UNSPECIFIED\x10\x00\x12'\n" +
+	"#CATALOG_ERROR_CODE_INVALID_ARGUMENT\x10\x01\x12)\n" +
+	"%CATALOG_ERROR_CODE_IDENTITY_NOT_FOUND\x10\x02\x12)\n" +
+	"%CATALOG_ERROR_CODE_IDENTITY_AMBIGUOUS\x10\x03\x12/\n" +
+	"+CATALOG_ERROR_CODE_SKU_CREATE_REQUIRES_CODE\x10\x04\x12-\n" +
+	")CATALOG_ERROR_CODE_SKU_ATTRIBUTE_CONFLICT\x10\x05\x12*\n" +
+	"&CATALOG_ERROR_CODE_IDENTIFIER_CONFLICT\x10\x06\x12&\n" +
+	"\"CATALOG_ERROR_CODE_UNKNOWN_PRODUCT\x10\a\x12&\n" +
+	"\"CATALOG_ERROR_CODE_UNKNOWN_CHANNEL\x10\b\x12'\n" +
+	"#CATALOG_ERROR_CODE_UNKNOWN_LOCATION\x10\t\x12&\n" +
+	"\"CATALOG_ERROR_CODE_UNKNOWN_SEGMENT\x10\n" +
+	"\x12'\n" +
+	"#CATALOG_ERROR_CODE_INVALID_CURRENCY\x10\v\x12%\n" +
+	"!CATALOG_ERROR_CODE_INVALID_PERIOD\x10\f\x12)\n" +
+	"%CATALOG_ERROR_CODE_OVERLAPPING_PERIOD\x10\r\x12+\n" +
+	"'CATALOG_ERROR_CODE_IDEMPOTENCY_CONFLICT\x10\x0e\x12 \n" +
+	"\x1cCATALOG_ERROR_CODE_FORBIDDEN\x10\x0f\x12\x1f\n" +
+	"\x1bCATALOG_ERROR_CODE_INTERNAL\x10\x102\xbd\x12\n" +
 	"\x0eCatalogService\x12m\n" +
 	"\n" +
 	"GetProduct\x12..owomide.services.catalog.v1.GetProductRequest\x1a/.owomide.services.catalog.v1.GetProductResponse\x12\x7f\n" +
 	"\x10BatchGetProducts\x124.owomide.services.catalog.v1.BatchGetProductsRequest\x1a5.owomide.services.catalog.v1.BatchGetProductsResponse\x12a\n" +
 	"\x06GetSku\x12*.owomide.services.catalog.v1.GetSkuRequest\x1a+.owomide.services.catalog.v1.GetSkuResponse\x12s\n" +
-	"\fBatchGetSkus\x120.owomide.services.catalog.v1.BatchGetSkusRequest\x1a1.owomide.services.catalog.v1.BatchGetSkusResponse\x12g\n" +
+	"\fBatchGetSkus\x120.owomide.services.catalog.v1.BatchGetSkusRequest\x1a1.owomide.services.catalog.v1.BatchGetSkusResponse\x12m\n" +
+	"\n" +
+	"ResolveSku\x12..owomide.services.catalog.v1.ResolveSkuRequest\x1a/.owomide.services.catalog.v1.ResolveSkuResponse\x12g\n" +
 	"\bListSkus\x12,.owomide.services.catalog.v1.ListSkusRequest\x1a-.owomide.services.catalog.v1.ListSkusResponse\x12v\n" +
 	"\rBatchGetCosts\x121.owomide.services.catalog.v1.BatchGetCostsRequest\x1a2.owomide.services.catalog.v1.BatchGetCostsResponse\x12y\n" +
 	"\x0eBatchGetPrices\x122.owomide.services.catalog.v1.BatchGetPricesRequest\x1a3.owomide.services.catalog.v1.BatchGetPricesResponse\x12s\n" +
-	"\fListChannels\x120.owomide.services.catalog.v1.ListChannelsRequest\x1a1.owomide.services.catalog.v1.ListChannelsResponse\x12v\n" +
-	"\rListLocations\x121.owomide.services.catalog.v1.ListLocationsRequest\x1a2.owomide.services.catalog.v1.ListLocationsResponse\x12|\n" +
+	"\fListChannels\x120.owomide.services.catalog.v1.ListChannelsRequest\x1a1.owomide.services.catalog.v1.ListChannelsResponse\x12p\n" +
+	"\vSaveChannel\x12/.owomide.services.catalog.v1.SaveChannelRequest\x1a0.owomide.services.catalog.v1.SaveChannelResponse\x12\x82\x01\n" +
+	"\x11DeactivateChannel\x125.owomide.services.catalog.v1.DeactivateChannelRequest\x1a6.owomide.services.catalog.v1.DeactivateChannelResponse\x12v\n" +
+	"\rListLocations\x121.owomide.services.catalog.v1.ListLocationsRequest\x1a2.owomide.services.catalog.v1.ListLocationsResponse\x12s\n" +
+	"\fSaveLocation\x120.owomide.services.catalog.v1.SaveLocationRequest\x1a1.owomide.services.catalog.v1.SaveLocationResponse\x12\x85\x01\n" +
+	"\x12DeactivateLocation\x126.owomide.services.catalog.v1.DeactivateLocationRequest\x1a7.owomide.services.catalog.v1.DeactivateLocationResponse\x12\x8b\x01\n" +
+	"\x14ListCustomerSegments\x128.owomide.services.catalog.v1.ListCustomerSegmentsRequest\x1a9.owomide.services.catalog.v1.ListCustomerSegmentsResponse\x12\x88\x01\n" +
+	"\x13SaveCustomerSegment\x127.owomide.services.catalog.v1.SaveCustomerSegmentRequest\x1a8.owomide.services.catalog.v1.SaveCustomerSegmentResponse\x12\x9a\x01\n" +
+	"\x19DeactivateCustomerSegment\x12=.owomide.services.catalog.v1.DeactivateCustomerSegmentRequest\x1a>.owomide.services.catalog.v1.DeactivateCustomerSegmentResponse\x12|\n" +
 	"\x0fUpsertCanonical\x123.owomide.services.catalog.v1.UpsertCanonicalRequest\x1a4.owomide.services.catalog.v1.UpsertCanonicalResponse\x12\x82\x01\n" +
 	"\x11ApplyPriceChanges\x125.owomide.services.catalog.v1.ApplyPriceChangesRequest\x1a6.owomide.services.catalog.v1.ApplyPriceChangesResponseB.Z,github.com/owomide/proto/services/catalog/v1b\x06proto3"
 
@@ -2003,109 +4565,203 @@ func file_services_catalog_v1_catalog_proto_rawDescGZIP() []byte {
 	return file_services_catalog_v1_catalog_proto_rawDescData
 }
 
-var file_services_catalog_v1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_services_catalog_v1_catalog_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_services_catalog_v1_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
 var file_services_catalog_v1_catalog_proto_goTypes = []any{
-	(*Product)(nil),                   // 0: owomide.services.catalog.v1.Product
-	(*Sku)(nil),                       // 1: owomide.services.catalog.v1.Sku
-	(*CostRecord)(nil),                // 2: owomide.services.catalog.v1.CostRecord
-	(*PriceRecord)(nil),               // 3: owomide.services.catalog.v1.PriceRecord
-	(*Channel)(nil),                   // 4: owomide.services.catalog.v1.Channel
-	(*Location)(nil),                  // 5: owomide.services.catalog.v1.Location
-	(*GetProductRequest)(nil),         // 6: owomide.services.catalog.v1.GetProductRequest
-	(*GetProductResponse)(nil),        // 7: owomide.services.catalog.v1.GetProductResponse
-	(*BatchGetProductsRequest)(nil),   // 8: owomide.services.catalog.v1.BatchGetProductsRequest
-	(*BatchGetProductsResponse)(nil),  // 9: owomide.services.catalog.v1.BatchGetProductsResponse
-	(*GetSkuRequest)(nil),             // 10: owomide.services.catalog.v1.GetSkuRequest
-	(*GetSkuResponse)(nil),            // 11: owomide.services.catalog.v1.GetSkuResponse
-	(*BatchGetSkusRequest)(nil),       // 12: owomide.services.catalog.v1.BatchGetSkusRequest
-	(*BatchGetSkusResponse)(nil),      // 13: owomide.services.catalog.v1.BatchGetSkusResponse
-	(*ListSkusRequest)(nil),           // 14: owomide.services.catalog.v1.ListSkusRequest
-	(*ListSkusResponse)(nil),          // 15: owomide.services.catalog.v1.ListSkusResponse
-	(*BatchGetCostsRequest)(nil),      // 16: owomide.services.catalog.v1.BatchGetCostsRequest
-	(*BatchGetCostsResponse)(nil),     // 17: owomide.services.catalog.v1.BatchGetCostsResponse
-	(*BatchGetPricesRequest)(nil),     // 18: owomide.services.catalog.v1.BatchGetPricesRequest
-	(*BatchGetPricesResponse)(nil),    // 19: owomide.services.catalog.v1.BatchGetPricesResponse
-	(*ListChannelsRequest)(nil),       // 20: owomide.services.catalog.v1.ListChannelsRequest
-	(*ListChannelsResponse)(nil),      // 21: owomide.services.catalog.v1.ListChannelsResponse
-	(*ListLocationsRequest)(nil),      // 22: owomide.services.catalog.v1.ListLocationsRequest
-	(*ListLocationsResponse)(nil),     // 23: owomide.services.catalog.v1.ListLocationsResponse
-	(*UpsertCanonicalRequest)(nil),    // 24: owomide.services.catalog.v1.UpsertCanonicalRequest
-	(*CanonicalRow)(nil),              // 25: owomide.services.catalog.v1.CanonicalRow
-	(*UpsertCanonicalResponse)(nil),   // 26: owomide.services.catalog.v1.UpsertCanonicalResponse
-	(*ApplyPriceChangesRequest)(nil),  // 27: owomide.services.catalog.v1.ApplyPriceChangesRequest
-	(*PriceChange)(nil),               // 28: owomide.services.catalog.v1.PriceChange
-	(*ApplyPriceChangesResponse)(nil), // 29: owomide.services.catalog.v1.ApplyPriceChangesResponse
-	(*timestamppb.Timestamp)(nil),     // 30: google.protobuf.Timestamp
-	(*v1.Money)(nil),                  // 31: owomide.common.v1.Money
-	(*v1.Pagination)(nil),             // 32: owomide.common.v1.Pagination
-	(*v1.PaginatedResponse)(nil),      // 33: owomide.common.v1.PaginatedResponse
+	(SourceType)(0),                           // 0: owomide.services.catalog.v1.SourceType
+	(WriteStatus)(0),                          // 1: owomide.services.catalog.v1.WriteStatus
+	(CatalogErrorCode)(0),                     // 2: owomide.services.catalog.v1.CatalogErrorCode
+	(*Product)(nil),                           // 3: owomide.services.catalog.v1.Product
+	(*SkuIdentifier)(nil),                     // 4: owomide.services.catalog.v1.SkuIdentifier
+	(*Sku)(nil),                               // 5: owomide.services.catalog.v1.Sku
+	(*CostRecord)(nil),                        // 6: owomide.services.catalog.v1.CostRecord
+	(*PriceRecord)(nil),                       // 7: owomide.services.catalog.v1.PriceRecord
+	(*Channel)(nil),                           // 8: owomide.services.catalog.v1.Channel
+	(*Location)(nil),                          // 9: owomide.services.catalog.v1.Location
+	(*CustomerSegment)(nil),                   // 10: owomide.services.catalog.v1.CustomerSegment
+	(*SkuIdentity)(nil),                       // 11: owomide.services.catalog.v1.SkuIdentity
+	(*IdentifierReference)(nil),               // 12: owomide.services.catalog.v1.IdentifierReference
+	(*NewSku)(nil),                            // 13: owomide.services.catalog.v1.NewSku
+	(*NewSkuIdentifier)(nil),                  // 14: owomide.services.catalog.v1.NewSkuIdentifier
+	(*SourceContext)(nil),                     // 15: owomide.services.catalog.v1.SourceContext
+	(*CostWrite)(nil),                         // 16: owomide.services.catalog.v1.CostWrite
+	(*PriceWrite)(nil),                        // 17: owomide.services.catalog.v1.PriceWrite
+	(*CatalogWriteError)(nil),                 // 18: owomide.services.catalog.v1.CatalogWriteError
+	(*WriteSummary)(nil),                      // 19: owomide.services.catalog.v1.WriteSummary
+	(*CanonicalRowResult)(nil),                // 20: owomide.services.catalog.v1.CanonicalRowResult
+	(*GetProductRequest)(nil),                 // 21: owomide.services.catalog.v1.GetProductRequest
+	(*GetProductResponse)(nil),                // 22: owomide.services.catalog.v1.GetProductResponse
+	(*BatchGetProductsRequest)(nil),           // 23: owomide.services.catalog.v1.BatchGetProductsRequest
+	(*BatchGetProductsResponse)(nil),          // 24: owomide.services.catalog.v1.BatchGetProductsResponse
+	(*GetSkuRequest)(nil),                     // 25: owomide.services.catalog.v1.GetSkuRequest
+	(*GetSkuResponse)(nil),                    // 26: owomide.services.catalog.v1.GetSkuResponse
+	(*BatchGetSkusRequest)(nil),               // 27: owomide.services.catalog.v1.BatchGetSkusRequest
+	(*BatchGetSkusResponse)(nil),              // 28: owomide.services.catalog.v1.BatchGetSkusResponse
+	(*ResolveSkuRequest)(nil),                 // 29: owomide.services.catalog.v1.ResolveSkuRequest
+	(*ResolveSkuResponse)(nil),                // 30: owomide.services.catalog.v1.ResolveSkuResponse
+	(*ListSkusRequest)(nil),                   // 31: owomide.services.catalog.v1.ListSkusRequest
+	(*ListSkusResponse)(nil),                  // 32: owomide.services.catalog.v1.ListSkusResponse
+	(*BatchGetCostsRequest)(nil),              // 33: owomide.services.catalog.v1.BatchGetCostsRequest
+	(*BatchGetCostsResponse)(nil),             // 34: owomide.services.catalog.v1.BatchGetCostsResponse
+	(*BatchGetPricesRequest)(nil),             // 35: owomide.services.catalog.v1.BatchGetPricesRequest
+	(*BatchGetPricesResponse)(nil),            // 36: owomide.services.catalog.v1.BatchGetPricesResponse
+	(*ListChannelsRequest)(nil),               // 37: owomide.services.catalog.v1.ListChannelsRequest
+	(*ListChannelsResponse)(nil),              // 38: owomide.services.catalog.v1.ListChannelsResponse
+	(*SaveChannelRequest)(nil),                // 39: owomide.services.catalog.v1.SaveChannelRequest
+	(*SaveChannelResponse)(nil),               // 40: owomide.services.catalog.v1.SaveChannelResponse
+	(*DeactivateChannelRequest)(nil),          // 41: owomide.services.catalog.v1.DeactivateChannelRequest
+	(*DeactivateChannelResponse)(nil),         // 42: owomide.services.catalog.v1.DeactivateChannelResponse
+	(*ListLocationsRequest)(nil),              // 43: owomide.services.catalog.v1.ListLocationsRequest
+	(*ListLocationsResponse)(nil),             // 44: owomide.services.catalog.v1.ListLocationsResponse
+	(*SaveLocationRequest)(nil),               // 45: owomide.services.catalog.v1.SaveLocationRequest
+	(*SaveLocationResponse)(nil),              // 46: owomide.services.catalog.v1.SaveLocationResponse
+	(*DeactivateLocationRequest)(nil),         // 47: owomide.services.catalog.v1.DeactivateLocationRequest
+	(*DeactivateLocationResponse)(nil),        // 48: owomide.services.catalog.v1.DeactivateLocationResponse
+	(*ListCustomerSegmentsRequest)(nil),       // 49: owomide.services.catalog.v1.ListCustomerSegmentsRequest
+	(*ListCustomerSegmentsResponse)(nil),      // 50: owomide.services.catalog.v1.ListCustomerSegmentsResponse
+	(*SaveCustomerSegmentRequest)(nil),        // 51: owomide.services.catalog.v1.SaveCustomerSegmentRequest
+	(*SaveCustomerSegmentResponse)(nil),       // 52: owomide.services.catalog.v1.SaveCustomerSegmentResponse
+	(*DeactivateCustomerSegmentRequest)(nil),  // 53: owomide.services.catalog.v1.DeactivateCustomerSegmentRequest
+	(*DeactivateCustomerSegmentResponse)(nil), // 54: owomide.services.catalog.v1.DeactivateCustomerSegmentResponse
+	(*UpsertCanonicalRequest)(nil),            // 55: owomide.services.catalog.v1.UpsertCanonicalRequest
+	(*CanonicalWriteRow)(nil),                 // 56: owomide.services.catalog.v1.CanonicalWriteRow
+	(*UpsertCanonicalResponse)(nil),           // 57: owomide.services.catalog.v1.UpsertCanonicalResponse
+	(*ApplyPriceChangesRequest)(nil),          // 58: owomide.services.catalog.v1.ApplyPriceChangesRequest
+	(*PriceChange)(nil),                       // 59: owomide.services.catalog.v1.PriceChange
+	(*ApplyPriceChangesResponse)(nil),         // 60: owomide.services.catalog.v1.ApplyPriceChangesResponse
+	(*timestamppb.Timestamp)(nil),             // 61: google.protobuf.Timestamp
+	(*v1.Money)(nil),                          // 62: owomide.common.v1.Money
+	(*v1.Pagination)(nil),                     // 63: owomide.common.v1.Pagination
+	(*v1.PaginatedResponse)(nil),              // 64: owomide.common.v1.PaginatedResponse
 }
 var file_services_catalog_v1_catalog_proto_depIdxs = []int32{
-	30, // 0: owomide.services.catalog.v1.Product.created_at:type_name -> google.protobuf.Timestamp
-	30, // 1: owomide.services.catalog.v1.Product.updated_at:type_name -> google.protobuf.Timestamp
-	31, // 2: owomide.services.catalog.v1.CostRecord.cost:type_name -> owomide.common.v1.Money
-	30, // 3: owomide.services.catalog.v1.CostRecord.effective_at:type_name -> google.protobuf.Timestamp
-	30, // 4: owomide.services.catalog.v1.CostRecord.effective_until:type_name -> google.protobuf.Timestamp
-	30, // 5: owomide.services.catalog.v1.CostRecord.recorded_at:type_name -> google.protobuf.Timestamp
-	30, // 6: owomide.services.catalog.v1.CostRecord.superseded_at:type_name -> google.protobuf.Timestamp
-	31, // 7: owomide.services.catalog.v1.PriceRecord.price:type_name -> owomide.common.v1.Money
-	30, // 8: owomide.services.catalog.v1.PriceRecord.effective_at:type_name -> google.protobuf.Timestamp
-	30, // 9: owomide.services.catalog.v1.PriceRecord.effective_until:type_name -> google.protobuf.Timestamp
-	30, // 10: owomide.services.catalog.v1.PriceRecord.recorded_at:type_name -> google.protobuf.Timestamp
-	30, // 11: owomide.services.catalog.v1.PriceRecord.superseded_at:type_name -> google.protobuf.Timestamp
-	0,  // 12: owomide.services.catalog.v1.GetProductResponse.product:type_name -> owomide.services.catalog.v1.Product
-	0,  // 13: owomide.services.catalog.v1.BatchGetProductsResponse.products:type_name -> owomide.services.catalog.v1.Product
-	1,  // 14: owomide.services.catalog.v1.GetSkuResponse.sku:type_name -> owomide.services.catalog.v1.Sku
-	1,  // 15: owomide.services.catalog.v1.BatchGetSkusResponse.skus:type_name -> owomide.services.catalog.v1.Sku
-	32, // 16: owomide.services.catalog.v1.ListSkusRequest.pagination:type_name -> owomide.common.v1.Pagination
-	1,  // 17: owomide.services.catalog.v1.ListSkusResponse.skus:type_name -> owomide.services.catalog.v1.Sku
-	33, // 18: owomide.services.catalog.v1.ListSkusResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	30, // 19: owomide.services.catalog.v1.BatchGetCostsRequest.effective_as_of:type_name -> google.protobuf.Timestamp
-	30, // 20: owomide.services.catalog.v1.BatchGetCostsRequest.recorded_as_of:type_name -> google.protobuf.Timestamp
-	2,  // 21: owomide.services.catalog.v1.BatchGetCostsResponse.costs:type_name -> owomide.services.catalog.v1.CostRecord
-	30, // 22: owomide.services.catalog.v1.BatchGetPricesRequest.effective_as_of:type_name -> google.protobuf.Timestamp
-	30, // 23: owomide.services.catalog.v1.BatchGetPricesRequest.recorded_as_of:type_name -> google.protobuf.Timestamp
-	3,  // 24: owomide.services.catalog.v1.BatchGetPricesResponse.prices:type_name -> owomide.services.catalog.v1.PriceRecord
-	32, // 25: owomide.services.catalog.v1.ListChannelsRequest.pagination:type_name -> owomide.common.v1.Pagination
-	4,  // 26: owomide.services.catalog.v1.ListChannelsResponse.channels:type_name -> owomide.services.catalog.v1.Channel
-	33, // 27: owomide.services.catalog.v1.ListChannelsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	32, // 28: owomide.services.catalog.v1.ListLocationsRequest.pagination:type_name -> owomide.common.v1.Pagination
-	5,  // 29: owomide.services.catalog.v1.ListLocationsResponse.locations:type_name -> owomide.services.catalog.v1.Location
-	33, // 30: owomide.services.catalog.v1.ListLocationsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	25, // 31: owomide.services.catalog.v1.UpsertCanonicalRequest.rows:type_name -> owomide.services.catalog.v1.CanonicalRow
-	1,  // 32: owomide.services.catalog.v1.CanonicalRow.sku:type_name -> owomide.services.catalog.v1.Sku
-	2,  // 33: owomide.services.catalog.v1.CanonicalRow.cost:type_name -> owomide.services.catalog.v1.CostRecord
-	3,  // 34: owomide.services.catalog.v1.CanonicalRow.prices:type_name -> owomide.services.catalog.v1.PriceRecord
-	28, // 35: owomide.services.catalog.v1.ApplyPriceChangesRequest.changes:type_name -> owomide.services.catalog.v1.PriceChange
-	31, // 36: owomide.services.catalog.v1.PriceChange.new_price:type_name -> owomide.common.v1.Money
-	30, // 37: owomide.services.catalog.v1.PriceChange.effective_at:type_name -> google.protobuf.Timestamp
-	6,  // 38: owomide.services.catalog.v1.CatalogService.GetProduct:input_type -> owomide.services.catalog.v1.GetProductRequest
-	8,  // 39: owomide.services.catalog.v1.CatalogService.BatchGetProducts:input_type -> owomide.services.catalog.v1.BatchGetProductsRequest
-	10, // 40: owomide.services.catalog.v1.CatalogService.GetSku:input_type -> owomide.services.catalog.v1.GetSkuRequest
-	12, // 41: owomide.services.catalog.v1.CatalogService.BatchGetSkus:input_type -> owomide.services.catalog.v1.BatchGetSkusRequest
-	14, // 42: owomide.services.catalog.v1.CatalogService.ListSkus:input_type -> owomide.services.catalog.v1.ListSkusRequest
-	16, // 43: owomide.services.catalog.v1.CatalogService.BatchGetCosts:input_type -> owomide.services.catalog.v1.BatchGetCostsRequest
-	18, // 44: owomide.services.catalog.v1.CatalogService.BatchGetPrices:input_type -> owomide.services.catalog.v1.BatchGetPricesRequest
-	20, // 45: owomide.services.catalog.v1.CatalogService.ListChannels:input_type -> owomide.services.catalog.v1.ListChannelsRequest
-	22, // 46: owomide.services.catalog.v1.CatalogService.ListLocations:input_type -> owomide.services.catalog.v1.ListLocationsRequest
-	24, // 47: owomide.services.catalog.v1.CatalogService.UpsertCanonical:input_type -> owomide.services.catalog.v1.UpsertCanonicalRequest
-	27, // 48: owomide.services.catalog.v1.CatalogService.ApplyPriceChanges:input_type -> owomide.services.catalog.v1.ApplyPriceChangesRequest
-	7,  // 49: owomide.services.catalog.v1.CatalogService.GetProduct:output_type -> owomide.services.catalog.v1.GetProductResponse
-	9,  // 50: owomide.services.catalog.v1.CatalogService.BatchGetProducts:output_type -> owomide.services.catalog.v1.BatchGetProductsResponse
-	11, // 51: owomide.services.catalog.v1.CatalogService.GetSku:output_type -> owomide.services.catalog.v1.GetSkuResponse
-	13, // 52: owomide.services.catalog.v1.CatalogService.BatchGetSkus:output_type -> owomide.services.catalog.v1.BatchGetSkusResponse
-	15, // 53: owomide.services.catalog.v1.CatalogService.ListSkus:output_type -> owomide.services.catalog.v1.ListSkusResponse
-	17, // 54: owomide.services.catalog.v1.CatalogService.BatchGetCosts:output_type -> owomide.services.catalog.v1.BatchGetCostsResponse
-	19, // 55: owomide.services.catalog.v1.CatalogService.BatchGetPrices:output_type -> owomide.services.catalog.v1.BatchGetPricesResponse
-	21, // 56: owomide.services.catalog.v1.CatalogService.ListChannels:output_type -> owomide.services.catalog.v1.ListChannelsResponse
-	23, // 57: owomide.services.catalog.v1.CatalogService.ListLocations:output_type -> owomide.services.catalog.v1.ListLocationsResponse
-	26, // 58: owomide.services.catalog.v1.CatalogService.UpsertCanonical:output_type -> owomide.services.catalog.v1.UpsertCanonicalResponse
-	29, // 59: owomide.services.catalog.v1.CatalogService.ApplyPriceChanges:output_type -> owomide.services.catalog.v1.ApplyPriceChangesResponse
-	49, // [49:60] is the sub-list for method output_type
-	38, // [38:49] is the sub-list for method input_type
-	38, // [38:38] is the sub-list for extension type_name
-	38, // [38:38] is the sub-list for extension extendee
-	0,  // [0:38] is the sub-list for field type_name
+	61,  // 0: owomide.services.catalog.v1.Product.created_at:type_name -> google.protobuf.Timestamp
+	61,  // 1: owomide.services.catalog.v1.Product.updated_at:type_name -> google.protobuf.Timestamp
+	61,  // 2: owomide.services.catalog.v1.Product.archived_at:type_name -> google.protobuf.Timestamp
+	4,   // 3: owomide.services.catalog.v1.Sku.identifiers:type_name -> owomide.services.catalog.v1.SkuIdentifier
+	61,  // 4: owomide.services.catalog.v1.Sku.created_at:type_name -> google.protobuf.Timestamp
+	61,  // 5: owomide.services.catalog.v1.Sku.updated_at:type_name -> google.protobuf.Timestamp
+	61,  // 6: owomide.services.catalog.v1.Sku.archived_at:type_name -> google.protobuf.Timestamp
+	62,  // 7: owomide.services.catalog.v1.CostRecord.cost:type_name -> owomide.common.v1.Money
+	61,  // 8: owomide.services.catalog.v1.CostRecord.effective_at:type_name -> google.protobuf.Timestamp
+	61,  // 9: owomide.services.catalog.v1.CostRecord.effective_until:type_name -> google.protobuf.Timestamp
+	61,  // 10: owomide.services.catalog.v1.CostRecord.recorded_at:type_name -> google.protobuf.Timestamp
+	61,  // 11: owomide.services.catalog.v1.CostRecord.superseded_at:type_name -> google.protobuf.Timestamp
+	0,   // 12: owomide.services.catalog.v1.CostRecord.source_type:type_name -> owomide.services.catalog.v1.SourceType
+	62,  // 13: owomide.services.catalog.v1.PriceRecord.price:type_name -> owomide.common.v1.Money
+	61,  // 14: owomide.services.catalog.v1.PriceRecord.effective_at:type_name -> google.protobuf.Timestamp
+	61,  // 15: owomide.services.catalog.v1.PriceRecord.effective_until:type_name -> google.protobuf.Timestamp
+	61,  // 16: owomide.services.catalog.v1.PriceRecord.recorded_at:type_name -> google.protobuf.Timestamp
+	61,  // 17: owomide.services.catalog.v1.PriceRecord.superseded_at:type_name -> google.protobuf.Timestamp
+	0,   // 18: owomide.services.catalog.v1.PriceRecord.source_type:type_name -> owomide.services.catalog.v1.SourceType
+	61,  // 19: owomide.services.catalog.v1.Channel.created_at:type_name -> google.protobuf.Timestamp
+	61,  // 20: owomide.services.catalog.v1.Channel.updated_at:type_name -> google.protobuf.Timestamp
+	61,  // 21: owomide.services.catalog.v1.Channel.archived_at:type_name -> google.protobuf.Timestamp
+	61,  // 22: owomide.services.catalog.v1.Location.created_at:type_name -> google.protobuf.Timestamp
+	61,  // 23: owomide.services.catalog.v1.Location.updated_at:type_name -> google.protobuf.Timestamp
+	61,  // 24: owomide.services.catalog.v1.Location.archived_at:type_name -> google.protobuf.Timestamp
+	61,  // 25: owomide.services.catalog.v1.CustomerSegment.created_at:type_name -> google.protobuf.Timestamp
+	61,  // 26: owomide.services.catalog.v1.CustomerSegment.updated_at:type_name -> google.protobuf.Timestamp
+	61,  // 27: owomide.services.catalog.v1.CustomerSegment.archived_at:type_name -> google.protobuf.Timestamp
+	12,  // 28: owomide.services.catalog.v1.SkuIdentity.identifier:type_name -> owomide.services.catalog.v1.IdentifierReference
+	14,  // 29: owomide.services.catalog.v1.NewSku.identifiers:type_name -> owomide.services.catalog.v1.NewSkuIdentifier
+	0,   // 30: owomide.services.catalog.v1.SourceContext.source_type:type_name -> owomide.services.catalog.v1.SourceType
+	62,  // 31: owomide.services.catalog.v1.CostWrite.cost:type_name -> owomide.common.v1.Money
+	61,  // 32: owomide.services.catalog.v1.CostWrite.effective_at:type_name -> google.protobuf.Timestamp
+	61,  // 33: owomide.services.catalog.v1.CostWrite.effective_until:type_name -> google.protobuf.Timestamp
+	62,  // 34: owomide.services.catalog.v1.PriceWrite.price:type_name -> owomide.common.v1.Money
+	61,  // 35: owomide.services.catalog.v1.PriceWrite.effective_at:type_name -> google.protobuf.Timestamp
+	61,  // 36: owomide.services.catalog.v1.PriceWrite.effective_until:type_name -> google.protobuf.Timestamp
+	2,   // 37: owomide.services.catalog.v1.CatalogWriteError.code:type_name -> owomide.services.catalog.v1.CatalogErrorCode
+	1,   // 38: owomide.services.catalog.v1.CanonicalRowResult.status:type_name -> owomide.services.catalog.v1.WriteStatus
+	18,  // 39: owomide.services.catalog.v1.CanonicalRowResult.errors:type_name -> owomide.services.catalog.v1.CatalogWriteError
+	3,   // 40: owomide.services.catalog.v1.GetProductResponse.product:type_name -> owomide.services.catalog.v1.Product
+	3,   // 41: owomide.services.catalog.v1.BatchGetProductsResponse.products:type_name -> owomide.services.catalog.v1.Product
+	5,   // 42: owomide.services.catalog.v1.GetSkuResponse.sku:type_name -> owomide.services.catalog.v1.Sku
+	5,   // 43: owomide.services.catalog.v1.BatchGetSkusResponse.skus:type_name -> owomide.services.catalog.v1.Sku
+	11,  // 44: owomide.services.catalog.v1.ResolveSkuRequest.identity:type_name -> owomide.services.catalog.v1.SkuIdentity
+	5,   // 45: owomide.services.catalog.v1.ResolveSkuResponse.sku:type_name -> owomide.services.catalog.v1.Sku
+	63,  // 46: owomide.services.catalog.v1.ListSkusRequest.pagination:type_name -> owomide.common.v1.Pagination
+	5,   // 47: owomide.services.catalog.v1.ListSkusResponse.skus:type_name -> owomide.services.catalog.v1.Sku
+	64,  // 48: owomide.services.catalog.v1.ListSkusResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	61,  // 49: owomide.services.catalog.v1.BatchGetCostsRequest.effective_as_of:type_name -> google.protobuf.Timestamp
+	61,  // 50: owomide.services.catalog.v1.BatchGetCostsRequest.recorded_as_of:type_name -> google.protobuf.Timestamp
+	6,   // 51: owomide.services.catalog.v1.BatchGetCostsResponse.costs:type_name -> owomide.services.catalog.v1.CostRecord
+	61,  // 52: owomide.services.catalog.v1.BatchGetPricesRequest.effective_as_of:type_name -> google.protobuf.Timestamp
+	61,  // 53: owomide.services.catalog.v1.BatchGetPricesRequest.recorded_as_of:type_name -> google.protobuf.Timestamp
+	7,   // 54: owomide.services.catalog.v1.BatchGetPricesResponse.prices:type_name -> owomide.services.catalog.v1.PriceRecord
+	63,  // 55: owomide.services.catalog.v1.ListChannelsRequest.pagination:type_name -> owomide.common.v1.Pagination
+	8,   // 56: owomide.services.catalog.v1.ListChannelsResponse.channels:type_name -> owomide.services.catalog.v1.Channel
+	64,  // 57: owomide.services.catalog.v1.ListChannelsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	8,   // 58: owomide.services.catalog.v1.SaveChannelResponse.channel:type_name -> owomide.services.catalog.v1.Channel
+	8,   // 59: owomide.services.catalog.v1.DeactivateChannelResponse.channel:type_name -> owomide.services.catalog.v1.Channel
+	63,  // 60: owomide.services.catalog.v1.ListLocationsRequest.pagination:type_name -> owomide.common.v1.Pagination
+	9,   // 61: owomide.services.catalog.v1.ListLocationsResponse.locations:type_name -> owomide.services.catalog.v1.Location
+	64,  // 62: owomide.services.catalog.v1.ListLocationsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	9,   // 63: owomide.services.catalog.v1.SaveLocationResponse.location:type_name -> owomide.services.catalog.v1.Location
+	9,   // 64: owomide.services.catalog.v1.DeactivateLocationResponse.location:type_name -> owomide.services.catalog.v1.Location
+	63,  // 65: owomide.services.catalog.v1.ListCustomerSegmentsRequest.pagination:type_name -> owomide.common.v1.Pagination
+	10,  // 66: owomide.services.catalog.v1.ListCustomerSegmentsResponse.customer_segments:type_name -> owomide.services.catalog.v1.CustomerSegment
+	64,  // 67: owomide.services.catalog.v1.ListCustomerSegmentsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	10,  // 68: owomide.services.catalog.v1.SaveCustomerSegmentResponse.customer_segment:type_name -> owomide.services.catalog.v1.CustomerSegment
+	10,  // 69: owomide.services.catalog.v1.DeactivateCustomerSegmentResponse.customer_segment:type_name -> owomide.services.catalog.v1.CustomerSegment
+	15,  // 70: owomide.services.catalog.v1.UpsertCanonicalRequest.source:type_name -> owomide.services.catalog.v1.SourceContext
+	56,  // 71: owomide.services.catalog.v1.UpsertCanonicalRequest.rows:type_name -> owomide.services.catalog.v1.CanonicalWriteRow
+	11,  // 72: owomide.services.catalog.v1.CanonicalWriteRow.sku_identity:type_name -> owomide.services.catalog.v1.SkuIdentity
+	13,  // 73: owomide.services.catalog.v1.CanonicalWriteRow.new_sku:type_name -> owomide.services.catalog.v1.NewSku
+	16,  // 74: owomide.services.catalog.v1.CanonicalWriteRow.cost:type_name -> owomide.services.catalog.v1.CostWrite
+	17,  // 75: owomide.services.catalog.v1.CanonicalWriteRow.prices:type_name -> owomide.services.catalog.v1.PriceWrite
+	20,  // 76: owomide.services.catalog.v1.UpsertCanonicalResponse.results:type_name -> owomide.services.catalog.v1.CanonicalRowResult
+	19,  // 77: owomide.services.catalog.v1.UpsertCanonicalResponse.summary:type_name -> owomide.services.catalog.v1.WriteSummary
+	59,  // 78: owomide.services.catalog.v1.ApplyPriceChangesRequest.changes:type_name -> owomide.services.catalog.v1.PriceChange
+	62,  // 79: owomide.services.catalog.v1.PriceChange.new_price:type_name -> owomide.common.v1.Money
+	61,  // 80: owomide.services.catalog.v1.PriceChange.effective_at:type_name -> google.protobuf.Timestamp
+	61,  // 81: owomide.services.catalog.v1.PriceChange.effective_until:type_name -> google.protobuf.Timestamp
+	20,  // 82: owomide.services.catalog.v1.ApplyPriceChangesResponse.results:type_name -> owomide.services.catalog.v1.CanonicalRowResult
+	19,  // 83: owomide.services.catalog.v1.ApplyPriceChangesResponse.summary:type_name -> owomide.services.catalog.v1.WriteSummary
+	21,  // 84: owomide.services.catalog.v1.CatalogService.GetProduct:input_type -> owomide.services.catalog.v1.GetProductRequest
+	23,  // 85: owomide.services.catalog.v1.CatalogService.BatchGetProducts:input_type -> owomide.services.catalog.v1.BatchGetProductsRequest
+	25,  // 86: owomide.services.catalog.v1.CatalogService.GetSku:input_type -> owomide.services.catalog.v1.GetSkuRequest
+	27,  // 87: owomide.services.catalog.v1.CatalogService.BatchGetSkus:input_type -> owomide.services.catalog.v1.BatchGetSkusRequest
+	29,  // 88: owomide.services.catalog.v1.CatalogService.ResolveSku:input_type -> owomide.services.catalog.v1.ResolveSkuRequest
+	31,  // 89: owomide.services.catalog.v1.CatalogService.ListSkus:input_type -> owomide.services.catalog.v1.ListSkusRequest
+	33,  // 90: owomide.services.catalog.v1.CatalogService.BatchGetCosts:input_type -> owomide.services.catalog.v1.BatchGetCostsRequest
+	35,  // 91: owomide.services.catalog.v1.CatalogService.BatchGetPrices:input_type -> owomide.services.catalog.v1.BatchGetPricesRequest
+	37,  // 92: owomide.services.catalog.v1.CatalogService.ListChannels:input_type -> owomide.services.catalog.v1.ListChannelsRequest
+	39,  // 93: owomide.services.catalog.v1.CatalogService.SaveChannel:input_type -> owomide.services.catalog.v1.SaveChannelRequest
+	41,  // 94: owomide.services.catalog.v1.CatalogService.DeactivateChannel:input_type -> owomide.services.catalog.v1.DeactivateChannelRequest
+	43,  // 95: owomide.services.catalog.v1.CatalogService.ListLocations:input_type -> owomide.services.catalog.v1.ListLocationsRequest
+	45,  // 96: owomide.services.catalog.v1.CatalogService.SaveLocation:input_type -> owomide.services.catalog.v1.SaveLocationRequest
+	47,  // 97: owomide.services.catalog.v1.CatalogService.DeactivateLocation:input_type -> owomide.services.catalog.v1.DeactivateLocationRequest
+	49,  // 98: owomide.services.catalog.v1.CatalogService.ListCustomerSegments:input_type -> owomide.services.catalog.v1.ListCustomerSegmentsRequest
+	51,  // 99: owomide.services.catalog.v1.CatalogService.SaveCustomerSegment:input_type -> owomide.services.catalog.v1.SaveCustomerSegmentRequest
+	53,  // 100: owomide.services.catalog.v1.CatalogService.DeactivateCustomerSegment:input_type -> owomide.services.catalog.v1.DeactivateCustomerSegmentRequest
+	55,  // 101: owomide.services.catalog.v1.CatalogService.UpsertCanonical:input_type -> owomide.services.catalog.v1.UpsertCanonicalRequest
+	58,  // 102: owomide.services.catalog.v1.CatalogService.ApplyPriceChanges:input_type -> owomide.services.catalog.v1.ApplyPriceChangesRequest
+	22,  // 103: owomide.services.catalog.v1.CatalogService.GetProduct:output_type -> owomide.services.catalog.v1.GetProductResponse
+	24,  // 104: owomide.services.catalog.v1.CatalogService.BatchGetProducts:output_type -> owomide.services.catalog.v1.BatchGetProductsResponse
+	26,  // 105: owomide.services.catalog.v1.CatalogService.GetSku:output_type -> owomide.services.catalog.v1.GetSkuResponse
+	28,  // 106: owomide.services.catalog.v1.CatalogService.BatchGetSkus:output_type -> owomide.services.catalog.v1.BatchGetSkusResponse
+	30,  // 107: owomide.services.catalog.v1.CatalogService.ResolveSku:output_type -> owomide.services.catalog.v1.ResolveSkuResponse
+	32,  // 108: owomide.services.catalog.v1.CatalogService.ListSkus:output_type -> owomide.services.catalog.v1.ListSkusResponse
+	34,  // 109: owomide.services.catalog.v1.CatalogService.BatchGetCosts:output_type -> owomide.services.catalog.v1.BatchGetCostsResponse
+	36,  // 110: owomide.services.catalog.v1.CatalogService.BatchGetPrices:output_type -> owomide.services.catalog.v1.BatchGetPricesResponse
+	38,  // 111: owomide.services.catalog.v1.CatalogService.ListChannels:output_type -> owomide.services.catalog.v1.ListChannelsResponse
+	40,  // 112: owomide.services.catalog.v1.CatalogService.SaveChannel:output_type -> owomide.services.catalog.v1.SaveChannelResponse
+	42,  // 113: owomide.services.catalog.v1.CatalogService.DeactivateChannel:output_type -> owomide.services.catalog.v1.DeactivateChannelResponse
+	44,  // 114: owomide.services.catalog.v1.CatalogService.ListLocations:output_type -> owomide.services.catalog.v1.ListLocationsResponse
+	46,  // 115: owomide.services.catalog.v1.CatalogService.SaveLocation:output_type -> owomide.services.catalog.v1.SaveLocationResponse
+	48,  // 116: owomide.services.catalog.v1.CatalogService.DeactivateLocation:output_type -> owomide.services.catalog.v1.DeactivateLocationResponse
+	50,  // 117: owomide.services.catalog.v1.CatalogService.ListCustomerSegments:output_type -> owomide.services.catalog.v1.ListCustomerSegmentsResponse
+	52,  // 118: owomide.services.catalog.v1.CatalogService.SaveCustomerSegment:output_type -> owomide.services.catalog.v1.SaveCustomerSegmentResponse
+	54,  // 119: owomide.services.catalog.v1.CatalogService.DeactivateCustomerSegment:output_type -> owomide.services.catalog.v1.DeactivateCustomerSegmentResponse
+	57,  // 120: owomide.services.catalog.v1.CatalogService.UpsertCanonical:output_type -> owomide.services.catalog.v1.UpsertCanonicalResponse
+	60,  // 121: owomide.services.catalog.v1.CatalogService.ApplyPriceChanges:output_type -> owomide.services.catalog.v1.ApplyPriceChangesResponse
+	103, // [103:122] is the sub-list for method output_type
+	84,  // [84:103] is the sub-list for method input_type
+	84,  // [84:84] is the sub-list for extension type_name
+	84,  // [84:84] is the sub-list for extension extendee
+	0,   // [0:84] is the sub-list for field type_name
 }
 
 func init() { file_services_catalog_v1_catalog_proto_init() }
@@ -2113,18 +4769,45 @@ func file_services_catalog_v1_catalog_proto_init() {
 	if File_services_catalog_v1_catalog_proto != nil {
 		return
 	}
+	file_services_catalog_v1_catalog_proto_msgTypes[1].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[2].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[3].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[4].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[6].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[8].OneofWrappers = []any{
+		(*SkuIdentity_SkuId)(nil),
+		(*SkuIdentity_SkuCode)(nil),
+		(*SkuIdentity_Identifier)(nil),
+	}
+	file_services_catalog_v1_catalog_proto_msgTypes[9].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[10].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[11].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[12].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[13].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[14].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[15].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[17].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[28].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[30].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[32].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[36].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[42].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[48].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[55].OneofWrappers = []any{}
+	file_services_catalog_v1_catalog_proto_msgTypes[56].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_catalog_v1_catalog_proto_rawDesc), len(file_services_catalog_v1_catalog_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   30,
+			NumEnums:      3,
+			NumMessages:   58,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_services_catalog_v1_catalog_proto_goTypes,
 		DependencyIndexes: file_services_catalog_v1_catalog_proto_depIdxs,
+		EnumInfos:         file_services_catalog_v1_catalog_proto_enumTypes,
 		MessageInfos:      file_services_catalog_v1_catalog_proto_msgTypes,
 	}.Build()
 	File_services_catalog_v1_catalog_proto = out.File

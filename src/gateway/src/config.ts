@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const ConfigSchema = z.object({
+  nodeEnv: z.enum(["development", "test", "production"]).default("development"),
   port: z.coerce.number().default(3000),
   host: z.string().default("0.0.0.0"),
 
@@ -9,6 +10,8 @@ const ConfigSchema = z.object({
   marginServiceUrl: z.string().default("http://localhost:50053"),
   governanceServiceUrl: z.string().default("http://localhost:50054"),
   dataPipelineServiceUrl: z.string().default("http://localhost:50055"),
+  serviceJwtIssuer: z.string().default("owomide-internal"),
+  catalogGatewayServiceSecret: z.string().min(32),
 
   jwtSecret: z.string().optional(),
   jwksUrl: z.string().optional(),
@@ -36,7 +39,12 @@ const ConfigSchema = z.object({
 export type Config = z.infer<typeof ConfigSchema>;
 
 export function loadConfig(): Config {
+  const nodeEnv = process.env["NODE_ENV"] ?? "development";
+  const catalogGatewayServiceSecret =
+    process.env["CATALOG_GATEWAY_SERVICE_SECRET"] ??
+    (nodeEnv === "production" ? undefined : "dev-only-catalog-gateway-secret-change-me");
   return ConfigSchema.parse({
+    nodeEnv,
     port: process.env["PORT"],
     host: process.env["HOST"],
 
@@ -45,6 +53,8 @@ export function loadConfig(): Config {
     marginServiceUrl: process.env["MARGIN_SERVICE_URL"],
     governanceServiceUrl: process.env["GOVERNANCE_SERVICE_URL"],
     dataPipelineServiceUrl: process.env["DATA_PIPELINE_SERVICE_URL"],
+    serviceJwtIssuer: process.env["SERVICE_JWT_ISSUER"],
+    catalogGatewayServiceSecret,
 
     jwtSecret: process.env["JWT_SECRET"],
     jwksUrl: process.env["JWKS_URL"],

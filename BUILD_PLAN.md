@@ -112,15 +112,18 @@ The skeleton everything sits on. Build this first, ship nothing user-visible, ge
 
 ### Phase 1 — Catalog
 
-Without canonical pricing data, nothing else matters. Owned by the core team (Joshua).
+Without canonical pricing data, nothing else matters. Owned by the Catalog/Data track.
 
 | ID | Feature | Notes |
 |---|---|---|
-| F1.1 | Catalog schema | `products`, `skus`, `cost_records`, `price_records`, `channels`, `locations`; every customer-owned table includes `org_id`; cost/price records include `effective_at`, `effective_until`, `recorded_at`, and `superseded_at` |
-| F1.2 | Catalog read APIs | gRPC: `GetProduct`, `GetSku`, `ListSkus`, `BatchGetCosts` |
-| F1.3 | Seed fixtures | Realistic test data (~1k SKUs across 3 channels, sample orgs, users) for integration tests + demos. Prerequisite for Phase 2 (Import) and Phase 3 (Proposal) alike — both build against these fixtures independent of each other. |
+| F1.1 | Catalog contract + schema | Versioned v1 RPC contract; products, SKUs, namespaced identifiers, controlled dimensions, bitemporal cost/price records, idempotency ledger, transactional outbox, tenant-safe FKs, forced RLS |
+| F1.2 | Runtime + read APIs | Connect/gRPC server, health/readiness, exact identity resolution, cursor pagination, batched product/SKU reads, effective-as-of and recorded-as-of cost/price reads |
+| F1.3 | Controlled dimensions | Explicit org-admin list/save/deactivate APIs for channels, locations, and customer segments; canonical commit never creates dimensions implicitly |
+| F1.4 | Idempotent canonical writes | Data Pipeline `UpsertCanonical`; exact SKU matching/creation, row savepoints, immutable temporal split engine, structured row outcomes |
+| F1.5 | Proposal writes + events | Proposal `ApplyPriceChanges`; same temporal engine; transactional `catalog.sku_added`, `catalog.cost_updated`, and `catalog.price_updated` outbox delivery through Kafka |
+| F1.6 | Fixtures + hardening | Deterministic 1k-SKU fixtures; PostgreSQL integration coverage for RLS, history, concurrency, replay, partial failures, rollback, and outbox delivery |
 
-**Phase 1 exit criteria:** Catalog schema is live, read APIs return data, seed fixtures are queryable end-to-end. This is the only hard gate for Phase 3+; Phase 2 (Import) is not required to be done first.
+**Phase 1 exit criteria:** Catalog runs in the local stack; read and restricted write APIs work end-to-end; tenant and temporal constraints hold under concurrency; events reach Kafka through the outbox; deterministic fixtures are queryable. This is the only hard gate for Phase 3+; Phase 2 (Import) is not required to be done first.
 
 ### Phase 2 — Import (Data Pipeline)
 

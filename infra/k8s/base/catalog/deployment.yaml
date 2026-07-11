@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog
+spec:
+  selector:
+    matchLabels:
+      app: catalog
+  template:
+    metadata:
+      labels:
+        app: catalog
+    spec:
+      containers:
+        - name: catalog
+          image: owomide/catalog
+          imagePullPolicy: Never
+          ports:
+            - name: grpc
+              containerPort: 50052
+            - name: health
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: catalog-config
+          env:
+            - name: CATALOG_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-secrets
+                  key: database-url
+            - name: CATALOG_SERVICE_SECRETS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-secrets
+                  key: service-secrets-json
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-outbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-outbox
+  template:
+    metadata:
+      labels:
+        app: catalog-outbox
+    spec:
+      containers:
+        - name: catalog-outbox
+          image: owomide/catalog
+          imagePullPolicy: Never
+          command: ["node", "src/catalog/dist/worker.js"]
+          envFrom:
+            - configMapRef:
+                name: catalog-config
+          env:
+            - name: CATALOG_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-secrets
+                  key: database-url
+            - name: CATALOG_SERVICE_SECRETS_JSON
+              value: "{}"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

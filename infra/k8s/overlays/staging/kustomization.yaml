@@ -8,6 +8,8 @@ resources:
 images:
   - name: owomide/gateway
     newTag: staging
+  - name: owomide/catalog
+    newTag: staging
 
 # Staging-sized resource requests and larger storage.
 patches:

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package owomide.events.catalog.v1;
+
+option go_package = "github.com/owomide/proto/events/catalog/v1";
+
+import "google/protobuf/timestamp.proto";
+
+message SkuAdded {
+  string org_id = 1;
+  string sku_id = 2;
+  string sku_code = 3;
+  string source_ref = 4;
+  string source_item_ref = 5;
+  optional string actor_id = 6;
+  google.protobuf.Timestamp at = 7;
+}
+
+message CostUpdated {
+  string org_id = 1;
+  string cost_record_id = 2;
+  string sku_id = 3;
+  optional string location_id = 4;
+  string cost_type = 5;
+  int64 amount_minor = 6;
+  string currency = 7;
+  string source_ref = 8;
+  string source_item_ref = 9;
+  optional string actor_id = 10;
+  google.protobuf.Timestamp effective_at = 11;
+  google.protobuf.Timestamp at = 12;
+}
+
+message PriceUpdated {
+  string org_id = 1;
+  string price_record_id = 2;
+  string sku_id = 3;
+  string channel_id = 4;
+  optional string location_id = 5;
+  optional string customer_segment_id = 6;
+  int64 amount_minor = 7;
+  string currency = 8;
+  string source_ref = 9;
+  string source_item_ref = 10;
+  optional string actor_id = 11;
+  google.protobuf.Timestamp effective_at = 12;
+  google.protobuf.Timestamp at = 13;
+}

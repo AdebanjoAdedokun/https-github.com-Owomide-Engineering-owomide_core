@@ -75,7 +75,7 @@ Rules:
 - commit payload must contain exactly one `org_id`;
 - only rows without blocking validation errors are committed;
 - warned rows may commit if the validation policy allows it;
-- excluded rows remain in Import/Export and do not touch Catalog;
+- excluded rows remain in Data Pipeline and do not touch Catalog;
 - Catalog writes happen only through `UpsertCanonical`;
 - import emits `import.committed` with row counts and provenance;
 - original file and raw rows remain available for forensic review.

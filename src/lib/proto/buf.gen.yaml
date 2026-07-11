@@ -1,16 +1,13 @@
 version: v2
 plugins:
-  - remote: buf.build/connectrpc/es
-    out: gen/ts
-    opt:
-      - target=js
-      - import_extension=js
   - remote: buf.build/bufbuild/es
     out: gen/ts
     opt:
-      - target=js
+      - target=js+dts
       - import_extension=js
   - remote: buf.build/protocolbuffers/python
+    out: gen/py
+  - remote: buf.build/grpc/python
     out: gen/py
   - remote: buf.build/protocolbuffers/go
     out: gen/go

@@ -12,16 +12,59 @@ service CatalogService {
   rpc BatchGetProducts(BatchGetProductsRequest) returns (BatchGetProductsResponse);
   rpc GetSku(GetSkuRequest) returns (GetSkuResponse);
   rpc BatchGetSkus(BatchGetSkusRequest) returns (BatchGetSkusResponse);
+  rpc ResolveSku(ResolveSkuRequest) returns (ResolveSkuResponse);
   rpc ListSkus(ListSkusRequest) returns (ListSkusResponse);
   rpc BatchGetCosts(BatchGetCostsRequest) returns (BatchGetCostsResponse);
   rpc BatchGetPrices(BatchGetPricesRequest) returns (BatchGetPricesResponse);
   rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse);
+  rpc SaveChannel(SaveChannelRequest) returns (SaveChannelResponse);
+  rpc DeactivateChannel(DeactivateChannelRequest) returns (DeactivateChannelResponse);
   rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse);
+  rpc SaveLocation(SaveLocationRequest) returns (SaveLocationResponse);
+  rpc DeactivateLocation(DeactivateLocationRequest) returns (DeactivateLocationResponse);
+  rpc ListCustomerSegments(ListCustomerSegmentsRequest) returns (ListCustomerSegmentsResponse);
+  rpc SaveCustomerSegment(SaveCustomerSegmentRequest) returns (SaveCustomerSegmentResponse);
+  rpc DeactivateCustomerSegment(DeactivateCustomerSegmentRequest) returns (DeactivateCustomerSegmentResponse);
   rpc UpsertCanonical(UpsertCanonicalRequest) returns (UpsertCanonicalResponse);
   rpc ApplyPriceChanges(ApplyPriceChangesRequest) returns (ApplyPriceChangesResponse);
 }
 
-// --- Messages ---
+enum SourceType {
+  SOURCE_TYPE_UNSPECIFIED = 0;
+  SOURCE_TYPE_IMPORT = 1;
+  SOURCE_TYPE_PROPOSAL = 2;
+  SOURCE_TYPE_MANUAL = 3;
+  SOURCE_TYPE_SYSTEM = 4;
+  SOURCE_TYPE_MIGRATION = 5;
+}
+
+enum WriteStatus {
+  WRITE_STATUS_UNSPECIFIED = 0;
+  WRITE_STATUS_CREATED = 1;
+  WRITE_STATUS_UPDATED = 2;
+  WRITE_STATUS_UNCHANGED = 3;
+  WRITE_STATUS_REJECTED = 4;
+}
+
+enum CatalogErrorCode {
+  CATALOG_ERROR_CODE_UNSPECIFIED = 0;
+  CATALOG_ERROR_CODE_INVALID_ARGUMENT = 1;
+  CATALOG_ERROR_CODE_IDENTITY_NOT_FOUND = 2;
+  CATALOG_ERROR_CODE_IDENTITY_AMBIGUOUS = 3;
+  CATALOG_ERROR_CODE_SKU_CREATE_REQUIRES_CODE = 4;
+  CATALOG_ERROR_CODE_SKU_ATTRIBUTE_CONFLICT = 5;
+  CATALOG_ERROR_CODE_IDENTIFIER_CONFLICT = 6;
+  CATALOG_ERROR_CODE_UNKNOWN_PRODUCT = 7;
+  CATALOG_ERROR_CODE_UNKNOWN_CHANNEL = 8;
+  CATALOG_ERROR_CODE_UNKNOWN_LOCATION = 9;
+  CATALOG_ERROR_CODE_UNKNOWN_SEGMENT = 10;
+  CATALOG_ERROR_CODE_INVALID_CURRENCY = 11;
+  CATALOG_ERROR_CODE_INVALID_PERIOD = 12;
+  CATALOG_ERROR_CODE_OVERLAPPING_PERIOD = 13;
+  CATALOG_ERROR_CODE_IDEMPOTENCY_CONFLICT = 14;
+  CATALOG_ERROR_CODE_FORBIDDEN = 15;
+  CATALOG_ERROR_CODE_INTERNAL = 16;
+}
 
 message Product {
   string id = 1;
@@ -30,32 +73,49 @@ message Product {
   string description = 4;
   string category = 5;
   string manufacturer = 6;
-  repeated string tags = 7;
+  string attributes_json = 7;
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp archived_at = 10;
+}
+
+message SkuIdentifier {
+  string id = 1;
+  string type = 2;
+  optional string namespace = 3;
+  string value = 4;
+  bool is_primary = 5;
 }
 
 message Sku {
   string id = 1;
   string org_id = 2;
-  string product_id = 3;
+  optional string product_id = 3;
   string sku_code = 4;
-  int32 pack_size = 5;
-  string unit = 6;
+  optional int32 pack_size = 5;
+  optional string unit = 6;
   string attributes_json = 7;
+  repeated SkuIdentifier identifiers = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+  google.protobuf.Timestamp archived_at = 11;
 }
 
 message CostRecord {
   string id = 1;
   string org_id = 2;
   string sku_id = 3;
-  owomide.common.v1.Money cost = 4;
-  google.protobuf.Timestamp effective_at = 5;
-  google.protobuf.Timestamp effective_until = 6;
-  google.protobuf.Timestamp recorded_at = 7;
-  google.protobuf.Timestamp superseded_at = 8;
-  string source = 9;
-  string source_ref = 10;
+  optional string location_id = 4;
+  string cost_type = 5;
+  owomide.common.v1.Money cost = 6;
+  google.protobuf.Timestamp effective_at = 7;
+  google.protobuf.Timestamp effective_until = 8;
+  google.protobuf.Timestamp recorded_at = 9;
+  google.protobuf.Timestamp superseded_at = 10;
+  SourceType source_type = 11;
+  string source_ref = 12;
+  string source_item_ref = 13;
+  optional string actor_id = 14;
 }
 
 message PriceRecord {
@@ -63,13 +123,17 @@ message PriceRecord {
   string org_id = 2;
   string sku_id = 3;
   string channel_id = 4;
-  owomide.common.v1.Money price = 5;
-  google.protobuf.Timestamp effective_at = 6;
-  google.protobuf.Timestamp effective_until = 7;
-  google.protobuf.Timestamp recorded_at = 8;
-  google.protobuf.Timestamp superseded_at = 9;
-  string source = 10;
-  string source_ref = 11;
+  optional string location_id = 5;
+  optional string customer_segment_id = 6;
+  owomide.common.v1.Money price = 7;
+  google.protobuf.Timestamp effective_at = 8;
+  google.protobuf.Timestamp effective_until = 9;
+  google.protobuf.Timestamp recorded_at = 10;
+  google.protobuf.Timestamp superseded_at = 11;
+  SourceType source_type = 12;
+  string source_ref = 13;
+  string source_item_ref = 14;
+  optional string actor_id = 15;
 }
 
 message Channel {
@@ -77,18 +141,111 @@ message Channel {
   string org_id = 2;
   string name = 3;
   string code = 4;
-  string currency = 5;
+  string default_currency = 5;
+  string attributes_json = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp archived_at = 9;
 }
 
 message Location {
   string id = 1;
   string org_id = 2;
   string name = 3;
-  string region = 4;
-  string country = 5;
+  string code = 4;
+  optional string region = 5;
+  string country = 6;
+  string attributes_json = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp archived_at = 10;
 }
 
-// --- Requests / Responses ---
+message CustomerSegment {
+  string id = 1;
+  string org_id = 2;
+  string name = 3;
+  string code = 4;
+  string attributes_json = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp archived_at = 8;
+}
+
+message SkuIdentity {
+  oneof key {
+    string sku_id = 1;
+    string sku_code = 2;
+    IdentifierReference identifier = 3;
+  }
+}
+
+message IdentifierReference {
+  string type = 1;
+  optional string namespace = 2;
+  string value = 3;
+}
+
+message NewSku {
+  string sku_code = 1;
+  optional string product_id = 2;
+  optional int32 pack_size = 3;
+  optional string unit = 4;
+  string attributes_json = 5;
+  repeated NewSkuIdentifier identifiers = 6;
+}
+
+message NewSkuIdentifier {
+  string type = 1;
+  optional string namespace = 2;
+  string value = 3;
+  bool is_primary = 4;
+}
+
+message SourceContext {
+  SourceType source_type = 1;
+  string source_ref = 2;
+  optional string actor_id = 3;
+}
+
+message CostWrite {
+  optional string location_id = 1;
+  string cost_type = 2;
+  owomide.common.v1.Money cost = 3;
+  google.protobuf.Timestamp effective_at = 4;
+  google.protobuf.Timestamp effective_until = 5;
+}
+
+message PriceWrite {
+  string channel_id = 1;
+  optional string location_id = 2;
+  optional string customer_segment_id = 3;
+  owomide.common.v1.Money price = 4;
+  google.protobuf.Timestamp effective_at = 5;
+  google.protobuf.Timestamp effective_until = 6;
+}
+
+message CatalogWriteError {
+  CatalogErrorCode code = 1;
+  string message = 2;
+  optional string field = 3;
+}
+
+message WriteSummary {
+  int32 created = 1;
+  int32 updated = 2;
+  int32 unchanged = 3;
+  int32 rejected = 4;
+}
+
+message CanonicalRowResult {
+  string source_item_ref = 1;
+  WriteStatus status = 2;
+  optional string sku_id = 3;
+  repeated string cost_record_ids = 4;
+  repeated string price_record_ids = 5;
+  repeated CatalogWriteError errors = 6;
+}
 
 message GetProductRequest {
   string id = 1;
@@ -122,11 +279,20 @@ message BatchGetSkusResponse {
   repeated Sku skus = 1;
 }
 
+message ResolveSkuRequest {
+  SkuIdentity identity = 1;
+}
+
+message ResolveSkuResponse {
+  Sku sku = 1;
+}
+
 message ListSkusRequest {
-  string product_id = 1;
-  string channel_id = 2;
-  string category = 3;
-  owomide.common.v1.Pagination pagination = 4;
+  optional string product_id = 1;
+  optional string channel_id = 2;
+  optional string category = 3;
+  optional string query = 4;
+  owomide.common.v1.Pagination pagination = 5;
 }
 
 message ListSkusResponse {
@@ -136,8 +302,10 @@ message ListSkusResponse {
 
 message BatchGetCostsRequest {
   repeated string sku_ids = 1;
-  google.protobuf.Timestamp effective_as_of = 2;
-  google.protobuf.Timestamp recorded_as_of = 3;
+  optional string location_id = 2;
+  optional string cost_type = 3;
+  google.protobuf.Timestamp effective_as_of = 4;
+  google.protobuf.Timestamp recorded_as_of = 5;
 }
 
 message BatchGetCostsResponse {
@@ -146,9 +314,11 @@ message BatchGetCostsResponse {
 
 message BatchGetPricesRequest {
   repeated string sku_ids = 1;
-  string channel_id = 2;
-  google.protobuf.Timestamp effective_as_of = 3;
-  google.protobuf.Timestamp recorded_as_of = 4;
+  optional string channel_id = 2;
+  optional string location_id = 3;
+  optional string customer_segment_id = 4;
+  google.protobuf.Timestamp effective_as_of = 5;
+  google.protobuf.Timestamp recorded_as_of = 6;
 }
 
 message BatchGetPricesResponse {
@@ -156,7 +326,8 @@ message BatchGetPricesResponse {
 }
 
 message ListChannelsRequest {
-  owomide.common.v1.Pagination pagination = 1;
+  bool include_archived = 1;
+  owomide.common.v1.Pagination pagination = 2;
 }
 
 message ListChannelsResponse {
@@ -164,8 +335,29 @@ message ListChannelsResponse {
   owomide.common.v1.PaginatedResponse pagination = 2;
 }
 
+message SaveChannelRequest {
+  optional string id = 1;
+  string code = 2;
+  string name = 3;
+  string default_currency = 4;
+  string attributes_json = 5;
+}
+
+message SaveChannelResponse {
+  Channel channel = 1;
+}
+
+message DeactivateChannelRequest {
+  string id = 1;
+}
+
+message DeactivateChannelResponse {
+  Channel channel = 1;
+}
+
 message ListLocationsRequest {
-  owomide.common.v1.Pagination pagination = 1;
+  bool include_archived = 1;
+  owomide.common.v1.Pagination pagination = 2;
 }
 
 message ListLocationsResponse {
@@ -173,34 +365,98 @@ message ListLocationsResponse {
   owomide.common.v1.PaginatedResponse pagination = 2;
 }
 
-message UpsertCanonicalRequest {
-  repeated CanonicalRow rows = 1;
+message SaveLocationRequest {
+  optional string id = 1;
+  string code = 2;
+  string name = 3;
+  string country = 4;
+  optional string region = 5;
+  string attributes_json = 6;
 }
 
-message CanonicalRow {
-  Sku sku = 1;
-  CostRecord cost = 2;
-  repeated PriceRecord prices = 3;
+message SaveLocationResponse {
+  Location location = 1;
+}
+
+message DeactivateLocationRequest {
+  string id = 1;
+}
+
+message DeactivateLocationResponse {
+  Location location = 1;
+}
+
+message ListCustomerSegmentsRequest {
+  bool include_archived = 1;
+  owomide.common.v1.Pagination pagination = 2;
+}
+
+message ListCustomerSegmentsResponse {
+  repeated CustomerSegment customer_segments = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
+}
+
+message SaveCustomerSegmentRequest {
+  optional string id = 1;
+  string code = 2;
+  string name = 3;
+  string attributes_json = 4;
+}
+
+message SaveCustomerSegmentResponse {
+  CustomerSegment customer_segment = 1;
+}
+
+message DeactivateCustomerSegmentRequest {
+  string id = 1;
+}
+
+message DeactivateCustomerSegmentResponse {
+  CustomerSegment customer_segment = 1;
+}
+
+message UpsertCanonicalRequest {
+  string idempotency_key = 1;
+  SourceContext source = 2;
+  repeated CanonicalWriteRow rows = 3;
+}
+
+message CanonicalWriteRow {
+  string source_item_ref = 1;
+  SkuIdentity sku_identity = 2;
+  NewSku new_sku = 3;
+  CostWrite cost = 4;
+  repeated PriceWrite prices = 5;
 }
 
 message UpsertCanonicalResponse {
-  int32 created = 1;
-  int32 updated = 2;
-  int32 skipped = 3;
+  string operation_id = 1;
+  bool replayed = 2;
+  repeated CanonicalRowResult results = 3;
+  WriteSummary summary = 4;
 }
 
 message ApplyPriceChangesRequest {
-  string proposal_id = 1;
-  repeated PriceChange changes = 2;
+  string idempotency_key = 1;
+  string proposal_id = 2;
+  optional string actor_id = 3;
+  repeated PriceChange changes = 4;
 }
 
 message PriceChange {
-  string sku_id = 1;
-  string channel_id = 2;
-  owomide.common.v1.Money new_price = 3;
-  google.protobuf.Timestamp effective_at = 4;
+  string proposal_line_id = 1;
+  string sku_id = 2;
+  string channel_id = 3;
+  optional string location_id = 4;
+  optional string customer_segment_id = 5;
+  owomide.common.v1.Money new_price = 6;
+  google.protobuf.Timestamp effective_at = 7;
+  google.protobuf.Timestamp effective_until = 8;
 }
 
 message ApplyPriceChangesResponse {
-  int32 applied = 1;
+  string operation_id = 1;
+  bool replayed = 2;
+  repeated CanonicalRowResult results = 3;
+  WriteSummary summary = 4;
 }

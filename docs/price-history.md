@@ -49,13 +49,11 @@ MVP Catalog read APIs should support:
 
 Do not update economic values in place.
 
-Allowed updates:
+The only allowed economic-row update is:
 
-- set `effective_until` to close an open business period;
-- set `superseded_at` to close a system-knowledge period;
-- update non-economic operational metadata only if it is explicitly safe.
+- set `superseded_at` and `superseded_by_operation_id` together, once.
 
-New prices and corrections are inserted as new records.
+Business-period changes, economic values, provenance, and metadata are never updated in place. A write supersedes overlapping beliefs and inserts the new belief plus any unaffected left/right fragments.
 
 ## Preventing Overlap
 
@@ -70,12 +68,7 @@ Dimensional key for price records:
 - `customer_segment_id` nullable
 - `currency`
 
-Options:
-
-1. MVP: enforce through transaction logic plus partial indexes for current open-ended rows.
-2. Stronger database enforcement: use PostgreSQL range types and exclusion constraints for non-overlapping validity windows.
-
-PostgreSQL range/exclusion constraints are a good fit for non-overlapping periods, but the first implementation should choose the simplest approach the team can test reliably.
+The implementation uses transaction-scoped advisory locks plus generated `tstzrange` columns and partial GiST exclusion constraints. Nullable dimensions are normalized to a reserved zero UUID inside the constraint. Application logic performs deterministic interval splitting; PostgreSQL remains the final non-overlap guard.
 
 ## Examples
 
@@ -83,8 +76,8 @@ PostgreSQL range/exclusion constraints are a good fit for non-overlapping period
 
 1. Current price is NGN 10,000 from June 1.
 2. Proposal publishes NGN 10,500 effective July 1.
-3. Existing row gets `effective_until = July 1`.
-4. New row gets `effective_at = July 1`, `recorded_at = publish time`.
+3. Existing belief is superseded at publish time.
+4. A retained left fragment ends at July 1 and a new belief starts at July 1, both recorded at publish time.
 
 ### Backdated correction
 
@@ -99,7 +92,7 @@ PostgreSQL range/exclusion constraints are a good fit for non-overlapping period
 | Service | Responsibility |
 |---|---|
 | Catalog | Stores and queries price/cost history. |
-| Import/Export | Provides source file, batch, row, and mapping provenance. |
+| Data Pipeline | Provides source file, batch, row, and mapping provenance. |
 | Proposal | Supplies approved/published change provenance. |
 | Margin | Requests the correct as-of cost/price context for validation. |
 | Governance | Records events and snapshots so history is explainable. |
