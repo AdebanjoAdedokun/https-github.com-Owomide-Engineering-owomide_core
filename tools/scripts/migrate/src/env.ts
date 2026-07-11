@@ -8,7 +8,11 @@ function findRepoRoot(startDir: string): string {
   while (true) {
     if (existsSync(resolve(dir, ".git"))) return dir;
     const parent = dirname(dir);
-    if (parent === dir) throw new Error("Could not find repo root: no .git directory found");
+    if (parent === dir) {
+      // Bazel runfiles intentionally omit .git. dotenv is optional, so using the
+      // test/runfiles working directory is safe when no checkout root is present.
+      return process.env["BUILD_WORKSPACE_DIRECTORY"] ?? process.cwd();
+    }
     dir = parent;
   }
 }

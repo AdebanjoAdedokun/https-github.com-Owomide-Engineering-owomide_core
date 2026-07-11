@@ -7,6 +7,8 @@ import {
   nextSequenceNumber,
   hasDownFile,
   createMigrationFiles,
+  migrationChecksum,
+  migrationPairChecksum,
   migrationPath,
 } from "../../sql-files.js";
 
@@ -125,7 +127,12 @@ describe("createMigrationFiles", () => {
   });
 
   it("creates both .up.sql and .down.sql with correct sequence number", () => {
-    const { up, down } = createMigrationFiles(migrationsDir, repoRoot, "catalog", "add_products");
+    const { up, down } = createMigrationFiles(
+      migrationsDir,
+      repoRoot,
+      "catalog",
+      "add_products",
+    );
     expect(up).toMatch(/0001_add_products\.up\.sql$/);
     expect(down).toMatch(/0001_add_products\.down\.sql$/);
   });
@@ -135,30 +142,116 @@ describe("createMigrationFiles", () => {
     writeFileSync(join(repoRoot, migrationsDir, "0001_a.up.sql"), "");
     writeFileSync(join(repoRoot, migrationsDir, "0002_b.up.sql"), "");
 
-    const { up } = createMigrationFiles(migrationsDir, repoRoot, "catalog", "next");
+    const { up } = createMigrationFiles(
+      migrationsDir,
+      repoRoot,
+      "catalog",
+      "next",
+    );
     expect(up).toMatch(/0003_next\.up\.sql$/);
   });
 
   it("replaces spaces with underscores in name", () => {
-    const { up } = createMigrationFiles(migrationsDir, repoRoot, "catalog", "add products table");
+    const { up } = createMigrationFiles(
+      migrationsDir,
+      repoRoot,
+      "catalog",
+      "add products table",
+    );
     expect(up).toMatch(/0001_add_products_table\.up\.sql$/);
   });
 
   it("creates the migrations directory if it does not exist", () => {
     expect(() =>
-      createMigrationFiles("brand-new-dir/migrations", repoRoot, "catalog", "init"),
+      createMigrationFiles(
+        "brand-new-dir/migrations",
+        repoRoot,
+        "catalog",
+        "init",
+      ),
     ).not.toThrow();
   });
 });
 
 describe("migrationPath", () => {
   it("returns path with correct extension for up", () => {
-    const result = migrationPath("src/catalog/migrations", "/repo", "0001_a", "up");
+    const result = migrationPath(
+      "src/catalog/migrations",
+      "/repo",
+      "0001_a",
+      "up",
+    );
     expect(result).toMatch(/0001_a\.up\.sql$/);
   });
 
   it("returns path with correct extension for down", () => {
-    const result = migrationPath("src/catalog/migrations", "/repo", "0001_a", "down");
+    const result = migrationPath(
+      "src/catalog/migrations",
+      "/repo",
+      "0001_a",
+      "down",
+    );
     expect(result).toMatch(/0001_a\.down\.sql$/);
+  });
+});
+
+describe("migrationChecksum", () => {
+  let repoRoot: string;
+
+  beforeEach(() => {
+    repoRoot = makeTempDir();
+  });
+
+  afterEach(() => {
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  it("changes when the exact migration bytes change", () => {
+    const path = join(repoRoot, "0001_test.up.sql");
+    writeFileSync(path, "SELECT 1;\n");
+    const original = migrationChecksum(path);
+
+    writeFileSync(path, "SELECT 1; -- changed\n");
+
+    expect(original).toMatch(/^[0-9a-f]{64}$/);
+    expect(migrationChecksum(path)).not.toBe(original);
+  });
+});
+
+describe("migrationPairChecksum", () => {
+  let repoRoot: string;
+  const migrationsDir = "migrations";
+
+  beforeEach(() => {
+    repoRoot = makeTempDir();
+    mkdirSync(join(repoRoot, migrationsDir));
+    writeFileSync(
+      join(repoRoot, migrationsDir, "0001_test.up.sql"),
+      "SELECT 1;\n",
+    );
+    writeFileSync(
+      join(repoRoot, migrationsDir, "0001_test.down.sql"),
+      "SELECT 2;\n",
+    );
+  });
+
+  afterEach(() => {
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  it("changes when the rollback file changes", () => {
+    const original = migrationPairChecksum(
+      migrationsDir,
+      repoRoot,
+      "0001_test",
+    );
+    writeFileSync(
+      join(repoRoot, migrationsDir, "0001_test.down.sql"),
+      "SELECT 3;\n",
+    );
+
+    expect(
+      migrationPairChecksum(migrationsDir, repoRoot, "0001_test"),
+    ).not.toBe(original);
   });
 });

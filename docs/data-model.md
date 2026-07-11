@@ -1,6 +1,6 @@
 # Canonical Data Model
 
-This document defines the accepted data spine for Owomide's first implementation pass. The Catalog portion is implemented by `src/catalog/migrations/0001_create_schema.up.sql`; later service sections remain contracts for their owners.
+This document defines the accepted data spine for Owomide's first implementation pass. The Catalog portion is implemented by `src/catalog/migrations/0002_catalog_foundation.up.sql`; later service sections remain contracts for their owners.
 
 The design principle is:
 
@@ -291,9 +291,9 @@ Use this decision rule:
 | drives service behavior | typed column plus validation rule |
 | identifies provenance | typed source/source_ref fields |
 
-## First Migration Implications
+## Catalog Foundation Migration Implications
 
-The first Catalog migration enforces:
+The Catalog foundation migration enforces:
 
 - `org_id` on every table;
 - integer minor-unit money fields;
