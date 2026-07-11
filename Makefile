@@ -18,14 +18,16 @@ test: ## Run all tests
 lint: ## Run linters (TS, Python, Go — skips languages with no implementation yet)
 	cd src/gateway && pnpm eslint "src/**/*.ts"
 	cd src/catalog && pnpm eslint "src/**/*.ts"
-	@if find src -name "main.py" | grep -q .; then ruff check src; fi
+	ruff check src/data-pipeline/owomide_data_pipeline src/data-pipeline/tests
+	@if find src -name "main.py" | grep -q .; then ruff check src --exclude src/data-pipeline; fi
 	@if find src -name "main.go" | grep -q .; then golangci-lint run src/...; fi
 
 .PHONY: fmt
 fmt: ## Auto-format code (skips languages with no implementation yet)
 	cd src/gateway && pnpm prettier --write "src/**/*.ts"
 	cd src/catalog && pnpm prettier --write "src/**/*.ts"
-	@if find src -name "main.py" | grep -q .; then ruff format src; fi
+	ruff format src/data-pipeline/owomide_data_pipeline src/data-pipeline/tests
+	@if find src -name "main.py" | grep -q .; then ruff format src --exclude src/data-pipeline; fi
 	@if find src -name "main.go" | grep -q .; then gofmt -w src; fi
 
 .PHONY: gateway-dev
@@ -40,6 +42,14 @@ gateway-test: ## Run gateway unit tests
 catalog-test: ## Run Catalog unit and PostgreSQL integration tests
 	cd src/catalog && pnpm test
 	cd src/catalog && pnpm test:integration
+
+.PHONY: data-pipeline-test
+data-pipeline-test: ## Run Data Pipeline unit tests
+	bazel test //src/data-pipeline/... --test_tag_filters=-requires-docker
+
+.PHONY: data-pipeline-integration-test
+data-pipeline-integration-test: ## Run Data Pipeline PostgreSQL integration tests (requires Docker)
+	bazel test //src/data-pipeline:migration_integration_test --test_output=errors
 
 # --- Stubbed targets (F0.2+) ---
 

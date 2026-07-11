@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x65vents/import/v1.proto\x12\x18owomide.events.import.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x99\x02\n\x0fImportCommitted\x12\x15\n\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x19\n\x08\x62\x61tch_id\x18\x02 \x01(\tR\x07\x62\x61tchId\x12\x19\n\x08\x66ile_url\x18\x03 \x01(\tR\x07\x66ileUrl\x12\x42\n\nrow_counts\x18\x04 \x01(\x0b\x32#.owomide.events.import.v1.RowCountsR\trowCounts\x12\x1f\n\x0btemplate_id\x18\x05 \x01(\tR\ntemplateId\x12\x19\n\x08\x61\x63tor_id\x18\x06 \x01(\tR\x07\x61\x63torId\x12\x39\n\ncreated_at\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\"O\n\tRowCounts\x12\x0e\n\x02ok\x18\x01 \x01(\x05R\x02ok\x12\x16\n\x06warned\x18\x02 \x01(\x05R\x06warned\x12\x1a\n\x08\x65xcluded\x18\x03 \x01(\x05R\x08\x65xcludedB+Z)github.com/owomide/proto/events/import/v1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x65vents/import/v1.proto\x12\x18owomide.events.import.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x99\x02\n\x0fImportCommitted\x12\x15\n\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x19\n\x08\x62\x61tch_id\x18\x02 \x01(\tR\x07\x62\x61tchId\x12\x19\n\x08\x66ile_url\x18\x03 \x01(\tR\x07\x66ileUrl\x12\x42\n\nrow_counts\x18\x04 \x01(\x0b\x32#.owomide.events.import.v1.RowCountsR\trowCounts\x12\x1f\n\x0btemplate_id\x18\x05 \x01(\tR\ntemplateId\x12\x19\n\x08\x61\x63tor_id\x18\x06 \x01(\tR\x07\x61\x63torId\x12\x39\n\ncreated_at\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\"i\n\tRowCounts\x12\x0e\n\x02ok\x18\x01 \x01(\x05R\x02ok\x12\x16\n\x06warned\x18\x02 \x01(\x05R\x06warned\x12\x1a\n\x08\x65xcluded\x18\x03 \x01(\x05R\x08\x65xcluded\x12\x18\n\x07\x65rrored\x18\x04 \x01(\x05R\x07\x65rroredB+Z)github.com/owomide/proto/events/import/v1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,5 +36,5 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_IMPORTCOMMITTED']._serialized_start=86
   _globals['_IMPORTCOMMITTED']._serialized_end=367
   _globals['_ROWCOUNTS']._serialized_start=369
-  _globals['_ROWCOUNTS']._serialized_end=448
+  _globals['_ROWCOUNTS']._serialized_end=474
 # @@protoc_insertion_point(module_scope)

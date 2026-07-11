@@ -1,0 +1,84 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "runtime",
+    srcs = [
+        "owomide_data_pipeline/__init__.py",
+        "owomide_data_pipeline/auth.py",
+        "owomide_data_pipeline/config.py",
+        "owomide_data_pipeline/db.py",
+        "owomide_data_pipeline/health.py",
+        "owomide_data_pipeline/service.py",
+    ],
+    data = ["//src/lib/proto:gen_py"],
+    imports = [
+        ".",
+        "../lib/proto/gen/py",
+    ],
+    deps = [
+        "@data_pipeline_pip//grpcio",
+        "@data_pipeline_pip//protobuf",
+        "@data_pipeline_pip//psycopg",
+        "@data_pipeline_pip//psycopg_binary",
+        "@data_pipeline_pip//pyjwt",
+    ],
+)
+
+py_binary(
+    name = "server",
+    srcs = ["owomide_data_pipeline/server.py"],
+    main = "owomide_data_pipeline/server.py",
+    deps = [":runtime"],
+)
+
+py_binary(
+    name = "worker",
+    srcs = ["owomide_data_pipeline/worker.py"],
+    main = "owomide_data_pipeline/worker.py",
+    deps = [":runtime"],
+)
+
+py_test(
+    name = "config_test",
+    srcs = ["tests/test_config.py"],
+    main = "tests/test_config.py",
+    deps = [":runtime"],
+)
+
+py_test(
+    name = "auth_test",
+    srcs = ["tests/test_auth.py"],
+    main = "tests/test_auth.py",
+    deps = [":runtime"],
+)
+
+py_test(
+    name = "runtime_test",
+    srcs = ["tests/test_runtime.py"],
+    main = "tests/test_runtime.py",
+    deps = [
+        ":runtime",
+        ":server",
+    ],
+)
+
+py_test(
+    name = "migration_integration_test",
+    srcs = ["tests/test_migration_integration.py"],
+    data = [
+        "migrations/0001_create_schema.down.sql",
+        "migrations/0001_create_schema.up.sql",
+    ],
+    main = "tests/test_migration_integration.py",
+    tags = [
+        "manual",
+        "requires-docker",
+    ],
+    deps = [
+        ":runtime",
+        "@data_pipeline_pip//psycopg",
+        "@data_pipeline_pip//psycopg_binary",
+    ],
+)

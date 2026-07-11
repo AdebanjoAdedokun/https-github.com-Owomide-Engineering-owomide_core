@@ -20,4 +20,5 @@ message RowCounts {
   int32 ok = 1;
   int32 warned = 2;
   int32 excluded = 3;
+  int32 errored = 4;
 }
