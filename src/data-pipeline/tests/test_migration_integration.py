@@ -81,7 +81,6 @@ class MigrationIntegrationTest(unittest.TestCase):
 
     @classmethod
     def _apply_migration(cls) -> None:
-        up_sql = cls._migration_path("0001_create_schema.up.sql").read_text()
         with psycopg.connect(cls.admin_url, autocommit=True) as connection:
             connection.execute("CREATE SCHEMA data_pipeline")
             connection.execute(f"CREATE ROLE data_pipeline_svc LOGIN PASSWORD '{SERVICE_PASSWORD}'")
@@ -90,7 +89,11 @@ class MigrationIntegrationTest(unittest.TestCase):
                 "ALTER DEFAULT PRIVILEGES IN SCHEMA data_pipeline "
                 "GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO data_pipeline_svc"
             )
-            connection.execute(up_sql)
+            for filename in (
+                "0001_create_schema.up.sql",
+                "0002_data_pipeline_foundation.up.sql",
+            ):
+                connection.execute(cls._migration_path(filename).read_text())
 
     def test_schema_has_all_six_tables(self) -> None:
         with psycopg.connect(self.admin_url) as connection:
@@ -212,9 +215,12 @@ class MigrationIntegrationTest(unittest.TestCase):
             connection.rollback()
 
     def test_z_down_migration_removes_owned_tables(self) -> None:
-        down_sql = self._migration_path("0001_create_schema.down.sql").read_text()
         with psycopg.connect(self.admin_url, autocommit=True) as connection:
-            connection.execute(down_sql)
+            for filename in (
+                "0002_data_pipeline_foundation.down.sql",
+                "0001_create_schema.down.sql",
+            ):
+                connection.execute(self._migration_path(filename).read_text())
             count = connection.execute(
                 "SELECT count(*) FROM information_schema.tables "
                 "WHERE table_schema = 'data_pipeline'"

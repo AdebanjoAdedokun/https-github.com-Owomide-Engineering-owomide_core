@@ -70,6 +70,8 @@ py_test(
     data = [
         "migrations/0001_create_schema.down.sql",
         "migrations/0001_create_schema.up.sql",
+        "migrations/0002_data_pipeline_foundation.down.sql",
+        "migrations/0002_data_pipeline_foundation.up.sql",
     ],
     main = "tests/test_migration_integration.py",
     tags = [

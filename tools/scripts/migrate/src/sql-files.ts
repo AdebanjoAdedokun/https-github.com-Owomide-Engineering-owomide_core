@@ -1,11 +1,21 @@
-import { readdirSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  existsSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 
 const UP_RE = /^(\d{4}_[^.]+)\.up\.sql$/;
 const DOWN_RE = /^(\d{4}_[^.]+)\.down\.sql$/;
 
 /** Returns sorted list of migration stems (e.g. '0001_create_schema') that have an .up.sql file. */
-export function discoverMigrations(migrationsDir: string, repoRoot: string): string[] {
+export function discoverMigrations(
+  migrationsDir: string,
+  repoRoot: string,
+): string[] {
   const dir = resolve(repoRoot, migrationsDir);
   if (!existsSync(dir)) {
     throw new Error(`Migrations directory not found: ${dir}`);
@@ -32,8 +42,32 @@ export function migrationPath(
   return resolve(repoRoot, migrationsDir, `${stem}.${direction}.sql`);
 }
 
+/** Returns a stable SHA-256 digest of a migration file's exact bytes. */
+export function migrationChecksum(path: string): string {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+/** Returns one digest covering both immutable directions of a migration. */
+export function migrationPairChecksum(
+  migrationsDir: string,
+  repoRoot: string,
+  stem: string,
+): string {
+  const upPath = migrationPath(migrationsDir, repoRoot, stem, "up");
+  const downPath = migrationPath(migrationsDir, repoRoot, stem, "down");
+  return createHash("sha256")
+    .update("up\0")
+    .update(readFileSync(upPath))
+    .update("\0down\0")
+    .update(readFileSync(downPath))
+    .digest("hex");
+}
+
 /** Finds the next sequence number by scanning existing .up.sql files. */
-export function nextSequenceNumber(migrationsDir: string, repoRoot: string): number {
+export function nextSequenceNumber(
+  migrationsDir: string,
+  repoRoot: string,
+): number {
   const dir = resolve(repoRoot, migrationsDir);
   if (!existsSync(dir)) return 1;
 
@@ -52,13 +86,21 @@ export function nextSequenceNumber(migrationsDir: string, repoRoot: string): num
 }
 
 /** Checks whether a matching .down.sql exists for a given stem. */
-export function hasDownFile(migrationsDir: string, repoRoot: string, stem: string): boolean {
+export function hasDownFile(
+  migrationsDir: string,
+  repoRoot: string,
+  stem: string,
+): boolean {
   const dir = resolve(repoRoot, migrationsDir);
   const files = readdirSync(dir);
   return files.some((f) => DOWN_RE.exec(f)?.[1] === stem);
 }
 
-const MIGRATION_HEADER = (stem: string, service: string, direction: "up" | "down") =>
+const MIGRATION_HEADER = (
+  stem: string,
+  service: string,
+  direction: "up" | "down",
+) =>
   direction === "up"
     ? `-- Migration: ${stem}\n-- Service: ${service}\n-- Created: ${new Date().toISOString().slice(0, 10)}\n\n-- Write your SQL here\n`
     : `-- Rollback: ${stem}\n-- Service: ${service}\n-- Created: ${new Date().toISOString().slice(0, 10)}\n\n-- Write the reverse SQL here\n`;
@@ -73,7 +115,9 @@ export function createMigrationFiles(
   const dir = resolve(repoRoot, migrationsDir);
   mkdirSync(dir, { recursive: true });
 
-  const seq = nextSequenceNumber(migrationsDir, repoRoot).toString().padStart(4, "0");
+  const seq = nextSequenceNumber(migrationsDir, repoRoot)
+    .toString()
+    .padStart(4, "0");
   const stem = `${seq}_${name.replace(/\s+/g, "_")}`;
 
   const upPath = join(dir, `${stem}.up.sql`);

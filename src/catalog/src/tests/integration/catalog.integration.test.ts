@@ -97,8 +97,10 @@ describe("Catalog service integration", () => {
     await admin.query("CREATE ROLE catalog_svc LOGIN PASSWORD 'catalog_test'");
     await admin.query("CREATE SCHEMA catalog");
     await admin.query("GRANT USAGE ON SCHEMA catalog TO catalog_svc");
-    const up = readFileSync(resolve(process.cwd(), "migrations/0001_create_schema.up.sql"), "utf8");
-    await admin.query(up);
+    for (const filename of ["0001_create_schema.up.sql", "0002_catalog_foundation.up.sql"]) {
+      const up = readFileSync(resolve(process.cwd(), "migrations", filename), "utf8");
+      await admin.query(up);
+    }
 
     const runtimeUrl = new URL(container.getConnectionUri());
     runtimeUrl.username = "catalog_svc";
@@ -127,11 +129,10 @@ describe("Catalog service integration", () => {
 
   afterAll(async () => {
     await database?.close();
-    const down = readFileSync(
-      resolve(process.cwd(), "migrations/0001_create_schema.down.sql"),
-      "utf8"
-    );
-    await admin?.query(down);
+    for (const filename of ["0002_catalog_foundation.down.sql", "0001_create_schema.down.sql"]) {
+      const down = readFileSync(resolve(process.cwd(), "migrations", filename), "utf8");
+      await admin?.query(down);
+    }
     const extension = await admin?.query(
       "SELECT extname FROM pg_extension WHERE extname = 'btree_gist'"
     );

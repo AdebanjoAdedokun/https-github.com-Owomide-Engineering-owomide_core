@@ -6,11 +6,17 @@ import {
   filterToService,
   type ServiceEntry,
 } from "./manifest.js";
-import { discoverMigrations, migrationPath, hasDownFile } from "./sql-files.js";
+import {
+  discoverMigrations,
+  migrationPath,
+  migrationPairChecksum,
+  hasDownFile,
+} from "./sql-files.js";
 import {
   ensureTrackingTable,
   getAppliedMigrations,
   recordMigration,
+  backfillMigrationChecksum,
   removeMigration,
   getLastApplied,
 } from "./tracker.js";
@@ -42,7 +48,9 @@ async function bootstrapServiceRole(
 ): Promise<void> {
   const password = requireEnv(passwordEnvKey(entry.role));
   if (password.length > 200) {
-    throw new Error(`Password for role ${entry.role} exceeds maximum length of 200 characters`);
+    throw new Error(
+      `Password for role ${entry.role} exceeds maximum length of 200 characters`,
+    );
   }
 
   await client.query(`CREATE SCHEMA IF NOT EXISTS "${entry.schema}"`);
@@ -59,7 +67,9 @@ async function bootstrapServiceRole(
     );
   }
 
-  await client.query(`GRANT USAGE ON SCHEMA "${entry.schema}" TO "${entry.role}"`);
+  await client.query(
+    `GRANT USAGE ON SCHEMA "${entry.schema}" TO "${entry.role}"`,
+  );
 
   await client.query(`
     ALTER DEFAULT PRIVILEGES IN SCHEMA "${entry.schema}"
@@ -82,18 +92,65 @@ async function applyMigration(
   service: string,
   stem: string,
   sqlPath: string,
+  checksum: string,
 ): Promise<void> {
   const sql = readFileSync(sqlPath, "utf8");
 
   await client.query("BEGIN");
   try {
     await client.query(sql);
-    await recordMigration(client, service, stem);
+    await recordMigration(client, service, stem, checksum);
     await client.query("COMMIT");
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
   }
+}
+
+interface MigrationState {
+  entry: ServiceEntry;
+  discovered: string[];
+  applied: Map<string, string | null>;
+  checksums: Map<string, string>;
+}
+
+async function inspectMigrationState(
+  client: pg.Client,
+  entry: ServiceEntry,
+  repoRoot: string,
+): Promise<MigrationState> {
+  const discovered = discoverMigrations(entry.migrationsDir, repoRoot);
+  const applied = await getAppliedMigrations(client, entry.name);
+  const discoveredSet = new Set(discovered);
+
+  for (const filename of applied.keys()) {
+    if (!discoveredSet.has(filename)) {
+      throw new Error(
+        `Applied migration is missing from disk: ${entry.name}/${filename}`,
+      );
+    }
+  }
+
+  const checksums = new Map<string, string>();
+  for (const stem of discovered) {
+    if (!hasDownFile(entry.migrationsDir, repoRoot, stem)) {
+      throw new Error(
+        `Migration is missing its rollback file: ${entry.name}/${stem}.down.sql`,
+      );
+    }
+    const checksum = migrationPairChecksum(entry.migrationsDir, repoRoot, stem);
+    checksums.set(stem, checksum);
+
+    const recorded = applied.get(stem);
+    if (recorded !== undefined && recorded !== null && recorded !== checksum) {
+      throw new Error(
+        `Applied migration checksum mismatch: ${entry.name}/${stem}. ` +
+          "Applied migration files are immutable; add a new migration instead.",
+      );
+    }
+  }
+
+  return { entry, discovered, applied, checksums };
 }
 
 async function revertMigration(
@@ -127,9 +184,35 @@ export async function runMigrations(opts: RunOptions): Promise<ApplyResult[]> {
   const results: ApplyResult[] = [];
 
   try {
+    await client.query(
+      "SELECT pg_advisory_lock(hashtext('owomide:migrations'))",
+    );
     await ensureTrackingTable(client);
 
+    // Validate every target before applying any pending SQL. This avoids a partial
+    // multi-service rollout when a later service has migration history drift.
+    const states: MigrationState[] = [];
     for (const entry of targets) {
+      states.push(await inspectMigrationState(client, entry, opts.repoRoot));
+    }
+
+    if (!opts.dryRun) {
+      for (const state of states) {
+        for (const [stem, recorded] of state.applied) {
+          if (recorded === null) {
+            await backfillMigrationChecksum(
+              client,
+              state.entry.name,
+              stem,
+              state.checksums.get(stem)!,
+            );
+          }
+        }
+      }
+    }
+
+    for (const state of states) {
+      const { entry, discovered, applied, checksums } = state;
       const result: ApplyResult = {
         service: entry.name,
         applied: [],
@@ -137,10 +220,9 @@ export async function runMigrations(opts: RunOptions): Promise<ApplyResult[]> {
         errors: [],
       };
 
-      await bootstrapServiceRole(client, entry);
-
-      const discovered = discoverMigrations(entry.migrationsDir, opts.repoRoot);
-      const applied = await getAppliedMigrations(client, entry.name);
+      if (!opts.dryRun) {
+        await bootstrapServiceRole(client, entry);
+      }
 
       const pending = discovered.filter((stem) => !applied.has(stem));
       const skipped = discovered.filter((stem) => applied.has(stem));
@@ -158,14 +240,22 @@ export async function runMigrations(opts: RunOptions): Promise<ApplyResult[]> {
           "up",
         );
         try {
-          await applyMigration(client, entry.name, stem, upPath);
+          await applyMigration(
+            client,
+            entry.name,
+            stem,
+            upPath,
+            checksums.get(stem)!,
+          );
           result.applied.push(stem);
         } catch (err) {
           result.errors.push({ filename: stem, error: err as Error });
+          break;
         }
       }
 
       results.push(result);
+      if (result.errors.length > 0) break;
     }
   } finally {
     await client.end();
@@ -194,7 +284,22 @@ export async function runDown(
   };
 
   try {
+    await client.query(
+      "SELECT pg_advisory_lock(hashtext('owomide:migrations'))",
+    );
     await ensureTrackingTable(client);
+
+    const state = await inspectMigrationState(client, entry, opts.repoRoot);
+    for (const [stem, recorded] of state.applied) {
+      if (recorded === null) {
+        await backfillMigrationChecksum(
+          client,
+          entry.name,
+          stem,
+          state.checksums.get(stem)!,
+        );
+      }
+    }
 
     const toRevert = await getLastApplied(client, entry.name, opts.steps);
 

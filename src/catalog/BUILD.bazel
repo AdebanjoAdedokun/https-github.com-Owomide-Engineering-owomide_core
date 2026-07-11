@@ -149,6 +149,8 @@ js_test(
         "fixtures/demo.sql",
         "migrations/0001_create_schema.down.sql",
         "migrations/0001_create_schema.up.sql",
+        "migrations/0002_catalog_foundation.down.sql",
+        "migrations/0002_catalog_foundation.up.sql",
     ],
     env = {"NODE_OPTIONS": "--experimental-global-webcrypto"},
     entry_point = "src/tests/integration/run.js",

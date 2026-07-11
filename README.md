@@ -197,19 +197,20 @@ make migrate svc=catalog                   # apply for one service only
 ```
 
 On first run this will:
-- Create a `public.schema_migrations` tracking table
+- Create a `public.schema_migrations` tracking table with SHA-256 checksums
 - Create one Postgres schema per service (`catalog`, `proposal`, `margin`, etc.)
 - Create one Postgres role per service (`catalog_svc`, `proposal_svc`, etc.)
 - Apply any pending `.sql` files from `src/<service>/migrations/`
 
-Subsequent runs are idempotent — already-applied migrations are skipped.
+Subsequent runs are idempotent — already-applied migrations are skipped. Applied migration
+files are immutable: changing or deleting one causes the runner to stop before applying any
+pending migration. Schema changes must always be added as a new migration pair.
 
 ### 3. Create a new migration file
 
 ```bash
 make migrate-create svc=catalog name=add_products_table
-# → creates src/catalog/migrations/0002_add_products_table.up.sql
-# → creates src/catalog/migrations/0002_add_products_table.down.sql
+# → creates the next numbered .up.sql and .down.sql files
 ```
 
 Fill in the generated files and run `make migrate` again to apply.
@@ -223,7 +224,7 @@ make migrate-down svc=catalog steps=3      # roll back the last 3
 
 ### CI/CD (staging / prod)
 
-Migrations run automatically in GitHub Actions on every push to `main` (wired in F0.7). The pipeline reads the same env vars from GitHub Actions secrets — one set per environment (staging, production). Use the Supabase **direct connection string** (not the pooler URL) for `DATABASE_URL` in those secrets.
+Migrations run automatically in GitHub Actions on every push to `main` (wired in F0.7). The pipeline reads the same env vars from GitHub Actions secrets — one set per environment (staging, production). GitHub-hosted runners are IPv4-only, so use the Supabase **Session pooler** connection string on port `5432` unless the project has the IPv4 add-on. Copy the full connection string from the Supabase dashboard; the pooler username includes the project reference.
 
 ## Make commands
 
