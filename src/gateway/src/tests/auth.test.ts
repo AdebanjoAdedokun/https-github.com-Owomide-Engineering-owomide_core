@@ -61,10 +61,10 @@ describe("auth middleware", () => {
 
     const response = await app.inject({
       method: "GET",
-      url: "/imports/test",
+      url: "/mappings/test",
       headers: { authorization: `Bearer ${token}` },
     });
-    // 501 = data-pipeline stub, meaning auth passed
+    // 501 = deferred Data Pipeline route, meaning auth passed
     expect(response.statusCode).toBe(501);
   });
 });

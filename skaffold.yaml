@@ -18,6 +18,10 @@ build:
       context: .
       docker:
         dockerfile: src/catalog/Dockerfile
+    - image: owomide/data-pipeline
+      context: .
+      docker:
+        dockerfile: src/data-pipeline/Dockerfile
     # - image: owomide/bus-smoke
     #   context: .
     #   docker:
@@ -49,6 +53,16 @@ portForward:
     namespace: default
     port: 8080
     localPort: 58052
+  - resourceType: Service
+    resourceName: data-pipeline
+    namespace: default
+    port: 50055
+    localPort: 50055
+  - resourceType: Service
+    resourceName: data-pipeline
+    namespace: default
+    port: 8080
+    localPort: 58055
   - resourceType: Service
     resourceName: postgres
     namespace: default

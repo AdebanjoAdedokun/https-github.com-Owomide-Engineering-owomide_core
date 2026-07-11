@@ -12,6 +12,12 @@ const ConfigSchema = z.object({
   dataPipelineServiceUrl: z.string().default("http://localhost:50055"),
   serviceJwtIssuer: z.string().default("owomide-internal"),
   catalogGatewayServiceSecret: z.string().min(32),
+  dataPipelineGatewayServiceSecret: z.string().min(32),
+  dataPipelineUploadMaxBytes: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(50 * 1024 * 1024),
 
   jwtSecret: z.string().optional(),
   jwksUrl: z.string().optional(),
@@ -43,6 +49,9 @@ export function loadConfig(): Config {
   const catalogGatewayServiceSecret =
     process.env["CATALOG_GATEWAY_SERVICE_SECRET"] ??
     (nodeEnv === "production" ? undefined : "dev-only-catalog-gateway-secret-change-me");
+  const dataPipelineGatewayServiceSecret =
+    process.env["DATA_PIPELINE_GATEWAY_SERVICE_SECRET"] ??
+    (nodeEnv === "production" ? undefined : "dev-only-data-pipeline-gateway-secret-change-me");
   return ConfigSchema.parse({
     nodeEnv,
     port: process.env["PORT"],
@@ -55,6 +64,8 @@ export function loadConfig(): Config {
     dataPipelineServiceUrl: process.env["DATA_PIPELINE_SERVICE_URL"],
     serviceJwtIssuer: process.env["SERVICE_JWT_ISSUER"],
     catalogGatewayServiceSecret,
+    dataPipelineGatewayServiceSecret,
+    dataPipelineUploadMaxBytes: process.env["DATA_PIPELINE_UPLOAD_MAX_BYTES"],
 
     jwtSecret: process.env["JWT_SECRET"],
     jwksUrl: process.env["JWKS_URL"],

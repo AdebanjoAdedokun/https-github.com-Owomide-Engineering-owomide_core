@@ -49,7 +49,10 @@ data-pipeline-test: ## Run Data Pipeline unit tests
 
 .PHONY: data-pipeline-integration-test
 data-pipeline-integration-test: ## Run Data Pipeline PostgreSQL integration tests (requires Docker)
-	bazel test //src/data-pipeline:migration_integration_test --test_output=errors
+	bazel test \
+		//src/data-pipeline:migration_integration_test \
+		//src/data-pipeline:import_integration_test \
+		--test_output=errors
 
 # --- Stubbed targets (F0.2+) ---
 

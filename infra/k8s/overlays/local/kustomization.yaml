@@ -6,4 +6,5 @@ kind: Kustomization
 resources:
   - ../../base
   - catalog-secrets.yaml
+  - data-pipeline-secrets.yaml
   # - bus-smoke

@@ -38,7 +38,27 @@ F2.1 provides:
 - six tenant-scoped staging tables with forced RLS;
 - Bazel, Python packaging, and production container targets.
 
-Feature handlers intentionally return `UNIMPLEMENTED` until their owning phase lands. F2.2 adds upload/storage/parse, F2.3 profiling, F2.4 mappings, F2.5 validation, and F2.6 Catalog commit/events.
+Handlers outside their owning phase intentionally return `UNIMPLEMENTED`. F2.3 adds profiling, F2.4 mappings, F2.5 validation, and F2.6 Catalog commit/events.
+
+## F2.2 Scope
+
+F2.2 provides:
+
+- Gateway multipart streaming into the client-streaming upload RPC;
+- durable originals in MinIO under `imports/{org_id}/{batch_id}/{filename}`;
+- SHA-256 provenance plus atomic `import_batch` and `import_operation` creation;
+- tenant-scoped batch, list, and operation reads;
+- cross-tenant worker leasing through one narrow `SECURITY DEFINER` claim function;
+- restart-safe CSV and XLSX parsing with chunked, conflict-safe raw-row inserts;
+- configurable 50 MiB file, 250,000-row, and 500-column defaults;
+- server and worker Kubernetes deployments.
+
+CSV parsing is streaming. XLSX uses `openpyxl` read-only mode and a disk-backed spool because
+the XLSX ZIP container requires seeking. After parsing succeeds, the operation is `succeeded`
+and the batch remains `parsing` until F2.3 writes profiles and advances it to `profiled`.
+
+Multipart metadata fields (`sourceSystem`, `channelId`, `customerSegmentId`) must precede the
+file part. They may instead be supplied as query parameters, which avoids ordering concerns.
 
 ## Public RPCs
 
@@ -96,6 +116,12 @@ Important optional settings:
 - `DATA_PIPELINE_DATABASE_STATEMENT_TIMEOUT_MS`
 - `DATA_PIPELINE_SERVICE_JWT_ISSUER`, `DATA_PIPELINE_SERVICE_JWT_AUDIENCE`
 - `DATA_PIPELINE_WORKER_POLL_SECONDS`
+- `DATA_PIPELINE_OBJECT_STORE_ENDPOINT`, `DATA_PIPELINE_OBJECT_STORE_BUCKET`
+- `DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY`, `DATA_PIPELINE_OBJECT_STORE_SECRET_KEY`
+- `DATA_PIPELINE_OBJECT_STORE_SECURE`
+- `DATA_PIPELINE_UPLOAD_MAX_BYTES`, `DATA_PIPELINE_IMPORT_MAX_ROWS`
+- `DATA_PIPELINE_IMPORT_MAX_COLUMNS`, `DATA_PIPELINE_IMPORT_INSERT_BATCH_SIZE`
+- `DATA_PIPELINE_WORKER_LEASE_SECONDS`, `DATA_PIPELINE_WORKER_RETRY_BASE_SECONDS`
 - `LOG_LEVEL`
 
 ## Verification

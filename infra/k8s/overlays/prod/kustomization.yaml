@@ -10,6 +10,8 @@ images:
     newTag: prod
   - name: owomide/catalog
     newTag: prod
+  - name: owomide/data-pipeline
+    newTag: prod
 
 # Run 2 gateway replicas in production for availability.
 replicas:

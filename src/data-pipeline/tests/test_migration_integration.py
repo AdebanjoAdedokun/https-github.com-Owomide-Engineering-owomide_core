@@ -92,6 +92,7 @@ class MigrationIntegrationTest(unittest.TestCase):
             for filename in (
                 "0001_create_schema.up.sql",
                 "0002_data_pipeline_foundation.up.sql",
+                "0003_claim_import_operations.up.sql",
             ):
                 connection.execute(cls._migration_path(filename).read_text())
 
@@ -214,9 +215,47 @@ class MigrationIntegrationTest(unittest.TestCase):
                 )
             connection.rollback()
 
+    def test_worker_claim_function_leases_across_rls_without_table_bypass(self) -> None:
+        with psycopg.connect(self.admin_url) as connection:
+            batch_id = connection.execute(
+                "INSERT INTO data_pipeline.import_batch "
+                "(org_id, owner_id, source_file_url, source_filename, source_type, source_sha256) "
+                "VALUES ('org-worker', 'user-a', 's3://imports/a.csv', 'a.csv', 'csv', %s) "
+                "RETURNING id",
+                ("a" * 64,),
+            ).fetchone()[0]
+            operation_id = connection.execute(
+                "INSERT INTO data_pipeline.import_operation "
+                "(org_id, batch_id, operation_type) "
+                "VALUES ('org-worker', %s, 'parse_profile') RETURNING id",
+                (batch_id,),
+            ).fetchone()[0]
+
+        with psycopg.connect(self.service_url) as connection:
+            claimed = connection.execute(
+                "SELECT * FROM data_pipeline.claim_parse_operation('worker-test', 60)"
+            ).fetchone()
+            self.assertEqual(claimed[0], operation_id)
+            self.assertEqual(claimed[1], "org-worker")
+            self.assertEqual(
+                connection.execute(
+                    "SELECT count(*) FROM data_pipeline.import_operation"
+                ).fetchone()[0],
+                0,
+            )
+
+        with psycopg.connect(self.admin_url) as connection:
+            state = connection.execute(
+                "SELECT status, attempt_count, locked_by FROM data_pipeline.import_operation "
+                "WHERE id = %s",
+                (operation_id,),
+            ).fetchone()
+        self.assertEqual(state, ("running", 1, "worker-test"))
+
     def test_z_down_migration_removes_owned_tables(self) -> None:
         with psycopg.connect(self.admin_url, autocommit=True) as connection:
             for filename in (
+                "0003_claim_import_operations.down.sql",
                 "0002_data_pipeline_foundation.down.sql",
                 "0001_create_schema.down.sql",
             ):

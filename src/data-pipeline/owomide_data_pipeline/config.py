@@ -33,6 +33,15 @@ def _positive_float(env: Mapping[str, str], name: str, default: float) -> float:
     return value
 
 
+def _boolean(env: Mapping[str, str], name: str, default: bool) -> bool:
+    raw = env.get(name, str(default)).strip().lower()
+    if raw in {"1", "true", "yes", "on"}:
+        return True
+    if raw in {"0", "false", "no", "off"}:
+        return False
+    raise ConfigurationError(f"{name} must be a boolean")
+
+
 def _service_secrets(raw: str) -> Mapping[str, str]:
     try:
         decoded = json.loads(raw)
@@ -63,11 +72,28 @@ class Config:
     service_jwt_issuer: str
     service_jwt_audience: str
     service_secrets: Mapping[str, str]
+    object_store_endpoint: str
+    object_store_access_key: str
+    object_store_secret_key: str
+    object_store_secure: bool
+    object_store_bucket: str
+    upload_max_bytes: int
+    import_max_rows: int
+    import_max_columns: int
+    import_insert_batch_size: int
+    worker_lease_seconds: int
+    worker_retry_base_seconds: int
+    xlsx_spool_memory_bytes: int
     worker_poll_seconds: float
     log_level: str
 
     @classmethod
-    def from_env(cls, values: Mapping[str, str] | None = None) -> Config:
+    def from_env(
+        cls,
+        values: Mapping[str, str] | None = None,
+        *,
+        require_service_secrets: bool = True,
+    ) -> Config:
         env = os.environ if values is None else values
         environment = env.get("OWOMIDE_ENV", "development").strip().lower()
         database_url = env.get(
@@ -78,13 +104,32 @@ class Config:
         audience = env.get("DATA_PIPELINE_SERVICE_JWT_AUDIENCE", "data-pipeline").strip()
         secrets = _service_secrets(env.get("DATA_PIPELINE_SERVICE_SECRETS_JSON", "{}"))
         log_level = env.get("LOG_LEVEL", "INFO").strip().upper()
+        object_store_endpoint = env.get(
+            "DATA_PIPELINE_OBJECT_STORE_ENDPOINT",
+            "" if environment == "production" else "localhost:9000",
+        ).strip()
+        object_store_access_key = env.get(
+            "DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY",
+            "" if environment == "production" else "minioadmin",
+        ).strip()
+        object_store_secret_key = env.get(
+            "DATA_PIPELINE_OBJECT_STORE_SECRET_KEY",
+            "" if environment == "production" else "minioadmin",
+        ).strip()
+        object_store_bucket = env.get(
+            "DATA_PIPELINE_OBJECT_STORE_BUCKET", "owomide-imports"
+        ).strip()
 
         if not database_url:
             raise ConfigurationError("DATA_PIPELINE_DATABASE_URL is required")
         if not issuer or not audience:
             raise ConfigurationError("Service JWT issuer and audience must be non-empty")
-        if environment == "production" and not secrets:
+        if environment == "production" and require_service_secrets and not secrets:
             raise ConfigurationError("At least one service credential is required in production")
+        if not object_store_endpoint or not object_store_access_key or not object_store_secret_key:
+            raise ConfigurationError("Object store endpoint and credentials are required")
+        if not object_store_bucket:
+            raise ConfigurationError("DATA_PIPELINE_OBJECT_STORE_BUCKET is required")
         if log_level not in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"}:
             raise ConfigurationError("LOG_LEVEL is invalid")
 
@@ -105,6 +150,32 @@ class Config:
             service_jwt_issuer=issuer,
             service_jwt_audience=audience,
             service_secrets=secrets,
+            object_store_endpoint=object_store_endpoint,
+            object_store_access_key=object_store_access_key,
+            object_store_secret_key=object_store_secret_key,
+            object_store_secure=_boolean(env, "DATA_PIPELINE_OBJECT_STORE_SECURE", False),
+            object_store_bucket=object_store_bucket,
+            upload_max_bytes=_integer(
+                env, "DATA_PIPELINE_UPLOAD_MAX_BYTES", 50 * 1024 * 1024, 1, 5 * 1024 * 1024 * 1024
+            ),
+            import_max_rows=_integer(env, "DATA_PIPELINE_IMPORT_MAX_ROWS", 250_000, 1, 5_000_000),
+            import_max_columns=_integer(env, "DATA_PIPELINE_IMPORT_MAX_COLUMNS", 500, 1, 10_000),
+            import_insert_batch_size=_integer(
+                env, "DATA_PIPELINE_IMPORT_INSERT_BATCH_SIZE", 1_000, 1, 10_000
+            ),
+            worker_lease_seconds=_integer(
+                env, "DATA_PIPELINE_WORKER_LEASE_SECONDS", 300, 10, 3_600
+            ),
+            worker_retry_base_seconds=_integer(
+                env, "DATA_PIPELINE_WORKER_RETRY_BASE_SECONDS", 5, 1, 3_600
+            ),
+            xlsx_spool_memory_bytes=_integer(
+                env,
+                "DATA_PIPELINE_XLSX_SPOOL_MEMORY_BYTES",
+                8 * 1024 * 1024,
+                1024 * 1024,
+                128 * 1024 * 1024,
+            ),
             worker_poll_seconds=_positive_float(env, "DATA_PIPELINE_WORKER_POLL_SECONDS", 2.0),
             log_level=log_level,
         )

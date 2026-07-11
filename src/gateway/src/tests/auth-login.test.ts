@@ -77,10 +77,10 @@ describe("POST /auth/login", () => {
     expect(loginRes.statusCode).toBe(200);
     const { token } = loginRes.json();
 
-    // /imports/test returns 501 (data-pipeline stub) — meaning auth passed
+    // /mappings/test returns 501 (deferred Data Pipeline route), meaning auth passed
     const protectedRes = await app.inject({
       method: "GET",
-      url: "/imports/test",
+      url: "/mappings/test",
       headers: { authorization: `Bearer ${token}` },
     });
     expect(protectedRes.statusCode).toBe(501);

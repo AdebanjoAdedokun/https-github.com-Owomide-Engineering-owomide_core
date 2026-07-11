@@ -36,7 +36,7 @@ export async function buildApp() {
   await registerCatalogRoutes(app, config);
   await registerMarginRoutes(app, config);
   await registerGovernanceRoutes(app, config);
-  await registerDataPipelineRoutes(app);
+  await registerDataPipelineRoutes(app, config);
 
   return { app, config };
 }
@@ -52,7 +52,8 @@ async function main() {
   }
 }
 
-const isDirectRun = process.argv[1]?.endsWith("server.ts") || process.argv[1]?.endsWith("server.js");
+const isDirectRun =
+  process.argv[1]?.endsWith("server.ts") || process.argv[1]?.endsWith("server.js");
 if (isDirectRun) {
   main();
 }
