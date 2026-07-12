@@ -17,6 +17,8 @@ from owomide_data_pipeline.repository import (
     ColumnProfileState,
     ImportBatchRecord,
     ImportOperationRecord,
+    ListMappingTemplatesResult,
+    MappingTemplateRecord,
 )
 from owomide_data_pipeline.service import DataPipelineService
 from owomide_data_pipeline.storage import StoredObject
@@ -77,6 +79,9 @@ class FakeRepository:
         self.created: dict | None = None
         self.batch: ImportBatchRecord | None = None
         self.profile_state: ColumnProfileState | None = None
+        self.mapping_template: MappingTemplateRecord | None = None
+        self.saved_template: dict | None = None
+        self.queued_mapping: dict | None = None
 
     def create_import(self, **values):
         self.created = values
@@ -89,6 +94,40 @@ class FakeRepository:
     def get_column_profile_state(self, org_id, _batch_id):
         self.requested_org_id = org_id
         return self.profile_state
+
+    def get_mapping_template(self, org_id, _template_id):
+        self.requested_org_id = org_id
+        return self.mapping_template
+
+    def save_mapping_template(self, **values):
+        self.saved_template = values
+        now = datetime.now(UTC)
+        return MappingTemplateRecord(
+            id=values["template_id"] or uuid4(),
+            org_id=values["org_id"],
+            name=values["name"],
+            source_system=values["source_system"],
+            channel_id=values["channel_id"],
+            customer_segment_id=values["customer_segment_id"],
+            mappings=dict(values["mappings"]),
+            transformation_rules=tuple(dict(rule) for rule in values["transformation_rules"]),
+            created_by=values["user_id"],
+            created_at=now,
+            updated_at=now,
+        )
+
+    def list_mapping_templates(self, **values):
+        self.list_template_values = values
+        templates = (self.mapping_template,) if self.mapping_template else ()
+        return ListMappingTemplatesResult(
+            templates=templates,
+            next_page_token="next",
+            total_count=len(templates),
+        )
+
+    def queue_mapping(self, **values):
+        self.queued_mapping = values
+        return uuid4()
 
 
 def service(repository: FakeRepository, object_store: FakeObjectStore, max_bytes: int = 100):
@@ -246,6 +285,99 @@ class DataPipelineServiceTest(unittest.TestCase):
         self.assertFalse(completed.HasField("operation"))
         self.assertEqual(completed.columns[0].ordinal_position, 1)
         self.assertEqual(completed.columns[0].suggested_mapping, "sku.sku_code")
+
+    def test_saves_and_lists_org_scoped_mapping_templates(self) -> None:
+        repository = FakeRepository()
+        object_store = FakeObjectStore()
+        request = data_pipeline_pb2.SaveMappingTemplateRequest(
+            name=" ERP prices ",
+            source_system="erp",
+            mappings_json='{"SKU":"sku.sku_code"}',
+            transformation_rules_json="[]",
+        )
+
+        saved = service(repository, object_store).SaveMappingTemplate(request, FakeContext())
+
+        self.assertEqual(repository.saved_template["org_id"], "org-a")
+        self.assertEqual(repository.saved_template["user_id"], "user-a")
+        self.assertEqual(repository.saved_template["name"], "ERP prices")
+        self.assertEqual(saved.template.mappings_json, '{"SKU":"sku.sku_code"}')
+        repository.mapping_template = repository.save_mapping_template(**repository.saved_template)
+
+        listed = service(repository, object_store).ListMappingTemplates(
+            data_pipeline_pb2.ListMappingTemplatesRequest(source_system="erp"),
+            FakeContext(),
+        )
+
+        self.assertEqual(listed.pagination.total_count, 1)
+        self.assertEqual(listed.templates[0].org_id, "org-a")
+        self.assertEqual(repository.list_template_values["source_system"], "erp")
+
+    def test_queues_inline_or_snapshotted_template_mapping(self) -> None:
+        repository = FakeRepository()
+        object_store = FakeObjectStore()
+        batch_id = uuid4()
+        api = service(repository, object_store)
+
+        inline = api.ApplyMapping(
+            data_pipeline_pb2.ApplyMappingRequest(
+                batch_id=str(batch_id),
+                mappings_json='{"SKU":"sku.sku_code"}',
+                transformation_rules_json="[]",
+            ),
+            FakeContext(),
+        )
+
+        self.assertEqual(inline.status, data_pipeline_pb2.IMPORT_OPERATION_STATUS_QUEUED)
+        self.assertEqual(repository.queued_mapping["org_id"], "org-a")
+        self.assertIsNone(repository.queued_mapping["template"])
+
+        now = datetime.now(UTC)
+        template_id = uuid4()
+        repository.mapping_template = MappingTemplateRecord(
+            id=template_id,
+            org_id="org-a",
+            name="ERP",
+            source_system="erp",
+            channel_id=None,
+            customer_segment_id=None,
+            mappings={"SKU": "sku.sku_code"},
+            transformation_rules=(),
+            created_by="user-a",
+            created_at=now,
+            updated_at=now,
+        )
+
+        api.ApplyMapping(
+            data_pipeline_pb2.ApplyMappingRequest(
+                batch_id=str(batch_id),
+                template_id=str(template_id),
+            ),
+            FakeContext(),
+        )
+
+        self.assertEqual(repository.queued_mapping["template"].id, template_id)
+
+    def test_rejects_ambiguous_or_invalid_mapping_requests(self) -> None:
+        repository = FakeRepository()
+        api = service(repository, FakeObjectStore())
+        batch_id = str(uuid4())
+
+        for request in (
+            data_pipeline_pb2.ApplyMappingRequest(batch_id=batch_id),
+            data_pipeline_pb2.ApplyMappingRequest(
+                batch_id=batch_id,
+                template_id=str(uuid4()),
+                mappings_json='{"SKU":"sku.sku_code"}',
+            ),
+            data_pipeline_pb2.ApplyMappingRequest(
+                batch_id=batch_id,
+                mappings_json='{"SKU":"unsupported.field"}',
+            ),
+        ):
+            with self.subTest(request=request), self.assertRaises(RpcAbort) as error:
+                api.ApplyMapping(request, FakeContext())
+            self.assertEqual(error.exception.code, grpc.StatusCode.INVALID_ARGUMENT)
 
 
 if __name__ == "__main__":

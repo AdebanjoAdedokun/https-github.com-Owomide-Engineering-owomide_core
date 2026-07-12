@@ -137,6 +137,7 @@ class MigrationIntegrationTest(unittest.TestCase):
             connection.execute(
                 cls._migration_path("0004_column_profile_ordinal_position.up.sql").read_text()
             )
+            connection.execute(cls._migration_path("0005_mapping_operations.up.sql").read_text())
             # Keep the recovered fixture from competing with operations created by claim tests.
             connection.execute(
                 "UPDATE data_pipeline.import_operation "
@@ -324,9 +325,58 @@ class MigrationIntegrationTest(unittest.TestCase):
         self.assertEqual(profiled_status, "profiled")
         self.assertEqual(unprofiled_state, ("queued", 0, 0, 0, "parsing"))
 
+    def test_mapping_operation_payload_is_durable_and_claimable_across_rls(self) -> None:
+        with psycopg.connect(self.admin_url) as connection:
+            batch_id = connection.execute(
+                "INSERT INTO data_pipeline.import_batch "
+                "(org_id, owner_id, source_file_url, source_filename, source_type, "
+                "source_sha256, status) "
+                "VALUES ('org-mapping', 'user-a', 's3://imports/mapping.csv', "
+                "'mapping.csv', 'csv', %s, 'profiled') RETURNING id",
+                ("d" * 64,),
+            ).fetchone()[0]
+            operation_id = connection.execute(
+                "INSERT INTO data_pipeline.import_operation "
+                "(org_id, batch_id, operation_type, request_payload) "
+                "VALUES ('org-mapping', %s, 'apply_mapping', %s) RETURNING id",
+                (batch_id, '{"mappings":{"SKU":"sku.sku_code"},"transformation_rules":[]}'),
+            ).fetchone()[0]
+
+        with psycopg.connect(self.service_url) as connection:
+            claimed = connection.execute(
+                "SELECT * FROM data_pipeline.claim_import_operation('mapping-worker', 60)"
+            ).fetchone()
+            self.assertEqual(claimed[0], operation_id)
+            self.assertEqual(claimed[1], "org-mapping")
+            self.assertEqual(claimed[3], "apply_mapping")
+            self.assertEqual(claimed[6]["mappings"], {"SKU": "sku.sku_code"})
+
+    def test_only_one_pipeline_operation_can_be_active_per_batch(self) -> None:
+        with psycopg.connect(self.admin_url) as connection:
+            batch_id = connection.execute(
+                "INSERT INTO data_pipeline.import_batch "
+                "(org_id, owner_id, source_file_url, source_filename, source_type, "
+                "source_sha256, status) "
+                "VALUES ('org-serial', 'user-a', 's3://imports/serial.csv', 'serial.csv', "
+                "'csv', %s, 'profiled') RETURNING id",
+                ("e" * 64,),
+            ).fetchone()[0]
+            connection.execute(
+                "INSERT INTO data_pipeline.import_operation "
+                "(org_id, batch_id, operation_type) VALUES ('org-serial', %s, 'apply_mapping')",
+                (batch_id,),
+            )
+            with self.assertRaises(psycopg.errors.UniqueViolation):
+                connection.execute(
+                    "INSERT INTO data_pipeline.import_operation "
+                    "(org_id, batch_id, operation_type) VALUES ('org-serial', %s, 'validate')",
+                    (batch_id,),
+                )
+
     def test_z_down_migration_removes_owned_tables(self) -> None:
         with psycopg.connect(self.admin_url, autocommit=True) as connection:
             for filename in (
+                "0005_mapping_operations.down.sql",
                 "0004_column_profile_ordinal_position.down.sql",
                 "0003_claim_import_operations.down.sql",
                 "0002_data_pipeline_foundation.down.sql",

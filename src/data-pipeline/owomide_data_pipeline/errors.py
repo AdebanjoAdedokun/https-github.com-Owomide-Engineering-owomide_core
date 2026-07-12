@@ -12,3 +12,15 @@ class UploadTooLargeError(InvalidImportError):
 
 class ImportLimitError(InvalidImportError):
     """The parsed workbook exceeded a configured row or column limit."""
+
+
+class ImportResourceNotFoundError(ImportPipelineError):
+    """An org-scoped import resource does not exist or is not visible."""
+
+
+class ImportStateError(ImportPipelineError):
+    """The requested operation is invalid for the resource's current lifecycle state."""
+
+
+class ImportConflictError(ImportPipelineError):
+    """The requested resource or operation conflicts with existing state."""

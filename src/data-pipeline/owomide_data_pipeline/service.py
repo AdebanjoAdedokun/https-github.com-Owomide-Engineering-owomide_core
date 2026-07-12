@@ -13,12 +13,26 @@ from minio.error import S3Error
 from services.data_pipeline.v1 import data_pipeline_pb2, data_pipeline_pb2_grpc
 
 from owomide_data_pipeline.auth import AuthenticationError, ServiceAuthenticator
-from owomide_data_pipeline.errors import InvalidImportError, UploadTooLargeError
+from owomide_data_pipeline.errors import (
+    ImportConflictError,
+    ImportResourceNotFoundError,
+    ImportStateError,
+    InvalidImportError,
+    UploadTooLargeError,
+)
+from owomide_data_pipeline.mapping import (
+    deterministic_json,
+    parse_mappings_json,
+    parse_transformation_rules_json,
+    validate_mappings,
+    validate_transformation_rules,
+)
 from owomide_data_pipeline.repository import (
     ColumnProfileRecord,
     ImportBatchRecord,
     ImportOperationRecord,
     ImportRepository,
+    MappingTemplateRecord,
 )
 from owomide_data_pipeline.storage import ObjectStore
 from owomide_data_pipeline.streaming import LimitedHashingReader
@@ -119,11 +133,36 @@ def _column_profile_message(record: ColumnProfileRecord) -> data_pipeline_pb2.Co
     )
 
 
+def _mapping_template_message(
+    record: MappingTemplateRecord,
+) -> data_pipeline_pb2.MappingTemplate:
+    return data_pipeline_pb2.MappingTemplate(
+        id=str(record.id),
+        org_id=record.org_id,
+        name=record.name,
+        source_system=record.source_system,
+        channel_id=record.channel_id,
+        customer_segment_id=record.customer_segment_id,
+        mappings_json=deterministic_json(record.mappings),
+        transformation_rules_json=deterministic_json(record.transformation_rules),
+        created_by=record.created_by,
+        created_at=_timestamp(record.created_at),
+        updated_at=_timestamp(record.updated_at),
+    )
+
+
 def _uuid(raw: str, field: str, context: grpc.ServicerContext) -> UUID:
     try:
         return UUID(raw)
     except ValueError:
         context.abort(grpc.StatusCode.INVALID_ARGUMENT, f"{field} is invalid")
+
+
+def _optional_text(raw: str, field: str, context: grpc.ServicerContext) -> str | None:
+    value = raw.strip()
+    if len(value) > 255:
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, f"{field} is too long")
+    return value or None
 
 
 def _filename(raw: str) -> str:
@@ -311,3 +350,139 @@ class DataPipelineService(data_pipeline_pb2_grpc.DataPipelineServiceServicer):
         if state.operation is not None and state.operation.status != "succeeded":
             response.operation.CopyFrom(_operation_message(state.operation))
         return response
+
+    def ApplyMapping(self, request, context):
+        request_context = self._request_context(context)
+        has_template = request.HasField("template_id")
+        has_inline_mapping = request.HasField("mappings_json")
+        if has_template == has_inline_mapping:
+            context.abort(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "Provide exactly one of template_id or mappings_json",
+            )
+
+        try:
+            batch_id = _uuid(request.batch_id, "batch_id", context)
+            template = None
+            if has_template:
+                if request.HasField("transformation_rules_json"):
+                    raise InvalidImportError(
+                        "transformation_rules_json cannot override a saved template"
+                    )
+                template = self._repository.get_mapping_template(
+                    request_context.org_id,
+                    _uuid(request.template_id, "template_id", context),
+                )
+                if template is None:
+                    raise ImportResourceNotFoundError("Mapping template not found")
+                mappings = validate_mappings(template.mappings)
+                transformation_rules = validate_transformation_rules(
+                    list(template.transformation_rules),
+                    mappings,
+                )
+            else:
+                mappings = parse_mappings_json(request.mappings_json)
+                transformation_rules = parse_transformation_rules_json(
+                    request.transformation_rules_json
+                    if request.HasField("transformation_rules_json")
+                    else "[]",
+                    mappings,
+                )
+
+            operation_id = self._repository.queue_mapping(
+                org_id=request_context.org_id,
+                batch_id=batch_id,
+                mappings=mappings,
+                transformation_rules=transformation_rules,
+                template=template,
+            )
+        except InvalidImportError as exc:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except ImportResourceNotFoundError as exc:
+            context.abort(grpc.StatusCode.NOT_FOUND, str(exc))
+        except ImportStateError as exc:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, str(exc))
+        except ImportConflictError as exc:
+            context.abort(grpc.StatusCode.ALREADY_EXISTS, str(exc))
+
+        return data_pipeline_pb2.ApplyMappingResponse(
+            batch_id=str(batch_id),
+            operation_id=str(operation_id),
+            status=data_pipeline_pb2.IMPORT_OPERATION_STATUS_QUEUED,
+        )
+
+    def ListMappingTemplates(self, request, context):
+        request_context = self._request_context(context)
+        try:
+            result = self._repository.list_mapping_templates(
+                org_id=request_context.org_id,
+                source_system=_optional_text(request.source_system, "source_system", context)
+                if request.HasField("source_system")
+                else None,
+                channel_id=_optional_text(request.channel_id, "channel_id", context)
+                if request.HasField("channel_id")
+                else None,
+                customer_segment_id=_optional_text(
+                    request.customer_segment_id,
+                    "customer_segment_id",
+                    context,
+                )
+                if request.HasField("customer_segment_id")
+                else None,
+                page_size=request.pagination.page_size,
+                page_token=request.pagination.page_token,
+            )
+        except ValueError as exc:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        return data_pipeline_pb2.ListMappingTemplatesResponse(
+            templates=[_mapping_template_message(template) for template in result.templates],
+            pagination={
+                "next_page_token": result.next_page_token,
+                "total_count": result.total_count,
+            },
+        )
+
+    def SaveMappingTemplate(self, request, context):
+        request_context = self._request_context(context)
+        name = request.name.strip()
+        if not name or len(name) > 200:
+            context.abort(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "name must be between 1 and 200 characters",
+            )
+        try:
+            mappings = parse_mappings_json(request.mappings_json)
+            transformation_rules = parse_transformation_rules_json(
+                request.transformation_rules_json,
+                mappings,
+            )
+            record = self._repository.save_mapping_template(
+                org_id=request_context.org_id,
+                user_id=request_context.user_id,
+                template_id=_uuid(request.id, "id", context) if request.HasField("id") else None,
+                name=name,
+                source_system=_optional_text(request.source_system, "source_system", context)
+                if request.HasField("source_system")
+                else None,
+                channel_id=_optional_text(request.channel_id, "channel_id", context)
+                if request.HasField("channel_id")
+                else None,
+                customer_segment_id=_optional_text(
+                    request.customer_segment_id,
+                    "customer_segment_id",
+                    context,
+                )
+                if request.HasField("customer_segment_id")
+                else None,
+                mappings=mappings,
+                transformation_rules=transformation_rules,
+            )
+        except InvalidImportError as exc:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except ImportResourceNotFoundError as exc:
+            context.abort(grpc.StatusCode.NOT_FOUND, str(exc))
+        except ImportConflictError as exc:
+            context.abort(grpc.StatusCode.ALREADY_EXISTS, str(exc))
+        return data_pipeline_pb2.SaveMappingTemplateResponse(
+            template=_mapping_template_message(record)
+        )

@@ -10,7 +10,7 @@ from io import BytesIO
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import grpc
 import jwt
@@ -180,6 +180,7 @@ class ImportIntegrationTest(unittest.TestCase):
                 "0002_data_pipeline_foundation.up.sql",
                 "0003_claim_import_operations.up.sql",
                 "0004_column_profile_ordinal_position.up.sql",
+                "0005_mapping_operations.up.sql",
             ):
                 connection.execute(cls._migration_path(filename).read_text())
 
@@ -423,6 +424,141 @@ class ImportIntegrationTest(unittest.TestCase):
             ).fetchone()
         self.assertEqual(state[:2], ("failed", "failed"))
         self.assertIn("does not contain any data rows", state[2])
+
+    def test_mapping_template_is_snapshotted_and_applied_asynchronously(self) -> None:
+        upload = self._upload(
+            "mapped-prices.csv",
+            data_pipeline_pb2.IMPORT_SOURCE_TYPE_CSV,
+            (
+                b"SKU,Selling Price,Unused\n"
+                b"0012,10.50,preserved only in raw\n"
+                b"0013,20.00,excluded but remapped\n"
+            ),
+        )
+        self._process_one()
+
+        with psycopg.connect(self.admin_url) as connection:
+            connection.execute(
+                "UPDATE data_pipeline.import_row "
+                "SET row_status = 'excluded', excluded_reason = 'out of scope' "
+                "WHERE batch_id = %s AND row_number = 3",
+                (upload.batch_id,),
+            )
+            connection.execute(
+                "INSERT INTO data_pipeline.validation_event "
+                "(org_id, batch_id, severity, code, message) "
+                "VALUES ('org-a', %s, 'warning', 'stale', 'must be invalidated by remapping')",
+                (upload.batch_id,),
+            )
+
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            saved = stub.SaveMappingTemplate(
+                data_pipeline_pb2.SaveMappingTemplateRequest(
+                    name="ERP prices",
+                    source_system="erp",
+                    mappings_json=(
+                        '{"SKU":"sku.sku_code","Selling Price":"price_record.price_minor"}'
+                    ),
+                    transformation_rules_json=(
+                        '[{"field":"Selling Price","type":"decimal_to_minor_units","scale":2}]'
+                    ),
+                ),
+                metadata=self._metadata(),
+            )
+            listed = stub.ListMappingTemplates(
+                data_pipeline_pb2.ListMappingTemplatesRequest(source_system="erp"),
+                metadata=self._metadata(),
+            )
+            self.assertEqual([item.id for item in listed.templates], [saved.template.id])
+
+            queued = stub.ApplyMapping(
+                data_pipeline_pb2.ApplyMappingRequest(
+                    batch_id=upload.batch_id,
+                    template_id=saved.template.id,
+                ),
+                metadata=self._metadata(),
+            )
+            self.assertEqual(queued.status, data_pipeline_pb2.IMPORT_OPERATION_STATUS_QUEUED)
+
+            # Editing the template after queueing must not alter the operation's retry snapshot.
+            stub.SaveMappingTemplate(
+                data_pipeline_pb2.SaveMappingTemplateRequest(
+                    id=saved.template.id,
+                    name="ERP prices",
+                    source_system="erp",
+                    mappings_json='{"SKU":"sku.sku_code"}',
+                    transformation_rules_json="[]",
+                ),
+                metadata=self._metadata(),
+            )
+            with self.assertRaises(grpc.RpcError) as hidden:
+                stub.ApplyMapping(
+                    data_pipeline_pb2.ApplyMappingRequest(
+                        batch_id=upload.batch_id,
+                        template_id=saved.template.id,
+                    ),
+                    metadata=self._metadata("org-b"),
+                )
+            self.assertEqual(hidden.exception.code(), grpc.StatusCode.NOT_FOUND)
+
+        self._process_one()
+
+        with psycopg.connect(self.admin_url) as connection:
+            rows = connection.execute(
+                "SELECT raw_data, mapped_data, row_status, excluded_reason "
+                "FROM data_pipeline.import_row "
+                "WHERE batch_id = %s ORDER BY row_number",
+                (upload.batch_id,),
+            ).fetchall()
+            batch = connection.execute(
+                "SELECT status, template_id FROM data_pipeline.import_batch WHERE id = %s",
+                (upload.batch_id,),
+            ).fetchone()
+            operation = connection.execute(
+                "SELECT status, progress_current, progress_total, request_payload "
+                "FROM data_pipeline.import_operation WHERE id = %s",
+                (queued.operation_id,),
+            ).fetchone()
+            validation_count = connection.execute(
+                "SELECT count(*) FROM data_pipeline.validation_event WHERE batch_id = %s",
+                (upload.batch_id,),
+            ).fetchone()[0]
+
+        self.assertEqual(rows[0][0]["Unused"], "preserved only in raw")
+        self.assertEqual(
+            rows[0][1],
+            {
+                "sku": {"sku_code": "0012"},
+                "price_record": {"price_minor": "10.50"},
+            },
+        )
+        self.assertEqual(rows[0][2:], ("mapped", None))
+        self.assertEqual(rows[1][1]["sku"]["sku_code"], "0013")
+        self.assertEqual(rows[1][2:], ("excluded", "out of scope"))
+        self.assertEqual(batch, ("mapped", UUID(saved.template.id)))
+        self.assertEqual(operation[:3], ("succeeded", 2, 2))
+        self.assertEqual(validation_count, 0)
+        self.assertEqual(
+            operation[3]["mappings"]["Selling Price"],
+            "price_record.price_minor",
+        )
+        self.assertEqual(
+            operation[3]["transformation_rules"][0]["type"],
+            "decimal_to_minor_units",
+        )
+
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            with self.assertRaises(grpc.RpcError) as invalid:
+                stub.ApplyMapping(
+                    data_pipeline_pb2.ApplyMappingRequest(
+                        batch_id=upload.batch_id,
+                        mappings_json='{"Missing":"sku.sku_code"}',
+                    ),
+                    metadata=self._metadata(),
+                )
+            self.assertEqual(invalid.exception.code(), grpc.StatusCode.INVALID_ARGUMENT)
 
 
 if __name__ == "__main__":
