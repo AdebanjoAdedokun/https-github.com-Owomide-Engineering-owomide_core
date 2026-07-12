@@ -13,6 +13,7 @@ py_library(
         "owomide_data_pipeline/health.py",
         "owomide_data_pipeline/parsers.py",
         "owomide_data_pipeline/processor.py",
+        "owomide_data_pipeline/profiler.py",
         "owomide_data_pipeline/repository.py",
         "owomide_data_pipeline/service.py",
         "owomide_data_pipeline/storage.py",
@@ -90,6 +91,13 @@ py_test(
 )
 
 py_test(
+    name = "profiler_test",
+    srcs = ["tests/test_profiler.py"],
+    main = "tests/test_profiler.py",
+    deps = [":runtime"],
+)
+
+py_test(
     name = "service_test",
     srcs = ["tests/test_service.py"],
     main = "tests/test_service.py",
@@ -110,6 +118,8 @@ py_test(
         "migrations/0002_data_pipeline_foundation.up.sql",
         "migrations/0003_claim_import_operations.down.sql",
         "migrations/0003_claim_import_operations.up.sql",
+        "migrations/0004_column_profile_ordinal_position.down.sql",
+        "migrations/0004_column_profile_ordinal_position.up.sql",
     ],
     main = "tests/test_migration_integration.py",
     tags = [
@@ -130,6 +140,7 @@ py_test(
         "migrations/0001_create_schema.up.sql",
         "migrations/0002_data_pipeline_foundation.up.sql",
         "migrations/0003_claim_import_operations.up.sql",
+        "migrations/0004_column_profile_ordinal_position.up.sql",
     ],
     main = "tests/test_import_integration.py",
     tags = [

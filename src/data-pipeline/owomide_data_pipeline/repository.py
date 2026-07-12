@@ -5,12 +5,14 @@ import binascii
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
 from psycopg.types.json import Jsonb
 
 from owomide_data_pipeline.db import Database
+from owomide_data_pipeline.profiler import ProfiledColumn
 
 
 @dataclass(frozen=True, slots=True)
@@ -64,6 +66,27 @@ class ClaimedOperation:
 
 
 @dataclass(frozen=True, slots=True)
+class ColumnProfileRecord:
+    id: UUID
+    org_id: str
+    batch_id: UUID
+    column_name: str
+    ordinal_position: int
+    detected_type: str
+    sample_values: tuple[str, ...]
+    currency_hint: str | None
+    date_hint: str | None
+    suggested_mapping: str | None
+    confidence: Decimal
+
+
+@dataclass(frozen=True, slots=True)
+class ColumnProfileState:
+    columns: tuple[ColumnProfileRecord, ...]
+    operation: ImportOperationRecord | None
+
+
+@dataclass(frozen=True, slots=True)
 class ListBatchesResult:
     batches: tuple[ImportBatchRecord, ...]
     next_page_token: str
@@ -78,6 +101,22 @@ def _batch(row: dict[str, Any]) -> ImportBatchRecord:
 def _operation(row: dict[str, Any]) -> ImportOperationRecord:
     fields = ImportOperationRecord.__dataclass_fields__
     return ImportOperationRecord(**{field: row[field] for field in fields})
+
+
+def _column_profile(row: dict[str, Any]) -> ColumnProfileRecord:
+    return ColumnProfileRecord(
+        id=row["id"],
+        org_id=row["org_id"],
+        batch_id=row["batch_id"],
+        column_name=row["column_name"],
+        ordinal_position=row["ordinal_position"],
+        detected_type=row["detected_type"],
+        sample_values=tuple(row["sample_values"]),
+        currency_hint=row["currency_hint"],
+        date_hint=row["date_hint"],
+        suggested_mapping=row["suggested_mapping"],
+        confidence=row["confidence"],
+    )
 
 
 def _encode_cursor(created_at: datetime, batch_id: UUID) -> str:
@@ -224,6 +263,40 @@ class ImportRepository:
             ).fetchone()
         return _operation(row) if row else None
 
+    def get_column_profile_state(
+        self,
+        org_id: str,
+        batch_id: UUID,
+    ) -> ColumnProfileState | None:
+        with self._database.transaction(org_id) as connection:
+            batch = connection.execute(
+                "SELECT id FROM data_pipeline.import_batch WHERE id = %s",
+                (batch_id,),
+            ).fetchone()
+            if batch is None:
+                return None
+            rows = connection.execute(
+                """
+                SELECT * FROM data_pipeline.column_profile
+                WHERE batch_id = %s
+                ORDER BY ordinal_position
+                """,
+                (batch_id,),
+            ).fetchall()
+            operation = connection.execute(
+                """
+                SELECT * FROM data_pipeline.import_operation
+                WHERE batch_id = %s AND operation_type = 'parse_profile'
+                ORDER BY created_at DESC, id DESC
+                LIMIT 1
+                """,
+                (batch_id,),
+            ).fetchone()
+        return ColumnProfileState(
+            columns=tuple(_column_profile(row) for row in rows),
+            operation=_operation(operation) if operation else None,
+        )
+
     def claim_parse_operation(self, worker_id: str, lease_seconds: int) -> ClaimedOperation | None:
         with self._database.system_transaction() as connection:
             row = connection.execute(
@@ -292,15 +365,14 @@ class ImportRepository:
             if updated.rowcount != 1:
                 raise RuntimeError("Import operation lease was lost")
 
-    def complete_parse(self, operation: ClaimedOperation, worker_id: str) -> int:
+    def complete_profile(
+        self,
+        operation: ClaimedOperation,
+        worker_id: str,
+        profiles: tuple[ProfiledColumn, ...],
+        total_rows: int,
+    ) -> None:
         with self._database.transaction(operation.org_id) as connection:
-            total = connection.execute(
-                """
-                SELECT count(*) AS count FROM data_pipeline.import_row
-                WHERE batch_id = %s
-                """,
-                (operation.batch_id,),
-            ).fetchone()["count"]
             updated = connection.execute(
                 """
                 UPDATE data_pipeline.import_operation
@@ -313,11 +385,48 @@ class ImportRepository:
                     updated_at = clock_timestamp()
                 WHERE id = %s AND status = 'running' AND locked_by = %s
                 """,
-                (total, total, operation.operation_id, worker_id),
+                (total_rows, total_rows, operation.operation_id, worker_id),
             )
             if updated.rowcount != 1:
                 raise RuntimeError("Import operation lease was lost")
-        return total
+            connection.execute(
+                "DELETE FROM data_pipeline.column_profile WHERE batch_id = %s",
+                (operation.batch_id,),
+            )
+            with connection.cursor() as cursor:
+                cursor.executemany(
+                    """
+                    INSERT INTO data_pipeline.column_profile (
+                        org_id, batch_id, column_name, ordinal_position, detected_type,
+                        sample_values, currency_hint, date_hint, suggested_mapping, confidence
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    [
+                        (
+                            operation.org_id,
+                            operation.batch_id,
+                            profile.column_name,
+                            profile.ordinal_position,
+                            profile.detected_type,
+                            Jsonb(list(profile.sample_values)),
+                            profile.currency_hint,
+                            profile.date_hint,
+                            profile.suggested_mapping,
+                            profile.confidence,
+                        )
+                        for profile in profiles
+                    ],
+                )
+            batch_updated = connection.execute(
+                """
+                UPDATE data_pipeline.import_batch
+                SET status = 'profiled', failed_reason = NULL, updated_at = clock_timestamp()
+                WHERE id = %s AND status = 'parsing'
+                """,
+                (operation.batch_id,),
+            )
+            if batch_updated.rowcount != 1:
+                raise RuntimeError("Import batch was not in the parsing state")
 
     def fail_parse(
         self,

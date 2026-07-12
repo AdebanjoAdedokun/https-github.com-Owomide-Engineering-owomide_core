@@ -2,6 +2,7 @@ import { create } from "@bufbuild/protobuf";
 import Fastify from "fastify";
 import { describe, expect, it } from "vitest";
 import {
+  GetColumnProfileResponseSchema,
   GetImportOperationResponseSchema,
   ImportBatchStatus,
   UploadImportFileResponseSchema,
@@ -40,6 +41,7 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
 
   const captured: UploadImportFileRequest[] = [];
   let capturedHeaders: unknown;
+  let profileBatchId: string | undefined;
   const client = {
     async uploadImportFile(
       requests: AsyncIterable<UploadImportFileRequest>,
@@ -62,13 +64,35 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
         },
       });
     },
+    async getColumnProfile(request: { batchId: string }) {
+      profileBatchId = request.batchId;
+      return create(GetColumnProfileResponseSchema, {
+        columns: [
+          {
+            id: "profile-1",
+            orgId: "org-test",
+            batchId: request.batchId,
+            columnName: "SKU",
+            ordinalPosition: 1,
+            detectedType: "string",
+            suggestedMapping: "sku.sku_code",
+            confidence: 0.98,
+          },
+        ],
+      });
+    },
   };
   const config = { ...loadConfig(), dataPipelineUploadMaxBytes: maxBytes };
   await registerDataPipelineRoutes(app, config, {
     client,
     token: async () => "service-token",
   });
-  return { app, captured, headers: () => capturedHeaders };
+  return {
+    app,
+    captured,
+    headers: () => capturedHeaders,
+    profileBatchId: () => profileBatchId,
+  };
 }
 
 describe("Data Pipeline routes", () => {
@@ -133,6 +157,28 @@ describe("Data Pipeline routes", () => {
 
     expect(response.statusCode).toBe(404);
     expect(response.json()).toMatchObject({ code: "NOT_FOUND" });
+    await app.close();
+  });
+
+  it("returns a batch column profile", async () => {
+    const { app, profileBatchId } = await testApp();
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/imports/batch-1/profile",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(profileBatchId()).toBe("batch-1");
+    expect(response.json()).toMatchObject({
+      columns: [
+        {
+          columnName: "SKU",
+          ordinalPosition: 1,
+          suggestedMapping: "sku.sku_code",
+        },
+      ],
+    });
     await app.close();
   });
 });

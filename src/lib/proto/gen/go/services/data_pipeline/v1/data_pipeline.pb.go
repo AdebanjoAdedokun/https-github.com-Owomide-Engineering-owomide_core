@@ -1010,6 +1010,7 @@ type ColumnProfile struct {
 	DateHint         *string                `protobuf:"bytes,8,opt,name=date_hint,json=dateHint,proto3,oneof" json:"date_hint,omitempty"`
 	SuggestedMapping *string                `protobuf:"bytes,9,opt,name=suggested_mapping,json=suggestedMapping,proto3,oneof" json:"suggested_mapping,omitempty"`
 	Confidence       float64                `protobuf:"fixed64,10,opt,name=confidence,proto3" json:"confidence,omitempty"`
+	OrdinalPosition  int32                  `protobuf:"varint,11,opt,name=ordinal_position,json=ordinalPosition,proto3" json:"ordinal_position,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1110,6 +1111,13 @@ func (x *ColumnProfile) GetSuggestedMapping() string {
 func (x *ColumnProfile) GetConfidence() float64 {
 	if x != nil {
 		return x.Confidence
+	}
+	return 0
+}
+
+func (x *ColumnProfile) GetOrdinalPosition() int32 {
+	if x != nil {
+		return x.OrdinalPosition
 	}
 	return 0
 }
@@ -2797,7 +2805,7 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"started_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
 	"\vfinished_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"finishedAtB\x10\n" +
-	"\x0e_error_message\"\x90\x03\n" +
+	"\x0e_error_message\"\xbb\x03\n" +
 	"\rColumnProfile\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x19\n" +
@@ -2812,7 +2820,8 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\n" +
 	"confidence\x18\n" +
 	" \x01(\x01R\n" +
-	"confidenceB\x10\n" +
+	"confidence\x12)\n" +
+	"\x10ordinal_position\x18\v \x01(\x05R\x0fordinalPositionB\x10\n" +
 	"\x0e_currency_hintB\f\n" +
 	"\n" +
 	"_date_hintB\x14\n" +

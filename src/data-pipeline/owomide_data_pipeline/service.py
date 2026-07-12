@@ -15,6 +15,7 @@ from services.data_pipeline.v1 import data_pipeline_pb2, data_pipeline_pb2_grpc
 from owomide_data_pipeline.auth import AuthenticationError, ServiceAuthenticator
 from owomide_data_pipeline.errors import InvalidImportError, UploadTooLargeError
 from owomide_data_pipeline.repository import (
+    ColumnProfileRecord,
     ImportBatchRecord,
     ImportOperationRecord,
     ImportRepository,
@@ -99,6 +100,22 @@ def _operation_message(record: ImportOperationRecord) -> data_pipeline_pb2.Impor
         created_at=_timestamp(record.created_at),
         started_at=_timestamp(record.started_at),
         finished_at=_timestamp(record.finished_at),
+    )
+
+
+def _column_profile_message(record: ColumnProfileRecord) -> data_pipeline_pb2.ColumnProfile:
+    return data_pipeline_pb2.ColumnProfile(
+        id=str(record.id),
+        org_id=record.org_id,
+        batch_id=str(record.batch_id),
+        column_name=record.column_name,
+        ordinal_position=record.ordinal_position,
+        detected_type=record.detected_type,
+        sample_values=record.sample_values,
+        currency_hint=record.currency_hint,
+        date_hint=record.date_hint,
+        suggested_mapping=record.suggested_mapping,
+        confidence=float(record.confidence),
     )
 
 
@@ -279,3 +296,18 @@ class DataPipelineService(data_pipeline_pb2_grpc.DataPipelineServiceServicer):
         if record is None:
             context.abort(grpc.StatusCode.NOT_FOUND, "Import operation not found")
         return data_pipeline_pb2.GetImportOperationResponse(operation=_operation_message(record))
+
+    def GetColumnProfile(self, request, context):
+        request_context = self._request_context(context)
+        state = self._repository.get_column_profile_state(
+            request_context.org_id,
+            _uuid(request.batch_id, "batch_id", context),
+        )
+        if state is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Import batch not found")
+        response = data_pipeline_pb2.GetColumnProfileResponse(
+            columns=[_column_profile_message(column) for column in state.columns]
+        )
+        if state.operation is not None and state.operation.status != "succeeded":
+            response.operation.CopyFrom(_operation_message(state.operation))
+        return response

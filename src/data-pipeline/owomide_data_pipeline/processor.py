@@ -6,6 +6,7 @@ from tempfile import SpooledTemporaryFile
 
 from owomide_data_pipeline.errors import InvalidImportError
 from owomide_data_pipeline.parsers import ParsedRow, iter_csv_rows, iter_xlsx_rows
+from owomide_data_pipeline.profiler import ColumnProfiler, ProfiledColumn
 from owomide_data_pipeline.repository import ClaimedOperation, ImportRepository
 from owomide_data_pipeline.storage import ObjectStore
 
@@ -43,10 +44,15 @@ class ImportProcessor:
             return False
 
         try:
-            self._parse(operation)
-            total = self._repository.complete_parse(operation, self._worker_id)
+            profiles, total = self._parse(operation)
+            self._repository.complete_profile(
+                operation,
+                self._worker_id,
+                profiles,
+                total,
+            )
             logging.info(
-                "Parsed import batch %s with %s rows",
+                "Parsed and profiled import batch %s with %s rows",
                 operation.batch_id,
                 total,
             )
@@ -71,7 +77,8 @@ class ImportProcessor:
             logging.exception("Import batch %s processing failed", operation.batch_id)
         return True
 
-    def _parse(self, operation: ClaimedOperation) -> None:
+    def _parse(self, operation: ClaimedOperation) -> tuple[tuple[ProfiledColumn, ...], int]:
+        profiler = ColumnProfiler()
         with self._object_store.open(operation.source_file_url) as source:
             if operation.source_type == "csv":
                 rows = iter_csv_rows(
@@ -79,8 +86,8 @@ class ImportProcessor:
                     max_rows=self._max_rows,
                     max_columns=self._max_columns,
                 )
-                self._persist(operation, rows)
-                return
+                total = self._persist(operation, rows, profiler)
+                return profiler.finish(), total
             if operation.source_type == "xlsx":
                 with SpooledTemporaryFile(max_size=self._xlsx_spool_memory_bytes) as spool:
                     bytes_since_heartbeat = 0
@@ -96,14 +103,20 @@ class ImportProcessor:
                         max_rows=self._max_rows,
                         max_columns=self._max_columns,
                     )
-                    self._persist(operation, rows)
-                return
+                    total = self._persist(operation, rows, profiler)
+                return profiler.finish(), total
         raise InvalidImportError(f"Unsupported import source type: {operation.source_type}")
 
-    def _persist(self, operation: ClaimedOperation, rows: Iterator[ParsedRow]) -> None:
+    def _persist(
+        self,
+        operation: ClaimedOperation,
+        rows: Iterator[ParsedRow],
+        profiler: ColumnProfiler,
+    ) -> int:
         batch: list[tuple[int, dict[str, object]]] = []
         progress = 0
         for parsed in rows:
+            profiler.observe(parsed.raw_data)
             batch.append((parsed.row_number, parsed.raw_data))
             progress += 1
             if len(batch) >= self._insert_batch_size:
@@ -121,3 +134,4 @@ class ImportProcessor:
                 rows=batch,
                 progress=progress,
             )
+        return progress

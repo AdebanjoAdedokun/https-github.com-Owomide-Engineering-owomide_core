@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import unittest
+from dataclasses import replace
 from datetime import UTC, datetime
+from decimal import Decimal
 from uuid import uuid4
 
 import grpc
@@ -10,7 +12,12 @@ import jwt
 from services.data_pipeline.v1 import data_pipeline_pb2
 
 from owomide_data_pipeline.auth import ServiceAuthenticator
-from owomide_data_pipeline.repository import ImportBatchRecord
+from owomide_data_pipeline.repository import (
+    ColumnProfileRecord,
+    ColumnProfileState,
+    ImportBatchRecord,
+    ImportOperationRecord,
+)
 from owomide_data_pipeline.service import DataPipelineService
 from owomide_data_pipeline.storage import StoredObject
 
@@ -69,6 +76,7 @@ class FakeRepository:
     def __init__(self) -> None:
         self.created: dict | None = None
         self.batch: ImportBatchRecord | None = None
+        self.profile_state: ColumnProfileState | None = None
 
     def create_import(self, **values):
         self.created = values
@@ -77,6 +85,10 @@ class FakeRepository:
     def get_batch(self, org_id, _batch_id):
         self.requested_org_id = org_id
         return self.batch
+
+    def get_column_profile_state(self, org_id, _batch_id):
+        self.requested_org_id = org_id
+        return self.profile_state
 
 
 def service(repository: FakeRepository, object_store: FakeObjectStore, max_bytes: int = 100):
@@ -173,6 +185,67 @@ class DataPipelineServiceTest(unittest.TestCase):
         self.assertEqual(response.batch.id, str(batch_id))
         self.assertFalse(response.batch.HasField("source_system"))
         self.assertFalse(response.batch.HasField("committed_at"))
+
+    def test_profile_returns_columns_or_in_progress_operation(self) -> None:
+        repository = FakeRepository()
+        object_store = FakeObjectStore()
+        now = datetime.now(UTC)
+        batch_id = uuid4()
+        operation = ImportOperationRecord(
+            id=uuid4(),
+            org_id="org-a",
+            batch_id=batch_id,
+            operation_type="parse_profile",
+            status="running",
+            attempt_count=1,
+            max_attempts=5,
+            progress_current=1,
+            progress_total=1,
+            error_message=None,
+            next_attempt_at=now,
+            created_at=now,
+            started_at=now,
+            finished_at=None,
+        )
+        repository.profile_state = ColumnProfileState(columns=(), operation=operation)
+
+        pending = service(repository, object_store).GetColumnProfile(
+            data_pipeline_pb2.GetColumnProfileRequest(batch_id=str(batch_id)),
+            FakeContext(),
+        )
+
+        self.assertTrue(pending.HasField("operation"))
+        self.assertEqual(
+            pending.operation.status,
+            data_pipeline_pb2.IMPORT_OPERATION_STATUS_RUNNING,
+        )
+
+        profile = ColumnProfileRecord(
+            id=uuid4(),
+            org_id="org-a",
+            batch_id=batch_id,
+            column_name="SKU",
+            ordinal_position=1,
+            detected_type="string",
+            sample_values=("A-1",),
+            currency_hint=None,
+            date_hint=None,
+            suggested_mapping="sku.sku_code",
+            confidence=Decimal("0.9800"),
+        )
+        repository.profile_state = ColumnProfileState(
+            columns=(profile,),
+            operation=replace(operation, status="succeeded", finished_at=now),
+        )
+
+        completed = service(repository, object_store).GetColumnProfile(
+            data_pipeline_pb2.GetColumnProfileRequest(batch_id=str(batch_id)),
+            FakeContext(),
+        )
+
+        self.assertFalse(completed.HasField("operation"))
+        self.assertEqual(completed.columns[0].ordinal_position, 1)
+        self.assertEqual(completed.columns[0].suggested_mapping, "sku.sku_code")
 
 
 if __name__ == "__main__":
