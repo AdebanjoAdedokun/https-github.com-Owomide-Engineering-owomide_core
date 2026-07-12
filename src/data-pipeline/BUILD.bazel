@@ -9,8 +9,14 @@ py_library(
         "owomide_data_pipeline/auth.py",
         "owomide_data_pipeline/config.py",
         "owomide_data_pipeline/db.py",
+        "owomide_data_pipeline/errors.py",
         "owomide_data_pipeline/health.py",
+        "owomide_data_pipeline/parsers.py",
+        "owomide_data_pipeline/processor.py",
+        "owomide_data_pipeline/repository.py",
         "owomide_data_pipeline/service.py",
+        "owomide_data_pipeline/storage.py",
+        "owomide_data_pipeline/streaming.py",
     ],
     data = ["//src/lib/proto:gen_py"],
     imports = [
@@ -19,6 +25,8 @@ py_library(
     ],
     deps = [
         "@data_pipeline_pip//grpcio",
+        "@data_pipeline_pip//minio",
+        "@data_pipeline_pip//openpyxl",
         "@data_pipeline_pip//protobuf",
         "@data_pipeline_pip//psycopg",
         "@data_pipeline_pip//psycopg_binary",
@@ -65,6 +73,34 @@ py_test(
 )
 
 py_test(
+    name = "streaming_test",
+    srcs = ["tests/test_streaming.py"],
+    main = "tests/test_streaming.py",
+    deps = [":runtime"],
+)
+
+py_test(
+    name = "parsers_test",
+    srcs = ["tests/test_parsers.py"],
+    main = "tests/test_parsers.py",
+    deps = [
+        ":runtime",
+        "@data_pipeline_pip//openpyxl",
+    ],
+)
+
+py_test(
+    name = "service_test",
+    srcs = ["tests/test_service.py"],
+    main = "tests/test_service.py",
+    deps = [
+        ":runtime",
+        "@data_pipeline_pip//grpcio",
+        "@data_pipeline_pip//pyjwt",
+    ],
+)
+
+py_test(
     name = "migration_integration_test",
     srcs = ["tests/test_migration_integration.py"],
     data = [
@@ -72,6 +108,8 @@ py_test(
         "migrations/0001_create_schema.up.sql",
         "migrations/0002_data_pipeline_foundation.down.sql",
         "migrations/0002_data_pipeline_foundation.up.sql",
+        "migrations/0003_claim_import_operations.down.sql",
+        "migrations/0003_claim_import_operations.up.sql",
     ],
     main = "tests/test_migration_integration.py",
     tags = [
@@ -82,5 +120,29 @@ py_test(
         ":runtime",
         "@data_pipeline_pip//psycopg",
         "@data_pipeline_pip//psycopg_binary",
+    ],
+)
+
+py_test(
+    name = "import_integration_test",
+    srcs = ["tests/test_import_integration.py"],
+    data = [
+        "migrations/0001_create_schema.up.sql",
+        "migrations/0002_data_pipeline_foundation.up.sql",
+        "migrations/0003_claim_import_operations.up.sql",
+    ],
+    main = "tests/test_import_integration.py",
+    tags = [
+        "manual",
+        "requires-docker",
+    ],
+    deps = [
+        ":runtime",
+        ":server",
+        "@data_pipeline_pip//grpcio",
+        "@data_pipeline_pip//openpyxl",
+        "@data_pipeline_pip//psycopg",
+        "@data_pipeline_pip//psycopg_binary",
+        "@data_pipeline_pip//pyjwt",
     ],
 )

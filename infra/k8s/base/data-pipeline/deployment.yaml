@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-pipeline
+spec:
+  selector:
+    matchLabels:
+      app: data-pipeline
+  template:
+    metadata:
+      labels:
+        app: data-pipeline
+    spec:
+      containers:
+        - name: data-pipeline
+          image: owomide/data-pipeline
+          imagePullPolicy: Never
+          ports:
+            - name: grpc
+              containerPort: 50055
+            - name: health
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: data-pipeline-config
+          env:
+            - name: DATA_PIPELINE_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: database-url
+            - name: DATA_PIPELINE_SERVICE_SECRETS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: service-secrets-json
+            - name: DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: object-store-access-key
+            - name: DATA_PIPELINE_OBJECT_STORE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: object-store-secret-key
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: 1000m
+              memory: 768Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-pipeline-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-pipeline-worker
+  template:
+    metadata:
+      labels:
+        app: data-pipeline-worker
+    spec:
+      containers:
+        - name: data-pipeline-worker
+          image: owomide/data-pipeline
+          imagePullPolicy: Never
+          command: ["python", "-m", "owomide_data_pipeline.worker"]
+          ports:
+            - name: health
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: data-pipeline-config
+          env:
+            - name: DATA_PIPELINE_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: database-url
+            - name: DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: object-store-access-key
+            - name: DATA_PIPELINE_OBJECT_STORE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: object-store-secret-key
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: 1000m
+              memory: 768Mi

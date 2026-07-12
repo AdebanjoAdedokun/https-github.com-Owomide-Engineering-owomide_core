@@ -91,6 +91,17 @@ This avoids changing the public contract when customer files become large. Imple
 - make every operation restart-safe and idempotent;
 - expose progress and actionable failure details.
 
+F2.2 defaults are configurable rather than hard-coded product policy:
+
+- maximum file size: 50 MiB;
+- maximum data rows: 250,000;
+- maximum columns: 500;
+- database insert chunk: 1,000 rows.
+
+CSV input is UTF-8 and uses a header row. XLSX reads the first visible worksheet in read-only
+mode and preserves formula expressions in staged raw data. Original files remain the forensic
+source of truth.
+
 ## Locked Decisions
 
 - Imports commit validated rows directly through Catalog `UpsertCanonical`.
@@ -114,6 +125,6 @@ The UI should expose the import pipeline as a workflow, not a single upload moda
 
 ## Remaining Engineering Decisions
 
-- production upload and row limits;
+- whether customer tiers should override the configurable upload and row limits;
 - when the 30-day `mapped_data` cleanup job should run;
 - whether high-impact imports should automatically create a Proposal before Catalog commit.

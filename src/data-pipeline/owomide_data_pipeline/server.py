@@ -13,7 +13,9 @@ from owomide_data_pipeline.auth import AuthenticationInterceptor, ServiceAuthent
 from owomide_data_pipeline.config import Config
 from owomide_data_pipeline.db import Database
 from owomide_data_pipeline.health import HealthServer, start_health_server
+from owomide_data_pipeline.repository import ImportRepository
 from owomide_data_pipeline.service import DataPipelineService
+from owomide_data_pipeline.storage import ObjectStore
 
 
 @dataclass(slots=True)
@@ -28,6 +30,14 @@ class Runtime:
 
 def start_server(config: Config) -> Runtime:
     database = Database(config.database_url, config.database_statement_timeout_ms)
+    object_store = ObjectStore(
+        endpoint=config.object_store_endpoint,
+        access_key=config.object_store_access_key,
+        secret_key=config.object_store_secret_key,
+        secure=config.object_store_secure,
+        bucket=config.object_store_bucket,
+    )
+    repository = ImportRepository(database)
     authenticator = ServiceAuthenticator(
         issuer=config.service_jwt_issuer,
         audience=config.service_jwt_audience,
@@ -37,12 +47,24 @@ def start_server(config: Config) -> Runtime:
         futures.ThreadPoolExecutor(max_workers=config.grpc_workers),
         interceptors=(AuthenticationInterceptor(authenticator),),
     )
-    data_pipeline_pb2_grpc.add_DataPipelineServiceServicer_to_server(DataPipelineService(), server)
+    data_pipeline_pb2_grpc.add_DataPipelineServiceServicer_to_server(
+        DataPipelineService(
+            repository=repository,
+            object_store=object_store,
+            authenticator=authenticator,
+            upload_max_bytes=config.upload_max_bytes,
+        ),
+        server,
+    )
     bound_port = server.add_insecure_port(f"{config.grpc_host}:{config.grpc_port}")
     if bound_port == 0:
         raise RuntimeError("Could not bind Data Pipeline gRPC port")
 
-    health_server = start_health_server(config.health_host, config.health_port, database.ready)
+    health_server = start_health_server(
+        config.health_host,
+        config.health_port,
+        lambda: database.ready() and object_store.ready(),
+    )
     server.start()
     logging.info(
         "Data Pipeline listening on gRPC %s and health %s",

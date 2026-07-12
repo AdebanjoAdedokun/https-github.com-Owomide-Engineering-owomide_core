@@ -11,3 +11,14 @@ export async function catalogServiceToken(config: Config): Promise<string> {
     .setExpirationTime("2m")
     .sign(new TextEncoder().encode(config.catalogGatewayServiceSecret));
 }
+
+export async function dataPipelineServiceToken(config: Config): Promise<string> {
+  return new SignJWT({})
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(config.serviceJwtIssuer)
+    .setSubject("gateway_svc")
+    .setAudience("data-pipeline")
+    .setIssuedAt()
+    .setExpirationTime("2m")
+    .sign(new TextEncoder().encode(config.dataPipelineGatewayServiceSecret));
+}

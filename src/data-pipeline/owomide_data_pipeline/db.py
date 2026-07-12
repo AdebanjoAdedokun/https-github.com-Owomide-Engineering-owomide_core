@@ -29,6 +29,19 @@ class Database:
             )
             yield connection
 
+    @contextmanager
+    def system_transaction(self) -> Iterator[Connection[dict[str, object]]]:
+        """Runs narrow SECURITY DEFINER worker functions without tenant table access."""
+        with (
+            psycopg.connect(self._database_url, row_factory=dict_row) as connection,
+            connection.transaction(),
+        ):
+            connection.execute(
+                "SELECT set_config('statement_timeout', %s, true)",
+                (str(self._statement_timeout_ms),),
+            )
+            yield connection
+
     def ready(self) -> bool:
         try:
             with psycopg.connect(self._database_url, connect_timeout=2) as connection:

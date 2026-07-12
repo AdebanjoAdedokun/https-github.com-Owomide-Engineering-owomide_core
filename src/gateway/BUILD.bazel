@@ -33,6 +33,7 @@ ts_project(
         ":node_modules/@connectrpc/connect",
         ":node_modules/@connectrpc/connect-node",
         ":node_modules/@fastify/cors",
+        ":node_modules/@fastify/multipart",
         ":node_modules/@fastify/rate-limit",
         ":node_modules/@owomide/proto",
         ":node_modules/@types/node",

@@ -10,6 +10,8 @@ images:
     newTag: staging
   - name: owomide/catalog
     newTag: staging
+  - name: owomide/data-pipeline
+    newTag: staging
 
 # Staging-sized resource requests and larger storage.
 patches:

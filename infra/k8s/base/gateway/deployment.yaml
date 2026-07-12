@@ -26,6 +26,11 @@ spec:
                 secretKeyRef:
                   name: catalog-secrets
                   key: gateway-service-secret
+            - name: DATA_PIPELINE_GATEWAY_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: gateway-service-secret
           livenessProbe:
             httpGet:
               path: /health

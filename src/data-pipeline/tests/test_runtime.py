@@ -65,7 +65,7 @@ class RuntimeTest(unittest.TestCase):
                 stub.GetImportBatch(data_pipeline_pb2.GetImportBatchRequest(batch_id="batch"))
         self.assertEqual(error.exception.code(), grpc.StatusCode.UNAUTHENTICATED)
 
-    def test_authenticated_rpc_reaches_unimplemented_feature_handler(self) -> None:
+    def test_authenticated_rpc_reaches_unimplemented_future_handler(self) -> None:
         now = datetime.now(UTC)
         encoded = jwt.encode(
             {
@@ -86,8 +86,8 @@ class RuntimeTest(unittest.TestCase):
         with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
             stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
             with self.assertRaises(grpc.RpcError) as error:
-                stub.GetImportBatch(
-                    data_pipeline_pb2.GetImportBatchRequest(batch_id="batch"),
+                stub.GetColumnProfile(
+                    data_pipeline_pb2.GetColumnProfileRequest(batch_id="batch"),
                     metadata=metadata,
                 )
         self.assertEqual(error.exception.code(), grpc.StatusCode.UNIMPLEMENTED)
