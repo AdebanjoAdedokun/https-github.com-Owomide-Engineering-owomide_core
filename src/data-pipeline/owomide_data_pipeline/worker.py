@@ -7,6 +7,7 @@ import socket
 from threading import Event
 from uuid import uuid4
 
+from owomide_data_pipeline.catalog import CatalogClient
 from owomide_data_pipeline.config import Config
 from owomide_data_pipeline.db import Database
 from owomide_data_pipeline.health import start_health_server
@@ -16,7 +17,10 @@ from owomide_data_pipeline.storage import ObjectStore
 
 
 def main() -> None:
-    config = Config.from_env(require_service_secrets=False)
+    config = Config.from_env(
+        require_service_secrets=False,
+        require_catalog_secret=True,
+    )
     logging.basicConfig(
         level=getattr(logging, config.log_level),
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
@@ -29,6 +33,12 @@ def main() -> None:
         secure=config.object_store_secure,
         bucket=config.object_store_bucket,
     )
+    catalog_client = CatalogClient(
+        target=config.catalog_service_url,
+        issuer=config.service_jwt_issuer,
+        secret=config.catalog_service_secret,
+        timeout_seconds=config.catalog_timeout_seconds,
+    )
     worker_id = f"{socket.gethostname()}-{os.getpid()}-{uuid4().hex[:8]}"
     processor = ImportProcessor(
         repository=ImportRepository(database),
@@ -40,6 +50,7 @@ def main() -> None:
         max_columns=config.import_max_columns,
         insert_batch_size=config.import_insert_batch_size,
         xlsx_spool_memory_bytes=config.xlsx_spool_memory_bytes,
+        catalog_client=catalog_client,
     )
     health_server = start_health_server(
         config.health_host,
@@ -59,6 +70,7 @@ def main() -> None:
         if not processed:
             stopped.wait(config.worker_poll_seconds)
     health_server.stop()
+    catalog_client.close()
 
 
 if __name__ == "__main__":

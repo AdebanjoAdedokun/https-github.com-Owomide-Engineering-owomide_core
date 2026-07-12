@@ -3,14 +3,19 @@ import multipart, { type Multipart } from "@fastify/multipart";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
   DataPipelineService,
+  EditRowResponseSchema,
+  ExcludeRowResponseSchema,
   GetColumnProfileResponseSchema,
   GetImportBatchResponseSchema,
   GetImportOperationResponseSchema,
+  GetValidationReportResponseSchema,
   ImportBatchStatus,
+  ImportRowSchema,
   ImportSourceType,
   ListImportBatchesResponseSchema,
   MappingTemplateSchema,
   UploadImportFileRequestSchema,
+  type ImportRow,
   type MappingTemplate,
   type UploadImportFileRequest,
 } from "@owomide/proto/services/data_pipeline/v1/data_pipeline_pb.js";
@@ -60,6 +65,16 @@ function mappingTemplateJson(template: MappingTemplate) {
     ...metadata,
     mappings: JSON.parse(String(mappingsJson)) as JsonObject,
     transformationRules: JSON.parse(String(transformationRulesJson)) as unknown[],
+  };
+}
+
+function importRowJson(row: ImportRow) {
+  const serialized = toJson(ImportRowSchema, row) as JsonObject;
+  const { rawDataJson, mappedDataJson, ...metadata } = serialized;
+  return {
+    ...metadata,
+    rawData: JSON.parse(String(rawDataJson)) as JsonObject,
+    mappedData: mappedDataJson ? (JSON.parse(String(mappedDataJson)) as JsonObject) : undefined,
   };
 }
 
@@ -271,6 +286,66 @@ export async function registerDataPipelineRoutes(
       batchId: result.batchId,
       operationId: result.operationId,
       status: "queued",
+    });
+  });
+
+  app.get("/imports/:id/validation", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const query = request.query as { pageSize?: string; pageToken?: string };
+    const requestedPageSize = pageSize(query.pageSize);
+    if (requestedPageSize === null) {
+      return invalidArgument(reply, "pageSize must be an integer between 0 and 200");
+    }
+    const result = await client.getValidationReport(
+      {
+        batchId: id,
+        pagination: {
+          pageSize: requestedPageSize,
+          pageToken: query.pageToken ?? "",
+        },
+      },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    return reply.send(toJson(GetValidationReportResponseSchema, result));
+  });
+
+  app.patch("/imports/:batchId/rows/:rowId", async (request, reply) => {
+    const { batchId, rowId } = request.params as { batchId: string; rowId: string };
+    if (!isJsonObject(request.body) || !isJsonObject(request.body.mappedData)) {
+      return invalidArgument(reply, "mappedData must be a JSON object");
+    }
+    const result = await client.editRow(
+      {
+        batchId,
+        rowId,
+        mappedDataJson: JSON.stringify(request.body.mappedData),
+      },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    const serialized = toJson(EditRowResponseSchema, result) as JsonObject;
+    return reply.status(202).send({
+      ...serialized,
+      row: result.row ? importRowJson(result.row) : undefined,
+    });
+  });
+
+  app.post("/imports/:batchId/rows/:rowId/exclude", async (request, reply) => {
+    const { batchId, rowId } = request.params as { batchId: string; rowId: string };
+    if (
+      !isJsonObject(request.body) ||
+      typeof request.body.reason !== "string" ||
+      !request.body.reason.trim()
+    ) {
+      return invalidArgument(reply, "reason must be a non-empty string");
+    }
+    const result = await client.excludeRow(
+      { batchId, rowId, reason: request.body.reason.trim() },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    const serialized = toJson(ExcludeRowResponseSchema, result) as JsonObject;
+    return reply.status(202).send({
+      ...serialized,
+      row: result.row ? importRowJson(result.row) : undefined,
     });
   });
 

@@ -94,15 +94,20 @@ only once. Applying the example produces nested staging data while preserving so
 }
 ```
 
-F2.4 performs mapping only. The raw price remains a string until F2.5 executes
-`decimal_to_minor_units`; no float is treated as canonical money. Supported transformation rule
-names are `money_parse`, `decimal_to_minor_units`, `date_parse`, `tax_flag`, `unit_normalize`,
-`pack_size_normalize`, and `currency_convert_explicit`.
+Mapping first preserves the raw price as a string. The automatically queued validation operation
+then executes `decimal_to_minor_units`; no float is treated as canonical money. Supported
+transformation rule names are `money_parse`, `decimal_to_minor_units`, `date_parse`, `tax_flag`,
+`unit_normalize`, `pack_size_normalize`, and `currency_convert_explicit`. Currency conversion
+requires an explicit positive rate and source/target currency; live or cached FX is deferred.
 
 Mapping application is asynchronous. `ApplyMapping` snapshots mappings, transformation rules, the
 template ID, and template update timestamp into `import_operation.request_payload`. Editing a
 template after queueing therefore cannot change a retry. Rows are processed in bounded pages,
 `raw_data` remains immutable, and the batch becomes `mapped` only after all row updates succeed.
+Mapping completion atomically queues validation. Validation rebuilds row findings on every retry,
+resolves controlled references from Catalog in bounded requests, and advances rows to `validated`
+or `errored`. Editing or excluding a row clears stale findings and queues batch-wide revalidation
+because duplicate price detection spans rows.
 
 ## Canonical Commit Rules
 

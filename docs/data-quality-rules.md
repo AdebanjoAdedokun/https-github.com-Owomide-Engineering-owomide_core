@@ -16,6 +16,11 @@ The validation system should produce actionable row-level feedback, not generic 
 
 These should exist before the first real customer import.
 
+`missing_org` and `mixed_org_payload` are rejected structurally before row validation: Gateway
+authentication supplies one `org_id`, Data Pipeline RLS is fail-closed, and tenant-qualified foreign
+keys prevent rows or events from crossing batches. The remaining rules are persisted as validation
+events. Missing cost is a warning for a price import; an invalid supplied cost is an error.
+
 | Code | Severity | Rule |
 |---|---|---|
 | `missing_org` | error | Import batch has no authenticated `org_id`. |

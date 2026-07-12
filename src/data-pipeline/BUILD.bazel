@@ -7,6 +7,7 @@ py_library(
     srcs = [
         "owomide_data_pipeline/__init__.py",
         "owomide_data_pipeline/auth.py",
+        "owomide_data_pipeline/catalog.py",
         "owomide_data_pipeline/config.py",
         "owomide_data_pipeline/db.py",
         "owomide_data_pipeline/errors.py",
@@ -19,6 +20,8 @@ py_library(
         "owomide_data_pipeline/service.py",
         "owomide_data_pipeline/storage.py",
         "owomide_data_pipeline/streaming.py",
+        "owomide_data_pipeline/transformations.py",
+        "owomide_data_pipeline/validation.py",
     ],
     data = ["//src/lib/proto:gen_py"],
     imports = [
@@ -55,6 +58,17 @@ py_test(
     srcs = ["tests/test_config.py"],
     main = "tests/test_config.py",
     deps = [":runtime"],
+)
+
+py_test(
+    name = "catalog_test",
+    srcs = ["tests/test_catalog.py"],
+    main = "tests/test_catalog.py",
+    deps = [
+        ":runtime",
+        "@data_pipeline_pip//grpcio",
+        "@data_pipeline_pip//pyjwt",
+    ],
 )
 
 py_test(
@@ -106,6 +120,20 @@ py_test(
 )
 
 py_test(
+    name = "transformations_test",
+    srcs = ["tests/test_transformations.py"],
+    main = "tests/test_transformations.py",
+    deps = [":runtime"],
+)
+
+py_test(
+    name = "validation_test",
+    srcs = ["tests/test_validation.py"],
+    main = "tests/test_validation.py",
+    deps = [":runtime"],
+)
+
+py_test(
     name = "service_test",
     srcs = ["tests/test_service.py"],
     main = "tests/test_service.py",
@@ -130,6 +158,8 @@ py_test(
         "migrations/0004_column_profile_ordinal_position.up.sql",
         "migrations/0005_mapping_operations.down.sql",
         "migrations/0005_mapping_operations.up.sql",
+        "migrations/0006_validation_operations.down.sql",
+        "migrations/0006_validation_operations.up.sql",
     ],
     main = "tests/test_migration_integration.py",
     tags = [
@@ -152,6 +182,7 @@ py_test(
         "migrations/0003_claim_import_operations.up.sql",
         "migrations/0004_column_profile_ordinal_position.up.sql",
         "migrations/0005_mapping_operations.up.sql",
+        "migrations/0006_validation_operations.up.sql",
     ],
     main = "tests/test_import_integration.py",
     tags = [

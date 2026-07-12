@@ -105,6 +105,11 @@ spec:
                 secretKeyRef:
                   name: data-pipeline-secrets
                   key: object-store-secret-key
+            - name: DATA_PIPELINE_CATALOG_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: data-pipeline-secrets
+                  key: catalog-service-secret
           livenessProbe:
             httpGet:
               path: /health
