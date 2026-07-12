@@ -54,6 +54,10 @@ data-pipeline-integration-test: ## Run Data Pipeline PostgreSQL integration test
 		//src/data-pipeline:import_integration_test \
 		--test_output=errors
 
+.PHONY: data-pipeline-acceptance-test
+data-pipeline-acceptance-test: ## Run the Phase 2 service-stack acceptance suite (requires Docker)
+	python3 src/data-pipeline/tests/system/acceptance.py
+
 # --- Stubbed targets (F0.2+) ---
 
 .PHONY: dev

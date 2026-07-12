@@ -10,7 +10,8 @@ COPY src/lib/bus/js/package.json ./src/lib/bus/js/
 COPY src/lib/proto/package.json ./src/lib/proto/
 COPY tsconfig.base.json ./
 
-RUN pnpm install --frozen-lockfile --filter @owomide/catalog...
+RUN pnpm install --frozen-lockfile --filter @owomide/catalog... \
+    && node -e "require.resolve('@connectrpc/connect-node', { paths: ['/app/src/catalog'] })"
 
 COPY src/catalog ./src/catalog
 COPY src/lib/bus/js ./src/lib/bus/js
@@ -29,7 +30,8 @@ COPY src/catalog/package.json ./src/catalog/
 COPY src/lib/bus/js/package.json ./src/lib/bus/js/
 COPY src/lib/proto/package.json ./src/lib/proto/
 
-RUN pnpm install --frozen-lockfile --filter @owomide/catalog... --prod
+RUN pnpm install --frozen-lockfile --filter @owomide/catalog... --prod \
+    && node -e "require.resolve('@connectrpc/connect-node', { paths: ['/app/src/catalog'] })"
 
 COPY --from=builder /app/src/lib/proto/gen ./src/lib/proto/gen
 COPY --from=builder /app/src/lib/bus/js/dist ./src/lib/bus/js/dist

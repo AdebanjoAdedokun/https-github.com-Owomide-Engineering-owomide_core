@@ -187,9 +187,14 @@ make proto
 make lint
 make data-pipeline-test
 make data-pipeline-integration-test
+make data-pipeline-acceptance-test
 bazel test //...
 ```
 
 The integration target requires Docker and verifies migration apply/rollback, eight-table shape,
 forced RLS, tenant isolation, async parsing/profiling/mapping/validation/commit, immutable raw
 data, fixed 500-row Catalog chunks, warning confirmation, partial rejection, and outbox creation.
+The acceptance target additionally runs Gateway, Data Pipeline, Catalog, PostgreSQL, MinIO, and
+Kafka together against realistic CSV and XLSX inputs. It verifies effective and recorded history,
+provenance, validation failures, warning confirmation, object durability, event publication, and
+cross-service tenant isolation.
