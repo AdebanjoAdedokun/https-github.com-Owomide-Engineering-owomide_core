@@ -117,11 +117,21 @@ Rules:
 
 - commit payload must contain exactly one `org_id`;
 - only rows without blocking validation errors are committed;
-- warned rows may commit if the validation policy allows it;
+- warned rows commit only when the caller sets `confirm_warnings` explicitly;
 - excluded rows remain in Data Pipeline and do not touch Catalog;
 - Catalog writes happen only through `UpsertCanonical`;
 - import emits `import.committed` with row counts and provenance;
 - original file and raw rows remain available for forensic review.
+
+Commit is itself asynchronous. Queueing freezes eligible row IDs and their order in `commit_item`
+and moves the batch to `committing`, after which rows cannot be edited or excluded. Workers send
+at most 500 rows per Catalog request using `import:{batch_id}:chunk:{chunk_index}` as the stable
+idempotency key. Catalog rejections become actionable validation events and `errored` rows; other
+rows in the batch remain committed.
+
+Batch completion, the durable commit result, and the `import.committed` outbox record share one
+PostgreSQL transaction. The outbox publisher is at-least-once: it uses `batch_id` as the Kafka key
+and a deterministic event ID for consumer deduplication.
 
 ## Async Execution
 

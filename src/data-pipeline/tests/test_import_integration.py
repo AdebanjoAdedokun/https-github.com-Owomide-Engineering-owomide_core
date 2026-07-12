@@ -6,6 +6,7 @@ import time
 import unittest
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
+from importlib import import_module
 from io import BytesIO
 from pathlib import Path
 from urllib.error import URLError
@@ -16,6 +17,8 @@ import grpc
 import jwt
 import psycopg
 from openpyxl import Workbook
+from psycopg.types.json import Jsonb
+from services.catalog.v1 import catalog_pb2
 from services.data_pipeline.v1 import data_pipeline_pb2, data_pipeline_pb2_grpc
 
 from owomide_data_pipeline.catalog import CatalogSnapshot, ChannelReference
@@ -37,6 +40,10 @@ CHANNEL_ID = "00000000-0000-0000-0000-000000000201"
 
 
 class FakeCatalogClient:
+    def __init__(self, reject_sku_codes: set[str] | None = None) -> None:
+        self.write_requests: list[dict[str, object]] = []
+        self.reject_sku_codes = reject_sku_codes or set()
+
     def load_snapshot(self, _org_id: str, _sku_ids) -> CatalogSnapshot:
         channel = ChannelReference(CHANNEL_ID, "RETAIL", "NGN")
         return CatalogSnapshot(
@@ -46,6 +53,55 @@ class FakeCatalogClient:
             segment_ids=frozenset(),
             sku_ids=frozenset(),
             costs={},
+        )
+
+    def upsert_canonical(
+        self,
+        *,
+        org_id: str,
+        batch_id: str,
+        actor_id: str,
+        chunk_index: int,
+        rows,
+    ) -> catalog_pb2.UpsertCanonicalResponse:
+        rows = list(rows)
+        self.write_requests.append(
+            {
+                "org_id": org_id,
+                "batch_id": batch_id,
+                "actor_id": actor_id,
+                "chunk_index": chunk_index,
+                "rows": rows,
+            }
+        )
+        results = [
+            catalog_pb2.CanonicalRowResult(
+                source_item_ref=row.source_item_ref,
+                status=(
+                    catalog_pb2.WRITE_STATUS_REJECTED
+                    if row.new_sku.sku_code in self.reject_sku_codes
+                    else catalog_pb2.WRITE_STATUS_CREATED
+                ),
+                sku_id=f"sku-{index}",
+                errors=(
+                    [
+                        catalog_pb2.CatalogWriteError(
+                            code=catalog_pb2.CATALOG_ERROR_CODE_IDENTIFIER_CONFLICT,
+                            message="SKU identifier conflicts with an existing SKU",
+                            field="new_sku.identifiers",
+                        )
+                    ]
+                    if row.new_sku.sku_code in self.reject_sku_codes
+                    else []
+                ),
+            )
+            for index, row in enumerate(rows)
+        ]
+        rejected = sum(result.status == catalog_pb2.WRITE_STATUS_REJECTED for result in results)
+        return catalog_pb2.UpsertCanonicalResponse(
+            operation_id=f"catalog-{chunk_index}",
+            results=results,
+            summary={"created": len(rows) - rejected, "rejected": rejected},
         )
 
 
@@ -197,6 +253,7 @@ class ImportIntegrationTest(unittest.TestCase):
                 "0004_column_profile_ordinal_position.up.sql",
                 "0005_mapping_operations.up.sql",
                 "0006_validation_operations.up.sql",
+                "0007_canonical_commit_outbox.up.sql",
             ):
                 connection.execute(cls._migration_path(filename).read_text())
 
@@ -238,7 +295,8 @@ class ImportIntegrationTest(unittest.TestCase):
             return stub.UploadImportFile(requests(), metadata=cls._metadata())
 
     @classmethod
-    def _process_one(cls) -> None:
+    def _process_one(cls, catalog_client: FakeCatalogClient | None = None) -> FakeCatalogClient:
+        catalog = catalog_client or FakeCatalogClient()
         processor = ImportProcessor(
             repository=ImportRepository(Database(cls.service_url, statement_timeout_ms=15_000)),
             object_store=cls.object_store,
@@ -249,10 +307,11 @@ class ImportIntegrationTest(unittest.TestCase):
             max_columns=20,
             insert_batch_size=2,
             xlsx_spool_memory_bytes=1024 * 1024,
-            catalog_client=FakeCatalogClient(),
+            catalog_client=catalog,
         )
         if not processor.process_once():
             raise AssertionError("Expected the worker to claim an import operation")
+        return catalog
 
     def test_csv_upload_is_durable_parsed_and_profiled_asynchronously(self) -> None:
         response = self._upload(
@@ -699,6 +758,273 @@ class ImportIntegrationTest(unittest.TestCase):
             "duplicate_sku_channel_in_batch",
             {event.code for event in report.events},
         )
+
+    def test_validated_rows_commit_to_catalog_and_create_transactional_event(self) -> None:
+        upload = self._upload(
+            "commit-prices.csv",
+            data_pipeline_pb2.IMPORT_SOURCE_TYPE_CSV,
+            (
+                b"SKU,Price,Currency,Effective,Channel,Cost,Cost Currency,Cost Effective\n"
+                b"A-100,12.00,NGN,2026-07-12,retail,8.00,NGN,2026-07-12\n"
+            ),
+        )
+        catalog = FakeCatalogClient()
+        self._process_one(catalog)
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            stub.ApplyMapping(
+                data_pipeline_pb2.ApplyMappingRequest(
+                    batch_id=upload.batch_id,
+                    mappings_json=(
+                        '{"SKU":"sku.sku_code","Price":"price_record.price_minor",'
+                        '"Currency":"price_record.currency",'
+                        '"Effective":"price_record.effective_at",'
+                        '"Channel":"channel.code","Cost":"cost_record.cost_minor",'
+                        '"Cost Currency":"cost_record.currency",'
+                        '"Cost Effective":"cost_record.effective_at"}'
+                    ),
+                    transformation_rules_json=(
+                        '[{"field":"Price","type":"decimal_to_minor_units","scale":2},'
+                        '{"field":"Cost","type":"decimal_to_minor_units","scale":2}]'
+                    ),
+                ),
+                metadata=self._metadata(),
+            )
+        self._process_one(catalog)
+        self._process_one(catalog)
+
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            queued = stub.CommitBatch(
+                data_pipeline_pb2.CommitBatchRequest(
+                    batch_id=upload.batch_id,
+                    confirm_warnings=False,
+                ),
+                metadata=self._metadata(),
+            )
+            self.assertEqual(
+                queued.operation.status,
+                data_pipeline_pb2.IMPORT_OPERATION_STATUS_QUEUED,
+            )
+
+        self._process_one(catalog)
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            completed = stub.GetImportOperation(
+                data_pipeline_pb2.GetImportOperationRequest(operation_id=queued.operation.id),
+                metadata=self._metadata(),
+            ).operation
+
+        self.assertEqual(completed.status, data_pipeline_pb2.IMPORT_OPERATION_STATUS_SUCCEEDED)
+        self.assertEqual(completed.commit_result.row_counts.ok, 1)
+        self.assertEqual(completed.commit_result.catalog_summary.created, 1)
+        self.assertEqual(completed.commit_result.catalog_operation_ids, ["catalog-0"])
+        self.assertEqual(len(catalog.write_requests), 1)
+        write = catalog.write_requests[0]
+        self.assertEqual(write["chunk_index"], 0)
+        self.assertEqual(write["actor_id"], "user-a")
+        self.assertEqual(write["rows"][0].prices[0].price.amount, 1200)
+
+        with psycopg.connect(self.admin_url) as connection:
+            batch_state = connection.execute(
+                "SELECT status, committed_at FROM data_pipeline.import_batch WHERE id = %s",
+                (upload.batch_id,),
+            ).fetchone()
+            row_state = connection.execute(
+                "SELECT row_status FROM data_pipeline.import_row WHERE batch_id = %s",
+                (upload.batch_id,),
+            ).fetchone()[0]
+            event = connection.execute(
+                "SELECT id, partition_key, payload FROM data_pipeline.outbox_event "
+                "WHERE aggregate_id = %s",
+                (upload.batch_id,),
+            ).fetchone()
+        self.assertEqual(batch_state[0], "committed")
+        self.assertIsNotNone(batch_state[1])
+        self.assertEqual(row_state, "committed")
+        self.assertEqual(event[1], upload.batch_id)
+        event_message = import_module("events.import.v1_pb2").ImportCommitted()
+        event_message.ParseFromString(bytes(event[2]))
+        self.assertEqual(event_message.batch_id, upload.batch_id)
+        self.assertEqual(event_message.row_counts.ok, 1)
+        self.assertEqual(event_message.actor_id, "user-a")
+
+    def test_commit_freezes_and_writes_stable_catalog_chunks_of_at_most_500(self) -> None:
+        batch_id = uuid4()
+        with psycopg.connect(self.admin_url) as connection:
+            connection.execute(
+                """
+                INSERT INTO data_pipeline.import_batch (
+                    id, org_id, owner_id, source_file_url, source_filename,
+                    source_type, source_sha256, status
+                ) VALUES (%s, 'org-a', 'user-a', 's3://imports/chunked.csv',
+                          'chunked.csv', 'csv', %s, 'validated')
+                """,
+                (batch_id, "f" * 64),
+            )
+            with connection.cursor() as cursor:
+                cursor.executemany(
+                    """
+                    INSERT INTO data_pipeline.import_row (
+                        org_id, batch_id, row_number, raw_data, mapped_data, row_status
+                    ) VALUES ('org-a', %s, %s, '{}', %s, 'validated')
+                    """,
+                    [
+                        (
+                            batch_id,
+                            index,
+                            Jsonb(
+                                {
+                                    "sku": {"sku_code": f"SKU-{index:04d}"},
+                                    "price_record": {
+                                        "channel_id": CHANNEL_ID,
+                                        "price_minor": 1000 + index,
+                                        "currency": "NGN",
+                                        "effective_at": "2026-07-12T00:00:00Z",
+                                    },
+                                }
+                            ),
+                        )
+                        for index in range(1, 502)
+                    ],
+                )
+
+        repository = ImportRepository(Database(self.service_url, statement_timeout_ms=15_000))
+        operation = repository.queue_commit(
+            org_id="org-a",
+            batch_id=batch_id,
+            confirm_warnings=False,
+        )
+        catalog = self._process_one(FakeCatalogClient())
+
+        self.assertEqual(
+            [(write["chunk_index"], len(write["rows"])) for write in catalog.write_requests],
+            [(0, 500), (1, 1)],
+        )
+        completed = repository.get_operation("org-a", operation.id)
+        self.assertEqual(completed.status, "succeeded")
+        self.assertEqual(completed.progress_current, 501)
+        self.assertEqual(
+            completed.result_payload["catalog_operation_ids"],
+            ["catalog-0", "catalog-1"],
+        )
+
+    def test_warned_rows_require_explicit_confirmation_before_commit(self) -> None:
+        upload = self._upload(
+            "warned-prices.csv",
+            data_pipeline_pb2.IMPORT_SOURCE_TYPE_CSV,
+            b"SKU,Price,Currency,Effective,Channel\nA-1,12.00,NGN,2026-07-12,retail\n",
+        )
+        catalog = FakeCatalogClient()
+        self._process_one(catalog)
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            stub.ApplyMapping(
+                data_pipeline_pb2.ApplyMappingRequest(
+                    batch_id=upload.batch_id,
+                    mappings_json=(
+                        '{"SKU":"sku.sku_code","Price":"price_record.price_minor",'
+                        '"Currency":"price_record.currency",'
+                        '"Effective":"price_record.effective_at","Channel":"channel.code"}'
+                    ),
+                    transformation_rules_json=(
+                        '[{"field":"Price","type":"decimal_to_minor_units","scale":2}]'
+                    ),
+                ),
+                metadata=self._metadata(),
+            )
+        self._process_one(catalog)
+        self._process_one(catalog)
+
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            with self.assertRaises(grpc.RpcError) as rejected:
+                stub.CommitBatch(
+                    data_pipeline_pb2.CommitBatchRequest(
+                        batch_id=upload.batch_id,
+                        confirm_warnings=False,
+                    ),
+                    metadata=self._metadata(),
+                )
+            self.assertEqual(rejected.exception.code(), grpc.StatusCode.FAILED_PRECONDITION)
+            queued = stub.CommitBatch(
+                data_pipeline_pb2.CommitBatchRequest(
+                    batch_id=upload.batch_id,
+                    confirm_warnings=True,
+                ),
+                metadata=self._metadata(),
+            )
+        self.assertEqual(queued.operation.progress_total, 1)
+        self._process_one(catalog)
+        completed = ImportRepository(
+            Database(self.service_url, statement_timeout_ms=15_000)
+        ).get_operation("org-a", UUID(queued.operation.id))
+        self.assertEqual(completed.result_payload["row_counts"]["warned"], 1)
+
+    def test_catalog_rejection_errors_only_the_rejected_row_and_commits_the_rest(self) -> None:
+        batch_id = uuid4()
+        with psycopg.connect(self.admin_url) as connection:
+            connection.execute(
+                """
+                INSERT INTO data_pipeline.import_batch (
+                    id, org_id, owner_id, source_file_url, source_filename,
+                    source_type, source_sha256, status
+                ) VALUES (%s, 'org-a', 'user-a', 's3://imports/partial.csv',
+                          'partial.csv', 'csv', %s, 'validated')
+                """,
+                (batch_id, "e" * 64),
+            )
+            with connection.cursor() as cursor:
+                cursor.executemany(
+                    """
+                    INSERT INTO data_pipeline.import_row (
+                        org_id, batch_id, row_number, raw_data, mapped_data, row_status
+                    ) VALUES ('org-a', %s, %s, '{}', %s, 'validated')
+                    """,
+                    [
+                        (
+                            batch_id,
+                            index,
+                            Jsonb(
+                                {
+                                    "sku": {"sku_code": sku_code},
+                                    "price_record": {
+                                        "channel_id": CHANNEL_ID,
+                                        "price_minor": 1000,
+                                        "currency": "NGN",
+                                        "effective_at": "2026-07-12T00:00:00Z",
+                                    },
+                                }
+                            ),
+                        )
+                        for index, sku_code in enumerate(("SKU-GOOD", "SKU-CONFLICT"), 1)
+                    ],
+                )
+        repository = ImportRepository(Database(self.service_url, statement_timeout_ms=15_000))
+        operation = repository.queue_commit(
+            org_id="org-a", batch_id=batch_id, confirm_warnings=False
+        )
+        self._process_one(FakeCatalogClient({"SKU-CONFLICT"}))
+
+        completed = repository.get_operation("org-a", operation.id)
+        self.assertEqual(completed.result_payload["catalog_summary"]["created"], 1)
+        self.assertEqual(completed.result_payload["catalog_summary"]["rejected"], 1)
+        self.assertEqual(completed.result_payload["row_counts"]["errored"], 1)
+        with psycopg.connect(self.admin_url) as connection:
+            states = connection.execute(
+                "SELECT mapped_data #>> '{sku,sku_code}', row_status "
+                "FROM data_pipeline.import_row WHERE batch_id = %s ORDER BY row_number",
+                (batch_id,),
+            ).fetchall()
+            finding = connection.execute(
+                "SELECT code, field, suggested_fix FROM data_pipeline.validation_event "
+                "WHERE batch_id = %s",
+                (batch_id,),
+            ).fetchone()
+        self.assertEqual(states, [("SKU-GOOD", "committed"), ("SKU-CONFLICT", "errored")])
+        self.assertEqual(finding[0], "identifier_conflict")
+        self.assertEqual(finding[1], "new_sku.identifiers")
+        self.assertTrue(finding[2])
 
 
 if __name__ == "__main__":

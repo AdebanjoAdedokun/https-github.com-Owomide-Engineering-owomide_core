@@ -65,7 +65,7 @@ class RuntimeTest(unittest.TestCase):
                 stub.GetImportBatch(data_pipeline_pb2.GetImportBatchRequest(batch_id="batch"))
         self.assertEqual(error.exception.code(), grpc.StatusCode.UNAUTHENTICATED)
 
-    def test_authenticated_rpc_reaches_unimplemented_future_handler(self) -> None:
+    def test_authenticated_rpc_reaches_commit_handler(self) -> None:
         now = datetime.now(UTC)
         encoded = jwt.encode(
             {
@@ -87,12 +87,10 @@ class RuntimeTest(unittest.TestCase):
             stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
             with self.assertRaises(grpc.RpcError) as error:
                 stub.CommitBatch(
-                    data_pipeline_pb2.CommitBatchRequest(
-                        batch_id="00000000-0000-0000-0000-000000000001"
-                    ),
+                    data_pipeline_pb2.CommitBatchRequest(batch_id="not-a-uuid"),
                     metadata=metadata,
                 )
-        self.assertEqual(error.exception.code(), grpc.StatusCode.UNIMPLEMENTED)
+        self.assertEqual(error.exception.code(), grpc.StatusCode.INVALID_ARGUMENT)
 
 
 if __name__ == "__main__":

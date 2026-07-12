@@ -139,6 +139,9 @@ class MigrationIntegrationTest(unittest.TestCase):
             )
             connection.execute(cls._migration_path("0005_mapping_operations.up.sql").read_text())
             connection.execute(cls._migration_path("0006_validation_operations.up.sql").read_text())
+            connection.execute(
+                cls._migration_path("0007_canonical_commit_outbox.up.sql").read_text()
+            )
             # Keep the recovered fixture from competing with operations created by claim tests.
             connection.execute(
                 "UPDATE data_pipeline.import_operation "
@@ -146,7 +149,7 @@ class MigrationIntegrationTest(unittest.TestCase):
                 (cls.legacy_unprofiled_batch_id,),
             )
 
-    def test_schema_has_all_six_tables(self) -> None:
+    def test_schema_has_all_pipeline_tables(self) -> None:
         with psycopg.connect(self.admin_url) as connection:
             rows = connection.execute(
                 "SELECT table_name FROM information_schema.tables "
@@ -156,10 +159,12 @@ class MigrationIntegrationTest(unittest.TestCase):
             [row[0] for row in rows],
             [
                 "column_profile",
+                "commit_item",
                 "import_batch",
                 "import_operation",
                 "import_row",
                 "mapping_template",
+                "outbox_event",
                 "validation_event",
             ],
         )
@@ -374,9 +379,46 @@ class MigrationIntegrationTest(unittest.TestCase):
                     (batch_id,),
                 )
 
+    def test_outbox_is_leased_through_functions_and_cannot_be_deleted_directly(self) -> None:
+        event_id = uuid4()
+        with psycopg.connect(self.admin_url) as connection:
+            connection.execute(
+                """
+                INSERT INTO data_pipeline.outbox_event (
+                    id, org_id, event_type, aggregate_type, aggregate_id,
+                    partition_key, payload, occurred_at
+                ) VALUES (%s, 'org-outbox', 'import.committed', 'import_batch',
+                          'batch-outbox', 'batch-outbox', %s, now())
+                """,
+                (event_id, b"event"),
+            )
+
+        with psycopg.connect(self.service_url) as connection:
+            connection.execute("SELECT set_config('app.org_id', 'org-outbox', false)")
+            with self.assertRaises(psycopg.errors.InsufficientPrivilege):
+                connection.execute(
+                    "DELETE FROM data_pipeline.outbox_event WHERE id = %s", (event_id,)
+                )
+            connection.rollback()
+
+        with psycopg.connect(self.service_url) as connection:
+            claimed = connection.execute(
+                "SELECT id, attempts FROM data_pipeline.claim_outbox_events(10, 30)"
+            ).fetchone()
+            self.assertEqual(claimed, (event_id, 1))
+            connection.execute("SELECT data_pipeline.mark_outbox_published(%s)", (event_id,))
+
+        with psycopg.connect(self.admin_url) as connection:
+            published = connection.execute(
+                "SELECT published_at IS NOT NULL FROM data_pipeline.outbox_event WHERE id = %s",
+                (event_id,),
+            ).fetchone()[0]
+        self.assertTrue(published)
+
     def test_z_down_migration_removes_owned_tables(self) -> None:
         with psycopg.connect(self.admin_url, autocommit=True) as connection:
             for filename in (
+                "0007_canonical_commit_outbox.down.sql",
                 "0006_validation_operations.down.sql",
                 "0005_mapping_operations.down.sql",
                 "0004_column_profile_ordinal_position.down.sql",

@@ -20,6 +20,7 @@ from owomide_data_pipeline.errors import (
     ImportStateError,
     InvalidImportError,
 )
+from owomide_data_pipeline.events import import_committed_event
 from owomide_data_pipeline.mapping import operation_mapping_payload
 from owomide_data_pipeline.profiler import ProfiledColumn
 from owomide_data_pipeline.validation import ValidationFinding
@@ -61,6 +62,7 @@ class ImportOperationRecord:
     created_at: datetime
     started_at: datetime | None
     finished_at: datetime | None
+    result_payload: dict[str, object]
 
 
 @dataclass(frozen=True, slots=True)
@@ -164,6 +166,49 @@ class RowCountsRecord:
 
 
 @dataclass(frozen=True, slots=True)
+class CatalogWriteSummaryRecord:
+    created: int
+    updated: int
+    unchanged: int
+    rejected: int
+
+
+@dataclass(frozen=True, slots=True)
+class CommitResultRecord:
+    row_counts: RowCountsRecord
+    catalog_operation_ids: tuple[str, ...]
+    catalog_replayed: bool
+    catalog_summary: CatalogWriteSummaryRecord
+
+
+@dataclass(frozen=True, slots=True)
+class CommitRowRecord:
+    row_id: UUID
+    ordinal_position: int
+    mapped_data: dict[str, object]
+    catalog_status: str
+
+
+@dataclass(frozen=True, slots=True)
+class CatalogRowResultRecord:
+    row_id: UUID
+    status: str
+    errors: tuple[dict[str, object], ...]
+
+
+@dataclass(frozen=True, slots=True)
+class OutboxEventRecord:
+    id: UUID
+    org_id: str
+    event_type: str
+    partition_key: str
+    payload: bytes
+    metadata: dict[str, str]
+    occurred_at: datetime
+    attempts: int
+
+
+@dataclass(frozen=True, slots=True)
 class ValidationReportState:
     events: tuple[ValidationEventRecord, ...]
     row_counts: RowCountsRecord
@@ -193,7 +238,40 @@ def _batch(row: dict[str, Any]) -> ImportBatchRecord:
 
 def _operation(row: dict[str, Any]) -> ImportOperationRecord:
     fields = ImportOperationRecord.__dataclass_fields__
-    return ImportOperationRecord(**{field: row[field] for field in fields})
+    values = {field: row[field] for field in fields if field != "result_payload"}
+    values["result_payload"] = dict(row.get("result_payload") or {})
+    return ImportOperationRecord(**values)
+
+
+def commit_result(record: ImportOperationRecord) -> CommitResultRecord | None:
+    if record.operation_type != "commit" or record.status != "succeeded":
+        return None
+    payload = record.result_payload
+    counts = payload.get("row_counts")
+    summary = payload.get("catalog_summary")
+    operation_ids = payload.get("catalog_operation_ids")
+    if (
+        not isinstance(counts, dict)
+        or not isinstance(summary, dict)
+        or not isinstance(operation_ids, list)
+    ):
+        raise RuntimeError("Completed commit operation has an invalid result payload")
+    return CommitResultRecord(
+        row_counts=RowCountsRecord(
+            ok=int(counts.get("ok", 0)),
+            warned=int(counts.get("warned", 0)),
+            excluded=int(counts.get("excluded", 0)),
+            errored=int(counts.get("errored", 0)),
+        ),
+        catalog_operation_ids=tuple(str(value) for value in operation_ids),
+        catalog_replayed=bool(payload.get("catalog_replayed", False)),
+        catalog_summary=CatalogWriteSummaryRecord(
+            created=int(summary.get("created", 0)),
+            updated=int(summary.get("updated", 0)),
+            unchanged=int(summary.get("unchanged", 0)),
+            rejected=int(summary.get("rejected", 0)),
+        ),
+    )
 
 
 def _column_profile(row: dict[str, Any]) -> ColumnProfileRecord:
@@ -430,14 +508,14 @@ class ImportRepository:
             """
             SELECT
                 count(*) FILTER (
-                    WHERE import_row.row_status = 'validated'
+                    WHERE import_row.row_status IN ('validated', 'committed')
                       AND NOT EXISTS (
                           SELECT 1 FROM data_pipeline.validation_event AS event
                           WHERE event.row_id = import_row.id AND event.severity = 'warning'
                       )
                 ) AS ok,
                 count(*) FILTER (
-                    WHERE import_row.row_status = 'validated'
+                    WHERE import_row.row_status IN ('validated', 'committed')
                       AND EXISTS (
                           SELECT 1 FROM data_pipeline.validation_event AS event
                           WHERE event.row_id = import_row.id AND event.severity = 'warning'
@@ -869,6 +947,429 @@ class ImportRepository:
                 "Another import operation is already active for this batch"
             ) from exc
         return operation_id
+
+    def queue_commit(
+        self,
+        *,
+        org_id: str,
+        batch_id: UUID,
+        confirm_warnings: bool,
+    ) -> ImportOperationRecord:
+        try:
+            with self._database.transaction(org_id) as connection:
+                batch = connection.execute(
+                    "SELECT * FROM data_pipeline.import_batch WHERE id = %s FOR UPDATE",
+                    (batch_id,),
+                ).fetchone()
+                if batch is None:
+                    raise ImportResourceNotFoundError("Import batch not found")
+                existing = connection.execute(
+                    """
+                    SELECT * FROM data_pipeline.import_operation
+                    WHERE batch_id = %s AND operation_type = 'commit'
+                    ORDER BY created_at DESC, id DESC
+                    LIMIT 1
+                    FOR UPDATE
+                    """,
+                    (batch_id,),
+                ).fetchone()
+                if batch["status"] == "committed":
+                    if existing is None or existing["status"] != "succeeded":
+                        raise RuntimeError("Committed import batch has no completed operation")
+                    return _operation(existing)
+                if batch["status"] == "committing":
+                    if existing is None:
+                        raise RuntimeError("Committing import batch has no commit operation")
+                    if existing["status"] == "failed":
+                        existing = connection.execute(
+                            """
+                            UPDATE data_pipeline.import_operation
+                            SET status = 'queued', attempt_count = 0, error_message = NULL,
+                                next_attempt_at = clock_timestamp(), finished_at = NULL,
+                                updated_at = clock_timestamp()
+                            WHERE id = %s
+                            RETURNING *
+                            """,
+                            (existing["id"],),
+                        ).fetchone()
+                    return _operation(existing)
+                if batch["status"] != "validated":
+                    raise ImportStateError("Import batch must be validated before commit")
+
+                counts = self._row_counts(connection, batch_id)
+                if counts.warned and not confirm_warnings:
+                    raise ImportStateError(
+                        "Import contains warnings; set confirm_warnings to commit warned rows"
+                    )
+                operation_id = uuid4()
+                eligible = counts.ok + counts.warned
+                operation = connection.execute(
+                    """
+                    INSERT INTO data_pipeline.import_operation (
+                        id, org_id, batch_id, operation_type, progress_total, request_payload
+                    ) VALUES (%s, %s, %s, 'commit', %s, %s)
+                    RETURNING *
+                    """,
+                    (
+                        operation_id,
+                        org_id,
+                        batch_id,
+                        eligible,
+                        Jsonb({"confirm_warnings": confirm_warnings, "chunk_size": 500}),
+                    ),
+                ).fetchone()
+                connection.execute(
+                    """
+                    INSERT INTO data_pipeline.commit_item (
+                        org_id, operation_id, batch_id, row_id, ordinal_position
+                    )
+                    SELECT
+                        org_id,
+                        %s,
+                        batch_id,
+                        id,
+                        row_number() OVER (ORDER BY row_number, id) - 1
+                    FROM data_pipeline.import_row
+                    WHERE batch_id = %s AND row_status = 'validated'
+                    ORDER BY row_number, id
+                    """,
+                    (operation_id, batch_id),
+                )
+                updated = connection.execute(
+                    """
+                    UPDATE data_pipeline.import_batch
+                    SET status = 'committing', failed_reason = NULL,
+                        updated_at = clock_timestamp()
+                    WHERE id = %s AND status = 'validated'
+                    """,
+                    (batch_id,),
+                )
+                if updated.rowcount != 1:
+                    raise RuntimeError("Import batch changed while commit was queued")
+                return _operation(operation)
+        except psycopg.errors.UniqueViolation as exc:
+            raise ImportConflictError(
+                "Another commit operation is already active for this batch"
+            ) from exc
+
+    def iter_commit_chunks(
+        self,
+        operation: ClaimedOperation,
+        chunk_size: int = 500,
+    ) -> Iterator[tuple[int, tuple[CommitRowRecord, ...]]]:
+        if chunk_size != 500:
+            raise RuntimeError("Commit operation chunk size is unsupported")
+        with self._database.transaction(operation.org_id) as connection:
+            chunk_indexes = connection.execute(
+                """
+                SELECT DISTINCT ordinal_position / %s AS chunk_index
+                FROM data_pipeline.commit_item
+                WHERE operation_id = %s AND catalog_status = 'pending'
+                ORDER BY chunk_index
+                """,
+                (chunk_size, operation.operation_id),
+            ).fetchall()
+        for chunk in chunk_indexes:
+            chunk_index = chunk["chunk_index"]
+            with self._database.transaction(operation.org_id) as connection:
+                rows = connection.execute(
+                    """
+                    SELECT item.row_id, item.ordinal_position, item.catalog_status,
+                           row.mapped_data
+                    FROM data_pipeline.commit_item AS item
+                    JOIN data_pipeline.import_row AS row
+                      ON row.org_id = item.org_id
+                     AND row.batch_id = item.batch_id
+                     AND row.id = item.row_id
+                    WHERE item.operation_id = %s
+                      AND item.ordinal_position >= %s
+                      AND item.ordinal_position < %s
+                    ORDER BY item.ordinal_position
+                    """,
+                    (
+                        operation.operation_id,
+                        chunk_index * chunk_size,
+                        (chunk_index + 1) * chunk_size,
+                    ),
+                ).fetchall()
+            yield (
+                chunk_index,
+                tuple(
+                    CommitRowRecord(
+                        row_id=row["row_id"],
+                        ordinal_position=row["ordinal_position"],
+                        mapped_data=dict(row["mapped_data"] or {}),
+                        catalog_status=row["catalog_status"],
+                    )
+                    for row in rows
+                ),
+            )
+
+    def record_commit_results(
+        self,
+        *,
+        operation: ClaimedOperation,
+        worker_id: str,
+        results: Sequence[CatalogRowResultRecord],
+        catalog_operation_id: str | None,
+        catalog_replayed: bool,
+    ) -> None:
+        if not results:
+            return
+        result_ids = {result.row_id for result in results}
+        if len(result_ids) != len(results):
+            raise RuntimeError("Catalog returned duplicate row results")
+        with self._database.transaction(operation.org_id) as connection:
+            pending = connection.execute(
+                """
+                SELECT row_id FROM data_pipeline.commit_item
+                WHERE operation_id = %s AND row_id = ANY(%s::uuid[])
+                  AND catalog_status = 'pending'
+                """,
+                (operation.operation_id, list(result_ids)),
+            ).fetchall()
+            if {row["row_id"] for row in pending} != result_ids:
+                raise RuntimeError("Commit rows changed while Catalog results were applied")
+            for result in results:
+                if result.status not in {"created", "updated", "unchanged", "rejected"}:
+                    raise RuntimeError(f"Catalog returned invalid write status: {result.status}")
+                connection.execute(
+                    """
+                    UPDATE data_pipeline.commit_item
+                    SET catalog_status = %s, catalog_operation_id = %s,
+                        catalog_replayed = %s, catalog_errors = %s,
+                        updated_at = clock_timestamp()
+                    WHERE operation_id = %s AND row_id = %s
+                    """,
+                    (
+                        result.status,
+                        catalog_operation_id,
+                        catalog_replayed,
+                        Jsonb(list(result.errors)),
+                        operation.operation_id,
+                        result.row_id,
+                    ),
+                )
+                row_status = "errored" if result.status == "rejected" else "committed"
+                connection.execute(
+                    """
+                    UPDATE data_pipeline.import_row
+                    SET row_status = %s, updated_at = clock_timestamp()
+                    WHERE batch_id = %s AND id = %s
+                    """,
+                    (row_status, operation.batch_id, result.row_id),
+                )
+                if result.status == "rejected":
+                    errors = result.errors or (
+                        {
+                            "code": "catalog_rejected",
+                            "message": "Catalog rejected this row without an error detail.",
+                            "field": None,
+                        },
+                    )
+                    for error in errors:
+                        connection.execute(
+                            """
+                            INSERT INTO data_pipeline.validation_event (
+                                org_id, batch_id, row_id, severity, code, message,
+                                field, raw_value, suggested_fix
+                            ) VALUES (%s, %s, %s, 'error', %s, %s, %s, NULL, %s)
+                            """,
+                            (
+                                operation.org_id,
+                                operation.batch_id,
+                                result.row_id,
+                                str(error.get("code") or "catalog_rejected").lower(),
+                                str(error.get("message") or "Catalog rejected this row."),
+                                error.get("field"),
+                                "Correct this row and import it again.",
+                            ),
+                        )
+            progress = connection.execute(
+                """
+                SELECT count(*) AS count FROM data_pipeline.commit_item
+                WHERE operation_id = %s AND catalog_status <> 'pending'
+                """,
+                (operation.operation_id,),
+            ).fetchone()["count"]
+            updated = connection.execute(
+                """
+                UPDATE data_pipeline.import_operation
+                SET progress_current = %s, locked_at = clock_timestamp(),
+                    updated_at = clock_timestamp()
+                WHERE id = %s AND status = 'running' AND locked_by = %s
+                """,
+                (progress, operation.operation_id, worker_id),
+            )
+            if updated.rowcount != 1:
+                raise RuntimeError("Import operation lease was lost")
+
+    def complete_commit(
+        self,
+        operation: ClaimedOperation,
+        worker_id: str,
+    ) -> CommitResultRecord:
+        with self._database.transaction(operation.org_id) as connection:
+            batch = connection.execute(
+                "SELECT * FROM data_pipeline.import_batch WHERE id = %s FOR UPDATE",
+                (operation.batch_id,),
+            ).fetchone()
+            if batch is None or batch["status"] != "committing":
+                raise RuntimeError("Import batch was not ready for commit completion")
+            pending = connection.execute(
+                """
+                SELECT count(*) AS count FROM data_pipeline.commit_item
+                WHERE operation_id = %s AND catalog_status = 'pending'
+                """,
+                (operation.operation_id,),
+            ).fetchone()["count"]
+            if pending:
+                raise RuntimeError("Commit operation still has pending rows")
+            statuses = connection.execute(
+                """
+                SELECT catalog_status, count(*) AS count
+                FROM data_pipeline.commit_item
+                WHERE operation_id = %s
+                GROUP BY catalog_status
+                """,
+                (operation.operation_id,),
+            ).fetchall()
+            by_status = {row["catalog_status"]: row["count"] for row in statuses}
+            catalog_rows = connection.execute(
+                """
+                SELECT catalog_operation_id, bool_or(catalog_replayed) AS replayed,
+                       min(ordinal_position) AS first_ordinal
+                FROM data_pipeline.commit_item
+                WHERE operation_id = %s AND catalog_operation_id IS NOT NULL
+                GROUP BY catalog_operation_id
+                ORDER BY first_ordinal
+                """,
+                (operation.operation_id,),
+            ).fetchall()
+            counts = self._row_counts(connection, operation.batch_id)
+            summary = CatalogWriteSummaryRecord(
+                created=by_status.get("created", 0),
+                updated=by_status.get("updated", 0),
+                unchanged=by_status.get("unchanged", 0),
+                rejected=by_status.get("rejected", 0),
+            )
+            result = CommitResultRecord(
+                row_counts=counts,
+                catalog_operation_ids=tuple(row["catalog_operation_id"] for row in catalog_rows),
+                catalog_replayed=any(row["replayed"] for row in catalog_rows),
+                catalog_summary=summary,
+            )
+            payload = {
+                "row_counts": {
+                    "ok": counts.ok,
+                    "warned": counts.warned,
+                    "excluded": counts.excluded,
+                    "errored": counts.errored,
+                },
+                "catalog_operation_ids": list(result.catalog_operation_ids),
+                "catalog_replayed": result.catalog_replayed,
+                "catalog_summary": {
+                    "created": summary.created,
+                    "updated": summary.updated,
+                    "unchanged": summary.unchanged,
+                    "rejected": summary.rejected,
+                },
+            }
+            committed_at = datetime.now(UTC)
+            updated = connection.execute(
+                """
+                UPDATE data_pipeline.import_operation
+                SET status = 'succeeded', result_payload = %s,
+                    progress_current = progress_total, locked_by = NULL, locked_at = NULL,
+                    finished_at = %s, updated_at = %s
+                WHERE id = %s AND status = 'running' AND locked_by = %s
+                """,
+                (
+                    Jsonb(payload),
+                    committed_at,
+                    committed_at,
+                    operation.operation_id,
+                    worker_id,
+                ),
+            )
+            if updated.rowcount != 1:
+                raise RuntimeError("Import operation lease was lost")
+            connection.execute(
+                """
+                UPDATE data_pipeline.import_batch
+                SET status = 'committed', committed_at = %s, failed_reason = NULL,
+                    updated_at = %s
+                WHERE id = %s
+                """,
+                (committed_at, committed_at, operation.batch_id),
+            )
+            event = import_committed_event(
+                org_id=operation.org_id,
+                batch_id=operation.batch_id,
+                file_url=batch["source_file_url"],
+                template_id=batch["template_id"],
+                actor_id=batch["owner_id"],
+                ok=counts.ok,
+                warned=counts.warned,
+                excluded=counts.excluded,
+                errored=counts.errored,
+                occurred_at=committed_at,
+            )
+            connection.execute(
+                """
+                INSERT INTO data_pipeline.outbox_event (
+                    id, org_id, event_type, aggregate_type, aggregate_id,
+                    partition_key, payload, metadata, occurred_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (org_id, event_type, aggregate_id) DO NOTHING
+                """,
+                (
+                    event.id,
+                    operation.org_id,
+                    event.event_type,
+                    event.aggregate_type,
+                    event.aggregate_id,
+                    event.partition_key,
+                    event.payload,
+                    Jsonb(event.metadata),
+                    event.occurred_at,
+                ),
+            )
+        return result
+
+    def claim_outbox_events(self, limit: int, lease_seconds: int) -> tuple[OutboxEventRecord, ...]:
+        with self._database.system_transaction() as connection:
+            rows = connection.execute(
+                "SELECT * FROM data_pipeline.claim_outbox_events(%s, %s)",
+                (limit, lease_seconds),
+            ).fetchall()
+        return tuple(
+            OutboxEventRecord(
+                id=row["id"],
+                org_id=row["org_id"],
+                event_type=row["event_type"],
+                partition_key=row["partition_key"],
+                payload=bytes(row["payload"]),
+                metadata={str(key): str(value) for key, value in row["metadata"].items()},
+                occurred_at=row["occurred_at"],
+                attempts=row["attempts"],
+            )
+            for row in rows
+        )
+
+    def mark_outbox_published(self, event_id: UUID) -> None:
+        with self._database.system_transaction() as connection:
+            connection.execute(
+                "SELECT data_pipeline.mark_outbox_published(%s)",
+                (event_id,),
+            )
+
+    def mark_outbox_failed(self, event_id: UUID, error: str, retry_seconds: int) -> None:
+        with self._database.system_transaction() as connection:
+            connection.execute(
+                "SELECT data_pipeline.mark_outbox_failed(%s, %s, %s)",
+                (event_id, error, retry_seconds),
+            )
 
     def claim_import_operation(
         self,

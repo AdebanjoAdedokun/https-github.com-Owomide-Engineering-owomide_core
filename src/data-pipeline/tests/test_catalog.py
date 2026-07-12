@@ -15,6 +15,7 @@ SKU_ID = "00000000-0000-0000-0000-000000000101"
 
 class FakeCatalogService(catalog_pb2_grpc.CatalogServiceServicer):
     metadata: tuple[tuple[str, str], ...] = ()
+    upsert_request: catalog_pb2.UpsertCanonicalRequest | None = None
 
     def _capture(self, context) -> None:
         self.metadata = tuple((item.key, item.value) for item in context.invocation_metadata())
@@ -76,6 +77,21 @@ class FakeCatalogService(catalog_pb2_grpc.CatalogServiceServicer):
             else []
         )
 
+    def UpsertCanonical(self, request, context):
+        self._capture(context)
+        self.upsert_request = request
+        return catalog_pb2.UpsertCanonicalResponse(
+            operation_id="catalog-operation-1",
+            results=[
+                catalog_pb2.CanonicalRowResult(
+                    source_item_ref=row.source_item_ref,
+                    status=catalog_pb2.WRITE_STATUS_CREATED,
+                )
+                for row in request.rows
+            ],
+            summary={"created": len(request.rows)},
+        )
+
 
 class CatalogClientTest(unittest.TestCase):
     def test_loads_paginated_tenant_snapshot_with_service_identity(self) -> None:
@@ -109,6 +125,45 @@ class CatalogClientTest(unittest.TestCase):
             issuer="owomide-internal",
         )
         self.assertEqual(claims["sub"], "data_pipeline_svc")
+
+    def test_writes_import_provenance_with_stable_chunk_idempotency(self) -> None:
+        service = FakeCatalogService()
+        server = grpc.server(ThreadPoolExecutor(max_workers=2))
+        catalog_pb2_grpc.add_CatalogServiceServicer_to_server(service, server)
+        port = server.add_insecure_port("127.0.0.1:0")
+        server.start()
+        client = CatalogClient(
+            target=f"127.0.0.1:{port}",
+            issuer="owomide-internal",
+            secret=SECRET,
+            timeout_seconds=2,
+        )
+        try:
+            response = client.upsert_canonical(
+                org_id="org-a",
+                batch_id="batch-a",
+                actor_id="user-a",
+                chunk_index=3,
+                rows=[
+                    catalog_pb2.CanonicalWriteRow(
+                        source_item_ref="row-a",
+                        sku_identity={"sku_code": "A-1"},
+                        new_sku={"sku_code": "A-1", "attributes_json": "{}"},
+                    )
+                ],
+            )
+        finally:
+            client.close()
+            server.stop(0).wait()
+
+        self.assertEqual(response.operation_id, "catalog-operation-1")
+        self.assertIsNotNone(service.upsert_request)
+        request = service.upsert_request
+        self.assertEqual(request.idempotency_key, "import:batch-a:chunk:3")
+        self.assertEqual(request.source.source_type, catalog_pb2.SOURCE_TYPE_IMPORT)
+        self.assertEqual(request.source.source_ref, "batch-a")
+        self.assertEqual(request.source.actor_id, "user-a")
+        self.assertEqual(dict(service.metadata)["x-org-id"], "org-a")
 
 
 if __name__ == "__main__":

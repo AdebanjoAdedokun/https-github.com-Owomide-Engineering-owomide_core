@@ -11,6 +11,7 @@ from owomide_data_pipeline.catalog import CatalogClient
 from owomide_data_pipeline.config import Config
 from owomide_data_pipeline.db import Database
 from owomide_data_pipeline.health import start_health_server
+from owomide_data_pipeline.outbox import KafkaEventPublisher, OutboxProcessor
 from owomide_data_pipeline.processor import ImportProcessor
 from owomide_data_pipeline.repository import ImportRepository
 from owomide_data_pipeline.storage import ObjectStore
@@ -20,6 +21,7 @@ def main() -> None:
     config = Config.from_env(
         require_service_secrets=False,
         require_catalog_secret=True,
+        require_kafka_brokers=True,
     )
     logging.basicConfig(
         level=getattr(logging, config.log_level),
@@ -40,8 +42,9 @@ def main() -> None:
         timeout_seconds=config.catalog_timeout_seconds,
     )
     worker_id = f"{socket.gethostname()}-{os.getpid()}-{uuid4().hex[:8]}"
+    repository = ImportRepository(database)
     processor = ImportProcessor(
-        repository=ImportRepository(database),
+        repository=repository,
         object_store=object_store,
         worker_id=worker_id,
         lease_seconds=config.worker_lease_seconds,
@@ -51,6 +54,16 @@ def main() -> None:
         insert_batch_size=config.import_insert_batch_size,
         xlsx_spool_memory_bytes=config.xlsx_spool_memory_bytes,
         catalog_client=catalog_client,
+    )
+    outbox = OutboxProcessor(
+        repository=repository,
+        publisher=KafkaEventPublisher(
+            brokers=config.kafka_brokers,
+            client_id=f"{config.kafka_client_id}-{worker_id}",
+        ),
+        batch_size=config.outbox_batch_size,
+        lease_seconds=config.outbox_lease_seconds,
+        retry_base_seconds=config.worker_retry_base_seconds,
     )
     health_server = start_health_server(
         config.health_host,
@@ -67,9 +80,11 @@ def main() -> None:
     logging.info("Data Pipeline worker %s started", worker_id)
     while not stopped.is_set():
         processed = processor.process_once()
-        if not processed:
+        published = outbox.process_once()
+        if not processed and not published:
             stopped.wait(config.worker_poll_seconds)
     health_server.stop()
+    outbox.close()
     catalog_client.close()
 
 

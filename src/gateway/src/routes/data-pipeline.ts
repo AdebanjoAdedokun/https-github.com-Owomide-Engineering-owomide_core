@@ -3,6 +3,7 @@ import multipart, { type Multipart } from "@fastify/multipart";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
   DataPipelineService,
+  CommitBatchResponseSchema,
   EditRowResponseSchema,
   ExcludeRowResponseSchema,
   GetColumnProfileResponseSchema,
@@ -347,6 +348,22 @@ export async function registerDataPipelineRoutes(
       ...serialized,
       row: result.row ? importRowJson(result.row) : undefined,
     });
+  });
+
+  app.post("/imports/:id/commit", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    if (
+      !isJsonObject(request.body) ||
+      typeof request.body.confirmWarnings !== "boolean" ||
+      Object.keys(request.body).some((key) => key !== "confirmWarnings")
+    ) {
+      return invalidArgument(reply, "Request body must contain only boolean confirmWarnings");
+    }
+    const result = await client.commitBatch(
+      { batchId: id, confirmWarnings: request.body.confirmWarnings },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    return reply.status(202).send(toJson(CommitBatchResponseSchema, result));
   });
 
   app.get("/mappings", async (request, reply) => {

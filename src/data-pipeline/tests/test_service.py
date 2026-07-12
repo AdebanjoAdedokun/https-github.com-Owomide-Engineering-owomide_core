@@ -82,6 +82,7 @@ class FakeRepository:
         self.mapping_template: MappingTemplateRecord | None = None
         self.saved_template: dict | None = None
         self.queued_mapping: dict | None = None
+        self.queued_commit: dict | None = None
 
     def create_import(self, **values):
         self.created = values
@@ -129,6 +130,27 @@ class FakeRepository:
         self.queued_mapping = values
         return uuid4()
 
+    def queue_commit(self, **values):
+        self.queued_commit = values
+        now = datetime.now(UTC)
+        return ImportOperationRecord(
+            id=uuid4(),
+            org_id=values["org_id"],
+            batch_id=values["batch_id"],
+            operation_type="commit",
+            status="queued",
+            attempt_count=0,
+            max_attempts=5,
+            progress_current=0,
+            progress_total=1,
+            error_message=None,
+            next_attempt_at=now,
+            created_at=now,
+            started_at=None,
+            finished_at=None,
+            result_payload={},
+        )
+
 
 def service(repository: FakeRepository, object_store: FakeObjectStore, max_bytes: int = 100):
     return DataPipelineService(
@@ -144,6 +166,32 @@ def service(repository: FakeRepository, object_store: FakeObjectStore, max_bytes
 
 
 class DataPipelineServiceTest(unittest.TestCase):
+    def test_commit_uses_trusted_tenant_and_explicit_warning_confirmation(self) -> None:
+        repository = FakeRepository()
+        batch_id = uuid4()
+
+        response = service(repository, FakeObjectStore()).CommitBatch(
+            data_pipeline_pb2.CommitBatchRequest(
+                batch_id=str(batch_id),
+                confirm_warnings=True,
+            ),
+            FakeContext(),
+        )
+
+        self.assertEqual(response.batch_id, str(batch_id))
+        self.assertEqual(
+            response.operation.status,
+            data_pipeline_pb2.IMPORT_OPERATION_STATUS_QUEUED,
+        )
+        self.assertEqual(
+            repository.queued_commit,
+            {
+                "org_id": "org-a",
+                "batch_id": batch_id,
+                "confirm_warnings": True,
+            },
+        )
+
     def test_upload_streams_file_and_records_trusted_tenant_context(self) -> None:
         repository = FakeRepository()
         object_store = FakeObjectStore()
@@ -245,6 +293,7 @@ class DataPipelineServiceTest(unittest.TestCase):
             created_at=now,
             started_at=now,
             finished_at=None,
+            result_payload={},
         )
         repository.profile_state = ColumnProfileState(columns=(), operation=operation)
 

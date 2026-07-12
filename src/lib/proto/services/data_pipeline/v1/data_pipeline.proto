@@ -141,6 +141,7 @@ message ImportOperation {
   google.protobuf.Timestamp created_at = 12;
   google.protobuf.Timestamp started_at = 13;
   google.protobuf.Timestamp finished_at = 14;
+  optional CommitResult commit_result = 15;
 }
 
 message ColumnProfile {
@@ -197,6 +198,13 @@ message CatalogWriteSummary {
   int32 updated = 2;
   int32 unchanged = 3;
   int32 rejected = 4;
+}
+
+message CommitResult {
+  RowCounts row_counts = 1;
+  repeated string catalog_operation_ids = 2;
+  bool catalog_replayed = 3;
+  CatalogWriteSummary catalog_summary = 4;
 }
 
 message GetImportBatchRequest {
@@ -293,6 +301,7 @@ message CommitBatchResponse {
   string catalog_operation_id = 3;
   bool catalog_replayed = 4;
   CatalogWriteSummary catalog_summary = 5;
+  ImportOperation operation = 6;
 }
 
 message ListMappingTemplatesRequest {

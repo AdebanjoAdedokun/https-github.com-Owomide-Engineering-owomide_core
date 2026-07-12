@@ -30,6 +30,7 @@ from owomide_data_pipeline.mapping import (
 )
 from owomide_data_pipeline.repository import (
     ColumnProfileRecord,
+    CommitResultRecord,
     ImportBatchRecord,
     ImportOperationRecord,
     ImportRepository,
@@ -37,6 +38,7 @@ from owomide_data_pipeline.repository import (
     MappingTemplateRecord,
     RowCountsRecord,
     ValidationEventRecord,
+    commit_result,
 )
 from owomide_data_pipeline.storage import ObjectStore
 from owomide_data_pipeline.streaming import LimitedHashingReader
@@ -116,7 +118,7 @@ def _batch_message(record: ImportBatchRecord) -> data_pipeline_pb2.ImportBatch:
 
 
 def _operation_message(record: ImportOperationRecord) -> data_pipeline_pb2.ImportOperation:
-    return data_pipeline_pb2.ImportOperation(
+    result = data_pipeline_pb2.ImportOperation(
         id=str(record.id),
         org_id=record.org_id,
         batch_id=str(record.batch_id),
@@ -132,6 +134,10 @@ def _operation_message(record: ImportOperationRecord) -> data_pipeline_pb2.Impor
         started_at=_timestamp(record.started_at),
         finished_at=_timestamp(record.finished_at),
     )
+    completed = commit_result(record)
+    if completed is not None:
+        result.commit_result.CopyFrom(_commit_result_message(completed))
+    return result
 
 
 def _column_profile_message(record: ColumnProfileRecord) -> data_pipeline_pb2.ColumnProfile:
@@ -207,6 +213,20 @@ def _row_counts_message(record: RowCountsRecord) -> data_pipeline_pb2.RowCounts:
         warned=record.warned,
         excluded=record.excluded,
         errored=record.errored,
+    )
+
+
+def _commit_result_message(record: CommitResultRecord) -> data_pipeline_pb2.CommitResult:
+    return data_pipeline_pb2.CommitResult(
+        row_counts=_row_counts_message(record.row_counts),
+        catalog_operation_ids=record.catalog_operation_ids,
+        catalog_replayed=record.catalog_replayed,
+        catalog_summary=data_pipeline_pb2.CatalogWriteSummary(
+            created=record.catalog_summary.created,
+            updated=record.catalog_summary.updated,
+            unchanged=record.catalog_summary.unchanged,
+            rejected=record.catalog_summary.rejected,
+        ),
     )
 
 
@@ -571,6 +591,41 @@ class DataPipelineService(data_pipeline_pb2_grpc.DataPipelineServiceServicer):
             row=_row_message(row),
             operation=_operation_message(operation),
         )
+
+    def CommitBatch(self, request, context):
+        request_context = self._request_context(context)
+        try:
+            operation = self._repository.queue_commit(
+                org_id=request_context.org_id,
+                batch_id=_uuid(request.batch_id, "batch_id", context),
+                confirm_warnings=request.confirm_warnings,
+            )
+        except ImportResourceNotFoundError as exc:
+            context.abort(grpc.StatusCode.NOT_FOUND, str(exc))
+        except ImportStateError as exc:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, str(exc))
+        except ImportConflictError as exc:
+            context.abort(grpc.StatusCode.ALREADY_EXISTS, str(exc))
+        response = data_pipeline_pb2.CommitBatchResponse(
+            batch_id=request.batch_id,
+            operation=_operation_message(operation),
+        )
+        completed = commit_result(operation)
+        if completed is not None:
+            response.row_counts.CopyFrom(_row_counts_message(completed.row_counts))
+            response.catalog_operation_id = (
+                completed.catalog_operation_ids[0] if completed.catalog_operation_ids else ""
+            )
+            response.catalog_replayed = completed.catalog_replayed
+            response.catalog_summary.CopyFrom(
+                data_pipeline_pb2.CatalogWriteSummary(
+                    created=completed.catalog_summary.created,
+                    updated=completed.catalog_summary.updated,
+                    unchanged=completed.catalog_summary.unchanged,
+                    rejected=completed.catalog_summary.rejected,
+                )
+            )
+        return response
 
     def ListMappingTemplates(self, request, context):
         request_context = self._request_context(context)
