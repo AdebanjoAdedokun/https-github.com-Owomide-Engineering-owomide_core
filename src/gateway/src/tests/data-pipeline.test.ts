@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import { describe, expect, it } from "vitest";
 import {
   ApplyMappingResponseSchema,
+  CommitBatchResponseSchema,
   EditRowResponseSchema,
   ExcludeRowResponseSchema,
   GetColumnProfileResponseSchema,
@@ -55,6 +56,7 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
   let validationRequest: unknown;
   let editRowRequest: unknown;
   let excludeRowRequest: unknown;
+  let commitRequest: unknown;
   const client = {
     async uploadImportFile(
       requests: AsyncIterable<UploadImportFileRequest>,
@@ -185,6 +187,18 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
         operation: { id: "validation-3", batchId: request.batchId, orgId: "org-test" },
       });
     },
+    async commitBatch(request: { batchId: string; confirmWarnings: boolean }) {
+      commitRequest = request;
+      return create(CommitBatchResponseSchema, {
+        batchId: request.batchId,
+        operation: {
+          id: "commit-1",
+          orgId: "org-test",
+          batchId: request.batchId,
+          status: ImportOperationStatus.QUEUED,
+        },
+      });
+    },
   };
   const config = { ...loadConfig(), dataPipelineUploadMaxBytes: maxBytes };
   await registerDataPipelineRoutes(app, config, {
@@ -202,6 +216,7 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
     validationRequest: () => validationRequest,
     editRowRequest: () => editRowRequest,
     excludeRowRequest: () => excludeRowRequest,
+    commitRequest: () => commitRequest,
   };
 }
 
@@ -438,6 +453,29 @@ describe("Data Pipeline routes", () => {
       operation: { id: "validation-3" },
     });
     expect(excludeRowRequest()).toMatchObject({ reason: "not in scope" });
+    await app.close();
+  });
+
+  it("queues an asynchronous commit with explicit warning confirmation", async () => {
+    const { app, commitRequest } = await testApp();
+    const invalid = await app.inject({
+      method: "POST",
+      url: "/imports/batch-1/commit",
+      payload: { confirmWarnings: "yes" },
+    });
+    expect(invalid.statusCode).toBe(400);
+
+    const queued = await app.inject({
+      method: "POST",
+      url: "/imports/batch-1/commit",
+      payload: { confirmWarnings: true },
+    });
+    expect(queued.statusCode).toBe(202);
+    expect(queued.json()).toMatchObject({
+      batchId: "batch-1",
+      operation: { id: "commit-1", status: "IMPORT_OPERATION_STATUS_QUEUED" },
+    });
+    expect(commitRequest()).toEqual({ batchId: "batch-1", confirmWarnings: true });
     await app.close();
   });
 });

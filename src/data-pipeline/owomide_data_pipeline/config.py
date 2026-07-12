@@ -80,6 +80,10 @@ class Config:
     catalog_service_url: str
     catalog_service_secret: str
     catalog_timeout_seconds: float
+    kafka_brokers: tuple[str, ...]
+    kafka_client_id: str
+    outbox_batch_size: int
+    outbox_lease_seconds: int
     upload_max_bytes: int
     import_max_rows: int
     import_max_columns: int
@@ -97,6 +101,7 @@ class Config:
         *,
         require_service_secrets: bool = True,
         require_catalog_secret: bool = False,
+        require_kafka_brokers: bool = False,
     ) -> Config:
         env = os.environ if values is None else values
         environment = env.get("OWOMIDE_ENV", "development").strip().lower()
@@ -130,6 +135,14 @@ class Config:
             "DATA_PIPELINE_CATALOG_SERVICE_SECRET",
             "" if environment == "production" else "dev-only-catalog-pipeline-secret-change-me",
         ).strip()
+        kafka_brokers = tuple(
+            broker.strip()
+            for broker in env.get(
+                "KAFKA_BROKERS", "" if environment == "production" else "localhost:9092"
+            ).split(",")
+            if broker.strip()
+        )
+        kafka_client_id = env.get("DATA_PIPELINE_KAFKA_CLIENT_ID", "data-pipeline-worker").strip()
 
         if not database_url:
             raise ConfigurationError("DATA_PIPELINE_DATABASE_URL is required")
@@ -147,6 +160,10 @@ class Config:
             raise ConfigurationError(
                 "DATA_PIPELINE_CATALOG_SERVICE_SECRET must be at least 32 characters"
             )
+        if require_kafka_brokers and not kafka_brokers:
+            raise ConfigurationError("KAFKA_BROKERS must contain at least one broker")
+        if not kafka_client_id:
+            raise ConfigurationError("DATA_PIPELINE_KAFKA_CLIENT_ID is required")
         if log_level not in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"}:
             raise ConfigurationError("LOG_LEVEL is invalid")
 
@@ -177,6 +194,10 @@ class Config:
             catalog_timeout_seconds=_positive_float(
                 env, "DATA_PIPELINE_CATALOG_TIMEOUT_SECONDS", 10.0
             ),
+            kafka_brokers=kafka_brokers,
+            kafka_client_id=kafka_client_id,
+            outbox_batch_size=_integer(env, "DATA_PIPELINE_OUTBOX_BATCH_SIZE", 100, 1, 500),
+            outbox_lease_seconds=_integer(env, "DATA_PIPELINE_OUTBOX_LEASE_SECONDS", 30, 1, 3_600),
             upload_max_bytes=_integer(
                 env, "DATA_PIPELINE_UPLOAD_MAX_BYTES", 50 * 1024 * 1024, 1, 5 * 1024 * 1024 * 1024
             ),

@@ -5,12 +5,19 @@ from collections.abc import Iterator
 from tempfile import SpooledTemporaryFile
 from uuid import UUID
 
-from owomide_data_pipeline.catalog import CatalogLoader
+from services.catalog.v1 import catalog_pb2
+
+from owomide_data_pipeline.canonical import canonical_row
+from owomide_data_pipeline.catalog import CatalogLoader, CatalogWriter
 from owomide_data_pipeline.errors import InvalidImportError
 from owomide_data_pipeline.mapping import map_row, mapping_from_operation_payload
 from owomide_data_pipeline.parsers import ParsedRow, iter_csv_rows, iter_xlsx_rows
 from owomide_data_pipeline.profiler import ColumnProfiler, ProfiledColumn
-from owomide_data_pipeline.repository import ClaimedOperation, ImportRepository
+from owomide_data_pipeline.repository import (
+    CatalogRowResultRecord,
+    ClaimedOperation,
+    ImportRepository,
+)
 from owomide_data_pipeline.storage import ObjectStore
 from owomide_data_pipeline.transformations import apply_transformations
 from owomide_data_pipeline.validation import validate_row
@@ -29,7 +36,7 @@ class ImportProcessor:
         max_columns: int,
         insert_batch_size: int,
         xlsx_spool_memory_bytes: int,
-        catalog_client: CatalogLoader | None = None,
+        catalog_client: CatalogLoader | CatalogWriter | None = None,
     ) -> None:
         self._repository = repository
         self._object_store = object_store
@@ -86,6 +93,16 @@ class ImportProcessor:
                     counts.warned,
                     counts.excluded,
                     counts.errored,
+                )
+            elif operation.operation_type == "commit":
+                result = self._commit(operation)
+                logging.info(
+                    "Committed import batch %s: created=%s updated=%s unchanged=%s rejected=%s",
+                    operation.batch_id,
+                    result.catalog_summary.created,
+                    result.catalog_summary.updated,
+                    result.catalog_summary.unchanged,
+                    result.catalog_summary.rejected,
                 )
             else:
                 raise InvalidImportError(
@@ -211,6 +228,87 @@ class ImportProcessor:
             self._worker_id,
             progress,
         ), progress
+
+    def _commit(self, operation: ClaimedOperation):
+        if self._catalog_client is None:
+            raise RuntimeError("Catalog client is required for commit operations")
+        batch = self._repository.get_batch(operation.org_id, operation.batch_id)
+        if batch is None:
+            raise RuntimeError("Import batch not found during commit")
+
+        for chunk_index, rows in self._repository.iter_commit_chunks(operation):
+            pending = [row for row in rows if row.catalog_status == "pending"]
+            canonical_rows = []
+            local_rejections = []
+            for row in pending:
+                try:
+                    canonical_rows.append(
+                        canonical_row(row_id=str(row.row_id), mapped_data=row.mapped_data)
+                    )
+                except InvalidImportError as exc:
+                    local_rejections.append(
+                        CatalogRowResultRecord(
+                            row_id=row.row_id,
+                            status="rejected",
+                            errors=(
+                                {
+                                    "code": "invalid_canonical_row",
+                                    "message": str(exc),
+                                    "field": None,
+                                },
+                            ),
+                        )
+                    )
+            if local_rejections:
+                self._repository.record_commit_results(
+                    operation=operation,
+                    worker_id=self._worker_id,
+                    results=local_rejections,
+                    catalog_operation_id=None,
+                    catalog_replayed=False,
+                )
+            if not canonical_rows:
+                continue
+            response = self._catalog_client.upsert_canonical(
+                org_id=operation.org_id,
+                batch_id=str(operation.batch_id),
+                actor_id=batch.owner_id,
+                chunk_index=chunk_index,
+                rows=canonical_rows,
+            )
+            expected_refs = {row.source_item_ref for row in canonical_rows}
+            actual_refs = {result.source_item_ref for result in response.results}
+            if len(actual_refs) != len(response.results) or actual_refs != expected_refs:
+                raise RuntimeError("Catalog response did not match the committed row set")
+            results = []
+            for row_result in response.results:
+                status_name = catalog_pb2.WriteStatus.Name(row_result.status)
+                status = status_name.removeprefix("WRITE_STATUS_").lower()
+                errors = tuple(
+                    {
+                        "code": catalog_pb2.CatalogErrorCode.Name(error.code)
+                        .removeprefix("CATALOG_ERROR_CODE_")
+                        .lower(),
+                        "message": error.message,
+                        "field": error.field if error.HasField("field") else None,
+                    }
+                    for error in row_result.errors
+                )
+                results.append(
+                    CatalogRowResultRecord(
+                        row_id=UUID(row_result.source_item_ref),
+                        status=status,
+                        errors=errors,
+                    )
+                )
+            self._repository.record_commit_results(
+                operation=operation,
+                worker_id=self._worker_id,
+                results=results,
+                catalog_operation_id=response.operation_id,
+                catalog_replayed=response.replayed,
+            )
+        return self._repository.complete_commit(operation, self._worker_id)
 
     def _persist(
         self,

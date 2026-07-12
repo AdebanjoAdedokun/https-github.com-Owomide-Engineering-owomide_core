@@ -866,6 +866,7 @@ type ImportOperation struct {
 	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	StartedAt       *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
 	FinishedAt      *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	CommitResult    *CommitResult          `protobuf:"bytes,15,opt,name=commit_result,json=commitResult,proto3,oneof" json:"commit_result,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -994,6 +995,13 @@ func (x *ImportOperation) GetStartedAt() *timestamppb.Timestamp {
 func (x *ImportOperation) GetFinishedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.FinishedAt
+	}
+	return nil
+}
+
+func (x *ImportOperation) GetCommitResult() *CommitResult {
+	if x != nil {
+		return x.CommitResult
 	}
 	return nil
 }
@@ -1506,6 +1514,74 @@ func (x *CatalogWriteSummary) GetRejected() int32 {
 	return 0
 }
 
+type CommitResult struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	RowCounts           *RowCounts             `protobuf:"bytes,1,opt,name=row_counts,json=rowCounts,proto3" json:"row_counts,omitempty"`
+	CatalogOperationIds []string               `protobuf:"bytes,2,rep,name=catalog_operation_ids,json=catalogOperationIds,proto3" json:"catalog_operation_ids,omitempty"`
+	CatalogReplayed     bool                   `protobuf:"varint,3,opt,name=catalog_replayed,json=catalogReplayed,proto3" json:"catalog_replayed,omitempty"`
+	CatalogSummary      *CatalogWriteSummary   `protobuf:"bytes,4,opt,name=catalog_summary,json=catalogSummary,proto3" json:"catalog_summary,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *CommitResult) Reset() {
+	*x = CommitResult{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommitResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommitResult) ProtoMessage() {}
+
+func (x *CommitResult) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommitResult.ProtoReflect.Descriptor instead.
+func (*CommitResult) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CommitResult) GetRowCounts() *RowCounts {
+	if x != nil {
+		return x.RowCounts
+	}
+	return nil
+}
+
+func (x *CommitResult) GetCatalogOperationIds() []string {
+	if x != nil {
+		return x.CatalogOperationIds
+	}
+	return nil
+}
+
+func (x *CommitResult) GetCatalogReplayed() bool {
+	if x != nil {
+		return x.CatalogReplayed
+	}
+	return false
+}
+
+func (x *CommitResult) GetCatalogSummary() *CatalogWriteSummary {
+	if x != nil {
+		return x.CatalogSummary
+	}
+	return nil
+}
+
 type GetImportBatchRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BatchId       string                 `protobuf:"bytes,1,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
@@ -1515,7 +1591,7 @@ type GetImportBatchRequest struct {
 
 func (x *GetImportBatchRequest) Reset() {
 	*x = GetImportBatchRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[11]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1527,7 +1603,7 @@ func (x *GetImportBatchRequest) String() string {
 func (*GetImportBatchRequest) ProtoMessage() {}
 
 func (x *GetImportBatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[11]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1540,7 +1616,7 @@ func (x *GetImportBatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetImportBatchRequest.ProtoReflect.Descriptor instead.
 func (*GetImportBatchRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{11}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetImportBatchRequest) GetBatchId() string {
@@ -1559,7 +1635,7 @@ type GetImportBatchResponse struct {
 
 func (x *GetImportBatchResponse) Reset() {
 	*x = GetImportBatchResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[12]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1571,7 +1647,7 @@ func (x *GetImportBatchResponse) String() string {
 func (*GetImportBatchResponse) ProtoMessage() {}
 
 func (x *GetImportBatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[12]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1584,7 +1660,7 @@ func (x *GetImportBatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetImportBatchResponse.ProtoReflect.Descriptor instead.
 func (*GetImportBatchResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{12}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetImportBatchResponse) GetBatch() *ImportBatch {
@@ -1604,7 +1680,7 @@ type ListImportBatchesRequest struct {
 
 func (x *ListImportBatchesRequest) Reset() {
 	*x = ListImportBatchesRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[13]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1616,7 +1692,7 @@ func (x *ListImportBatchesRequest) String() string {
 func (*ListImportBatchesRequest) ProtoMessage() {}
 
 func (x *ListImportBatchesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[13]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1629,7 +1705,7 @@ func (x *ListImportBatchesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListImportBatchesRequest.ProtoReflect.Descriptor instead.
 func (*ListImportBatchesRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{13}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListImportBatchesRequest) GetStatus() ImportBatchStatus {
@@ -1656,7 +1732,7 @@ type ListImportBatchesResponse struct {
 
 func (x *ListImportBatchesResponse) Reset() {
 	*x = ListImportBatchesResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[14]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1668,7 +1744,7 @@ func (x *ListImportBatchesResponse) String() string {
 func (*ListImportBatchesResponse) ProtoMessage() {}
 
 func (x *ListImportBatchesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[14]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1681,7 +1757,7 @@ func (x *ListImportBatchesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListImportBatchesResponse.ProtoReflect.Descriptor instead.
 func (*ListImportBatchesResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{14}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListImportBatchesResponse) GetBatches() []*ImportBatch {
@@ -1707,7 +1783,7 @@ type GetImportOperationRequest struct {
 
 func (x *GetImportOperationRequest) Reset() {
 	*x = GetImportOperationRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[15]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1719,7 +1795,7 @@ func (x *GetImportOperationRequest) String() string {
 func (*GetImportOperationRequest) ProtoMessage() {}
 
 func (x *GetImportOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[15]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1732,7 +1808,7 @@ func (x *GetImportOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetImportOperationRequest.ProtoReflect.Descriptor instead.
 func (*GetImportOperationRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{15}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetImportOperationRequest) GetOperationId() string {
@@ -1751,7 +1827,7 @@ type GetImportOperationResponse struct {
 
 func (x *GetImportOperationResponse) Reset() {
 	*x = GetImportOperationResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[16]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1763,7 +1839,7 @@ func (x *GetImportOperationResponse) String() string {
 func (*GetImportOperationResponse) ProtoMessage() {}
 
 func (x *GetImportOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[16]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1776,7 +1852,7 @@ func (x *GetImportOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetImportOperationResponse.ProtoReflect.Descriptor instead.
 func (*GetImportOperationResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{16}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetImportOperationResponse) GetOperation() *ImportOperation {
@@ -1795,7 +1871,7 @@ type GetColumnProfileRequest struct {
 
 func (x *GetColumnProfileRequest) Reset() {
 	*x = GetColumnProfileRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[17]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1807,7 +1883,7 @@ func (x *GetColumnProfileRequest) String() string {
 func (*GetColumnProfileRequest) ProtoMessage() {}
 
 func (x *GetColumnProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[17]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1820,7 +1896,7 @@ func (x *GetColumnProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetColumnProfileRequest.ProtoReflect.Descriptor instead.
 func (*GetColumnProfileRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{17}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetColumnProfileRequest) GetBatchId() string {
@@ -1840,7 +1916,7 @@ type GetColumnProfileResponse struct {
 
 func (x *GetColumnProfileResponse) Reset() {
 	*x = GetColumnProfileResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[18]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1852,7 +1928,7 @@ func (x *GetColumnProfileResponse) String() string {
 func (*GetColumnProfileResponse) ProtoMessage() {}
 
 func (x *GetColumnProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[18]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1865,7 +1941,7 @@ func (x *GetColumnProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetColumnProfileResponse.ProtoReflect.Descriptor instead.
 func (*GetColumnProfileResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{18}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetColumnProfileResponse) GetColumns() []*ColumnProfile {
@@ -1894,7 +1970,7 @@ type ApplyMappingRequest struct {
 
 func (x *ApplyMappingRequest) Reset() {
 	*x = ApplyMappingRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[19]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1906,7 +1982,7 @@ func (x *ApplyMappingRequest) String() string {
 func (*ApplyMappingRequest) ProtoMessage() {}
 
 func (x *ApplyMappingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[19]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1919,7 +1995,7 @@ func (x *ApplyMappingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyMappingRequest.ProtoReflect.Descriptor instead.
 func (*ApplyMappingRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{19}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ApplyMappingRequest) GetBatchId() string {
@@ -1961,7 +2037,7 @@ type ApplyMappingResponse struct {
 
 func (x *ApplyMappingResponse) Reset() {
 	*x = ApplyMappingResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[20]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1973,7 +2049,7 @@ func (x *ApplyMappingResponse) String() string {
 func (*ApplyMappingResponse) ProtoMessage() {}
 
 func (x *ApplyMappingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[20]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1986,7 +2062,7 @@ func (x *ApplyMappingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApplyMappingResponse.ProtoReflect.Descriptor instead.
 func (*ApplyMappingResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{20}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ApplyMappingResponse) GetBatchId() string {
@@ -2020,7 +2096,7 @@ type GetValidationReportRequest struct {
 
 func (x *GetValidationReportRequest) Reset() {
 	*x = GetValidationReportRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[21]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2032,7 +2108,7 @@ func (x *GetValidationReportRequest) String() string {
 func (*GetValidationReportRequest) ProtoMessage() {}
 
 func (x *GetValidationReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[21]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2045,7 +2121,7 @@ func (x *GetValidationReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetValidationReportRequest.ProtoReflect.Descriptor instead.
 func (*GetValidationReportRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{21}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetValidationReportRequest) GetBatchId() string {
@@ -2075,7 +2151,7 @@ type GetValidationReportResponse struct {
 
 func (x *GetValidationReportResponse) Reset() {
 	*x = GetValidationReportResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[22]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2087,7 +2163,7 @@ func (x *GetValidationReportResponse) String() string {
 func (*GetValidationReportResponse) ProtoMessage() {}
 
 func (x *GetValidationReportResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[22]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2100,7 +2176,7 @@ func (x *GetValidationReportResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetValidationReportResponse.ProtoReflect.Descriptor instead.
 func (*GetValidationReportResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{22}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetValidationReportResponse) GetBatchId() string {
@@ -2149,7 +2225,7 @@ type EditRowRequest struct {
 
 func (x *EditRowRequest) Reset() {
 	*x = EditRowRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[23]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2161,7 +2237,7 @@ func (x *EditRowRequest) String() string {
 func (*EditRowRequest) ProtoMessage() {}
 
 func (x *EditRowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[23]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2174,7 +2250,7 @@ func (x *EditRowRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EditRowRequest.ProtoReflect.Descriptor instead.
 func (*EditRowRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{23}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *EditRowRequest) GetBatchId() string {
@@ -2208,7 +2284,7 @@ type EditRowResponse struct {
 
 func (x *EditRowResponse) Reset() {
 	*x = EditRowResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[24]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2220,7 +2296,7 @@ func (x *EditRowResponse) String() string {
 func (*EditRowResponse) ProtoMessage() {}
 
 func (x *EditRowResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[24]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2233,7 +2309,7 @@ func (x *EditRowResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EditRowResponse.ProtoReflect.Descriptor instead.
 func (*EditRowResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{24}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *EditRowResponse) GetRow() *ImportRow {
@@ -2261,7 +2337,7 @@ type ExcludeRowRequest struct {
 
 func (x *ExcludeRowRequest) Reset() {
 	*x = ExcludeRowRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[25]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2273,7 +2349,7 @@ func (x *ExcludeRowRequest) String() string {
 func (*ExcludeRowRequest) ProtoMessage() {}
 
 func (x *ExcludeRowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[25]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2286,7 +2362,7 @@ func (x *ExcludeRowRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExcludeRowRequest.ProtoReflect.Descriptor instead.
 func (*ExcludeRowRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{25}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ExcludeRowRequest) GetBatchId() string {
@@ -2320,7 +2396,7 @@ type ExcludeRowResponse struct {
 
 func (x *ExcludeRowResponse) Reset() {
 	*x = ExcludeRowResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[26]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2332,7 +2408,7 @@ func (x *ExcludeRowResponse) String() string {
 func (*ExcludeRowResponse) ProtoMessage() {}
 
 func (x *ExcludeRowResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[26]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2345,7 +2421,7 @@ func (x *ExcludeRowResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExcludeRowResponse.ProtoReflect.Descriptor instead.
 func (*ExcludeRowResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{26}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ExcludeRowResponse) GetRow() *ImportRow {
@@ -2372,7 +2448,7 @@ type CommitBatchRequest struct {
 
 func (x *CommitBatchRequest) Reset() {
 	*x = CommitBatchRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[27]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2384,7 +2460,7 @@ func (x *CommitBatchRequest) String() string {
 func (*CommitBatchRequest) ProtoMessage() {}
 
 func (x *CommitBatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[27]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2397,7 +2473,7 @@ func (x *CommitBatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitBatchRequest.ProtoReflect.Descriptor instead.
 func (*CommitBatchRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{27}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *CommitBatchRequest) GetBatchId() string {
@@ -2421,13 +2497,14 @@ type CommitBatchResponse struct {
 	CatalogOperationId string                 `protobuf:"bytes,3,opt,name=catalog_operation_id,json=catalogOperationId,proto3" json:"catalog_operation_id,omitempty"`
 	CatalogReplayed    bool                   `protobuf:"varint,4,opt,name=catalog_replayed,json=catalogReplayed,proto3" json:"catalog_replayed,omitempty"`
 	CatalogSummary     *CatalogWriteSummary   `protobuf:"bytes,5,opt,name=catalog_summary,json=catalogSummary,proto3" json:"catalog_summary,omitempty"`
+	Operation          *ImportOperation       `protobuf:"bytes,6,opt,name=operation,proto3" json:"operation,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CommitBatchResponse) Reset() {
 	*x = CommitBatchResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[28]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2439,7 +2516,7 @@ func (x *CommitBatchResponse) String() string {
 func (*CommitBatchResponse) ProtoMessage() {}
 
 func (x *CommitBatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[28]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2452,7 +2529,7 @@ func (x *CommitBatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommitBatchResponse.ProtoReflect.Descriptor instead.
 func (*CommitBatchResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{28}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *CommitBatchResponse) GetBatchId() string {
@@ -2490,6 +2567,13 @@ func (x *CommitBatchResponse) GetCatalogSummary() *CatalogWriteSummary {
 	return nil
 }
 
+func (x *CommitBatchResponse) GetOperation() *ImportOperation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
 type ListMappingTemplatesRequest struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	SourceSystem      *string                `protobuf:"bytes,1,opt,name=source_system,json=sourceSystem,proto3,oneof" json:"source_system,omitempty"`
@@ -2502,7 +2586,7 @@ type ListMappingTemplatesRequest struct {
 
 func (x *ListMappingTemplatesRequest) Reset() {
 	*x = ListMappingTemplatesRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[29]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2514,7 +2598,7 @@ func (x *ListMappingTemplatesRequest) String() string {
 func (*ListMappingTemplatesRequest) ProtoMessage() {}
 
 func (x *ListMappingTemplatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[29]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2527,7 +2611,7 @@ func (x *ListMappingTemplatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMappingTemplatesRequest.ProtoReflect.Descriptor instead.
 func (*ListMappingTemplatesRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{29}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ListMappingTemplatesRequest) GetSourceSystem() string {
@@ -2568,7 +2652,7 @@ type ListMappingTemplatesResponse struct {
 
 func (x *ListMappingTemplatesResponse) Reset() {
 	*x = ListMappingTemplatesResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[30]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2580,7 +2664,7 @@ func (x *ListMappingTemplatesResponse) String() string {
 func (*ListMappingTemplatesResponse) ProtoMessage() {}
 
 func (x *ListMappingTemplatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[30]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2593,7 +2677,7 @@ func (x *ListMappingTemplatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMappingTemplatesResponse.ProtoReflect.Descriptor instead.
 func (*ListMappingTemplatesResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{30}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ListMappingTemplatesResponse) GetTemplates() []*MappingTemplate {
@@ -2625,7 +2709,7 @@ type SaveMappingTemplateRequest struct {
 
 func (x *SaveMappingTemplateRequest) Reset() {
 	*x = SaveMappingTemplateRequest{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[31]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2637,7 +2721,7 @@ func (x *SaveMappingTemplateRequest) String() string {
 func (*SaveMappingTemplateRequest) ProtoMessage() {}
 
 func (x *SaveMappingTemplateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[31]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2650,7 +2734,7 @@ func (x *SaveMappingTemplateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveMappingTemplateRequest.ProtoReflect.Descriptor instead.
 func (*SaveMappingTemplateRequest) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{31}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *SaveMappingTemplateRequest) GetId() string {
@@ -2711,7 +2795,7 @@ type SaveMappingTemplateResponse struct {
 
 func (x *SaveMappingTemplateResponse) Reset() {
 	*x = SaveMappingTemplateResponse{}
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[32]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2723,7 +2807,7 @@ func (x *SaveMappingTemplateResponse) String() string {
 func (*SaveMappingTemplateResponse) ProtoMessage() {}
 
 func (x *SaveMappingTemplateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[32]
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2736,7 +2820,7 @@ func (x *SaveMappingTemplateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveMappingTemplateResponse.ProtoReflect.Descriptor instead.
 func (*SaveMappingTemplateResponse) Descriptor() ([]byte, []int) {
-	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{32}
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *SaveMappingTemplateResponse) GetTemplate() *MappingTemplate {
@@ -2809,7 +2893,7 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\x06status\x18\a \x01(\x0e22.owomide.services.data_pipeline.v1.ImportRowStatusR\x06status\x12,\n" +
 	"\x0fexcluded_reason\x18\b \x01(\tH\x01R\x0eexcludedReason\x88\x01\x01B\x13\n" +
 	"\x11_mapped_data_jsonB\x12\n" +
-	"\x10_excluded_reason\"\xd1\x05\n" +
+	"\x10_excluded_reason\"\xbe\x06\n" +
 	"\x0fImportOperation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x19\n" +
@@ -2828,8 +2912,10 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\n" +
 	"started_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
 	"\vfinished_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"finishedAtB\x10\n" +
-	"\x0e_error_message\"\xbb\x03\n" +
+	"finishedAt\x12Y\n" +
+	"\rcommit_result\x18\x0f \x01(\v2/.owomide.services.data_pipeline.v1.CommitResultH\x01R\fcommitResult\x88\x01\x01B\x10\n" +
+	"\x0e_error_messageB\x10\n" +
+	"\x0e_commit_result\"\xbb\x03\n" +
 	"\rColumnProfile\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x19\n" +
@@ -2898,7 +2984,13 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\acreated\x18\x01 \x01(\x05R\acreated\x12\x18\n" +
 	"\aupdated\x18\x02 \x01(\x05R\aupdated\x12\x1c\n" +
 	"\tunchanged\x18\x03 \x01(\x05R\tunchanged\x12\x1a\n" +
-	"\brejected\x18\x04 \x01(\x05R\brejected\"2\n" +
+	"\brejected\x18\x04 \x01(\x05R\brejected\"\x9b\x02\n" +
+	"\fCommitResult\x12K\n" +
+	"\n" +
+	"row_counts\x18\x01 \x01(\v2,.owomide.services.data_pipeline.v1.RowCountsR\trowCounts\x122\n" +
+	"\x15catalog_operation_ids\x18\x02 \x03(\tR\x13catalogOperationIds\x12)\n" +
+	"\x10catalog_replayed\x18\x03 \x01(\bR\x0fcatalogReplayed\x12_\n" +
+	"\x0fcatalog_summary\x18\x04 \x01(\v26.owomide.services.data_pipeline.v1.CatalogWriteSummaryR\x0ecatalogSummary\"2\n" +
 	"\x15GetImportBatchRequest\x12\x19\n" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\"^\n" +
 	"\x16GetImportBatchResponse\x12D\n" +
@@ -2970,14 +3062,15 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\toperation\x18\x02 \x01(\v22.owomide.services.data_pipeline.v1.ImportOperationR\toperation\"Z\n" +
 	"\x12CommitBatchRequest\x12\x19\n" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\x12)\n" +
-	"\x10confirm_warnings\x18\x02 \x01(\bR\x0fconfirmWarnings\"\xbb\x02\n" +
+	"\x10confirm_warnings\x18\x02 \x01(\bR\x0fconfirmWarnings\"\x8d\x03\n" +
 	"\x13CommitBatchResponse\x12\x19\n" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\x12K\n" +
 	"\n" +
 	"row_counts\x18\x02 \x01(\v2,.owomide.services.data_pipeline.v1.RowCountsR\trowCounts\x120\n" +
 	"\x14catalog_operation_id\x18\x03 \x01(\tR\x12catalogOperationId\x12)\n" +
 	"\x10catalog_replayed\x18\x04 \x01(\bR\x0fcatalogReplayed\x12_\n" +
-	"\x0fcatalog_summary\x18\x05 \x01(\v26.owomide.services.data_pipeline.v1.CatalogWriteSummaryR\x0ecatalogSummary\"\x98\x02\n" +
+	"\x0fcatalog_summary\x18\x05 \x01(\v26.owomide.services.data_pipeline.v1.CatalogWriteSummaryR\x0ecatalogSummary\x12P\n" +
+	"\toperation\x18\x06 \x01(\v22.owomide.services.data_pipeline.v1.ImportOperationR\toperation\"\x98\x02\n" +
 	"\x1bListMappingTemplatesRequest\x12(\n" +
 	"\rsource_system\x18\x01 \x01(\tH\x00R\fsourceSystem\x88\x01\x01\x12\"\n" +
 	"\n" +
@@ -3078,7 +3171,7 @@ func file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP() []byte {
 }
 
 var file_services_data_pipeline_v1_data_pipeline_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_services_data_pipeline_v1_data_pipeline_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_services_data_pipeline_v1_data_pipeline_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_services_data_pipeline_v1_data_pipeline_proto_goTypes = []any{
 	(ImportSourceType)(0),                // 0: owomide.services.data_pipeline.v1.ImportSourceType
 	(ImportBatchStatus)(0),               // 1: owomide.services.data_pipeline.v1.ImportBatchStatus
@@ -3097,31 +3190,32 @@ var file_services_data_pipeline_v1_data_pipeline_proto_goTypes = []any{
 	(*ValidationEvent)(nil),              // 14: owomide.services.data_pipeline.v1.ValidationEvent
 	(*RowCounts)(nil),                    // 15: owomide.services.data_pipeline.v1.RowCounts
 	(*CatalogWriteSummary)(nil),          // 16: owomide.services.data_pipeline.v1.CatalogWriteSummary
-	(*GetImportBatchRequest)(nil),        // 17: owomide.services.data_pipeline.v1.GetImportBatchRequest
-	(*GetImportBatchResponse)(nil),       // 18: owomide.services.data_pipeline.v1.GetImportBatchResponse
-	(*ListImportBatchesRequest)(nil),     // 19: owomide.services.data_pipeline.v1.ListImportBatchesRequest
-	(*ListImportBatchesResponse)(nil),    // 20: owomide.services.data_pipeline.v1.ListImportBatchesResponse
-	(*GetImportOperationRequest)(nil),    // 21: owomide.services.data_pipeline.v1.GetImportOperationRequest
-	(*GetImportOperationResponse)(nil),   // 22: owomide.services.data_pipeline.v1.GetImportOperationResponse
-	(*GetColumnProfileRequest)(nil),      // 23: owomide.services.data_pipeline.v1.GetColumnProfileRequest
-	(*GetColumnProfileResponse)(nil),     // 24: owomide.services.data_pipeline.v1.GetColumnProfileResponse
-	(*ApplyMappingRequest)(nil),          // 25: owomide.services.data_pipeline.v1.ApplyMappingRequest
-	(*ApplyMappingResponse)(nil),         // 26: owomide.services.data_pipeline.v1.ApplyMappingResponse
-	(*GetValidationReportRequest)(nil),   // 27: owomide.services.data_pipeline.v1.GetValidationReportRequest
-	(*GetValidationReportResponse)(nil),  // 28: owomide.services.data_pipeline.v1.GetValidationReportResponse
-	(*EditRowRequest)(nil),               // 29: owomide.services.data_pipeline.v1.EditRowRequest
-	(*EditRowResponse)(nil),              // 30: owomide.services.data_pipeline.v1.EditRowResponse
-	(*ExcludeRowRequest)(nil),            // 31: owomide.services.data_pipeline.v1.ExcludeRowRequest
-	(*ExcludeRowResponse)(nil),           // 32: owomide.services.data_pipeline.v1.ExcludeRowResponse
-	(*CommitBatchRequest)(nil),           // 33: owomide.services.data_pipeline.v1.CommitBatchRequest
-	(*CommitBatchResponse)(nil),          // 34: owomide.services.data_pipeline.v1.CommitBatchResponse
-	(*ListMappingTemplatesRequest)(nil),  // 35: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
-	(*ListMappingTemplatesResponse)(nil), // 36: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
-	(*SaveMappingTemplateRequest)(nil),   // 37: owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
-	(*SaveMappingTemplateResponse)(nil),  // 38: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
-	(*timestamppb.Timestamp)(nil),        // 39: google.protobuf.Timestamp
-	(*v1.Pagination)(nil),                // 40: owomide.common.v1.Pagination
-	(*v1.PaginatedResponse)(nil),         // 41: owomide.common.v1.PaginatedResponse
+	(*CommitResult)(nil),                 // 17: owomide.services.data_pipeline.v1.CommitResult
+	(*GetImportBatchRequest)(nil),        // 18: owomide.services.data_pipeline.v1.GetImportBatchRequest
+	(*GetImportBatchResponse)(nil),       // 19: owomide.services.data_pipeline.v1.GetImportBatchResponse
+	(*ListImportBatchesRequest)(nil),     // 20: owomide.services.data_pipeline.v1.ListImportBatchesRequest
+	(*ListImportBatchesResponse)(nil),    // 21: owomide.services.data_pipeline.v1.ListImportBatchesResponse
+	(*GetImportOperationRequest)(nil),    // 22: owomide.services.data_pipeline.v1.GetImportOperationRequest
+	(*GetImportOperationResponse)(nil),   // 23: owomide.services.data_pipeline.v1.GetImportOperationResponse
+	(*GetColumnProfileRequest)(nil),      // 24: owomide.services.data_pipeline.v1.GetColumnProfileRequest
+	(*GetColumnProfileResponse)(nil),     // 25: owomide.services.data_pipeline.v1.GetColumnProfileResponse
+	(*ApplyMappingRequest)(nil),          // 26: owomide.services.data_pipeline.v1.ApplyMappingRequest
+	(*ApplyMappingResponse)(nil),         // 27: owomide.services.data_pipeline.v1.ApplyMappingResponse
+	(*GetValidationReportRequest)(nil),   // 28: owomide.services.data_pipeline.v1.GetValidationReportRequest
+	(*GetValidationReportResponse)(nil),  // 29: owomide.services.data_pipeline.v1.GetValidationReportResponse
+	(*EditRowRequest)(nil),               // 30: owomide.services.data_pipeline.v1.EditRowRequest
+	(*EditRowResponse)(nil),              // 31: owomide.services.data_pipeline.v1.EditRowResponse
+	(*ExcludeRowRequest)(nil),            // 32: owomide.services.data_pipeline.v1.ExcludeRowRequest
+	(*ExcludeRowResponse)(nil),           // 33: owomide.services.data_pipeline.v1.ExcludeRowResponse
+	(*CommitBatchRequest)(nil),           // 34: owomide.services.data_pipeline.v1.CommitBatchRequest
+	(*CommitBatchResponse)(nil),          // 35: owomide.services.data_pipeline.v1.CommitBatchResponse
+	(*ListMappingTemplatesRequest)(nil),  // 36: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
+	(*ListMappingTemplatesResponse)(nil), // 37: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
+	(*SaveMappingTemplateRequest)(nil),   // 38: owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
+	(*SaveMappingTemplateResponse)(nil),  // 39: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
+	(*timestamppb.Timestamp)(nil),        // 40: google.protobuf.Timestamp
+	(*v1.Pagination)(nil),                // 41: owomide.common.v1.Pagination
+	(*v1.PaginatedResponse)(nil),         // 42: owomide.common.v1.PaginatedResponse
 }
 var file_services_data_pipeline_v1_data_pipeline_proto_depIdxs = []int32{
 	7,  // 0: owomide.services.data_pipeline.v1.UploadImportFileRequest.metadata:type_name -> owomide.services.data_pipeline.v1.UploadImportFileMetadata
@@ -3129,73 +3223,77 @@ var file_services_data_pipeline_v1_data_pipeline_proto_depIdxs = []int32{
 	1,  // 2: owomide.services.data_pipeline.v1.UploadImportFileResponse.status:type_name -> owomide.services.data_pipeline.v1.ImportBatchStatus
 	0,  // 3: owomide.services.data_pipeline.v1.ImportBatch.source_type:type_name -> owomide.services.data_pipeline.v1.ImportSourceType
 	1,  // 4: owomide.services.data_pipeline.v1.ImportBatch.status:type_name -> owomide.services.data_pipeline.v1.ImportBatchStatus
-	39, // 5: owomide.services.data_pipeline.v1.ImportBatch.created_at:type_name -> google.protobuf.Timestamp
-	39, // 6: owomide.services.data_pipeline.v1.ImportBatch.updated_at:type_name -> google.protobuf.Timestamp
-	39, // 7: owomide.services.data_pipeline.v1.ImportBatch.committed_at:type_name -> google.protobuf.Timestamp
+	40, // 5: owomide.services.data_pipeline.v1.ImportBatch.created_at:type_name -> google.protobuf.Timestamp
+	40, // 6: owomide.services.data_pipeline.v1.ImportBatch.updated_at:type_name -> google.protobuf.Timestamp
+	40, // 7: owomide.services.data_pipeline.v1.ImportBatch.committed_at:type_name -> google.protobuf.Timestamp
 	2,  // 8: owomide.services.data_pipeline.v1.ImportRow.status:type_name -> owomide.services.data_pipeline.v1.ImportRowStatus
 	3,  // 9: owomide.services.data_pipeline.v1.ImportOperation.operation_type:type_name -> owomide.services.data_pipeline.v1.ImportOperationType
 	4,  // 10: owomide.services.data_pipeline.v1.ImportOperation.status:type_name -> owomide.services.data_pipeline.v1.ImportOperationStatus
-	39, // 11: owomide.services.data_pipeline.v1.ImportOperation.next_attempt_at:type_name -> google.protobuf.Timestamp
-	39, // 12: owomide.services.data_pipeline.v1.ImportOperation.created_at:type_name -> google.protobuf.Timestamp
-	39, // 13: owomide.services.data_pipeline.v1.ImportOperation.started_at:type_name -> google.protobuf.Timestamp
-	39, // 14: owomide.services.data_pipeline.v1.ImportOperation.finished_at:type_name -> google.protobuf.Timestamp
-	39, // 15: owomide.services.data_pipeline.v1.MappingTemplate.created_at:type_name -> google.protobuf.Timestamp
-	39, // 16: owomide.services.data_pipeline.v1.MappingTemplate.updated_at:type_name -> google.protobuf.Timestamp
-	5,  // 17: owomide.services.data_pipeline.v1.ValidationEvent.severity:type_name -> owomide.services.data_pipeline.v1.ValidationSeverity
-	39, // 18: owomide.services.data_pipeline.v1.ValidationEvent.created_at:type_name -> google.protobuf.Timestamp
-	9,  // 19: owomide.services.data_pipeline.v1.GetImportBatchResponse.batch:type_name -> owomide.services.data_pipeline.v1.ImportBatch
-	1,  // 20: owomide.services.data_pipeline.v1.ListImportBatchesRequest.status:type_name -> owomide.services.data_pipeline.v1.ImportBatchStatus
-	40, // 21: owomide.services.data_pipeline.v1.ListImportBatchesRequest.pagination:type_name -> owomide.common.v1.Pagination
-	9,  // 22: owomide.services.data_pipeline.v1.ListImportBatchesResponse.batches:type_name -> owomide.services.data_pipeline.v1.ImportBatch
-	41, // 23: owomide.services.data_pipeline.v1.ListImportBatchesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	11, // 24: owomide.services.data_pipeline.v1.GetImportOperationResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	12, // 25: owomide.services.data_pipeline.v1.GetColumnProfileResponse.columns:type_name -> owomide.services.data_pipeline.v1.ColumnProfile
-	11, // 26: owomide.services.data_pipeline.v1.GetColumnProfileResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	4,  // 27: owomide.services.data_pipeline.v1.ApplyMappingResponse.status:type_name -> owomide.services.data_pipeline.v1.ImportOperationStatus
-	40, // 28: owomide.services.data_pipeline.v1.GetValidationReportRequest.pagination:type_name -> owomide.common.v1.Pagination
-	15, // 29: owomide.services.data_pipeline.v1.GetValidationReportResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
-	14, // 30: owomide.services.data_pipeline.v1.GetValidationReportResponse.events:type_name -> owomide.services.data_pipeline.v1.ValidationEvent
-	41, // 31: owomide.services.data_pipeline.v1.GetValidationReportResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	11, // 32: owomide.services.data_pipeline.v1.GetValidationReportResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	10, // 33: owomide.services.data_pipeline.v1.EditRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
-	11, // 34: owomide.services.data_pipeline.v1.EditRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	10, // 35: owomide.services.data_pipeline.v1.ExcludeRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
-	11, // 36: owomide.services.data_pipeline.v1.ExcludeRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	15, // 37: owomide.services.data_pipeline.v1.CommitBatchResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
-	16, // 38: owomide.services.data_pipeline.v1.CommitBatchResponse.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
-	40, // 39: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest.pagination:type_name -> owomide.common.v1.Pagination
-	13, // 40: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.templates:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
-	41, // 41: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	13, // 42: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse.template:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
-	6,  // 43: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:input_type -> owomide.services.data_pipeline.v1.UploadImportFileRequest
-	17, // 44: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:input_type -> owomide.services.data_pipeline.v1.GetImportBatchRequest
-	19, // 45: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:input_type -> owomide.services.data_pipeline.v1.ListImportBatchesRequest
-	21, // 46: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:input_type -> owomide.services.data_pipeline.v1.GetImportOperationRequest
-	23, // 47: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:input_type -> owomide.services.data_pipeline.v1.GetColumnProfileRequest
-	25, // 48: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:input_type -> owomide.services.data_pipeline.v1.ApplyMappingRequest
-	27, // 49: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:input_type -> owomide.services.data_pipeline.v1.GetValidationReportRequest
-	29, // 50: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:input_type -> owomide.services.data_pipeline.v1.EditRowRequest
-	31, // 51: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:input_type -> owomide.services.data_pipeline.v1.ExcludeRowRequest
-	33, // 52: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:input_type -> owomide.services.data_pipeline.v1.CommitBatchRequest
-	35, // 53: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:input_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
-	37, // 54: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:input_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
-	8,  // 55: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:output_type -> owomide.services.data_pipeline.v1.UploadImportFileResponse
-	18, // 56: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:output_type -> owomide.services.data_pipeline.v1.GetImportBatchResponse
-	20, // 57: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:output_type -> owomide.services.data_pipeline.v1.ListImportBatchesResponse
-	22, // 58: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:output_type -> owomide.services.data_pipeline.v1.GetImportOperationResponse
-	24, // 59: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:output_type -> owomide.services.data_pipeline.v1.GetColumnProfileResponse
-	26, // 60: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:output_type -> owomide.services.data_pipeline.v1.ApplyMappingResponse
-	28, // 61: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:output_type -> owomide.services.data_pipeline.v1.GetValidationReportResponse
-	30, // 62: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:output_type -> owomide.services.data_pipeline.v1.EditRowResponse
-	32, // 63: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:output_type -> owomide.services.data_pipeline.v1.ExcludeRowResponse
-	34, // 64: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:output_type -> owomide.services.data_pipeline.v1.CommitBatchResponse
-	36, // 65: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:output_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
-	38, // 66: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:output_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
-	55, // [55:67] is the sub-list for method output_type
-	43, // [43:55] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	40, // 11: owomide.services.data_pipeline.v1.ImportOperation.next_attempt_at:type_name -> google.protobuf.Timestamp
+	40, // 12: owomide.services.data_pipeline.v1.ImportOperation.created_at:type_name -> google.protobuf.Timestamp
+	40, // 13: owomide.services.data_pipeline.v1.ImportOperation.started_at:type_name -> google.protobuf.Timestamp
+	40, // 14: owomide.services.data_pipeline.v1.ImportOperation.finished_at:type_name -> google.protobuf.Timestamp
+	17, // 15: owomide.services.data_pipeline.v1.ImportOperation.commit_result:type_name -> owomide.services.data_pipeline.v1.CommitResult
+	40, // 16: owomide.services.data_pipeline.v1.MappingTemplate.created_at:type_name -> google.protobuf.Timestamp
+	40, // 17: owomide.services.data_pipeline.v1.MappingTemplate.updated_at:type_name -> google.protobuf.Timestamp
+	5,  // 18: owomide.services.data_pipeline.v1.ValidationEvent.severity:type_name -> owomide.services.data_pipeline.v1.ValidationSeverity
+	40, // 19: owomide.services.data_pipeline.v1.ValidationEvent.created_at:type_name -> google.protobuf.Timestamp
+	15, // 20: owomide.services.data_pipeline.v1.CommitResult.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
+	16, // 21: owomide.services.data_pipeline.v1.CommitResult.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
+	9,  // 22: owomide.services.data_pipeline.v1.GetImportBatchResponse.batch:type_name -> owomide.services.data_pipeline.v1.ImportBatch
+	1,  // 23: owomide.services.data_pipeline.v1.ListImportBatchesRequest.status:type_name -> owomide.services.data_pipeline.v1.ImportBatchStatus
+	41, // 24: owomide.services.data_pipeline.v1.ListImportBatchesRequest.pagination:type_name -> owomide.common.v1.Pagination
+	9,  // 25: owomide.services.data_pipeline.v1.ListImportBatchesResponse.batches:type_name -> owomide.services.data_pipeline.v1.ImportBatch
+	42, // 26: owomide.services.data_pipeline.v1.ListImportBatchesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	11, // 27: owomide.services.data_pipeline.v1.GetImportOperationResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	12, // 28: owomide.services.data_pipeline.v1.GetColumnProfileResponse.columns:type_name -> owomide.services.data_pipeline.v1.ColumnProfile
+	11, // 29: owomide.services.data_pipeline.v1.GetColumnProfileResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	4,  // 30: owomide.services.data_pipeline.v1.ApplyMappingResponse.status:type_name -> owomide.services.data_pipeline.v1.ImportOperationStatus
+	41, // 31: owomide.services.data_pipeline.v1.GetValidationReportRequest.pagination:type_name -> owomide.common.v1.Pagination
+	15, // 32: owomide.services.data_pipeline.v1.GetValidationReportResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
+	14, // 33: owomide.services.data_pipeline.v1.GetValidationReportResponse.events:type_name -> owomide.services.data_pipeline.v1.ValidationEvent
+	42, // 34: owomide.services.data_pipeline.v1.GetValidationReportResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	11, // 35: owomide.services.data_pipeline.v1.GetValidationReportResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	10, // 36: owomide.services.data_pipeline.v1.EditRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
+	11, // 37: owomide.services.data_pipeline.v1.EditRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	10, // 38: owomide.services.data_pipeline.v1.ExcludeRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
+	11, // 39: owomide.services.data_pipeline.v1.ExcludeRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	15, // 40: owomide.services.data_pipeline.v1.CommitBatchResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
+	16, // 41: owomide.services.data_pipeline.v1.CommitBatchResponse.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
+	11, // 42: owomide.services.data_pipeline.v1.CommitBatchResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	41, // 43: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest.pagination:type_name -> owomide.common.v1.Pagination
+	13, // 44: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.templates:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
+	42, // 45: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	13, // 46: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse.template:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
+	6,  // 47: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:input_type -> owomide.services.data_pipeline.v1.UploadImportFileRequest
+	18, // 48: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:input_type -> owomide.services.data_pipeline.v1.GetImportBatchRequest
+	20, // 49: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:input_type -> owomide.services.data_pipeline.v1.ListImportBatchesRequest
+	22, // 50: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:input_type -> owomide.services.data_pipeline.v1.GetImportOperationRequest
+	24, // 51: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:input_type -> owomide.services.data_pipeline.v1.GetColumnProfileRequest
+	26, // 52: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:input_type -> owomide.services.data_pipeline.v1.ApplyMappingRequest
+	28, // 53: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:input_type -> owomide.services.data_pipeline.v1.GetValidationReportRequest
+	30, // 54: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:input_type -> owomide.services.data_pipeline.v1.EditRowRequest
+	32, // 55: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:input_type -> owomide.services.data_pipeline.v1.ExcludeRowRequest
+	34, // 56: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:input_type -> owomide.services.data_pipeline.v1.CommitBatchRequest
+	36, // 57: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:input_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
+	38, // 58: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:input_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
+	8,  // 59: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:output_type -> owomide.services.data_pipeline.v1.UploadImportFileResponse
+	19, // 60: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:output_type -> owomide.services.data_pipeline.v1.GetImportBatchResponse
+	21, // 61: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:output_type -> owomide.services.data_pipeline.v1.ListImportBatchesResponse
+	23, // 62: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:output_type -> owomide.services.data_pipeline.v1.GetImportOperationResponse
+	25, // 63: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:output_type -> owomide.services.data_pipeline.v1.GetColumnProfileResponse
+	27, // 64: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:output_type -> owomide.services.data_pipeline.v1.ApplyMappingResponse
+	29, // 65: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:output_type -> owomide.services.data_pipeline.v1.GetValidationReportResponse
+	31, // 66: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:output_type -> owomide.services.data_pipeline.v1.EditRowResponse
+	33, // 67: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:output_type -> owomide.services.data_pipeline.v1.ExcludeRowResponse
+	35, // 68: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:output_type -> owomide.services.data_pipeline.v1.CommitBatchResponse
+	37, // 69: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:output_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
+	39, // 70: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:output_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
+	59, // [59:71] is the sub-list for method output_type
+	47, // [47:59] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_services_data_pipeline_v1_data_pipeline_proto_init() }
@@ -3214,19 +3312,19 @@ func file_services_data_pipeline_v1_data_pipeline_proto_init() {
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[6].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[7].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[8].OneofWrappers = []any{}
-	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[13].OneofWrappers = []any{}
-	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[18].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[14].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[19].OneofWrappers = []any{}
-	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[22].OneofWrappers = []any{}
-	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[29].OneofWrappers = []any{}
-	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[31].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[20].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[23].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[30].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[32].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_data_pipeline_v1_data_pipeline_proto_rawDesc), len(file_services_data_pipeline_v1_data_pipeline_proto_rawDesc)),
 			NumEnums:      6,
-			NumMessages:   33,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -44,6 +44,18 @@ class CatalogLoader(Protocol):
     def load_snapshot(self, org_id: str, sku_ids: Iterable[str]) -> CatalogSnapshot: ...
 
 
+class CatalogWriter(Protocol):
+    def upsert_canonical(
+        self,
+        *,
+        org_id: str,
+        batch_id: str,
+        actor_id: str,
+        chunk_index: int,
+        rows: Iterable[catalog_pb2.CanonicalWriteRow],
+    ) -> catalog_pb2.UpsertCanonicalResponse: ...
+
+
 def _chunks(values: Iterable[str], size: int = 500) -> Iterator[list[str]]:
     chunk: list[str] = []
     for value in values:
@@ -126,6 +138,32 @@ class CatalogClient:
             segment_ids=frozenset(segment.id for segment in segments),
             sku_ids=frozenset(found_skus),
             costs=costs,
+        )
+
+    def upsert_canonical(
+        self,
+        *,
+        org_id: str,
+        batch_id: str,
+        actor_id: str,
+        chunk_index: int,
+        rows: Iterable[catalog_pb2.CanonicalWriteRow],
+    ) -> catalog_pb2.UpsertCanonicalResponse:
+        request = catalog_pb2.UpsertCanonicalRequest(
+            idempotency_key=f"import:{batch_id}:chunk:{chunk_index}",
+            source=catalog_pb2.SourceContext(
+                source_type=catalog_pb2.SOURCE_TYPE_IMPORT,
+                source_ref=batch_id,
+                actor_id=actor_id,
+            ),
+            rows=list(rows),
+        )
+        if not request.rows or len(request.rows) > 500:
+            raise ValueError("Catalog writes must contain between 1 and 500 rows")
+        return self._stub.UpsertCanonical(
+            request,
+            metadata=self._metadata(org_id),
+            timeout=self._timeout_seconds,
         )
 
     def _list_channels(self, metadata: tuple[tuple[str, str], ...]) -> list[ChannelReference]:

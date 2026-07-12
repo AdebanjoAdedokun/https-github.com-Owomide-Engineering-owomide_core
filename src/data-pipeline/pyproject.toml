@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Owomide import staging and canonical commit service"
 requires-python = ">=3.12"
 dependencies = [
+    "aiokafka==0.14.0",
     "grpcio==1.82.1",
     "minio==7.2.20",
     "openpyxl==3.1.5",

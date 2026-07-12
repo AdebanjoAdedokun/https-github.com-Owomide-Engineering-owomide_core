@@ -12,3 +12,18 @@ py_library(
     visibility = ["//visibility:public"],
     deps = ["//src/lib/proto/events:envelope_py_pb2"],
 )
+
+py_library(
+    name = "owomide_bus_checked_proto",
+    srcs = [
+        "__init__.py",
+        "envelope.py",
+        "types.py",
+    ],
+    data = ["//src/lib/proto:gen_py"],
+    imports = [
+        "..",
+        "../../../proto/gen/py",
+    ],
+    visibility = ["//visibility:public"],
+)

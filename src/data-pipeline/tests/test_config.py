@@ -47,9 +47,11 @@ class ConfigTest(unittest.TestCase):
                 "DATA_PIPELINE_CATALOG_SERVICE_SECRET": (
                     "production-catalog-service-secret-long-enough"
                 ),
+                "KAFKA_BROKERS": "kafka-1:9092,kafka-2:9092",
             },
             require_service_secrets=False,
             require_catalog_secret=True,
+            require_kafka_brokers=True,
         )
 
         self.assertEqual(config.service_secrets, {})
@@ -57,6 +59,7 @@ class ConfigTest(unittest.TestCase):
             config.catalog_service_secret,
             "production-catalog-service-secret-long-enough",
         )
+        self.assertEqual(config.kafka_brokers, ("kafka-1:9092", "kafka-2:9092"))
 
     def test_worker_mode_requires_outbound_catalog_credential(self) -> None:
         with self.assertRaises(ConfigurationError):
@@ -69,6 +72,23 @@ class ConfigTest(unittest.TestCase):
                 },
                 require_service_secrets=False,
                 require_catalog_secret=True,
+            )
+
+    def test_worker_mode_requires_kafka_brokers_in_production(self) -> None:
+        with self.assertRaises(ConfigurationError):
+            Config.from_env(
+                {
+                    "OWOMIDE_ENV": "production",
+                    "DATA_PIPELINE_OBJECT_STORE_ENDPOINT": "objects.example.test",
+                    "DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY": "worker-access",
+                    "DATA_PIPELINE_OBJECT_STORE_SECRET_KEY": "worker-secret",
+                    "DATA_PIPELINE_CATALOG_SERVICE_SECRET": (
+                        "production-catalog-service-secret-long-enough"
+                    ),
+                },
+                require_service_secrets=False,
+                require_catalog_secret=True,
+                require_kafka_brokers=True,
             )
 
     def test_rejects_out_of_range_ports(self) -> None:

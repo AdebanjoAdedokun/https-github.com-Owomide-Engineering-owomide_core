@@ -317,6 +317,11 @@ export declare type ImportOperation = Message<"owomide.services.data_pipeline.v1
    * @generated from field: google.protobuf.Timestamp finished_at = 14;
    */
   finishedAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: optional owomide.services.data_pipeline.v1.CommitResult commit_result = 15;
+   */
+  commitResult?: CommitResult | undefined;
 };
 
 /**
@@ -584,6 +589,37 @@ export declare type CatalogWriteSummary = Message<"owomide.services.data_pipelin
  * Use `create(CatalogWriteSummarySchema)` to create a new message.
  */
 export declare const CatalogWriteSummarySchema: GenMessage<CatalogWriteSummary>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.CommitResult
+ */
+export declare type CommitResult = Message<"owomide.services.data_pipeline.v1.CommitResult"> & {
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.RowCounts row_counts = 1;
+   */
+  rowCounts?: RowCounts | undefined;
+
+  /**
+   * @generated from field: repeated string catalog_operation_ids = 2;
+   */
+  catalogOperationIds: string[];
+
+  /**
+   * @generated from field: bool catalog_replayed = 3;
+   */
+  catalogReplayed: boolean;
+
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.CatalogWriteSummary catalog_summary = 4;
+   */
+  catalogSummary?: CatalogWriteSummary | undefined;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.CommitResult.
+ * Use `create(CommitResultSchema)` to create a new message.
+ */
+export declare const CommitResultSchema: GenMessage<CommitResult>;
 
 /**
  * @generated from message owomide.services.data_pipeline.v1.GetImportBatchRequest
@@ -985,6 +1021,11 @@ export declare type CommitBatchResponse = Message<"owomide.services.data_pipelin
    * @generated from field: owomide.services.data_pipeline.v1.CatalogWriteSummary catalog_summary = 5;
    */
   catalogSummary?: CatalogWriteSummary | undefined;
+
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.ImportOperation operation = 6;
+   */
+  operation?: ImportOperation | undefined;
 };
 
 /**

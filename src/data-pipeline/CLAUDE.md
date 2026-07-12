@@ -94,6 +94,23 @@ Reapplying a mapping replaces `mapped_data`, preserves excluded-row state, inval
 validation events, and queues a new validation snapshot. Validation attempts clear and rebuild
 their own findings, making lease recovery and retries idempotent.
 
+## F2.6 Scope
+
+F2.6 provides:
+
+- asynchronous `CommitBatch` and `POST /imports/:id/commit` entrypoints;
+- an immutable `commit_item` snapshot that fixes row membership and 500-row chunk boundaries;
+- authenticated Catalog `UpsertCanonical` calls with stable per-chunk idempotency keys;
+- row-level Catalog rejection handling without rolling back accepted rows;
+- explicit warning confirmation and post-queue edit/exclusion guards;
+- durable commit results on `import_operation`, including every Catalog operation ID;
+- a transactional `outbox_event` written with batch completion;
+- at-least-once `import.committed` publication through the shared Kafka bus.
+
+If a worker stops after Catalog accepts a chunk but before Data Pipeline records the response, the
+retry sends the same rows with the same idempotency key and receives Catalog's stored response.
+Logical event duplicates use one deterministic event ID so consumers can deduplicate safely.
+
 ## Public RPCs
 
 - `UploadImportFile` (client streaming)
@@ -119,6 +136,8 @@ Schema: `data_pipeline`; role: `data_pipeline_svc`.
 | `validation_event` | Actionable row or batch errors, warnings, and information |
 | `column_profile` | Detected types, samples, hints, suggestions, confidence |
 | `import_operation` | Restart-safe async state, progress, lease, retry timing, request snapshot |
+| `commit_item` | Frozen commit membership, chunk order, and per-row Catalog outcome |
+| `outbox_event` | Transactional event payload, lease, retry, and publication state |
 
 All customer-owned tables carry `org_id`, force PostgreSQL RLS, and use composite tenant foreign keys. Application transactions set `app.org_id` locally. Missing tenant context returns no rows and rejects writes.
 
@@ -141,6 +160,7 @@ Required in production:
 
 - `DATA_PIPELINE_DATABASE_URL`
 - `DATA_PIPELINE_SERVICE_SECRETS_JSON`
+- worker: `DATA_PIPELINE_CATALOG_SERVICE_SECRET`, `KAFKA_BROKERS`
 
 Important optional settings:
 
@@ -156,6 +176,8 @@ Important optional settings:
 - `DATA_PIPELINE_UPLOAD_MAX_BYTES`, `DATA_PIPELINE_IMPORT_MAX_ROWS`
 - `DATA_PIPELINE_IMPORT_MAX_COLUMNS`, `DATA_PIPELINE_IMPORT_INSERT_BATCH_SIZE`
 - `DATA_PIPELINE_WORKER_LEASE_SECONDS`, `DATA_PIPELINE_WORKER_RETRY_BASE_SECONDS`
+- `DATA_PIPELINE_KAFKA_CLIENT_ID`
+- `DATA_PIPELINE_OUTBOX_BATCH_SIZE`, `DATA_PIPELINE_OUTBOX_LEASE_SECONDS`
 - `LOG_LEVEL`
 
 ## Verification
@@ -168,5 +190,6 @@ make data-pipeline-integration-test
 bazel test //...
 ```
 
-The integration target requires Docker and verifies migration apply/rollback, six-table shape,
-forced RLS, tenant isolation, async parsing/profiling/mapping, and immutable raw data.
+The integration target requires Docker and verifies migration apply/rollback, eight-table shape,
+forced RLS, tenant isolation, async parsing/profiling/mapping/validation/commit, immutable raw
+data, fixed 500-row Catalog chunks, warning confirmation, partial rejection, and outbox creation.

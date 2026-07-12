@@ -7,12 +7,15 @@ py_library(
     srcs = [
         "owomide_data_pipeline/__init__.py",
         "owomide_data_pipeline/auth.py",
+        "owomide_data_pipeline/canonical.py",
         "owomide_data_pipeline/catalog.py",
         "owomide_data_pipeline/config.py",
         "owomide_data_pipeline/db.py",
         "owomide_data_pipeline/errors.py",
+        "owomide_data_pipeline/events.py",
         "owomide_data_pipeline/health.py",
         "owomide_data_pipeline/mapping.py",
+        "owomide_data_pipeline/outbox.py",
         "owomide_data_pipeline/parsers.py",
         "owomide_data_pipeline/processor.py",
         "owomide_data_pipeline/profiler.py",
@@ -30,12 +33,15 @@ py_library(
     ],
     deps = [
         "@data_pipeline_pip//grpcio",
+        "@data_pipeline_pip//aiokafka",
         "@data_pipeline_pip//minio",
         "@data_pipeline_pip//openpyxl",
         "@data_pipeline_pip//protobuf",
         "@data_pipeline_pip//psycopg",
         "@data_pipeline_pip//psycopg_binary",
         "@data_pipeline_pip//pyjwt",
+        "//src/lib/bus/py/owomide_bus:owomide_bus_checked_proto",
+        "//src/lib/bus/py/owomide_bus/providers:providers_checked_proto",
     ],
 )
 
@@ -50,6 +56,13 @@ py_binary(
     name = "worker",
     srcs = ["owomide_data_pipeline/worker.py"],
     main = "owomide_data_pipeline/worker.py",
+    deps = [":runtime"],
+)
+
+py_test(
+    name = "canonical_test",
+    srcs = ["tests/test_canonical.py"],
+    main = "tests/test_canonical.py",
     deps = [":runtime"],
 )
 
@@ -120,6 +133,13 @@ py_test(
 )
 
 py_test(
+    name = "outbox_test",
+    srcs = ["tests/test_outbox.py"],
+    main = "tests/test_outbox.py",
+    deps = [":runtime"],
+)
+
+py_test(
     name = "transformations_test",
     srcs = ["tests/test_transformations.py"],
     main = "tests/test_transformations.py",
@@ -160,6 +180,8 @@ py_test(
         "migrations/0005_mapping_operations.up.sql",
         "migrations/0006_validation_operations.down.sql",
         "migrations/0006_validation_operations.up.sql",
+        "migrations/0007_canonical_commit_outbox.down.sql",
+        "migrations/0007_canonical_commit_outbox.up.sql",
     ],
     main = "tests/test_migration_integration.py",
     tags = [
@@ -183,6 +205,7 @@ py_test(
         "migrations/0004_column_profile_ordinal_position.up.sql",
         "migrations/0005_mapping_operations.up.sql",
         "migrations/0006_validation_operations.up.sql",
+        "migrations/0007_canonical_commit_outbox.up.sql",
     ],
     main = "tests/test_import_integration.py",
     tags = [
