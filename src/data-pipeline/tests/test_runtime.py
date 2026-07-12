@@ -86,8 +86,10 @@ class RuntimeTest(unittest.TestCase):
         with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
             stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
             with self.assertRaises(grpc.RpcError) as error:
-                stub.GetValidationReport(
-                    data_pipeline_pb2.GetValidationReportRequest(batch_id="batch"),
+                stub.CommitBatch(
+                    data_pipeline_pb2.CommitBatchRequest(
+                        batch_id="00000000-0000-0000-0000-000000000001"
+                    ),
                     metadata=metadata,
                 )
         self.assertEqual(error.exception.code(), grpc.StatusCode.UNIMPLEMENTED)

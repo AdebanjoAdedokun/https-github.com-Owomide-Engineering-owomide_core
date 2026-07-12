@@ -22,6 +22,7 @@ from owomide_data_pipeline.errors import (
 )
 from owomide_data_pipeline.mapping import operation_mapping_payload
 from owomide_data_pipeline.profiler import ProfiledColumn
+from owomide_data_pipeline.validation import ValidationFinding
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,6 +121,58 @@ class MappingRowRecord:
 
 
 @dataclass(frozen=True, slots=True)
+class ValidationRowRecord:
+    id: UUID
+    row_number: int
+    mapped_data: dict[str, object]
+    row_status: str
+
+
+@dataclass(frozen=True, slots=True)
+class ImportRowRecord:
+    id: UUID
+    org_id: str
+    batch_id: UUID
+    row_number: int
+    raw_data: dict[str, object]
+    mapped_data: dict[str, object] | None
+    row_status: str
+    excluded_reason: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class ValidationEventRecord:
+    id: UUID
+    org_id: str
+    batch_id: UUID
+    row_id: UUID | None
+    severity: str
+    code: str
+    message: str
+    field: str | None
+    raw_value: str | None
+    suggested_fix: str | None
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class RowCountsRecord:
+    ok: int
+    warned: int
+    excluded: int
+    errored: int
+
+
+@dataclass(frozen=True, slots=True)
+class ValidationReportState:
+    events: tuple[ValidationEventRecord, ...]
+    row_counts: RowCountsRecord
+    operation: ImportOperationRecord | None
+    next_page_token: str
+    total_count: int
+
+
+@dataclass(frozen=True, slots=True)
 class ListBatchesResult:
     batches: tuple[ImportBatchRecord, ...]
     next_page_token: str
@@ -173,6 +226,24 @@ def _mapping_template(row: dict[str, Any]) -> MappingTemplateRecord:
         created_at=row["created_at"],
         updated_at=row["updated_at"],
     )
+
+
+def _import_row(row: dict[str, Any]) -> ImportRowRecord:
+    return ImportRowRecord(
+        id=row["id"],
+        org_id=row["org_id"],
+        batch_id=row["batch_id"],
+        row_number=row["row_number"],
+        raw_data=dict(row["raw_data"]),
+        mapped_data=dict(row["mapped_data"]) if row["mapped_data"] is not None else None,
+        row_status=row["row_status"],
+        excluded_reason=row["excluded_reason"],
+    )
+
+
+def _validation_event(row: dict[str, Any]) -> ValidationEventRecord:
+    fields = ValidationEventRecord.__dataclass_fields__
+    return ValidationEventRecord(**{field: row[field] for field in fields})
 
 
 def _encode_cursor(created_at: datetime, batch_id: UUID) -> str:
@@ -352,6 +423,234 @@ class ImportRepository:
             columns=tuple(_column_profile(row) for row in rows),
             operation=_operation(operation) if operation else None,
         )
+
+    @staticmethod
+    def _row_counts(connection, batch_id: UUID) -> RowCountsRecord:
+        row = connection.execute(
+            """
+            SELECT
+                count(*) FILTER (
+                    WHERE import_row.row_status = 'validated'
+                      AND NOT EXISTS (
+                          SELECT 1 FROM data_pipeline.validation_event AS event
+                          WHERE event.row_id = import_row.id AND event.severity = 'warning'
+                      )
+                ) AS ok,
+                count(*) FILTER (
+                    WHERE import_row.row_status = 'validated'
+                      AND EXISTS (
+                          SELECT 1 FROM data_pipeline.validation_event AS event
+                          WHERE event.row_id = import_row.id AND event.severity = 'warning'
+                      )
+                ) AS warned,
+                count(*) FILTER (WHERE import_row.row_status = 'excluded') AS excluded,
+                count(*) FILTER (WHERE import_row.row_status = 'errored') AS errored
+            FROM data_pipeline.import_row AS import_row
+            WHERE import_row.batch_id = %s
+            """,
+            (batch_id,),
+        ).fetchone()
+        return RowCountsRecord(
+            ok=row["ok"],
+            warned=row["warned"],
+            excluded=row["excluded"],
+            errored=row["errored"],
+        )
+
+    def get_validation_report(
+        self,
+        *,
+        org_id: str,
+        batch_id: UUID,
+        page_size: int,
+        page_token: str,
+    ) -> ValidationReportState | None:
+        limit = 50 if page_size == 0 else min(page_size, 200)
+        if page_size < 0:
+            raise ValueError("page_size is invalid")
+        cursor = _decode_cursor(page_token)
+        cursor_created_at, cursor_id = cursor or (None, None)
+        with self._database.transaction(org_id) as connection:
+            batch = connection.execute(
+                "SELECT id FROM data_pipeline.import_batch WHERE id = %s",
+                (batch_id,),
+            ).fetchone()
+            if batch is None:
+                return None
+            rows = connection.execute(
+                """
+                SELECT * FROM data_pipeline.validation_event
+                WHERE batch_id = %s
+                  AND (
+                      %s::timestamptz IS NULL
+                      OR (created_at, id) < (%s::timestamptz, %s::uuid)
+                  )
+                ORDER BY created_at DESC, id DESC
+                LIMIT %s
+                """,
+                (
+                    batch_id,
+                    cursor_created_at,
+                    cursor_created_at,
+                    cursor_id,
+                    limit + 1,
+                ),
+            ).fetchall()
+            total = connection.execute(
+                "SELECT count(*) AS count FROM data_pipeline.validation_event WHERE batch_id = %s",
+                (batch_id,),
+            ).fetchone()["count"]
+            operation = connection.execute(
+                """
+                SELECT * FROM data_pipeline.import_operation
+                WHERE batch_id = %s AND operation_type = 'validate'
+                ORDER BY created_at DESC, id DESC
+                LIMIT 1
+                """,
+                (batch_id,),
+            ).fetchone()
+            counts = self._row_counts(connection, batch_id)
+        page = rows[:limit]
+        next_token = ""
+        if len(rows) > limit:
+            last = page[-1]
+            next_token = _encode_cursor(last["created_at"], last["id"])
+        return ValidationReportState(
+            events=tuple(_validation_event(row) for row in page),
+            row_counts=counts,
+            operation=_operation(operation) if operation else None,
+            next_page_token=next_token,
+            total_count=total,
+        )
+
+    @staticmethod
+    def _queue_revalidation(connection, org_id: str, batch_id: UUID) -> ImportOperationRecord:
+        source = connection.execute(
+            """
+            SELECT request_payload
+            FROM data_pipeline.import_operation
+            WHERE batch_id = %s
+              AND operation_type IN ('apply_mapping', 'validate')
+              AND status = 'succeeded'
+            ORDER BY created_at DESC, id DESC
+            LIMIT 1
+            """,
+            (batch_id,),
+        ).fetchone()
+        if source is None:
+            raise ImportStateError("Import batch has no completed mapping to validate")
+        total = connection.execute(
+            "SELECT count(*) AS count FROM data_pipeline.import_row WHERE batch_id = %s",
+            (batch_id,),
+        ).fetchone()["count"]
+        connection.execute(
+            "DELETE FROM data_pipeline.validation_event WHERE batch_id = %s",
+            (batch_id,),
+        )
+        connection.execute(
+            """
+            UPDATE data_pipeline.import_row
+            SET row_status = 'mapped', updated_at = clock_timestamp()
+            WHERE batch_id = %s AND row_status <> 'excluded'
+            """,
+            (batch_id,),
+        )
+        operation = connection.execute(
+            """
+            INSERT INTO data_pipeline.import_operation (
+                id, org_id, batch_id, operation_type, progress_total, request_payload
+            ) VALUES (%s, %s, %s, 'validate', %s, %s)
+            RETURNING *
+            """,
+            (uuid4(), org_id, batch_id, total, Jsonb(source["request_payload"])),
+        ).fetchone()
+        connection.execute(
+            """
+            UPDATE data_pipeline.import_batch
+            SET status = 'mapped', failed_reason = NULL, updated_at = clock_timestamp()
+            WHERE id = %s
+            """,
+            (batch_id,),
+        )
+        return _operation(operation)
+
+    def edit_row(
+        self,
+        *,
+        org_id: str,
+        batch_id: UUID,
+        row_id: UUID,
+        mapped_data: Mapping[str, object],
+    ) -> tuple[ImportRowRecord, ImportOperationRecord]:
+        try:
+            with self._database.transaction(org_id) as connection:
+                batch = connection.execute(
+                    "SELECT status FROM data_pipeline.import_batch WHERE id = %s FOR UPDATE",
+                    (batch_id,),
+                ).fetchone()
+                if batch is None:
+                    raise ImportResourceNotFoundError("Import batch not found")
+                if batch["status"] not in {"mapped", "validated"}:
+                    raise ImportStateError(
+                        "Rows can only be edited after mapping and before commit"
+                    )
+                row = connection.execute(
+                    """
+                    UPDATE data_pipeline.import_row
+                    SET mapped_data = %s, updated_at = clock_timestamp()
+                    WHERE id = %s AND batch_id = %s
+                    RETURNING *
+                    """,
+                    (Jsonb(dict(mapped_data)), row_id, batch_id),
+                ).fetchone()
+                if row is None:
+                    raise ImportResourceNotFoundError("Import row not found")
+                operation = self._queue_revalidation(connection, org_id, batch_id)
+        except psycopg.errors.UniqueViolation as exc:
+            raise ImportConflictError(
+                "Another import operation is already active for this batch"
+            ) from exc
+        return _import_row(row), operation
+
+    def exclude_row(
+        self,
+        *,
+        org_id: str,
+        batch_id: UUID,
+        row_id: UUID,
+        reason: str,
+    ) -> tuple[ImportRowRecord, ImportOperationRecord]:
+        try:
+            with self._database.transaction(org_id) as connection:
+                batch = connection.execute(
+                    "SELECT status FROM data_pipeline.import_batch WHERE id = %s FOR UPDATE",
+                    (batch_id,),
+                ).fetchone()
+                if batch is None:
+                    raise ImportResourceNotFoundError("Import batch not found")
+                if batch["status"] not in {"mapped", "validated"}:
+                    raise ImportStateError(
+                        "Rows can only be excluded after mapping and before commit"
+                    )
+                row = connection.execute(
+                    """
+                    UPDATE data_pipeline.import_row
+                    SET row_status = 'excluded',
+                        excluded_reason = %s,
+                        updated_at = clock_timestamp()
+                    WHERE id = %s AND batch_id = %s
+                    RETURNING *
+                    """,
+                    (reason, row_id, batch_id),
+                ).fetchone()
+                if row is None:
+                    raise ImportResourceNotFoundError("Import row not found")
+                operation = self._queue_revalidation(connection, org_id, batch_id)
+        except psycopg.errors.UniqueViolation as exc:
+            raise ImportConflictError(
+                "Another import operation is already active for this batch"
+            ) from exc
+        return _import_row(row), operation
 
     def get_mapping_template(
         self,
@@ -711,6 +1010,303 @@ class ImportRepository:
             )
             if batch_updated.rowcount != 1:
                 raise RuntimeError("Import batch was not ready for mapping")
+            connection.execute(
+                """
+                INSERT INTO data_pipeline.import_operation (
+                    id, org_id, batch_id, operation_type, progress_total, request_payload
+                ) VALUES (%s, %s, %s, 'validate', %s, %s)
+                """,
+                (
+                    uuid4(),
+                    operation.org_id,
+                    operation.batch_id,
+                    total_rows,
+                    Jsonb(operation.request_payload),
+                ),
+            )
+
+    def collect_validation_sku_ids(self, operation: ClaimedOperation) -> tuple[str, ...]:
+        with self._database.transaction(operation.org_id) as connection:
+            rows = connection.execute(
+                """
+                SELECT DISTINCT mapped_data #>> '{sku,sku_id}' AS sku_id
+                FROM data_pipeline.import_row
+                WHERE batch_id = %s
+                  AND row_status <> 'excluded'
+                  AND NULLIF(btrim(mapped_data #>> '{sku,sku_id}'), '') IS NOT NULL
+                """,
+                (operation.batch_id,),
+            ).fetchall()
+        return tuple(row["sku_id"] for row in rows)
+
+    def iter_validation_rows(
+        self,
+        operation: ClaimedOperation,
+        page_size: int,
+    ) -> Iterator[tuple[ValidationRowRecord, ...]]:
+        last_row_number = 0
+        while True:
+            with self._database.transaction(operation.org_id) as connection:
+                rows = connection.execute(
+                    """
+                    SELECT id, row_number, mapped_data, row_status
+                    FROM data_pipeline.import_row
+                    WHERE batch_id = %s AND row_number > %s
+                    ORDER BY row_number
+                    LIMIT %s
+                    """,
+                    (operation.batch_id, last_row_number, page_size),
+                ).fetchall()
+            if not rows:
+                return
+            page = tuple(
+                ValidationRowRecord(
+                    id=row["id"],
+                    row_number=row["row_number"],
+                    mapped_data=dict(row["mapped_data"] or {}),
+                    row_status=row["row_status"],
+                )
+                for row in rows
+            )
+            yield page
+            last_row_number = page[-1].row_number
+
+    def start_validation(self, operation: ClaimedOperation, worker_id: str) -> ImportBatchRecord:
+        with self._database.transaction(operation.org_id) as connection:
+            batch = connection.execute(
+                "SELECT * FROM data_pipeline.import_batch WHERE id = %s FOR UPDATE",
+                (operation.batch_id,),
+            ).fetchone()
+            if batch is None or batch["status"] not in {"mapped", "validated"}:
+                raise RuntimeError("Import batch was not ready for validation")
+            connection.execute(
+                "DELETE FROM data_pipeline.validation_event WHERE batch_id = %s",
+                (operation.batch_id,),
+            )
+            connection.execute(
+                """
+                UPDATE data_pipeline.import_row
+                SET row_status = 'mapped', updated_at = clock_timestamp()
+                WHERE batch_id = %s AND row_status <> 'excluded'
+                """,
+                (operation.batch_id,),
+            )
+            updated = connection.execute(
+                """
+                UPDATE data_pipeline.import_operation
+                SET progress_current = 0,
+                    locked_at = clock_timestamp(),
+                    updated_at = clock_timestamp()
+                WHERE id = %s AND status = 'running' AND locked_by = %s
+                """,
+                (operation.operation_id, worker_id),
+            )
+            if updated.rowcount != 1:
+                raise RuntimeError("Import operation lease was lost")
+        return _batch(batch)
+
+    def apply_validated_rows(
+        self,
+        *,
+        operation: ClaimedOperation,
+        worker_id: str,
+        rows: Sequence[tuple[UUID, dict[str, object], Sequence[ValidationFinding]]],
+        progress: int,
+    ) -> None:
+        row_payload = Jsonb(
+            [{"id": str(row_id), "mapped_data": mapped_data} for row_id, mapped_data, _ in rows]
+        )
+        with self._database.transaction(operation.org_id) as connection:
+            updated_rows = connection.execute(
+                """
+                UPDATE data_pipeline.import_row AS import_row
+                SET mapped_data = input.mapped_data,
+                    updated_at = clock_timestamp()
+                FROM jsonb_to_recordset(%s::jsonb) AS input(id uuid, mapped_data jsonb)
+                WHERE import_row.org_id = %s
+                  AND import_row.batch_id = %s
+                  AND import_row.id = input.id
+                  AND import_row.row_status <> 'excluded'
+                """,
+                (row_payload, operation.org_id, operation.batch_id),
+            )
+            expected = len(rows)
+            if updated_rows.rowcount != expected:
+                raise RuntimeError("Import rows changed while validation was applied")
+            event_values = [
+                (
+                    operation.org_id,
+                    operation.batch_id,
+                    row_id,
+                    finding.severity,
+                    finding.code,
+                    finding.message,
+                    finding.field,
+                    finding.raw_value,
+                    finding.suggested_fix,
+                )
+                for row_id, _, findings in rows
+                for finding in findings
+            ]
+            if event_values:
+                with connection.cursor() as cursor:
+                    cursor.executemany(
+                        """
+                        INSERT INTO data_pipeline.validation_event (
+                            org_id, batch_id, row_id, severity, code, message,
+                            field, raw_value, suggested_fix
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        event_values,
+                    )
+            updated_operation = connection.execute(
+                """
+                UPDATE data_pipeline.import_operation
+                SET progress_current = %s,
+                    locked_at = clock_timestamp(),
+                    updated_at = clock_timestamp()
+                WHERE id = %s AND status = 'running' AND locked_by = %s
+                """,
+                (progress, operation.operation_id, worker_id),
+            )
+            if updated_operation.rowcount != 1:
+                raise RuntimeError("Import operation lease was lost")
+
+    def complete_validation(
+        self,
+        operation: ClaimedOperation,
+        worker_id: str,
+        total_rows: int,
+    ) -> RowCountsRecord:
+        with self._database.transaction(operation.org_id) as connection:
+            connection.execute(
+                """
+                WITH candidates AS (
+                    SELECT
+                        row.id,
+                        row.row_number,
+                        COALESCE(
+                            NULLIF(btrim(row.mapped_data #>> '{sku,sku_id}'), ''),
+                            NULLIF(upper(btrim(row.mapped_data #>> '{sku,sku_code}')), ''),
+                            CASE
+                                WHEN NULLIF(btrim(
+                                    row.mapped_data #>> '{sku,identifier_type}'
+                                ), '') IS NOT NULL
+                                 AND NULLIF(btrim(
+                                    row.mapped_data #>> '{sku,identifier}'
+                                ), '') IS NOT NULL
+                                THEN concat_ws(':',
+                                    upper(btrim(
+                                        row.mapped_data #>> '{sku,identifier_type}'
+                                    )),
+                                    upper(btrim(
+                                        row.mapped_data #>> '{sku,identifier_namespace}'
+                                    )),
+                                    upper(btrim(row.mapped_data #>> '{sku,identifier}'))
+                                )
+                            END
+                        ) AS sku_key,
+                        COALESCE(
+                            NULLIF(btrim(row.mapped_data #>> '{price_record,channel_id}'), ''),
+                            batch.channel_id
+                        ) AS channel_id,
+                        COALESCE(
+                            row.mapped_data #>> '{price_record,location_id}', ''
+                        ) AS location_id,
+                        COALESCE(
+                            row.mapped_data #>> '{price_record,customer_segment_id}', ''
+                        ) AS segment_id,
+                        row.mapped_data #>> '{price_record,effective_at}' AS effective_at,
+                        row.mapped_data #>> '{price_record,price_minor}' AS price_minor,
+                        upper(row.mapped_data #>> '{price_record,currency}') AS currency
+                    FROM data_pipeline.import_row AS row
+                    JOIN data_pipeline.import_batch AS batch
+                      ON batch.org_id = row.org_id AND batch.id = row.batch_id
+                    WHERE row.batch_id = %s
+                      AND row.row_status <> 'excluded'
+                      AND row.mapped_data ? 'price_record'
+                ),
+                conflicting_keys AS (
+                    SELECT sku_key, channel_id, location_id, segment_id, effective_at
+                    FROM candidates
+                    WHERE NULLIF(sku_key, '') IS NOT NULL
+                      AND NULLIF(channel_id, '') IS NOT NULL
+                      AND NULLIF(effective_at, '') IS NOT NULL
+                      AND NULLIF(price_minor, '') IS NOT NULL
+                    GROUP BY sku_key, channel_id, location_id, segment_id, effective_at
+                    HAVING count(DISTINCT (price_minor, currency)) > 1
+                )
+                INSERT INTO data_pipeline.validation_event (
+                    org_id, batch_id, row_id, severity, code, message,
+                    field, raw_value, suggested_fix
+                )
+                SELECT
+                    %s,
+                    %s,
+                    candidate.id,
+                    'error',
+                    'duplicate_sku_channel_in_batch',
+                    format(
+                        'Row %%s: this SKU/channel/location/segment/effective date '
+                        'has conflicting prices.',
+                        candidate.row_number
+                    ),
+                    'price_record.price_minor',
+                    candidate.price_minor,
+                    'Keep one price for this effective key or make the dimensions/dates distinct.'
+                FROM candidates AS candidate
+                JOIN conflicting_keys AS conflict
+                  ON conflict.sku_key = candidate.sku_key
+                 AND conflict.channel_id = candidate.channel_id
+                 AND conflict.location_id = candidate.location_id
+                 AND conflict.segment_id = candidate.segment_id
+                 AND conflict.effective_at = candidate.effective_at
+                """,
+                (operation.batch_id, operation.org_id, operation.batch_id),
+            )
+            connection.execute(
+                """
+                UPDATE data_pipeline.import_row AS row
+                SET row_status = CASE
+                        WHEN EXISTS (
+                            SELECT 1 FROM data_pipeline.validation_event AS event
+                            WHERE event.row_id = row.id AND event.severity = 'error'
+                        ) THEN 'errored'
+                        ELSE 'validated'
+                    END,
+                    updated_at = clock_timestamp()
+                WHERE row.batch_id = %s AND row.row_status <> 'excluded'
+                """,
+                (operation.batch_id,),
+            )
+            updated = connection.execute(
+                """
+                UPDATE data_pipeline.import_operation
+                SET status = 'succeeded',
+                    progress_current = %s,
+                    progress_total = %s,
+                    locked_by = NULL,
+                    locked_at = NULL,
+                    finished_at = clock_timestamp(),
+                    updated_at = clock_timestamp()
+                WHERE id = %s AND status = 'running' AND locked_by = %s
+                """,
+                (total_rows, total_rows, operation.operation_id, worker_id),
+            )
+            if updated.rowcount != 1:
+                raise RuntimeError("Import operation lease was lost")
+            batch_updated = connection.execute(
+                """
+                UPDATE data_pipeline.import_batch
+                SET status = 'validated', failed_reason = NULL, updated_at = clock_timestamp()
+                WHERE id = %s AND status IN ('mapped', 'validated')
+                """,
+                (operation.batch_id,),
+            )
+            if batch_updated.rowcount != 1:
+                raise RuntimeError("Import batch was not ready for validation")
+            counts = self._row_counts(connection, operation.batch_id)
+        return counts
 
     def append_rows(
         self,

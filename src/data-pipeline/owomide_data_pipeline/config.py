@@ -77,6 +77,9 @@ class Config:
     object_store_secret_key: str
     object_store_secure: bool
     object_store_bucket: str
+    catalog_service_url: str
+    catalog_service_secret: str
+    catalog_timeout_seconds: float
     upload_max_bytes: int
     import_max_rows: int
     import_max_columns: int
@@ -93,6 +96,7 @@ class Config:
         values: Mapping[str, str] | None = None,
         *,
         require_service_secrets: bool = True,
+        require_catalog_secret: bool = False,
     ) -> Config:
         env = os.environ if values is None else values
         environment = env.get("OWOMIDE_ENV", "development").strip().lower()
@@ -119,6 +123,13 @@ class Config:
         object_store_bucket = env.get(
             "DATA_PIPELINE_OBJECT_STORE_BUCKET", "owomide-imports"
         ).strip()
+        catalog_service_url = env.get(
+            "DATA_PIPELINE_CATALOG_SERVICE_URL", "localhost:50052"
+        ).strip()
+        catalog_service_secret = env.get(
+            "DATA_PIPELINE_CATALOG_SERVICE_SECRET",
+            "" if environment == "production" else "dev-only-catalog-pipeline-secret-change-me",
+        ).strip()
 
         if not database_url:
             raise ConfigurationError("DATA_PIPELINE_DATABASE_URL is required")
@@ -130,6 +141,12 @@ class Config:
             raise ConfigurationError("Object store endpoint and credentials are required")
         if not object_store_bucket:
             raise ConfigurationError("DATA_PIPELINE_OBJECT_STORE_BUCKET is required")
+        if not catalog_service_url:
+            raise ConfigurationError("DATA_PIPELINE_CATALOG_SERVICE_URL is required")
+        if require_catalog_secret and len(catalog_service_secret) < 32:
+            raise ConfigurationError(
+                "DATA_PIPELINE_CATALOG_SERVICE_SECRET must be at least 32 characters"
+            )
         if log_level not in {"CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"}:
             raise ConfigurationError("LOG_LEVEL is invalid")
 
@@ -155,6 +172,11 @@ class Config:
             object_store_secret_key=object_store_secret_key,
             object_store_secure=_boolean(env, "DATA_PIPELINE_OBJECT_STORE_SECURE", False),
             object_store_bucket=object_store_bucket,
+            catalog_service_url=catalog_service_url,
+            catalog_service_secret=catalog_service_secret,
+            catalog_timeout_seconds=_positive_float(
+                env, "DATA_PIPELINE_CATALOG_TIMEOUT_SECONDS", 10.0
+            ),
             upload_max_bytes=_integer(
                 env, "DATA_PIPELINE_UPLOAD_MAX_BYTES", 50 * 1024 * 1024, 1, 5 * 1024 * 1024 * 1024
             ),

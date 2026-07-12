@@ -18,6 +18,7 @@ import psycopg
 from openpyxl import Workbook
 from services.data_pipeline.v1 import data_pipeline_pb2, data_pipeline_pb2_grpc
 
+from owomide_data_pipeline.catalog import CatalogSnapshot, ChannelReference
 from owomide_data_pipeline.config import Config
 from owomide_data_pipeline.db import Database
 from owomide_data_pipeline.processor import ImportProcessor
@@ -32,6 +33,20 @@ SERVICE_PASSWORD = "import_service_test"
 MINIO_USER = "minioadmin"
 MINIO_PASSWORD = "minioadmin"
 SERVICE_SECRET = "data-pipeline-integration-secret-at-least-32-chars"
+CHANNEL_ID = "00000000-0000-0000-0000-000000000201"
+
+
+class FakeCatalogClient:
+    def load_snapshot(self, _org_id: str, _sku_ids) -> CatalogSnapshot:
+        channel = ChannelReference(CHANNEL_ID, "RETAIL", "NGN")
+        return CatalogSnapshot(
+            channels_by_id={CHANNEL_ID: channel},
+            channels_by_code={"RETAIL": channel},
+            location_ids=frozenset(),
+            segment_ids=frozenset(),
+            sku_ids=frozenset(),
+            costs={},
+        )
 
 
 def free_port() -> int:
@@ -181,6 +196,7 @@ class ImportIntegrationTest(unittest.TestCase):
                 "0003_claim_import_operations.up.sql",
                 "0004_column_profile_ordinal_position.up.sql",
                 "0005_mapping_operations.up.sql",
+                "0006_validation_operations.up.sql",
             ):
                 connection.execute(cls._migration_path(filename).read_text())
 
@@ -233,6 +249,7 @@ class ImportIntegrationTest(unittest.TestCase):
             max_columns=20,
             insert_batch_size=2,
             xlsx_spool_memory_bytes=1024 * 1024,
+            catalog_client=FakeCatalogClient(),
         )
         if not processor.process_once():
             raise AssertionError("Expected the worker to claim an import operation")
@@ -559,6 +576,129 @@ class ImportIntegrationTest(unittest.TestCase):
                     metadata=self._metadata(),
                 )
             self.assertEqual(invalid.exception.code(), grpc.StatusCode.INVALID_ARGUMENT)
+
+        # Mapping completion automatically queues validation; consume it so this test owns
+        # every operation it creates and cannot affect later cases.
+        self._process_one()
+
+    def test_mapping_validation_report_and_exclusion_revalidation(self) -> None:
+        upload = self._upload(
+            "validated-prices.csv",
+            data_pipeline_pb2.IMPORT_SOURCE_TYPE_CSV,
+            (
+                b"SKU,Price,Currency,Effective,Channel,Cost,Cost Currency,Cost Effective\n"
+                b"A-1,10.00,NGN,2026-07-12,retail,8.00,NGN,2026-07-12\n"
+                b"a-1,11.00,NGN,2026-07-12,retail,8.00,NGN,2026-07-12\n"
+                b"A-2,7.00,NGN,2026-07-12,retail,8.00,NGN,2026-07-12\n"
+                b"A-3,12.00,NGN,2026-07-12,retail,8.00,NGN,2026-07-12\n"
+            ),
+        )
+        self._process_one()
+
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            stub.ApplyMapping(
+                data_pipeline_pb2.ApplyMappingRequest(
+                    batch_id=upload.batch_id,
+                    mappings_json=(
+                        '{"SKU":"sku.sku_code","Price":"price_record.price_minor",'
+                        '"Currency":"price_record.currency",'
+                        '"Effective":"price_record.effective_at",'
+                        '"Channel":"channel.code","Cost":"cost_record.cost_minor",'
+                        '"Cost Currency":"cost_record.currency",'
+                        '"Cost Effective":"cost_record.effective_at"}'
+                    ),
+                    transformation_rules_json=(
+                        '[{"field":"Price","type":"decimal_to_minor_units","scale":2},'
+                        '{"field":"Cost","type":"decimal_to_minor_units","scale":2}]'
+                    ),
+                ),
+                metadata=self._metadata(),
+            )
+
+        self._process_one()
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            pending = stub.GetValidationReport(
+                data_pipeline_pb2.GetValidationReportRequest(batch_id=upload.batch_id),
+                metadata=self._metadata(),
+            )
+            self.assertTrue(pending.HasField("operation"))
+            self.assertEqual(
+                pending.operation.status,
+                data_pipeline_pb2.IMPORT_OPERATION_STATUS_QUEUED,
+            )
+
+        self._process_one()
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            report = stub.GetValidationReport(
+                data_pipeline_pb2.GetValidationReportRequest(batch_id=upload.batch_id),
+                metadata=self._metadata(),
+            )
+            self.assertFalse(report.HasField("operation"))
+            self.assertEqual(
+                (report.row_counts.ok, report.row_counts.errored),
+                (1, 3),
+            )
+            self.assertEqual(
+                [event.code for event in report.events].count("duplicate_sku_channel_in_batch"),
+                2,
+            )
+            self.assertIn("below_cost", {event.code for event in report.events})
+
+        with psycopg.connect(self.admin_url) as connection:
+            excluded_row_id = connection.execute(
+                "SELECT id FROM data_pipeline.import_row WHERE batch_id = %s AND row_number = 2",
+                (upload.batch_id,),
+            ).fetchone()[0]
+            transformed = connection.execute(
+                "SELECT mapped_data FROM data_pipeline.import_row "
+                "WHERE batch_id = %s AND row_number = 5",
+                (upload.batch_id,),
+            ).fetchone()[0]
+        self.assertEqual(transformed["price_record"]["price_minor"], 1200)
+        self.assertEqual(transformed["price_record"]["channel_id"], CHANNEL_ID)
+
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            excluded = stub.ExcludeRow(
+                data_pipeline_pb2.ExcludeRowRequest(
+                    batch_id=upload.batch_id,
+                    row_id=str(excluded_row_id),
+                    reason="duplicate source row",
+                ),
+                metadata=self._metadata(),
+            )
+            self.assertEqual(
+                excluded.row.status,
+                data_pipeline_pb2.IMPORT_ROW_STATUS_EXCLUDED,
+            )
+            self.assertEqual(
+                excluded.operation.status,
+                data_pipeline_pb2.IMPORT_OPERATION_STATUS_QUEUED,
+            )
+
+        self._process_one()
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            report = stub.GetValidationReport(
+                data_pipeline_pb2.GetValidationReportRequest(batch_id=upload.batch_id),
+                metadata=self._metadata(),
+            )
+        self.assertEqual(
+            (
+                report.row_counts.ok,
+                report.row_counts.warned,
+                report.row_counts.excluded,
+                report.row_counts.errored,
+            ),
+            (2, 0, 1, 1),
+        )
+        self.assertNotIn(
+            "duplicate_sku_channel_in_batch",
+            {event.code for event in report.events},
+        )
 
 
 if __name__ == "__main__":

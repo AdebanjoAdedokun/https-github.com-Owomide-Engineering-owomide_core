@@ -2068,6 +2068,7 @@ type GetValidationReportResponse struct {
 	RowCounts     *RowCounts             `protobuf:"bytes,2,opt,name=row_counts,json=rowCounts,proto3" json:"row_counts,omitempty"`
 	Events        []*ValidationEvent     `protobuf:"bytes,3,rep,name=events,proto3" json:"events,omitempty"`
 	Pagination    *v1.PaginatedResponse  `protobuf:"bytes,4,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Operation     *ImportOperation       `protobuf:"bytes,5,opt,name=operation,proto3,oneof" json:"operation,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2126,6 +2127,13 @@ func (x *GetValidationReportResponse) GetEvents() []*ValidationEvent {
 func (x *GetValidationReportResponse) GetPagination() *v1.PaginatedResponse {
 	if x != nil {
 		return x.Pagination
+	}
+	return nil
+}
+
+func (x *GetValidationReportResponse) GetOperation() *ImportOperation {
+	if x != nil {
+		return x.Operation
 	}
 	return nil
 }
@@ -2193,6 +2201,7 @@ func (x *EditRowRequest) GetMappedDataJson() string {
 type EditRowResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Row           *ImportRow             `protobuf:"bytes,1,opt,name=row,proto3" json:"row,omitempty"`
+	Operation     *ImportOperation       `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2230,6 +2239,13 @@ func (*EditRowResponse) Descriptor() ([]byte, []int) {
 func (x *EditRowResponse) GetRow() *ImportRow {
 	if x != nil {
 		return x.Row
+	}
+	return nil
+}
+
+func (x *EditRowResponse) GetOperation() *ImportOperation {
+	if x != nil {
+		return x.Operation
 	}
 	return nil
 }
@@ -2297,6 +2313,7 @@ func (x *ExcludeRowRequest) GetReason() string {
 type ExcludeRowResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Row           *ImportRow             `protobuf:"bytes,1,opt,name=row,proto3" json:"row,omitempty"`
+	Operation     *ImportOperation       `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2334,6 +2351,13 @@ func (*ExcludeRowResponse) Descriptor() ([]byte, []int) {
 func (x *ExcludeRowResponse) GetRow() *ImportRow {
 	if x != nil {
 		return x.Row
+	}
+	return nil
+}
+
+func (x *ExcludeRowResponse) GetOperation() *ImportOperation {
+	if x != nil {
+		return x.Operation
 	}
 	return nil
 }
@@ -2918,7 +2942,7 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\x12=\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
-	"pagination\"\x97\x02\n" +
+	"pagination\"\xfc\x02\n" +
 	"\x1bGetValidationReportResponse\x12\x19\n" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\x12K\n" +
 	"\n" +
@@ -2926,19 +2950,24 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\x06events\x18\x03 \x03(\v22.owomide.services.data_pipeline.v1.ValidationEventR\x06events\x12D\n" +
 	"\n" +
 	"pagination\x18\x04 \x01(\v2$.owomide.common.v1.PaginatedResponseR\n" +
-	"pagination\"l\n" +
+	"pagination\x12U\n" +
+	"\toperation\x18\x05 \x01(\v22.owomide.services.data_pipeline.v1.ImportOperationH\x00R\toperation\x88\x01\x01B\f\n" +
+	"\n" +
+	"_operation\"l\n" +
 	"\x0eEditRowRequest\x12\x19\n" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\x12\x15\n" +
 	"\x06row_id\x18\x02 \x01(\tR\x05rowId\x12(\n" +
-	"\x10mapped_data_json\x18\x03 \x01(\tR\x0emappedDataJson\"Q\n" +
+	"\x10mapped_data_json\x18\x03 \x01(\tR\x0emappedDataJson\"\xa3\x01\n" +
 	"\x0fEditRowResponse\x12>\n" +
-	"\x03row\x18\x01 \x01(\v2,.owomide.services.data_pipeline.v1.ImportRowR\x03row\"]\n" +
+	"\x03row\x18\x01 \x01(\v2,.owomide.services.data_pipeline.v1.ImportRowR\x03row\x12P\n" +
+	"\toperation\x18\x02 \x01(\v22.owomide.services.data_pipeline.v1.ImportOperationR\toperation\"]\n" +
 	"\x11ExcludeRowRequest\x12\x19\n" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\x12\x15\n" +
 	"\x06row_id\x18\x02 \x01(\tR\x05rowId\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"T\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\xa6\x01\n" +
 	"\x12ExcludeRowResponse\x12>\n" +
-	"\x03row\x18\x01 \x01(\v2,.owomide.services.data_pipeline.v1.ImportRowR\x03row\"Z\n" +
+	"\x03row\x18\x01 \x01(\v2,.owomide.services.data_pipeline.v1.ImportRowR\x03row\x12P\n" +
+	"\toperation\x18\x02 \x01(\v22.owomide.services.data_pipeline.v1.ImportOperationR\toperation\"Z\n" +
 	"\x12CommitBatchRequest\x12\x19\n" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\x12)\n" +
 	"\x10confirm_warnings\x18\x02 \x01(\bR\x0fconfirmWarnings\"\xbb\x02\n" +
@@ -3127,43 +3156,46 @@ var file_services_data_pipeline_v1_data_pipeline_proto_depIdxs = []int32{
 	15, // 29: owomide.services.data_pipeline.v1.GetValidationReportResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
 	14, // 30: owomide.services.data_pipeline.v1.GetValidationReportResponse.events:type_name -> owomide.services.data_pipeline.v1.ValidationEvent
 	41, // 31: owomide.services.data_pipeline.v1.GetValidationReportResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	10, // 32: owomide.services.data_pipeline.v1.EditRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
-	10, // 33: owomide.services.data_pipeline.v1.ExcludeRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
-	15, // 34: owomide.services.data_pipeline.v1.CommitBatchResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
-	16, // 35: owomide.services.data_pipeline.v1.CommitBatchResponse.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
-	40, // 36: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest.pagination:type_name -> owomide.common.v1.Pagination
-	13, // 37: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.templates:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
-	41, // 38: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	13, // 39: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse.template:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
-	6,  // 40: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:input_type -> owomide.services.data_pipeline.v1.UploadImportFileRequest
-	17, // 41: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:input_type -> owomide.services.data_pipeline.v1.GetImportBatchRequest
-	19, // 42: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:input_type -> owomide.services.data_pipeline.v1.ListImportBatchesRequest
-	21, // 43: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:input_type -> owomide.services.data_pipeline.v1.GetImportOperationRequest
-	23, // 44: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:input_type -> owomide.services.data_pipeline.v1.GetColumnProfileRequest
-	25, // 45: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:input_type -> owomide.services.data_pipeline.v1.ApplyMappingRequest
-	27, // 46: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:input_type -> owomide.services.data_pipeline.v1.GetValidationReportRequest
-	29, // 47: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:input_type -> owomide.services.data_pipeline.v1.EditRowRequest
-	31, // 48: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:input_type -> owomide.services.data_pipeline.v1.ExcludeRowRequest
-	33, // 49: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:input_type -> owomide.services.data_pipeline.v1.CommitBatchRequest
-	35, // 50: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:input_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
-	37, // 51: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:input_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
-	8,  // 52: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:output_type -> owomide.services.data_pipeline.v1.UploadImportFileResponse
-	18, // 53: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:output_type -> owomide.services.data_pipeline.v1.GetImportBatchResponse
-	20, // 54: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:output_type -> owomide.services.data_pipeline.v1.ListImportBatchesResponse
-	22, // 55: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:output_type -> owomide.services.data_pipeline.v1.GetImportOperationResponse
-	24, // 56: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:output_type -> owomide.services.data_pipeline.v1.GetColumnProfileResponse
-	26, // 57: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:output_type -> owomide.services.data_pipeline.v1.ApplyMappingResponse
-	28, // 58: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:output_type -> owomide.services.data_pipeline.v1.GetValidationReportResponse
-	30, // 59: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:output_type -> owomide.services.data_pipeline.v1.EditRowResponse
-	32, // 60: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:output_type -> owomide.services.data_pipeline.v1.ExcludeRowResponse
-	34, // 61: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:output_type -> owomide.services.data_pipeline.v1.CommitBatchResponse
-	36, // 62: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:output_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
-	38, // 63: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:output_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
-	52, // [52:64] is the sub-list for method output_type
-	40, // [40:52] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	11, // 32: owomide.services.data_pipeline.v1.GetValidationReportResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	10, // 33: owomide.services.data_pipeline.v1.EditRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
+	11, // 34: owomide.services.data_pipeline.v1.EditRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	10, // 35: owomide.services.data_pipeline.v1.ExcludeRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
+	11, // 36: owomide.services.data_pipeline.v1.ExcludeRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	15, // 37: owomide.services.data_pipeline.v1.CommitBatchResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
+	16, // 38: owomide.services.data_pipeline.v1.CommitBatchResponse.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
+	40, // 39: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest.pagination:type_name -> owomide.common.v1.Pagination
+	13, // 40: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.templates:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
+	41, // 41: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	13, // 42: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse.template:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
+	6,  // 43: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:input_type -> owomide.services.data_pipeline.v1.UploadImportFileRequest
+	17, // 44: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:input_type -> owomide.services.data_pipeline.v1.GetImportBatchRequest
+	19, // 45: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:input_type -> owomide.services.data_pipeline.v1.ListImportBatchesRequest
+	21, // 46: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:input_type -> owomide.services.data_pipeline.v1.GetImportOperationRequest
+	23, // 47: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:input_type -> owomide.services.data_pipeline.v1.GetColumnProfileRequest
+	25, // 48: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:input_type -> owomide.services.data_pipeline.v1.ApplyMappingRequest
+	27, // 49: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:input_type -> owomide.services.data_pipeline.v1.GetValidationReportRequest
+	29, // 50: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:input_type -> owomide.services.data_pipeline.v1.EditRowRequest
+	31, // 51: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:input_type -> owomide.services.data_pipeline.v1.ExcludeRowRequest
+	33, // 52: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:input_type -> owomide.services.data_pipeline.v1.CommitBatchRequest
+	35, // 53: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:input_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
+	37, // 54: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:input_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
+	8,  // 55: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:output_type -> owomide.services.data_pipeline.v1.UploadImportFileResponse
+	18, // 56: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:output_type -> owomide.services.data_pipeline.v1.GetImportBatchResponse
+	20, // 57: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:output_type -> owomide.services.data_pipeline.v1.ListImportBatchesResponse
+	22, // 58: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:output_type -> owomide.services.data_pipeline.v1.GetImportOperationResponse
+	24, // 59: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:output_type -> owomide.services.data_pipeline.v1.GetColumnProfileResponse
+	26, // 60: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:output_type -> owomide.services.data_pipeline.v1.ApplyMappingResponse
+	28, // 61: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:output_type -> owomide.services.data_pipeline.v1.GetValidationReportResponse
+	30, // 62: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:output_type -> owomide.services.data_pipeline.v1.EditRowResponse
+	32, // 63: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:output_type -> owomide.services.data_pipeline.v1.ExcludeRowResponse
+	34, // 64: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:output_type -> owomide.services.data_pipeline.v1.CommitBatchResponse
+	36, // 65: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:output_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
+	38, // 66: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:output_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
+	55, // [55:67] is the sub-list for method output_type
+	43, // [43:55] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_services_data_pipeline_v1_data_pipeline_proto_init() }
@@ -3185,6 +3217,7 @@ func file_services_data_pipeline_v1_data_pipeline_proto_init() {
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[13].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[18].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[19].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[22].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[29].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[31].OneofWrappers = []any{}
 	type x struct{}

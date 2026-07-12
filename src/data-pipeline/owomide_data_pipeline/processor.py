@@ -5,12 +5,15 @@ from collections.abc import Iterator
 from tempfile import SpooledTemporaryFile
 from uuid import UUID
 
+from owomide_data_pipeline.catalog import CatalogLoader
 from owomide_data_pipeline.errors import InvalidImportError
 from owomide_data_pipeline.mapping import map_row, mapping_from_operation_payload
 from owomide_data_pipeline.parsers import ParsedRow, iter_csv_rows, iter_xlsx_rows
 from owomide_data_pipeline.profiler import ColumnProfiler, ProfiledColumn
 from owomide_data_pipeline.repository import ClaimedOperation, ImportRepository
 from owomide_data_pipeline.storage import ObjectStore
+from owomide_data_pipeline.transformations import apply_transformations
+from owomide_data_pipeline.validation import validate_row
 
 
 class ImportProcessor:
@@ -26,6 +29,7 @@ class ImportProcessor:
         max_columns: int,
         insert_batch_size: int,
         xlsx_spool_memory_bytes: int,
+        catalog_client: CatalogLoader | None = None,
     ) -> None:
         self._repository = repository
         self._object_store = object_store
@@ -36,6 +40,7 @@ class ImportProcessor:
         self._max_columns = max_columns
         self._insert_batch_size = insert_batch_size
         self._xlsx_spool_memory_bytes = xlsx_spool_memory_bytes
+        self._catalog_client = catalog_client
 
     def process_once(self) -> bool:
         operation = self._repository.claim_import_operation(
@@ -71,6 +76,16 @@ class ImportProcessor:
                     "Mapped import batch %s with %s rows",
                     operation.batch_id,
                     total,
+                )
+            elif operation.operation_type == "validate":
+                counts, total = self._validate(operation)
+                logging.info(
+                    "Validated import batch %s: ok=%s warned=%s excluded=%s errored=%s",
+                    operation.batch_id,
+                    counts.ok,
+                    counts.warned,
+                    counts.excluded,
+                    counts.errored,
                 )
             else:
                 raise InvalidImportError(
@@ -147,6 +162,55 @@ class ImportProcessor:
                 progress=progress,
             )
         return progress, template_id
+
+    def _validate(self, operation: ClaimedOperation):
+        if self._catalog_client is None:
+            raise RuntimeError("Catalog client is required for validation operations")
+        mappings, transformation_rules, _ = mapping_from_operation_payload(
+            operation.request_payload
+        )
+        batch = self._repository.start_validation(operation, self._worker_id)
+        raw_sku_ids = self._repository.collect_validation_sku_ids(operation)
+        valid_sku_ids: list[str] = []
+        for raw in raw_sku_ids:
+            try:
+                valid_sku_ids.append(str(UUID(raw)))
+            except ValueError:
+                continue
+        snapshot = self._catalog_client.load_snapshot(operation.org_id, valid_sku_ids)
+
+        progress = 0
+        for rows in self._repository.iter_validation_rows(operation, self._insert_batch_size):
+            validated_rows = []
+            for row in rows:
+                if row.row_status == "excluded":
+                    continue
+                transformed, failures = apply_transformations(
+                    row.mapped_data,
+                    mappings,
+                    transformation_rules,
+                )
+                mapped_data, findings = validate_row(
+                    transformed,
+                    row_number=row.row_number,
+                    batch_channel_id=batch.channel_id,
+                    batch_customer_segment_id=batch.customer_segment_id,
+                    snapshot=snapshot,
+                    transformation_failures=failures,
+                )
+                validated_rows.append((row.id, mapped_data, findings))
+            progress += len(rows)
+            self._repository.apply_validated_rows(
+                operation=operation,
+                worker_id=self._worker_id,
+                rows=validated_rows,
+                progress=progress,
+            )
+        return self._repository.complete_validation(
+            operation,
+            self._worker_id,
+            progress,
+        ), progress
 
     def _persist(
         self,

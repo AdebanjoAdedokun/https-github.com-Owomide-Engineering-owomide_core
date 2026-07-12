@@ -73,7 +73,7 @@ F2.3 provides:
 Ambiguous date formats are never guessed. Ambiguous header aliases produce no mapping suggestion.
 Header-only files fail with an actionable error because there is no data to profile.
 
-## F2.4 Scope
+## F2.4-F2.5 Scope
 
 F2.4 provides:
 
@@ -84,11 +84,15 @@ F2.4 provides:
 - immutable operation snapshots so later template edits do not change queued or retried work;
 - bounded row paging into nested `mapped_data` without modifying `raw_data`;
 - one active pipeline stage per batch to prevent remap/validation races;
-- atomic completion into batch status `mapped`.
+- atomic completion into batch status `mapped` and a queued validation operation;
+- exact money/date/unit/pack/tax transformations without binary floating point;
+- Catalog-backed channel, location, segment, SKU ID, and known-cost validation;
+- actionable row findings, batch duplicate detection, and derived row counts;
+- validation report pagination plus row edit/exclusion with automatic revalidation.
 
-F2.4 stores transformation rules in the operation snapshot but does not execute them. F2.5 applies
-those rules and runs validation. Reapplying a mapping replaces `mapped_data`, preserves excluded-row
-state, and invalidates prior validation events.
+Reapplying a mapping replaces `mapped_data`, preserves excluded-row state, invalidates prior
+validation events, and queues a new validation snapshot. Validation attempts clear and rebuild
+their own findings, making lease recovery and retries idempotent.
 
 ## Public RPCs
 

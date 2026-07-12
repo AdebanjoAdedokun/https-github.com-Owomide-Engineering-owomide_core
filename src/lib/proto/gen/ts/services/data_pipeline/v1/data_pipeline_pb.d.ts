@@ -829,6 +829,11 @@ export declare type GetValidationReportResponse = Message<"owomide.services.data
    * @generated from field: owomide.common.v1.PaginatedResponse pagination = 4;
    */
   pagination?: PaginatedResponse | undefined;
+
+  /**
+   * @generated from field: optional owomide.services.data_pipeline.v1.ImportOperation operation = 5;
+   */
+  operation?: ImportOperation | undefined;
 };
 
 /**
@@ -871,6 +876,11 @@ export declare type EditRowResponse = Message<"owomide.services.data_pipeline.v1
    * @generated from field: owomide.services.data_pipeline.v1.ImportRow row = 1;
    */
   row?: ImportRow | undefined;
+
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.ImportOperation operation = 2;
+   */
+  operation?: ImportOperation | undefined;
 };
 
 /**
@@ -913,6 +923,11 @@ export declare type ExcludeRowResponse = Message<"owomide.services.data_pipeline
    * @generated from field: owomide.services.data_pipeline.v1.ImportRow row = 1;
    */
   row?: ImportRow | undefined;
+
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.ImportOperation operation = 2;
+   */
+  operation?: ImportOperation | undefined;
 };
 
 /**

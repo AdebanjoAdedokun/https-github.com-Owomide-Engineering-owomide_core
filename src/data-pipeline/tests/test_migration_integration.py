@@ -138,6 +138,7 @@ class MigrationIntegrationTest(unittest.TestCase):
                 cls._migration_path("0004_column_profile_ordinal_position.up.sql").read_text()
             )
             connection.execute(cls._migration_path("0005_mapping_operations.up.sql").read_text())
+            connection.execute(cls._migration_path("0006_validation_operations.up.sql").read_text())
             # Keep the recovered fixture from competing with operations created by claim tests.
             connection.execute(
                 "UPDATE data_pipeline.import_operation "
@@ -376,6 +377,7 @@ class MigrationIntegrationTest(unittest.TestCase):
     def test_z_down_migration_removes_owned_tables(self) -> None:
         with psycopg.connect(self.admin_url, autocommit=True) as connection:
             for filename in (
+                "0006_validation_operations.down.sql",
                 "0005_mapping_operations.down.sql",
                 "0004_column_profile_ordinal_position.down.sql",
                 "0003_claim_import_operations.down.sql",

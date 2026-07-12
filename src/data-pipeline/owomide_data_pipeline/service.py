@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 from collections.abc import Iterator
 from datetime import datetime
@@ -32,7 +33,10 @@ from owomide_data_pipeline.repository import (
     ImportBatchRecord,
     ImportOperationRecord,
     ImportRepository,
+    ImportRowRecord,
     MappingTemplateRecord,
+    RowCountsRecord,
+    ValidationEventRecord,
 )
 from owomide_data_pipeline.storage import ObjectStore
 from owomide_data_pipeline.streaming import LimitedHashingReader
@@ -66,6 +70,19 @@ OPERATION_STATUS_FROM_DB = {
     "succeeded": data_pipeline_pb2.IMPORT_OPERATION_STATUS_SUCCEEDED,
     "failed": data_pipeline_pb2.IMPORT_OPERATION_STATUS_FAILED,
     "cancelled": data_pipeline_pb2.IMPORT_OPERATION_STATUS_CANCELLED,
+}
+ROW_STATUS_FROM_DB = {
+    "pending": data_pipeline_pb2.IMPORT_ROW_STATUS_PENDING,
+    "mapped": data_pipeline_pb2.IMPORT_ROW_STATUS_MAPPED,
+    "validated": data_pipeline_pb2.IMPORT_ROW_STATUS_VALIDATED,
+    "committed": data_pipeline_pb2.IMPORT_ROW_STATUS_COMMITTED,
+    "excluded": data_pipeline_pb2.IMPORT_ROW_STATUS_EXCLUDED,
+    "errored": data_pipeline_pb2.IMPORT_ROW_STATUS_ERRORED,
+}
+VALIDATION_SEVERITY_FROM_DB = {
+    "error": data_pipeline_pb2.VALIDATION_SEVERITY_ERROR,
+    "warning": data_pipeline_pb2.VALIDATION_SEVERITY_WARNING,
+    "info": data_pipeline_pb2.VALIDATION_SEVERITY_INFO,
 }
 
 
@@ -149,6 +166,76 @@ def _mapping_template_message(
         created_at=_timestamp(record.created_at),
         updated_at=_timestamp(record.updated_at),
     )
+
+
+def _row_message(record: ImportRowRecord) -> data_pipeline_pb2.ImportRow:
+    return data_pipeline_pb2.ImportRow(
+        id=str(record.id),
+        org_id=record.org_id,
+        batch_id=str(record.batch_id),
+        row_number=record.row_number,
+        raw_data_json=deterministic_json(record.raw_data),
+        mapped_data_json=deterministic_json(record.mapped_data)
+        if record.mapped_data is not None
+        else None,
+        status=ROW_STATUS_FROM_DB[record.row_status],
+        excluded_reason=record.excluded_reason,
+    )
+
+
+def _validation_event_message(
+    record: ValidationEventRecord,
+) -> data_pipeline_pb2.ValidationEvent:
+    return data_pipeline_pb2.ValidationEvent(
+        id=str(record.id),
+        org_id=record.org_id,
+        batch_id=str(record.batch_id),
+        row_id=str(record.row_id) if record.row_id else None,
+        severity=VALIDATION_SEVERITY_FROM_DB[record.severity],
+        code=record.code,
+        message=record.message,
+        field=record.field,
+        raw_value=record.raw_value,
+        suggested_fix=record.suggested_fix,
+        created_at=_timestamp(record.created_at),
+    )
+
+
+def _row_counts_message(record: RowCountsRecord) -> data_pipeline_pb2.RowCounts:
+    return data_pipeline_pb2.RowCounts(
+        ok=record.ok,
+        warned=record.warned,
+        excluded=record.excluded,
+        errored=record.errored,
+    )
+
+
+def _mapped_data(raw: str) -> dict[str, object]:
+    if not raw or len(raw.encode("utf-8")) > 1_000_000:
+        raise InvalidImportError("mapped_data_json must be a JSON object under 1000000 bytes")
+
+    def object_pairs(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in pairs:
+            if key in result:
+                raise InvalidImportError(f'mapped_data_json contains duplicate key "{key}"')
+            result[key] = value
+        return result
+
+    def invalid_constant(constant: str) -> None:
+        raise InvalidImportError(f'mapped_data_json contains non-standard number "{constant}"')
+
+    try:
+        value = json.loads(
+            raw,
+            object_pairs_hook=object_pairs,
+            parse_constant=invalid_constant,
+        )
+    except json.JSONDecodeError as exc:
+        raise InvalidImportError("mapped_data_json must be valid JSON") from exc
+    if not isinstance(value, dict):
+        raise InvalidImportError("mapped_data_json must contain a JSON object")
+    return value
 
 
 def _uuid(raw: str, field: str, context: grpc.ServicerContext) -> UUID:
@@ -409,6 +496,80 @@ class DataPipelineService(data_pipeline_pb2_grpc.DataPipelineServiceServicer):
             batch_id=str(batch_id),
             operation_id=str(operation_id),
             status=data_pipeline_pb2.IMPORT_OPERATION_STATUS_QUEUED,
+        )
+
+    def GetValidationReport(self, request, context):
+        request_context = self._request_context(context)
+        try:
+            state = self._repository.get_validation_report(
+                org_id=request_context.org_id,
+                batch_id=_uuid(request.batch_id, "batch_id", context),
+                page_size=request.pagination.page_size,
+                page_token=request.pagination.page_token,
+            )
+        except ValueError as exc:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        if state is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Import batch not found")
+        response = data_pipeline_pb2.GetValidationReportResponse(
+            batch_id=request.batch_id,
+            row_counts=_row_counts_message(state.row_counts),
+            events=[_validation_event_message(event) for event in state.events],
+            pagination={
+                "next_page_token": state.next_page_token,
+                "total_count": state.total_count,
+            },
+        )
+        if state.operation is not None and state.operation.status != "succeeded":
+            response.operation.CopyFrom(_operation_message(state.operation))
+        return response
+
+    def EditRow(self, request, context):
+        request_context = self._request_context(context)
+        try:
+            row, operation = self._repository.edit_row(
+                org_id=request_context.org_id,
+                batch_id=_uuid(request.batch_id, "batch_id", context),
+                row_id=_uuid(request.row_id, "row_id", context),
+                mapped_data=_mapped_data(request.mapped_data_json),
+            )
+        except InvalidImportError as exc:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except ImportResourceNotFoundError as exc:
+            context.abort(grpc.StatusCode.NOT_FOUND, str(exc))
+        except ImportStateError as exc:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, str(exc))
+        except ImportConflictError as exc:
+            context.abort(grpc.StatusCode.ALREADY_EXISTS, str(exc))
+        return data_pipeline_pb2.EditRowResponse(
+            row=_row_message(row),
+            operation=_operation_message(operation),
+        )
+
+    def ExcludeRow(self, request, context):
+        request_context = self._request_context(context)
+        reason = request.reason.strip()
+        if not reason or len(reason) > 500:
+            context.abort(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "reason must be between 1 and 500 characters",
+            )
+        try:
+            row, operation = self._repository.exclude_row(
+                org_id=request_context.org_id,
+                batch_id=_uuid(request.batch_id, "batch_id", context),
+                row_id=_uuid(request.row_id, "row_id", context),
+                reason=reason,
+            )
+        except ImportResourceNotFoundError as exc:
+            context.abort(grpc.StatusCode.NOT_FOUND, str(exc))
+        except ImportStateError as exc:
+            context.abort(grpc.StatusCode.FAILED_PRECONDITION, str(exc))
+        except ImportConflictError as exc:
+            context.abort(grpc.StatusCode.ALREADY_EXISTS, str(exc))
+        return data_pipeline_pb2.ExcludeRowResponse(
+            row=_row_message(row),
+            operation=_operation_message(operation),
         )
 
     def ListMappingTemplates(self, request, context):

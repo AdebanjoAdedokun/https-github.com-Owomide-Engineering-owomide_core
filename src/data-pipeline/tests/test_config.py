@@ -44,11 +44,32 @@ class ConfigTest(unittest.TestCase):
                 "DATA_PIPELINE_OBJECT_STORE_ENDPOINT": "objects.example.test",
                 "DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY": "worker-access",
                 "DATA_PIPELINE_OBJECT_STORE_SECRET_KEY": "worker-secret",
+                "DATA_PIPELINE_CATALOG_SERVICE_SECRET": (
+                    "production-catalog-service-secret-long-enough"
+                ),
             },
             require_service_secrets=False,
+            require_catalog_secret=True,
         )
 
         self.assertEqual(config.service_secrets, {})
+        self.assertEqual(
+            config.catalog_service_secret,
+            "production-catalog-service-secret-long-enough",
+        )
+
+    def test_worker_mode_requires_outbound_catalog_credential(self) -> None:
+        with self.assertRaises(ConfigurationError):
+            Config.from_env(
+                {
+                    "OWOMIDE_ENV": "production",
+                    "DATA_PIPELINE_OBJECT_STORE_ENDPOINT": "objects.example.test",
+                    "DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY": "worker-access",
+                    "DATA_PIPELINE_OBJECT_STORE_SECRET_KEY": "worker-secret",
+                },
+                require_service_secrets=False,
+                require_catalog_secret=True,
+            )
 
     def test_rejects_out_of_range_ports(self) -> None:
         with self.assertRaises(ConfigurationError):

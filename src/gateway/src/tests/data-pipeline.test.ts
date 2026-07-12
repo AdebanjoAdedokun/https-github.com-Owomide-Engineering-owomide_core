@@ -3,8 +3,11 @@ import Fastify from "fastify";
 import { describe, expect, it } from "vitest";
 import {
   ApplyMappingResponseSchema,
+  EditRowResponseSchema,
+  ExcludeRowResponseSchema,
   GetColumnProfileResponseSchema,
   GetImportOperationResponseSchema,
+  GetValidationReportResponseSchema,
   ImportBatchStatus,
   ImportOperationStatus,
   ListMappingTemplatesResponseSchema,
@@ -49,6 +52,9 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
   let applyMappingRequest: unknown;
   let saveMappingRequest: unknown;
   let listMappingRequest: unknown;
+  let validationRequest: unknown;
+  let editRowRequest: unknown;
+  let excludeRowRequest: unknown;
   const client = {
     async uploadImportFile(
       requests: AsyncIterable<UploadImportFileRequest>,
@@ -133,6 +139,52 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
         pagination: { totalCount: 1 },
       });
     },
+    async getValidationReport(request: unknown) {
+      validationRequest = request;
+      return create(GetValidationReportResponseSchema, {
+        batchId: "batch-1",
+        rowCounts: { ok: 2, warned: 1, excluded: 0, errored: 1 },
+        events: [
+          {
+            id: "event-1",
+            batchId: "batch-1",
+            orgId: "org-test",
+            code: "invalid_price",
+            message: "Row 2: price is invalid.",
+          },
+        ],
+        pagination: { totalCount: 1 },
+      });
+    },
+    async editRow(request: { batchId: string; rowId: string; mappedDataJson: string }) {
+      editRowRequest = request;
+      return create(EditRowResponseSchema, {
+        row: {
+          id: request.rowId,
+          batchId: request.batchId,
+          orgId: "org-test",
+          rowNumber: 2,
+          rawDataJson: '{"Price":"bad"}',
+          mappedDataJson: request.mappedDataJson,
+        },
+        operation: { id: "validation-2", batchId: request.batchId, orgId: "org-test" },
+      });
+    },
+    async excludeRow(request: { batchId: string; rowId: string; reason: string }) {
+      excludeRowRequest = request;
+      return create(ExcludeRowResponseSchema, {
+        row: {
+          id: request.rowId,
+          batchId: request.batchId,
+          orgId: "org-test",
+          rowNumber: 2,
+          rawDataJson: '{"Price":"bad"}',
+          mappedDataJson: '{"price_record":{"price_minor":"bad"}}',
+          excludedReason: request.reason,
+        },
+        operation: { id: "validation-3", batchId: request.batchId, orgId: "org-test" },
+      });
+    },
   };
   const config = { ...loadConfig(), dataPipelineUploadMaxBytes: maxBytes };
   await registerDataPipelineRoutes(app, config, {
@@ -147,6 +199,9 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
     applyMappingRequest: () => applyMappingRequest,
     saveMappingRequest: () => saveMappingRequest,
     listMappingRequest: () => listMappingRequest,
+    validationRequest: () => validationRequest,
+    editRowRequest: () => editRowRequest,
+    excludeRowRequest: () => excludeRowRequest,
   };
 }
 
@@ -322,6 +377,67 @@ describe("Data Pipeline routes", () => {
       sourceSystem: "erp",
       pagination: { pageSize: 25 },
     });
+    await app.close();
+  });
+
+  it("returns paginated validation findings and native row JSON for edits", async () => {
+    const { app, validationRequest, editRowRequest } = await testApp();
+
+    const report = await app.inject({
+      method: "GET",
+      url: "/imports/batch-1/validation?pageSize=25&pageToken=next",
+    });
+    expect(report.statusCode).toBe(200);
+    expect(report.json()).toMatchObject({
+      rowCounts: { ok: 2, warned: 1, errored: 1 },
+      events: [{ code: "invalid_price" }],
+    });
+    expect(validationRequest()).toMatchObject({
+      batchId: "batch-1",
+      pagination: { pageSize: 25, pageToken: "next" },
+    });
+
+    const edited = await app.inject({
+      method: "PATCH",
+      url: "/imports/batch-1/rows/row-1",
+      payload: { mappedData: { price_record: { price_minor: 1250 } } },
+    });
+    expect(edited.statusCode).toBe(202);
+    expect(edited.json()).toMatchObject({
+      row: {
+        rawData: { Price: "bad" },
+        mappedData: { price_record: { price_minor: 1250 } },
+      },
+      operation: { id: "validation-2" },
+    });
+    expect(editRowRequest()).toMatchObject({
+      batchId: "batch-1",
+      rowId: "row-1",
+      mappedDataJson: '{"price_record":{"price_minor":1250}}',
+    });
+    await app.close();
+  });
+
+  it("requires an exclusion reason and queues revalidation", async () => {
+    const { app, excludeRowRequest } = await testApp();
+    const invalid = await app.inject({
+      method: "POST",
+      url: "/imports/batch-1/rows/row-1/exclude",
+      payload: {},
+    });
+    expect(invalid.statusCode).toBe(400);
+
+    const excluded = await app.inject({
+      method: "POST",
+      url: "/imports/batch-1/rows/row-1/exclude",
+      payload: { reason: "not in scope" },
+    });
+    expect(excluded.statusCode).toBe(202);
+    expect(excluded.json()).toMatchObject({
+      row: { excludedReason: "not in scope" },
+      operation: { id: "validation-3" },
+    });
+    expect(excludeRowRequest()).toMatchObject({ reason: "not in scope" });
     await app.close();
   });
 });
