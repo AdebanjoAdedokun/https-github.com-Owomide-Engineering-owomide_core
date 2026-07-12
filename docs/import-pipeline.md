@@ -66,6 +66,44 @@ Example structure:
 }
 ```
 
+The API stores the `fields` object as `mappings_json` and the `transforms` array as
+`transformation_rules_json`; source context is stored in typed template columns. Gateway callers
+use native JSON:
+
+```json
+{
+  "name": "Customer ERP prices",
+  "sourceSystem": "customer_csv",
+  "mappings": {
+    "Item Code": "sku.sku_code",
+    "Selling Price": "price_record.price_minor"
+  },
+  "transformationRules": [
+    {"field": "Selling Price", "type": "decimal_to_minor_units", "scale": 2}
+  ]
+}
+```
+
+Each source column maps to one supported canonical staging leaf, and a canonical leaf may appear
+only once. Applying the example produces nested staging data while preserving source values:
+
+```json
+{
+  "sku": {"sku_code": "A-100"},
+  "price_record": {"price_minor": "125.50"}
+}
+```
+
+F2.4 performs mapping only. The raw price remains a string until F2.5 executes
+`decimal_to_minor_units`; no float is treated as canonical money. Supported transformation rule
+names are `money_parse`, `decimal_to_minor_units`, `date_parse`, `tax_flag`, `unit_normalize`,
+`pack_size_normalize`, and `currency_convert_explicit`.
+
+Mapping application is asynchronous. `ApplyMapping` snapshots mappings, transformation rules, the
+template ID, and template update timestamp into `import_operation.request_payload`. Editing a
+template after queueing therefore cannot change a retry. Rows are processed in bounded pages,
+`raw_data` remains immutable, and the batch becomes `mapped` only after all row updates succeed.
+
 ## Canonical Commit Rules
 
 Commit is the point where data crosses into Catalog.

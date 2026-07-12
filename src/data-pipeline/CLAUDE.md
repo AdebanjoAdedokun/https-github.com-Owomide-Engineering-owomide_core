@@ -73,6 +73,23 @@ F2.3 provides:
 Ambiguous date formats are never guessed. Ambiguous header aliases produce no mapping suggestion.
 Header-only files fail with an actionable error because there is no data to profile.
 
+## F2.4 Scope
+
+F2.4 provides:
+
+- org-scoped mapping template create/update/list with source, channel, and segment filters;
+- strict source-to-canonical mapping and transformation-rule configuration validation;
+- `ApplyMapping` and `PUT /imports/:id/mapping` for saved or inline mappings;
+- restart-safe `apply_mapping` operations handled by the existing worker;
+- immutable operation snapshots so later template edits do not change queued or retried work;
+- bounded row paging into nested `mapped_data` without modifying `raw_data`;
+- one active pipeline stage per batch to prevent remap/validation races;
+- atomic completion into batch status `mapped`.
+
+F2.4 stores transformation rules in the operation snapshot but does not execute them. F2.5 applies
+those rules and runs validation. Reapplying a mapping replaces `mapped_data`, preserves excluded-row
+state, and invalidates prior validation events.
+
 ## Public RPCs
 
 - `UploadImportFile` (client streaming)
@@ -97,7 +114,7 @@ Schema: `data_pipeline`; role: `data_pipeline_svc`.
 | `mapping_template` | Reusable org/source/channel/segment mapping configuration |
 | `validation_event` | Actionable row or batch errors, warnings, and information |
 | `column_profile` | Detected types, samples, hints, suggestions, confidence |
-| `import_operation` | Restart-safe async operation state, progress, lease, retry timing |
+| `import_operation` | Restart-safe async state, progress, lease, retry timing, request snapshot |
 
 All customer-owned tables carry `org_id`, force PostgreSQL RLS, and use composite tenant foreign keys. Application transactions set `app.org_id` locally. Missing tenant context returns no rows and rejects writes.
 
@@ -147,4 +164,5 @@ make data-pipeline-integration-test
 bazel test //...
 ```
 
-The integration target requires Docker and verifies migration apply/rollback, six-table shape, forced RLS, and cross-tenant foreign-key rejection.
+The integration target requires Docker and verifies migration apply/rollback, six-table shape,
+forced RLS, tenant isolation, async parsing/profiling/mapping, and immutable raw data.

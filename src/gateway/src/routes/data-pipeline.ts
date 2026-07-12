@@ -1,6 +1,6 @@
 import { create, toJson } from "@bufbuild/protobuf";
 import multipart, { type Multipart } from "@fastify/multipart";
-import type { FastifyInstance, FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
   DataPipelineService,
   GetColumnProfileResponseSchema,
@@ -9,7 +9,9 @@ import {
   ImportBatchStatus,
   ImportSourceType,
   ListImportBatchesResponseSchema,
+  MappingTemplateSchema,
   UploadImportFileRequestSchema,
+  type MappingTemplate,
   type UploadImportFileRequest,
 } from "@owomide/proto/services/data_pipeline/v1/data_pipeline_pb.js";
 import { createServiceClient } from "../clients/factory.js";
@@ -31,6 +33,35 @@ const statusByName: Readonly<Record<string, ImportBatchStatus>> = {
 type MultipartRequest = FastifyRequest & {
   parts: () => AsyncIterableIterator<Multipart>;
 };
+
+type JsonObject = Record<string, unknown>;
+
+function isJsonObject(value: unknown): value is JsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function invalidArgument(reply: FastifyReply, message: string) {
+  return reply.status(400).send({
+    code: "INVALID_ARGUMENT",
+    message,
+    details: [],
+  });
+}
+
+function pageSize(raw: string | undefined): number | null {
+  const value = raw ? Number(raw) : 0;
+  return Number.isInteger(value) && value >= 0 && value <= 200 ? value : null;
+}
+
+function mappingTemplateJson(template: MappingTemplate) {
+  const serialized = toJson(MappingTemplateSchema, template) as JsonObject;
+  const { mappingsJson, transformationRulesJson, ...metadata } = serialized;
+  return {
+    ...metadata,
+    mappings: JSON.parse(String(mappingsJson)) as JsonObject,
+    transformationRules: JSON.parse(String(transformationRulesJson)) as unknown[],
+  };
+}
 
 function serviceHeaders(request: FastifyRequest, token: string): Record<string, string> {
   return {
@@ -166,19 +197,15 @@ export async function registerDataPipelineRoutes(
         });
       }
     }
-    const pageSize = query.pageSize ? Number(query.pageSize) : 0;
-    if (!Number.isInteger(pageSize) || pageSize < 0 || pageSize > 200) {
-      return reply.status(400).send({
-        code: "INVALID_ARGUMENT",
-        message: "pageSize must be an integer between 0 and 200",
-        details: [],
-      });
+    const requestedPageSize = pageSize(query.pageSize);
+    if (requestedPageSize === null) {
+      return invalidArgument(reply, "pageSize must be an integer between 0 and 200");
     }
     const result = await client.listImportBatches(
       {
         status,
         pagination: {
-          pageSize,
+          pageSize: requestedPageSize,
           pageToken: query.pageToken ?? "",
         },
       },
@@ -205,6 +232,127 @@ export async function registerDataPipelineRoutes(
     return reply.send(toJson(GetColumnProfileResponseSchema, result));
   });
 
+  app.put("/imports/:id/mapping", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    if (!isJsonObject(request.body)) {
+      return invalidArgument(reply, "Request body must be a JSON object");
+    }
+    const { templateId, mappings, transformationRules } = request.body;
+    const hasTemplate = typeof templateId === "string" && templateId.trim() !== "";
+    const hasMappings = isJsonObject(mappings);
+    if (hasTemplate === hasMappings) {
+      return invalidArgument(reply, "Provide exactly one of templateId or mappings");
+    }
+    if (templateId !== undefined && !hasTemplate) {
+      return invalidArgument(reply, "templateId must be a non-empty string");
+    }
+    if (mappings !== undefined && !hasMappings) {
+      return invalidArgument(reply, "mappings must be a JSON object");
+    }
+    if (transformationRules !== undefined && !Array.isArray(transformationRules)) {
+      return invalidArgument(reply, "transformationRules must be a JSON array");
+    }
+    if (hasTemplate && transformationRules !== undefined) {
+      return invalidArgument(reply, "transformationRules cannot override a saved template");
+    }
+
+    const result = await client.applyMapping(
+      {
+        batchId: id,
+        templateId: hasTemplate ? templateId.trim() : undefined,
+        mappingsJson: hasMappings ? JSON.stringify(mappings) : undefined,
+        transformationRulesJson: hasMappings
+          ? JSON.stringify(transformationRules ?? [])
+          : undefined,
+      },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    return reply.status(202).send({
+      batchId: result.batchId,
+      operationId: result.operationId,
+      status: "queued",
+    });
+  });
+
+  app.get("/mappings", async (request, reply) => {
+    const query = request.query as {
+      sourceSystem?: string;
+      channelId?: string;
+      customerSegmentId?: string;
+      pageSize?: string;
+      pageToken?: string;
+    };
+    const requestedPageSize = pageSize(query.pageSize);
+    if (requestedPageSize === null) {
+      return invalidArgument(reply, "pageSize must be an integer between 0 and 200");
+    }
+    const result = await client.listMappingTemplates(
+      {
+        sourceSystem: query.sourceSystem || undefined,
+        channelId: query.channelId || undefined,
+        customerSegmentId: query.customerSegmentId || undefined,
+        pagination: {
+          pageSize: requestedPageSize,
+          pageToken: query.pageToken ?? "",
+        },
+      },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    return reply.send({
+      templates: result.templates.map(mappingTemplateJson),
+      pagination: result.pagination,
+    });
+  });
+
+  app.post("/mappings", async (request, reply) => {
+    if (!isJsonObject(request.body)) {
+      return invalidArgument(reply, "Request body must be a JSON object");
+    }
+    const { id, name, sourceSystem, channelId, customerSegmentId, mappings, transformationRules } =
+      request.body;
+    if (typeof name !== "string" || !name.trim()) {
+      return invalidArgument(reply, "name must be a non-empty string");
+    }
+    if (id !== undefined && (typeof id !== "string" || !id.trim())) {
+      return invalidArgument(reply, "id must be a non-empty string");
+    }
+    if (!isJsonObject(mappings)) {
+      return invalidArgument(reply, "mappings must be a JSON object");
+    }
+    if (transformationRules !== undefined && !Array.isArray(transformationRules)) {
+      return invalidArgument(reply, "transformationRules must be a JSON array");
+    }
+    for (const [field, value] of Object.entries({
+      id,
+      sourceSystem,
+      channelId,
+      customerSegmentId,
+    })) {
+      if (value !== undefined && typeof value !== "string") {
+        return invalidArgument(reply, `${field} must be a string`);
+      }
+    }
+
+    const result = await client.saveMappingTemplate(
+      {
+        id: typeof id === "string" ? id.trim() : undefined,
+        name: name.trim(),
+        sourceSystem: typeof sourceSystem === "string" && sourceSystem ? sourceSystem : undefined,
+        channelId: typeof channelId === "string" && channelId ? channelId : undefined,
+        customerSegmentId:
+          typeof customerSegmentId === "string" && customerSegmentId
+            ? customerSegmentId
+            : undefined,
+        mappingsJson: JSON.stringify(mappings),
+        transformationRulesJson: JSON.stringify(transformationRules ?? []),
+      },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    return reply.status(id ? 200 : 201).send({
+      template: result.template ? mappingTemplateJson(result.template) : undefined,
+    });
+  });
+
   app.get("/imports/:batchId/operations/:operationId", async (request, reply) => {
     const { batchId, operationId } = request.params as { batchId: string; operationId: string };
     const result = await client.getImportOperation(
@@ -221,7 +369,15 @@ export async function registerDataPipelineRoutes(
     return reply.send(toJson(GetImportOperationResponseSchema, result));
   });
 
-  const deferredPrefixes = ["/mappings", "/exports", "/intelligence"];
+  app.all("/mappings/*", async (_request, reply) => {
+    return reply.status(501).send({
+      code: "UNIMPLEMENTED",
+      message: "This Data Pipeline feature is not yet implemented",
+      details: [],
+    });
+  });
+
+  const deferredPrefixes = ["/exports", "/intelligence"];
   for (const prefix of deferredPrefixes) {
     app.all(prefix, async (_request, reply) => {
       return reply.status(501).send({

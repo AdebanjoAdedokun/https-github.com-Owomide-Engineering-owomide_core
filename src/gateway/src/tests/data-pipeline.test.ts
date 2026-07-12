@@ -2,9 +2,13 @@ import { create } from "@bufbuild/protobuf";
 import Fastify from "fastify";
 import { describe, expect, it } from "vitest";
 import {
+  ApplyMappingResponseSchema,
   GetColumnProfileResponseSchema,
   GetImportOperationResponseSchema,
   ImportBatchStatus,
+  ImportOperationStatus,
+  ListMappingTemplatesResponseSchema,
+  SaveMappingTemplateResponseSchema,
   UploadImportFileResponseSchema,
   type UploadImportFileRequest,
 } from "@owomide/proto/services/data_pipeline/v1/data_pipeline_pb.js";
@@ -42,6 +46,9 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
   const captured: UploadImportFileRequest[] = [];
   let capturedHeaders: unknown;
   let profileBatchId: string | undefined;
+  let applyMappingRequest: unknown;
+  let saveMappingRequest: unknown;
+  let listMappingRequest: unknown;
   const client = {
     async uploadImportFile(
       requests: AsyncIterable<UploadImportFileRequest>,
@@ -81,6 +88,51 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
         ],
       });
     },
+    async applyMapping(request: unknown) {
+      applyMappingRequest = request;
+      return create(ApplyMappingResponseSchema, {
+        batchId: "batch-1",
+        operationId: "mapping-operation-1",
+        status: ImportOperationStatus.QUEUED,
+      });
+    },
+    async saveMappingTemplate(request: {
+      id?: string;
+      name: string;
+      sourceSystem?: string;
+      mappingsJson: string;
+      transformationRulesJson: string;
+    }) {
+      saveMappingRequest = request;
+      return create(SaveMappingTemplateResponseSchema, {
+        template: {
+          id: request.id ?? "template-1",
+          orgId: "org-test",
+          name: request.name,
+          sourceSystem: request.sourceSystem,
+          mappingsJson: request.mappingsJson,
+          transformationRulesJson: request.transformationRulesJson,
+          createdBy: "user-test",
+        },
+      });
+    },
+    async listMappingTemplates(request: unknown) {
+      listMappingRequest = request;
+      return create(ListMappingTemplatesResponseSchema, {
+        templates: [
+          {
+            id: "template-1",
+            orgId: "org-test",
+            name: "ERP",
+            sourceSystem: "erp",
+            mappingsJson: '{"SKU":"sku.sku_code"}',
+            transformationRulesJson: "[]",
+            createdBy: "user-test",
+          },
+        ],
+        pagination: { totalCount: 1 },
+      });
+    },
   };
   const config = { ...loadConfig(), dataPipelineUploadMaxBytes: maxBytes };
   await registerDataPipelineRoutes(app, config, {
@@ -92,6 +144,9 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
     captured,
     headers: () => capturedHeaders,
     profileBatchId: () => profileBatchId,
+    applyMappingRequest: () => applyMappingRequest,
+    saveMappingRequest: () => saveMappingRequest,
+    listMappingRequest: () => listMappingRequest,
   };
 }
 
@@ -178,6 +233,94 @@ describe("Data Pipeline routes", () => {
           suggestedMapping: "sku.sku_code",
         },
       ],
+    });
+    await app.close();
+  });
+
+  it("queues native JSON mappings for asynchronous application", async () => {
+    const { app, applyMappingRequest } = await testApp();
+
+    const response = await app.inject({
+      method: "PUT",
+      url: "/imports/batch-1/mapping",
+      payload: {
+        mappings: { SKU: "sku.sku_code" },
+        transformationRules: [],
+      },
+    });
+
+    expect(response.statusCode).toBe(202);
+    expect(response.json()).toEqual({
+      batchId: "batch-1",
+      operationId: "mapping-operation-1",
+      status: "queued",
+    });
+    expect(applyMappingRequest()).toMatchObject({
+      batchId: "batch-1",
+      mappingsJson: '{"SKU":"sku.sku_code"}',
+      transformationRulesJson: "[]",
+    });
+    await app.close();
+  });
+
+  it("rejects ambiguous mapping sources before calling the service", async () => {
+    const { app, applyMappingRequest } = await testApp();
+
+    const response = await app.inject({
+      method: "PUT",
+      url: "/imports/batch-1/mapping",
+      payload: {
+        templateId: "template-1",
+        mappings: { SKU: "sku.sku_code" },
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({ code: "INVALID_ARGUMENT" });
+    expect(applyMappingRequest()).toBeUndefined();
+    await app.close();
+  });
+
+  it("saves and lists templates with native JSON configuration", async () => {
+    const { app, saveMappingRequest, listMappingRequest } = await testApp();
+
+    const created = await app.inject({
+      method: "POST",
+      url: "/mappings",
+      payload: {
+        name: "ERP",
+        sourceSystem: "erp",
+        mappings: { SKU: "sku.sku_code" },
+        transformationRules: [],
+      },
+    });
+
+    expect(created.statusCode).toBe(201);
+    expect(created.json()).toMatchObject({
+      template: {
+        id: "template-1",
+        mappings: { SKU: "sku.sku_code" },
+        transformationRules: [],
+      },
+    });
+    expect(saveMappingRequest()).toMatchObject({
+      mappingsJson: '{"SKU":"sku.sku_code"}',
+      transformationRulesJson: "[]",
+    });
+
+    const listed = await app.inject({
+      method: "GET",
+      url: "/mappings?sourceSystem=erp&pageSize=25",
+    });
+
+    expect(listed.statusCode).toBe(200);
+    expect(listed.json()).toMatchObject({
+      templates: [{ mappings: { SKU: "sku.sku_code" }, transformationRules: [] }],
+      pagination: { totalCount: 1 },
+    });
+    expect(listMappingRequest()).toMatchObject({
+      sourceSystem: "erp",
+      pagination: { pageSize: 25 },
     });
     await app.close();
   });
