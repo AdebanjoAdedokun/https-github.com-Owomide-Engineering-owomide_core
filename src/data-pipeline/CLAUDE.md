@@ -54,11 +54,24 @@ F2.2 provides:
 - server and worker Kubernetes deployments.
 
 CSV parsing is streaming. XLSX uses `openpyxl` read-only mode and a disk-backed spool because
-the XLSX ZIP container requires seeking. After parsing succeeds, the operation is `succeeded`
-and the batch remains `parsing` until F2.3 writes profiles and advances it to `profiled`.
+the XLSX ZIP container requires seeking.
 
 Multipart metadata fields (`sourceSystem`, `channelId`, `customerSegmentId`) must precede the
 file part. They may instead be supplied as query parameters, which avoids ordering concerns.
+
+## F2.3 Scope
+
+F2.3 provides:
+
+- bounded-memory profiling during the existing `parse_profile` worker operation;
+- deterministic type detection, distinct samples, currency/date hints, and canonical suggestions;
+- source-order preservation with `column_profile.ordinal_position`;
+- atomic profile publication, operation completion, and transition to batch status `profiled`;
+- tenant-scoped `GetColumnProfile` and `GET /imports/:id/profile` reads;
+- migration recovery for F2.2 batches that completed parsing before profiling existed.
+
+Ambiguous date formats are never guessed. Ambiguous header aliases produce no mapping suggestion.
+Header-only files fail with an actionable error because there is no data to profile.
 
 ## Public RPCs
 

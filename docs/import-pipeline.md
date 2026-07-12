@@ -102,6 +102,13 @@ CSV input is UTF-8 and uses a header row. XLSX reads the first visible worksheet
 mode and preserves formula expressions in staged raw data. Original files remain the forensic
 source of truth.
 
+Column profiling runs in the same restart-safe `parse_profile` operation as parsing. It keeps
+bounded distinct samples, detects `empty`, `boolean`, `integer`, `decimal`, `date`, `datetime`,
+`string`, or `mixed` values, and records currency/date hints plus conservative canonical mapping
+suggestions. Profiles retain source column order through `ordinal_position`. Ambiguous date values
+may be detected as dates without guessing a format, and ambiguous header matches receive no
+suggestion. The worker publishes every profile and advances the batch to `profiled` atomically.
+
 ## Locked Decisions
 
 - Imports commit validated rows directly through Catalog `UpsertCanonical`.

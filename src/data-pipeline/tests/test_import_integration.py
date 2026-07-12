@@ -179,6 +179,7 @@ class ImportIntegrationTest(unittest.TestCase):
                 "0001_create_schema.up.sql",
                 "0002_data_pipeline_foundation.up.sql",
                 "0003_claim_import_operations.up.sql",
+                "0004_column_profile_ordinal_position.up.sql",
             ):
                 connection.execute(cls._migration_path(filename).read_text())
 
@@ -235,11 +236,15 @@ class ImportIntegrationTest(unittest.TestCase):
         if not processor.process_once():
             raise AssertionError("Expected the worker to claim an import operation")
 
-    def test_csv_upload_is_durable_and_parsed_asynchronously(self) -> None:
+    def test_csv_upload_is_durable_parsed_and_profiled_asynchronously(self) -> None:
         response = self._upload(
             "prices.csv",
             data_pipeline_pb2.IMPORT_SOURCE_TYPE_CSV,
-            b"SKU,Price\nA-1,100\nA-2,250\n",
+            (
+                b"SKU,Selling Price,Currency,Effective Date\n"
+                b'A-1,"NGN 1,000.00",NGN,2026-01-31\n'
+                b"A-2,NGN 250.00,NGN,2026-02-15\n"
+            ),
         )
 
         with psycopg.connect(self.admin_url) as connection:
@@ -252,7 +257,7 @@ class ImportIntegrationTest(unittest.TestCase):
         self.assertEqual(len(batch[1]), 64)
         self.assertEqual(batch[2], "uploaded")
         with self.object_store.open(batch[0]) as stored:
-            self.assertEqual(stored.read(), b"SKU,Price\nA-1,100\nA-2,250\n")
+            self.assertIn(b"NGN 1,000.00", stored.read())
 
         self._process_one()
 
@@ -267,10 +272,92 @@ class ImportIntegrationTest(unittest.TestCase):
                 "FROM data_pipeline.import_operation WHERE id = %s",
                 (response.operation_id,),
             ).fetchone()
+            batch_status = connection.execute(
+                "SELECT status FROM data_pipeline.import_batch WHERE id = %s",
+                (response.batch_id,),
+            ).fetchone()[0]
+            profiles = connection.execute(
+                "SELECT column_name, ordinal_position, detected_type, currency_hint, date_hint, "
+                "suggested_mapping, confidence::text FROM data_pipeline.column_profile "
+                "WHERE batch_id = %s ORDER BY ordinal_position",
+                (response.batch_id,),
+            ).fetchall()
         self.assertEqual(
-            rows, [(2, {"SKU": "A-1", "Price": "100"}), (3, {"SKU": "A-2", "Price": "250"})]
+            rows,
+            [
+                (
+                    2,
+                    {
+                        "SKU": "A-1",
+                        "Selling Price": "NGN 1,000.00",
+                        "Currency": "NGN",
+                        "Effective Date": "2026-01-31",
+                    },
+                ),
+                (
+                    3,
+                    {
+                        "SKU": "A-2",
+                        "Selling Price": "NGN 250.00",
+                        "Currency": "NGN",
+                        "Effective Date": "2026-02-15",
+                    },
+                ),
+            ],
         )
         self.assertEqual(operation, ("succeeded", 2, 2))
+        self.assertEqual(batch_status, "profiled")
+        self.assertEqual(
+            profiles,
+            [
+                ("SKU", 1, "string", None, None, "sku.sku_code", "0.9800"),
+                (
+                    "Selling Price",
+                    2,
+                    "decimal",
+                    "NGN",
+                    None,
+                    "price_record.price_minor",
+                    "0.9800",
+                ),
+                (
+                    "Currency",
+                    3,
+                    "string",
+                    "NGN",
+                    None,
+                    "price_record.currency",
+                    "0.9800",
+                ),
+                (
+                    "Effective Date",
+                    4,
+                    "date",
+                    None,
+                    "YYYY-MM-DD",
+                    "price_record.effective_at",
+                    "0.9800",
+                ),
+            ],
+        )
+
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            profile_response = stub.GetColumnProfile(
+                data_pipeline_pb2.GetColumnProfileRequest(batch_id=response.batch_id),
+                metadata=self._metadata(),
+            )
+            self.assertEqual(
+                [column.ordinal_position for column in profile_response.columns],
+                [1, 2, 3, 4],
+            )
+            self.assertFalse(profile_response.HasField("operation"))
+            with self.assertRaises(grpc.RpcError) as hidden:
+                stub.GetColumnProfile(
+                    data_pipeline_pb2.GetColumnProfileRequest(batch_id=response.batch_id),
+                    metadata=self._metadata("org-b"),
+                )
+            self.assertEqual(hidden.exception.code(), grpc.StatusCode.NOT_FOUND)
 
     def test_xlsx_upload_uses_read_only_parser_and_preserves_formula(self) -> None:
         workbook = Workbook()
@@ -316,6 +403,26 @@ class ImportIntegrationTest(unittest.TestCase):
         self.assertIn("duplicate column", state[3])
         with self.object_store.open(state[4]) as source:
             self.assertEqual(source.read(), b"SKU, SKU\nA-1,A-2\n")
+
+    def test_header_only_file_fails_with_actionable_reason(self) -> None:
+        response = self._upload(
+            "header-only.csv",
+            data_pipeline_pb2.IMPORT_SOURCE_TYPE_CSV,
+            b"SKU,Price\n",
+        )
+
+        self._process_one()
+
+        with psycopg.connect(self.admin_url) as connection:
+            state = connection.execute(
+                "SELECT operation.status, batch.status, batch.failed_reason "
+                "FROM data_pipeline.import_operation AS operation "
+                "JOIN data_pipeline.import_batch AS batch ON batch.id = operation.batch_id "
+                "WHERE operation.id = %s",
+                (response.operation_id,),
+            ).fetchone()
+        self.assertEqual(state[:2], ("failed", "failed"))
+        self.assertIn("does not contain any data rows", state[2])
 
 
 if __name__ == "__main__":

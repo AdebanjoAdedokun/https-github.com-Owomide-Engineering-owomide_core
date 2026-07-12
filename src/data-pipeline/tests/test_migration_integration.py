@@ -26,6 +26,8 @@ class MigrationIntegrationTest(unittest.TestCase):
     container_name: str
     admin_url: str
     service_url: str
+    legacy_unprofiled_batch_id: str
+    legacy_profiled_batch_id: str
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -95,6 +97,52 @@ class MigrationIntegrationTest(unittest.TestCase):
                 "0003_claim_import_operations.up.sql",
             ):
                 connection.execute(cls._migration_path(filename).read_text())
+            cls.legacy_unprofiled_batch_id = connection.execute(
+                "INSERT INTO data_pipeline.import_batch "
+                "(org_id, owner_id, source_file_url, source_filename, source_type, "
+                "source_sha256, status) "
+                "VALUES ('org-legacy', 'user-a', 's3://imports/legacy.csv', 'legacy.csv', "
+                "'csv', %s, 'parsing') RETURNING id",
+                ("b" * 64,),
+            ).fetchone()[0]
+            connection.execute(
+                "INSERT INTO data_pipeline.import_operation "
+                "(org_id, batch_id, operation_type, status, attempt_count, max_attempts, "
+                "progress_current, progress_total, finished_at) "
+                "VALUES ('org-legacy', %s, 'parse_profile', 'succeeded', 5, 5, 1, 1, now())",
+                (cls.legacy_unprofiled_batch_id,),
+            )
+            cls.legacy_profiled_batch_id = connection.execute(
+                "INSERT INTO data_pipeline.import_batch "
+                "(org_id, owner_id, source_file_url, source_filename, source_type, "
+                "source_sha256, status) "
+                "VALUES ('org-profiled', 'user-a', 's3://imports/profiled.csv', "
+                "'profiled.csv', 'csv', %s, 'parsing') RETURNING id",
+                ("c" * 64,),
+            ).fetchone()[0]
+            connection.execute(
+                "INSERT INTO data_pipeline.import_operation "
+                "(org_id, batch_id, operation_type, status, progress_current, progress_total, "
+                "finished_at) "
+                "VALUES ('org-profiled', %s, 'parse_profile', 'succeeded', 1, 1, now())",
+                (cls.legacy_profiled_batch_id,),
+            )
+            connection.execute(
+                "INSERT INTO data_pipeline.column_profile "
+                "(org_id, batch_id, column_name, detected_type) VALUES "
+                "('org-profiled', %s, 'SKU', 'string'), "
+                "('org-profiled', %s, 'Price', 'decimal')",
+                (cls.legacy_profiled_batch_id, cls.legacy_profiled_batch_id),
+            )
+            connection.execute(
+                cls._migration_path("0004_column_profile_ordinal_position.up.sql").read_text()
+            )
+            # Keep the recovered fixture from competing with operations created by claim tests.
+            connection.execute(
+                "UPDATE data_pipeline.import_operation "
+                "SET next_attempt_at = now() + interval '1 day' WHERE batch_id = %s",
+                (cls.legacy_unprofiled_batch_id,),
+            )
 
     def test_schema_has_all_six_tables(self) -> None:
         with psycopg.connect(self.admin_url) as connection:
@@ -252,9 +300,34 @@ class MigrationIntegrationTest(unittest.TestCase):
             ).fetchone()
         self.assertEqual(state, ("running", 1, "worker-test"))
 
+    def test_profile_migration_backfills_order_and_recovers_f2_2_batches(self) -> None:
+        with psycopg.connect(self.admin_url) as connection:
+            profiles = connection.execute(
+                "SELECT column_name, ordinal_position FROM data_pipeline.column_profile "
+                "WHERE batch_id = %s ORDER BY ordinal_position",
+                (self.legacy_profiled_batch_id,),
+            ).fetchall()
+            profiled_status = connection.execute(
+                "SELECT status FROM data_pipeline.import_batch WHERE id = %s",
+                (self.legacy_profiled_batch_id,),
+            ).fetchone()[0]
+            unprofiled_state = connection.execute(
+                "SELECT operation.status, operation.attempt_count, "
+                "operation.progress_current, operation.progress_total, batch.status "
+                "FROM data_pipeline.import_operation AS operation "
+                "JOIN data_pipeline.import_batch AS batch ON batch.id = operation.batch_id "
+                "WHERE batch.id = %s",
+                (self.legacy_unprofiled_batch_id,),
+            ).fetchone()
+
+        self.assertEqual(profiles, [("Price", 1), ("SKU", 2)])
+        self.assertEqual(profiled_status, "profiled")
+        self.assertEqual(unprofiled_state, ("queued", 0, 0, 0, "parsing"))
+
     def test_z_down_migration_removes_owned_tables(self) -> None:
         with psycopg.connect(self.admin_url, autocommit=True) as connection:
             for filename in (
+                "0004_column_profile_ordinal_position.down.sql",
                 "0003_claim_import_operations.down.sql",
                 "0002_data_pipeline_foundation.down.sql",
                 "0001_create_schema.down.sql",

@@ -3,6 +3,7 @@ import multipart, { type Multipart } from "@fastify/multipart";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import {
   DataPipelineService,
+  GetColumnProfileResponseSchema,
   GetImportBatchResponseSchema,
   GetImportOperationResponseSchema,
   ImportBatchStatus,
@@ -193,6 +194,15 @@ export async function registerDataPipelineRoutes(
       { headers: serviceHeaders(request, await token()) }
     );
     return reply.send(toJson(GetImportBatchResponseSchema, result));
+  });
+
+  app.get("/imports/:id/profile", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const result = await client.getColumnProfile(
+      { batchId: id },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    return reply.send(toJson(GetColumnProfileResponseSchema, result));
   });
 
   app.get("/imports/:batchId/operations/:operationId", async (request, reply) => {

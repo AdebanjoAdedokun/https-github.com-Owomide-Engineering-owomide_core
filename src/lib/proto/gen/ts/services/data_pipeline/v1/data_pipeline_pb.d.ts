@@ -378,6 +378,11 @@ export declare type ColumnProfile = Message<"owomide.services.data_pipeline.v1.C
    * @generated from field: double confidence = 10;
    */
   confidence: number;
+
+  /**
+   * @generated from field: int32 ordinal_position = 11;
+   */
+  ordinalPosition: number;
 };
 
 /**
