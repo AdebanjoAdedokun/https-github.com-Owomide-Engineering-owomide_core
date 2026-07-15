@@ -51,12 +51,13 @@ describe("happy path transitions", () => {
     expect((logEffect.meta as { violations: typeof violations }).violations).toEqual(violations);
   });
 
-  it("submitted + APPROVE (different actor) → approved, emits proposal.approved", () => {
+  it("submitted + APPROVE (different actor) → approved, emits proposal.approved and logs transition", () => {
     const result = transition("submitted", { type: "APPROVE" }, ctx);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.nextState).toBe("approved");
     expect(result.sideEffects).toContainEqual({ type: "EMIT", eventType: "proposal.approved" });
+    expect(result.sideEffects).toContainEqual({ type: "LOG_TRANSITION", fromState: "submitted", toState: "approved", meta: {} });
   });
 
   it("approved + PUBLISH → published, emits proposal.published and APPLY_PRICES", () => {
@@ -77,12 +78,13 @@ describe("happy path transitions", () => {
     expect(result.sideEffects.some((e) => e.type === "LOG_TRANSITION")).toBe(false);
   });
 
-  it("blocked + APPROVE_OVERRIDE (different actor) → approved, emits override.approved", () => {
+  it("blocked + APPROVE_OVERRIDE (different actor) → approved, emits override.approved and logs transition", () => {
     const result = transition("blocked", { type: "APPROVE_OVERRIDE" }, overrideCtx);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.nextState).toBe("approved");
     expect(result.sideEffects).toContainEqual({ type: "EMIT", eventType: "override.approved" });
+    expect(result.sideEffects).toContainEqual({ type: "LOG_TRANSITION", fromState: "blocked", toState: "approved", meta: {} });
   });
 });
 
@@ -101,6 +103,18 @@ describe("guard violations", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.code).toBe("SAME_ACTOR_OVERRIDE_APPROVE");
+  });
+
+  it("APPROVE_OVERRIDE fails when overrideRequesterId is absent — fail-closed guard", () => {
+    const noRequesterCtx: TransitionContext = {
+      actorId: "user-decider",
+      proposalActorId: "user-creator",
+      // overrideRequesterId intentionally omitted — simulates a handler that forgot to load the override row
+    };
+    const result = transition("blocked", { type: "APPROVE_OVERRIDE" }, noRequesterCtx);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe("INVALID_TRANSITION");
   });
 });
 

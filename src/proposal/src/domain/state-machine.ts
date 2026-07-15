@@ -125,6 +125,16 @@ export function transition(
 
     case "APPROVE_OVERRIDE": {
       if (current !== "blocked") return invalid(current, event.type);
+      // Fail closed: requester identity is required to enforce separation of duties.
+      if (ctx.overrideRequesterId === undefined) {
+        return {
+          ok: false,
+          error: {
+            code: "INVALID_TRANSITION",
+            message: "overrideRequesterId must be present in context to approve an override",
+          },
+        };
+      }
       if (ctx.actorId === ctx.overrideRequesterId) {
         return {
           ok: false,
