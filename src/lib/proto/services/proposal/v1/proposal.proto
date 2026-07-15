@@ -46,7 +46,7 @@ message Proposal {
   string id = 1;
   string org_id = 2;
   ProposalState state = 3;
-  string owner_id = 4;
+  string actor_id = 4;
   string title = 5;
   string change_set_id = 6;
   repeated ProposalLine lines = 7;
@@ -73,8 +73,8 @@ message OverrideRequest {
   string justification = 5;
   string status = 6;
   google.protobuf.Timestamp requested_at = 7;
-  google.protobuf.Timestamp approved_at = 8;
-  string approver_id = 9;
+  google.protobuf.Timestamp decided_at = 8;
+  string decider_id = 9;
 }
 
 enum ChangeSetStatus {
@@ -88,7 +88,7 @@ message ChangeSet {
   string id = 1;
   string org_id = 2;
   ChangeSetStatus status = 3;
-  string owner_id = 4;
+  string actor_id = 4;
   string scope_json = 5;
   string rule_json = 6;
   repeated ChangeSetLine lines = 7;
@@ -122,7 +122,7 @@ message GetProposalRequest {
 
 message ListProposalsRequest {
   ProposalState state = 1;
-  string owner_id = 2;
+  string actor_id = 2;
   owomide.common.v1.Pagination pagination = 3;
 }
 
