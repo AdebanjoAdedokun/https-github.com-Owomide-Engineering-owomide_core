@@ -197,6 +197,36 @@ src/proposal/
 
 ---
 
+## State machine (`src/proposal/src/domain/state-machine.ts`)
+
+Pure function — no I/O, no imports beyond TypeScript types.
+
+```
+transition(current: ProposalState, event: ProposalEvent, ctx: TransitionContext): TransitionResult
+```
+
+### Event → transition table
+
+| Event             | Required state | Guard                              | Next state  | Side effects                                        |
+|-------------------|----------------|------------------------------------|-------------|-----------------------------------------------------|
+| `SUBMIT` (0 violations) | `draft`  | —                                  | `submitted` | LOG_TRANSITION, EMIT `proposal.submitted`           |
+| `SUBMIT` (violations)   | `draft`  | —                                  | `blocked`   | LOG_TRANSITION, EMIT `proposal.blocked`             |
+| `APPROVE`         | `submitted`    | `actorId ≠ proposalActorId`        | `approved`  | LOG_TRANSITION, EMIT `proposal.approved`            |
+| `PUBLISH`         | `approved`     | —                                  | `published` | LOG_TRANSITION, EMIT `proposal.published`, APPLY_PRICES |
+| `REQUEST_OVERRIDE`| `blocked`      | —                                  | `blocked`   | EMIT `override.requested` *(no LOG_TRANSITION)*     |
+| `APPROVE_OVERRIDE`| `blocked`      | `actorId ≠ overrideRequesterId`    | `approved`  | LOG_TRANSITION, EMIT `override.approved`            |
+
+`REQUEST_OVERRIDE` does not change proposal state; the handler writes the `override_request` row.
+
+### TransitionResult
+
+```typescript
+{ ok: true;  nextState: ProposalState; sideEffects: readonly SideEffect[] }
+{ ok: false; error: { code: 'INVALID_TRANSITION' | 'SAME_ACTOR_APPROVE' | 'SAME_ACTOR_OVERRIDE_APPROVE'; message: string } }
+```
+
+The handler executes side effects in a single Postgres transaction. `APPLY_PRICES` triggers a Catalog gRPC call.
+
 ## Conventions specific to this service
 
 - The state machine is pure logic — no I/O. It takes a current state + event + context and returns the next state plus the side-effects to perform. Handlers execute the side-effects in a transaction.
