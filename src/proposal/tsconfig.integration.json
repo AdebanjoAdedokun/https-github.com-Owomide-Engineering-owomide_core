@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist_integration"
+  },
+  "include": ["src"],
+  "exclude": ["dist", "dist_integration", "node_modules"]
+}

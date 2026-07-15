@@ -1,0 +1,62 @@
+load("@aspect_rules_js//js:defs.bzl", "js_test")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages(name = "node_modules")
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = ["//:tsconfig_base_json"],
+)
+
+ts_config(
+    name = "tsconfig_integration",
+    src = "tsconfig.integration.json",
+    deps = [
+        ":tsconfig",
+        "//:tsconfig_base_json",
+    ],
+)
+
+ts_project(
+    name = "integration_tests_ts",
+    srcs = glob(["src/tests/integration/**/*.ts"]),
+    declaration = True,
+    declaration_map = True,
+    out_dir = "dist_integration",
+    resolve_json_module = True,
+    root_dir = "src",
+    source_map = True,
+    tsconfig = ":tsconfig_integration",
+    deps = [
+        ":node_modules/@testcontainers/postgresql",
+        ":node_modules/@types/node",
+        ":node_modules/@types/pg",
+        ":node_modules/pg",
+        ":node_modules/vitest",
+    ],
+)
+
+js_test(
+    name = "integration_tests",
+    args = [],
+    chdir = package_name(),
+    data = [
+        ":integration_tests_ts",
+        ":node_modules/@testcontainers/postgresql",
+        ":node_modules/pg",
+        ":node_modules/vitest",
+        "migrations/0001_create_schema.down.sql",
+        "migrations/0001_create_schema.up.sql",
+        "migrations/0002_proposal_foundation.down.sql",
+        "migrations/0002_proposal_foundation.up.sql",
+    ],
+    env = {"NODE_OPTIONS": "--experimental-global-webcrypto"},
+    entry_point = "src/tests/integration/run.js",
+    tags = [
+        "manual",
+        "requires-docker",
+    ],
+    visibility = ["//visibility:public"],
+)

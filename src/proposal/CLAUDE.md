@@ -97,19 +97,25 @@ This is the hub. Margin validates for it. Governance audits it. Notify announces
 
 ## Database (schema: `proposal`)
 
+Full DDL: `src/proposal/migrations/0002_proposal_foundation.up.sql`.
+
+The creator of a proposal or change-set is stored as `actor_id` (not `owner_id`) — consistent
+with how `actor_id` is used across all state-transition and event payloads.
+
 ### Proposal tables
 
-- `proposal` — id, org_id, state, owner_id, title, created_at, updated_at, change_set_id (nullable, set if originated from bulk repricing).
-- `proposal_line` — id, org_id, proposal_id, sku_id, channel_id, current_price, proposed_price, reason.
-- `proposal_transition` — id, org_id, proposal_id, from_state, to_state, actor_id, at, meta JSONB. Append-only.
-- `proposal_comment` — id, org_id, proposal_id, author_id, body, at.
-- `override_request` — id, org_id, proposal_id, requester_id, justification, status, requested_at, approved_at (nullable), approver_id (nullable).
+- `proposal` — id, org_id, state, **actor_id** (creator), title, created_at, updated_at, change_set_id (nullable, set if originated from bulk repricing).
+- `proposal_line` — id, org_id, proposal_id, sku_id, channel_id, current_price_minor, current_price_currency, proposed_price_minor, proposed_price_currency, reason.
+- `proposal_transition` — id, org_id, proposal_id, from_state, to_state, actor_id, occurred_at, meta JSONB. Append-only — no UPDATE grant to proposal_svc.
+- `proposal_comment` — id, org_id, proposal_id, author_id, body, occurred_at. Append-only — no UPDATE grant to proposal_svc.
+- `override_request` — id, org_id, proposal_id, requester_id, justification, status, requested_at, decided_at (nullable), decider_id (nullable). Both decided_at and decider_id are set together (check constraint) — present on both approved and rejected outcomes.
 
 ### Bulk repricing tables
 
-- `change_set` — id, org_id, status (`draft` | `submitted` | `discarded`), owner_id, scope JSONB, rule JSONB, created_at, submitted_at (nullable), proposal_id (nullable, set on submit).
-- `change_set_line` — id, org_id, change_set_id, sku_id, channel_id, current_price, proposed_price, diff_pct, diff_absolute, currency.
+- `change_set` — id, org_id, status (`draft` | `submitted` | `discarded`), **actor_id** (creator), scope JSONB, rule JSONB, created_at, updated_at, submitted_at (nullable), proposal_id (nullable, set on submit).
+- `change_set_line` — id, org_id, change_set_id, sku_id, channel_id, current_price_minor, current_price_currency, proposed_price_minor, proposed_price_currency, diff_pct (`numeric(10,4)` — percentage e.g. `3.7000` = 3.70%), diff_absolute_minor, diff_absolute_currency.
 - `scheduled_rollout` — id, org_id, proposal_id, effective_at, status (`pending` | `dispatched` | `failed`), attempts, last_attempted_at.
+- `outbox_event` — transactional outbox for all proposal.* and override.* events. Updated only via SECURITY DEFINER worker functions.
 
 Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Catalog via gRPC, not SQL.
 
