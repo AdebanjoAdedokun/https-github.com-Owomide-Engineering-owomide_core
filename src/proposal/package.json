@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
+    "test:unit": "vitest run src/tests/unit",
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "devDependencies": {
