@@ -123,20 +123,22 @@ describe("Proposal schema migration", () => {
       // Get a proposal id to reference
       await superuser.query("BEGIN");
       await superuser.query("SELECT set_config('app.org_id', 'org-a', true)");
-      const { rows: [proposal] } = await superuser.query<{ id: string }>(
+      const proposalRows = await superuser.query<{ id: string }>(
         "SELECT id FROM proposal.proposal LIMIT 1"
       );
+      const proposal = proposalRows.rows[0]!;
       await superuser.query("COMMIT");
 
       // Insert a transition as superuser
       await superuser.query("BEGIN");
       await superuser.query("SELECT set_config('app.org_id', 'org-a', true)");
-      const { rows: [transition] } = await superuser.query<{ id: string }>(
+      const transitionRows = await superuser.query<{ id: string }>(
         `INSERT INTO proposal.proposal_transition (org_id, proposal_id, from_state, to_state, actor_id)
          VALUES ('org-a', $1, NULL, 'draft', 'user-1')
          RETURNING id`,
         [proposal.id]
       );
+      const transition = transitionRows.rows[0]!;
       await superuser.query("COMMIT");
 
       // proposal_svc should NOT be able to update it
@@ -162,15 +164,17 @@ describe("Proposal schema migration", () => {
     try {
       await superuser.query("BEGIN");
       await superuser.query("SELECT set_config('app.org_id', 'org-a', true)");
-      const { rows: [proposal] } = await superuser.query<{ id: string }>(
+      const proposalRows2 = await superuser.query<{ id: string }>(
         "SELECT id FROM proposal.proposal LIMIT 1"
       );
-      const { rows: [comment] } = await superuser.query<{ id: string }>(
+      const proposal2 = proposalRows2.rows[0]!;
+      const commentRows = await superuser.query<{ id: string }>(
         `INSERT INTO proposal.proposal_comment (org_id, proposal_id, author_id, body)
          VALUES ('org-a', $1, 'user-1', 'Initial comment')
          RETURNING id`,
-        [proposal.id]
+        [proposal2.id]
       );
+      const comment = commentRows.rows[0]!;
       await superuser.query("COMMIT");
 
       await svcClient.query("BEGIN");
