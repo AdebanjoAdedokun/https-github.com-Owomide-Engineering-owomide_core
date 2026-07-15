@@ -34,6 +34,7 @@ ts_project(
         ["src/**/*.ts"],
         exclude = ["src/tests/**"],
     ),
+    data = ["package.json"],
     declaration = True,
     declaration_map = True,
     out_dir = "dist",
