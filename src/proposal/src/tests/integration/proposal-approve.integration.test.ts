@@ -18,7 +18,7 @@ import type { CatalogClient } from "../../clients/catalog.js";
 import { OutboxRelay } from "../../workers/outbox-relay.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const migrationsDir = resolve(__dirname, "../../../../migrations");
+const migrationsDir = resolve(__dirname, "../../../migrations");
 
 function sql(filename: string): string {
   return readFileSync(resolve(migrationsDir, filename), "utf8");
@@ -26,6 +26,7 @@ function sql(filename: string): string {
 
 async function applyMigrations(client: pg.Client): Promise<void> {
   await client.query("CREATE SCHEMA IF NOT EXISTS proposal");
+  await client.query("GRANT USAGE ON SCHEMA proposal TO proposal_svc");
   await client.query(sql("0001_create_schema.up.sql"));
   await client.query(sql("0002_proposal_foundation.up.sql"));
 }
@@ -179,7 +180,9 @@ describe("Proposal Approve", () => {
     const relay = new OutboxRelay(db.pool, publisher, logger);
     await relay.runOnce();
 
-    const call = publisher.calls.find((c) => c.topic === "proposal.approved");
+    const call = publisher.calls.find(
+      (c) => c.topic === "proposal.approved" && c.event.partitionKey === proposalId
+    );
     expect(call).toBeDefined();
     expect(call!.topic).toBe("proposal.approved");
     expect(call!.event.partitionKey).toBe(proposalId);

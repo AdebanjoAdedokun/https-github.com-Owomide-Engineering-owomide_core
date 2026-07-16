@@ -9,6 +9,8 @@ import {
   SubmitProposalResponseSchema,
   ApproveProposalResponseSchema,
   PublishProposalResponseSchema,
+  AddCommentResponseSchema,
+  ListCommentsResponseSchema,
   type CreateProposalRequest,
   type GetProposalRequest,
   type UpdateDraftRequest,
@@ -16,6 +18,8 @@ import {
   type SubmitProposalRequest,
   type ApproveProposalRequest,
   type PublishProposalRequest,
+  type AddCommentRequest,
+  type ListCommentsRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   ApplyPriceChangesRequestSchema,
@@ -33,7 +37,7 @@ import type { CatalogClient } from "./clients/catalog.js";
 import { Database } from "./db.js";
 import { dateToTimestamp } from "./domain/time.js";
 import { transition, type ProposalState } from "./domain/state-machine.js";
-import { proposalMessage } from "./repo/mappers.js";
+import { commentMessage, proposalMessage } from "./repo/mappers.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
 
 const UUID_RE =
@@ -103,6 +107,8 @@ export class ProposalServiceImpl {
       submitProposal: this.submitProposal.bind(this),
       approveProposal: this.approveProposal.bind(this),
       publishProposal: this.publishProposal.bind(this),
+      addComment: this.addComment.bind(this),
+      listComments: this.listComments.bind(this),
       requestOverride: notImplemented,
       approveOverride: notImplemented,
       buildScope: notImplemented,
@@ -417,6 +423,58 @@ export class ProposalServiceImpl {
 
     return create(PublishProposalResponseSchema, {
       proposal: proposalMessage(updated.row, updated.lines),
+    });
+  }
+
+  private async addComment(
+    request: AddCommentRequest,
+    context: HandlerContext
+  ) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.proposalId, "proposal_id");
+    if (!request.body.trim()) {
+      throw new ConnectError("body is required", Code.InvalidArgument);
+    }
+    const actorId = ctx.userId ?? "";
+    if (!actorId) {
+      throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
+    }
+
+    const existing = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.getProposal(c, request.proposalId)
+    );
+    if (!existing) {
+      throw new ConnectError("Proposal not found", Code.NotFound);
+    }
+
+    const comment = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.addComment(c, request.proposalId, ctx.orgId, actorId, request.body)
+    );
+
+    return create(AddCommentResponseSchema, {
+      comment: commentMessage(comment),
+    });
+  }
+
+  private async listComments(
+    request: ListCommentsRequest,
+    context: HandlerContext
+  ) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.proposalId, "proposal_id");
+
+    const result = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.listComments(c, request.proposalId, request)
+    );
+
+    return create(ListCommentsResponseSchema, {
+      comments: result.comments.map(commentMessage),
+      pagination: create(PaginatedResponseSchema, {
+        nextPageToken: result.nextPageToken,
+        totalCount: result.totalCount,
+      }),
     });
   }
 

@@ -59,4 +59,22 @@ export async function registerProposalRoutes(app: FastifyInstance, config: Confi
     });
     return reply.send(result);
   });
+
+  app.post("/proposals/:id/comments", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const result = await client.addComment(
+      { proposalId: id, ...(req.body as any) },
+      { headers: { "x-org-id": req.ctx.orgId, "x-user-id": req.ctx.userId } }
+    );
+    return reply.status(201).send(result);
+  });
+
+  app.get("/proposals/:id/comments", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const result = await client.listComments(
+      { proposalId: id, ...(req.query as any) },
+      { headers: { "x-org-id": req.ctx.orgId, "x-user-id": req.ctx.userId } }
+    );
+    return reply.send(result);
+  });
 }

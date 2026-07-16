@@ -2,9 +2,11 @@ import { create } from "@bufbuild/protobuf";
 import {
   ProposalSchema,
   ProposalLineSchema,
+  ProposalCommentSchema,
   ProposalState,
   type Proposal,
   type ProposalLine,
+  type ProposalComment,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { MoneySchema } from "@owomide/proto/common/v1/common_pb.js";
 import { dateToTimestamp } from "../domain/time.js";
@@ -66,6 +68,26 @@ export function proposalLineMessage(row: ProposalLineRow): ProposalLine {
       currency: row.proposed_price_currency,
     }),
     reason: row.reason,
+  });
+}
+
+export interface CommentRow {
+  id: string;
+  org_id: string;
+  proposal_id: string;
+  author_id: string;
+  body: string;
+  occurred_at: Date;
+}
+
+export function commentMessage(row: CommentRow): ProposalComment {
+  return create(ProposalCommentSchema, {
+    id: row.id,
+    orgId: row.org_id,
+    proposalId: row.proposal_id,
+    authorId: row.author_id,
+    body: row.body,
+    occurredAt: dateToTimestamp(row.occurred_at),
   });
 }
 

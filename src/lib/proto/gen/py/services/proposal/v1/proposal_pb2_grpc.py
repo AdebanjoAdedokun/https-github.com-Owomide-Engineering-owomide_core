@@ -99,6 +99,16 @@ class ProposalServiceStub:
                 request_serializer=services_dot_proposal_dot_v1_dot_proposal__pb2.ScheduleRolloutRequest.SerializeToString,
                 response_deserializer=services_dot_proposal_dot_v1_dot_proposal__pb2.ScheduleRolloutResponse.FromString,
                 _registered_method=True)
+        self.AddComment = channel.unary_unary(
+                '/owomide.services.proposal.v1.ProposalService/AddComment',
+                request_serializer=services_dot_proposal_dot_v1_dot_proposal__pb2.AddCommentRequest.SerializeToString,
+                response_deserializer=services_dot_proposal_dot_v1_dot_proposal__pb2.AddCommentResponse.FromString,
+                _registered_method=True)
+        self.ListComments = channel.unary_unary(
+                '/owomide.services.proposal.v1.ProposalService/ListComments',
+                request_serializer=services_dot_proposal_dot_v1_dot_proposal__pb2.ListCommentsRequest.SerializeToString,
+                response_deserializer=services_dot_proposal_dot_v1_dot_proposal__pb2.ListCommentsResponse.FromString,
+                _registered_method=True)
 
 
 class ProposalServiceServicer:
@@ -208,6 +218,19 @@ class ProposalServiceServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AddComment(self, request, context):
+        """Comments
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListComments(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ProposalServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -295,6 +318,16 @@ def add_ProposalServiceServicer_to_server(servicer, server):
                     servicer.ScheduleRollout,
                     request_deserializer=services_dot_proposal_dot_v1_dot_proposal__pb2.ScheduleRolloutRequest.FromString,
                     response_serializer=services_dot_proposal_dot_v1_dot_proposal__pb2.ScheduleRolloutResponse.SerializeToString,
+            ),
+            'AddComment': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddComment,
+                    request_deserializer=services_dot_proposal_dot_v1_dot_proposal__pb2.AddCommentRequest.FromString,
+                    response_serializer=services_dot_proposal_dot_v1_dot_proposal__pb2.AddCommentResponse.SerializeToString,
+            ),
+            'ListComments': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListComments,
+                    request_deserializer=services_dot_proposal_dot_v1_dot_proposal__pb2.ListCommentsRequest.FromString,
+                    response_serializer=services_dot_proposal_dot_v1_dot_proposal__pb2.ListCommentsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -756,6 +789,60 @@ class ProposalService:
             '/owomide.services.proposal.v1.ProposalService/ScheduleRollout',
             services_dot_proposal_dot_v1_dot_proposal__pb2.ScheduleRolloutRequest.SerializeToString,
             services_dot_proposal_dot_v1_dot_proposal__pb2.ScheduleRolloutResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddComment(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/owomide.services.proposal.v1.ProposalService/AddComment',
+            services_dot_proposal_dot_v1_dot_proposal__pb2.AddCommentRequest.SerializeToString,
+            services_dot_proposal_dot_v1_dot_proposal__pb2.AddCommentResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListComments(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/owomide.services.proposal.v1.ProposalService/ListComments',
+            services_dot_proposal_dot_v1_dot_proposal__pb2.ListCommentsRequest.SerializeToString,
+            services_dot_proposal_dot_v1_dot_proposal__pb2.ListCommentsResponse.FromString,
             options,
             channel_credentials,
             insecure,

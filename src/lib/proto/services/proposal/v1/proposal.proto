@@ -29,6 +29,10 @@ service ProposalService {
   rpc SubmitChangeSet(SubmitChangeSetRequest) returns (SubmitChangeSetResponse);
   rpc DiscardChangeSet(DiscardChangeSetRequest) returns (DiscardChangeSetResponse);
   rpc ScheduleRollout(ScheduleRolloutRequest) returns (ScheduleRolloutResponse);
+
+  // Comments
+  rpc AddComment(AddCommentRequest) returns (AddCommentResponse);
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse);
 }
 
 // --- Core messages ---
@@ -268,4 +272,34 @@ message SubmitChangeSetResponse {
 
 message ScheduleRolloutResponse {
   Proposal proposal = 1;
+}
+
+// --- Comment messages ---
+
+message ProposalComment {
+  string id = 1;
+  string org_id = 2;
+  string proposal_id = 3;
+  string author_id = 4;
+  string body = 5;
+  google.protobuf.Timestamp occurred_at = 6;
+}
+
+message AddCommentRequest {
+  string proposal_id = 1;
+  string body = 2;
+}
+
+message AddCommentResponse {
+  ProposalComment comment = 1;
+}
+
+message ListCommentsRequest {
+  string proposal_id = 1;
+  owomide.common.v1.Pagination pagination = 2;
+}
+
+message ListCommentsResponse {
+  repeated ProposalComment comments = 1;
+  owomide.common.v1.PaginatedResponse pagination = 2;
 }
