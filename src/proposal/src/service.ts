@@ -28,7 +28,7 @@ import {
   ProposalApprovedSchema,
   ProposalPublishedSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
-import { requestContext, requireApproverRole, ServiceAuthenticator } from "./context.js";
+import { requestContext, requireApproverRole, signServiceJwt, ServiceAuthenticator } from "./context.js";
 import type { CatalogClient } from "./clients/catalog.js";
 import { Database } from "./db.js";
 import { dateToTimestamp } from "./domain/time.js";
@@ -89,7 +89,11 @@ export class ProposalServiceImpl {
     private readonly db: Database,
     private readonly authenticator: ServiceAuthenticator,
     private readonly repo: ProposalRepository,
-    private readonly catalogClient: CatalogClient
+    private readonly catalogClient: CatalogClient,
+    private readonly catalogOpts: { serviceJwtIssuer: string; catalogServiceSecret: string } = {
+      serviceJwtIssuer: "",
+      catalogServiceSecret: "",
+    }
   ) {
     this.implementation = {
       createProposal: this.createProposal.bind(this),
@@ -359,13 +363,26 @@ export class ProposalServiceImpl {
       })
     );
 
+    const catalogHeaders = new Headers();
+    catalogHeaders.set("x-org-id", ctx.orgId);
+    if (this.catalogOpts.catalogServiceSecret) {
+      const jwt = await signServiceJwt(
+        "proposal_svc",
+        "catalog",
+        this.catalogOpts.catalogServiceSecret,
+        this.catalogOpts.serviceJwtIssuer
+      );
+      catalogHeaders.set("Authorization", `Bearer ${jwt}`);
+    }
+
     await this.catalogClient.applyPriceChanges(
       create(ApplyPriceChangesRequestSchema, {
         idempotencyKey: request.id,
         proposalId: request.id,
         actorId,
         changes,
-      })
+      }),
+      catalogHeaders
     );
 
     const payload = toBinary(

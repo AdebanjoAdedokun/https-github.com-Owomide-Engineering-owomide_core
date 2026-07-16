@@ -1,5 +1,5 @@
 import { Code, ConnectError, type HandlerContext } from "@connectrpc/connect";
-import { decodeJwt, jwtVerify } from "jose";
+import { SignJWT, decodeJwt, jwtVerify } from "jose";
 
 export interface RequestContext {
   orgId: string;
@@ -63,6 +63,22 @@ export class ServiceAuthenticator {
     }
     return service;
   }
+}
+
+export async function signServiceJwt(
+  subject: string,
+  audience: string,
+  secret: string,
+  issuer: string
+): Promise<string> {
+  return new SignJWT({})
+    .setProtectedHeader({ alg: "HS256" })
+    .setSubject(subject)
+    .setAudience(audience)
+    .setIssuer(issuer)
+    .setIssuedAt()
+    .setExpirationTime("5m")
+    .sign(new TextEncoder().encode(secret));
 }
 
 export function requireApproverRole(context: RequestContext): void {

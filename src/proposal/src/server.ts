@@ -32,7 +32,10 @@ export async function startServer(): Promise<() => Promise<void>> {
   const authenticator = new ServiceAuthenticator(config.serviceJwtIssuer, config.serviceSecrets);
   const repo = new ProposalRepository();
   const catalogClient = new GrpcCatalogClient(config.catalogUrl);
-  const service = new ProposalServiceImpl(database, authenticator, repo, catalogClient);
+  const service = new ProposalServiceImpl(database, authenticator, repo, catalogClient, {
+    serviceJwtIssuer: config.serviceJwtIssuer,
+    catalogServiceSecret: config.catalogServiceSecret,
+  });
   const bus = createBus({
     provider: "kafka",
     kafka: { brokers: [config.kafkaBroker], clientId: "proposal-svc" },

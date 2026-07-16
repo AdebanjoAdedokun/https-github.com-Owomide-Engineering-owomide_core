@@ -59,7 +59,7 @@ class MockCatalogClient implements CatalogClient {
   readonly calls: ApplyPriceChangesRequest[] = [];
   shouldFail = false;
 
-  async applyPriceChanges(req: ApplyPriceChangesRequest) {
+  async applyPriceChanges(req: ApplyPriceChangesRequest, _headers: Headers) {
     if (this.shouldFail) {
       throw new ConnectError("Catalog unavailable", Code.Unavailable);
     }

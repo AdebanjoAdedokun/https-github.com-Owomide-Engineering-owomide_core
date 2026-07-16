@@ -7,7 +7,7 @@ import type {
 import { CatalogService } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
 
 export interface CatalogClient {
-  applyPriceChanges(req: ApplyPriceChangesRequest): Promise<ApplyPriceChangesResponse>;
+  applyPriceChanges(req: ApplyPriceChangesRequest, headers: Headers): Promise<ApplyPriceChangesResponse>;
 }
 
 export class GrpcCatalogClient implements CatalogClient {
@@ -17,8 +17,8 @@ export class GrpcCatalogClient implements CatalogClient {
     this.client = createClient(CatalogService, createGrpcTransport({ baseUrl }));
   }
 
-  async applyPriceChanges(req: ApplyPriceChangesRequest): Promise<ApplyPriceChangesResponse> {
+  async applyPriceChanges(req: ApplyPriceChangesRequest, headers: Headers): Promise<ApplyPriceChangesResponse> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return this.client.applyPriceChanges!(req);
+    return this.client.applyPriceChanges!(req, { headers });
   }
 }

@@ -40,7 +40,7 @@ class TestAuthenticator extends ServiceAuthenticator {
 }
 
 class NoOpCatalogClient implements CatalogClient {
-  async applyPriceChanges(): Promise<never> {
+  async applyPriceChanges(_req: never, _headers: Headers): Promise<never> {
     throw new Error("applyPriceChanges should not be called in approve tests");
   }
 }
