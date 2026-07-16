@@ -15,7 +15,7 @@ import { ServiceAuthenticator } from "../../context.js";
 import type { CatalogClient } from "../../clients/catalog.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const migrationsDir = resolve(__dirname, "../../../../migrations");
+const migrationsDir = resolve(__dirname, "../../../migrations");
 
 function sql(filename: string): string {
   return readFileSync(resolve(migrationsDir, filename), "utf8");
@@ -23,6 +23,7 @@ function sql(filename: string): string {
 
 async function applyMigrations(client: pg.Client): Promise<void> {
   await client.query("CREATE SCHEMA IF NOT EXISTS proposal");
+  await client.query("GRANT USAGE ON SCHEMA proposal TO proposal_svc");
   await client.query(sql("0001_create_schema.up.sql"));
   await client.query(sql("0002_proposal_foundation.up.sql"));
 }

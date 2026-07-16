@@ -61,8 +61,8 @@ export class ProposalRepository {
     if (req.lines.length > 0) {
       const valuePlaceholders = req.lines
         .map((_: ProposalLine, i: number) => {
-          const base = i * 8;
-          return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7}, $${base + 8})`;
+          const base = i * 9;
+          return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7}, $${base + 8}, $${base + 9})`;
         })
         .join(", ");
       const values = req.lines.flatMap((l: ProposalLine) => [
@@ -74,6 +74,7 @@ export class ProposalRepository {
         l.currentPrice?.currency ?? "",
         String(l.proposedPrice?.amount ?? 0),
         l.proposedPrice?.currency ?? "",
+        l.reason,
       ]);
       const linesResult = await client.query<ProposalLineRow>(
         `INSERT INTO proposal.proposal_line
