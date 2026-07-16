@@ -11,6 +11,8 @@ const ConfigSchema = z.object({
   serviceSecretsJson: z.string().default("{}"),
   logLevel: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
   kafkaBroker: z.string().default("localhost:9092"),
+  catalogUrl: z.string().url().default("http://localhost:50052"),
+  catalogServiceSecret: z.string().default(""),
 });
 
 export interface ProposalConfig extends z.infer<typeof ConfigSchema> {
@@ -50,6 +52,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ProposalConfig
     serviceSecretsJson: env["PROPOSAL_SERVICE_SECRETS_JSON"],
     logLevel: env["LOG_LEVEL"],
     kafkaBroker: env["KAFKA_BROKER"],
+    catalogUrl: env["CATALOG_URL"],
+    catalogServiceSecret: env["CATALOG_SERVICE_SECRET"],
   });
   return {
     ...base,

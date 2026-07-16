@@ -14,6 +14,7 @@ import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
 import { ServiceAuthenticator } from "../../context.js";
+import type { CatalogClient } from "../../clients/catalog.js";
 import { OutboxRelay } from "../../workers/outbox-relay.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -35,6 +36,12 @@ class TestAuthenticator extends ServiceAuthenticator {
     _allowedServices: readonly string[]
   ): Promise<string> {
     return "gateway_svc";
+  }
+}
+
+class NoOpCatalogClient implements CatalogClient {
+  async applyPriceChanges(_req: never, _headers: Headers): Promise<never> {
+    throw new Error("applyPriceChanges should not be called in approve tests");
   }
 }
 
@@ -110,7 +117,7 @@ describe("Proposal Approve", () => {
     });
     repo = new ProposalRepository();
     const authenticator = new TestAuthenticator("owomide-internal", {});
-    service = new ProposalServiceImpl(db, authenticator, repo);
+    service = new ProposalServiceImpl(db, authenticator, repo, new NoOpCatalogClient());
   }, 120_000);
 
   afterAll(async () => {
