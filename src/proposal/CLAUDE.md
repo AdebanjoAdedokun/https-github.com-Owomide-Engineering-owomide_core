@@ -154,6 +154,7 @@ Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Ca
 - [ ] gRPC server with all seventeen methods (9 proposal + 8 bulk repricing)
 - [ ] REST routes wired through the gateway
 - [x] `proposal.submitted` and `proposal.blocked` written to transactional outbox on submit (F3.4); relay worker + remaining events deferred to later features
+- [x] `ApproveProposal` endpoint: role gate, same-actor guard, `submitted → approved` state transition, `proposal.approved` written to outbox (F3.5)
 - [ ] Scope DSL parser + validator (pure logic)
 - [ ] Integration test: full happy path (create → submit → approve → publish) against real Postgres + Margin stub
 - [ ] Integration test: blocked path (submit returns 422 with violations)
