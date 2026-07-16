@@ -12,6 +12,7 @@ import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
 import { ServiceAuthenticator } from "../../context.js";
+import type { CatalogClient } from "../../clients/catalog.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const migrationsDir = resolve(__dirname, "../../../../migrations");
@@ -24,6 +25,12 @@ async function applyMigrations(client: pg.Client): Promise<void> {
   await client.query("CREATE SCHEMA IF NOT EXISTS proposal");
   await client.query(sql("0001_create_schema.up.sql"));
   await client.query(sql("0002_proposal_foundation.up.sql"));
+}
+
+class NoOpCatalogClient implements CatalogClient {
+  async applyPriceChanges(): Promise<never> {
+    throw new Error("applyPriceChanges should not be called in submit tests");
+  }
 }
 
 class TestAuthenticator extends ServiceAuthenticator {
@@ -91,7 +98,7 @@ describe("Proposal Submit", () => {
     });
     repo = new ProposalRepository();
     const authenticator = new TestAuthenticator("owomide-internal", {});
-    service = new ProposalServiceImpl(db, authenticator, repo);
+    service = new ProposalServiceImpl(db, authenticator, repo, new NoOpCatalogClient());
   }, 120_000);
 
   afterAll(async () => {

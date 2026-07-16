@@ -247,6 +247,42 @@ export class ProposalRepository {
     return { row, lines: linesResult.rows };
   }
 
+  async publishProposal(
+    client: PoolClient,
+    id: string,
+    fromState: string,
+    actorId: string,
+    meta: Record<string, unknown>
+  ): Promise<ProposalWithLines> {
+    const proposalResult = await client.query<ProposalRow>(
+      `UPDATE proposal.proposal
+       SET state = 'published', updated_at = clock_timestamp()
+       WHERE id = $1 AND state = $2 AND org_id = proposal.current_org_id()
+       RETURNING *`,
+      [id, fromState]
+    );
+    const row = proposalResult.rows[0];
+    if (!row) {
+      throw new ConnectError(
+        "Proposal state changed concurrently or was not found",
+        Code.FailedPrecondition
+      );
+    }
+
+    await client.query(
+      `INSERT INTO proposal.proposal_transition (org_id, proposal_id, from_state, to_state, actor_id, meta)
+       VALUES ($1, $2, $3, 'published', $4, $5::jsonb)`,
+      [row.org_id, id, fromState, actorId, JSON.stringify(meta)]
+    );
+
+    const linesResult = await client.query<ProposalLineRow>(
+      `SELECT * FROM proposal.proposal_line WHERE proposal_id = $1 ORDER BY id`,
+      [id]
+    );
+
+    return { row, lines: linesResult.rows };
+  }
+
   async insertOutboxEvent(client: PoolClient, event: OutboxEventInput): Promise<void> {
     await client.query(
       `INSERT INTO proposal.outbox_event

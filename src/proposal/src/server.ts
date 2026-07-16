@@ -10,6 +10,7 @@ import { ServiceAuthenticator } from "./context.js";
 import { Database } from "./db.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
 import { ProposalServiceImpl } from "./service.js";
+import { GrpcCatalogClient } from "./clients/catalog.js";
 import { OutboxRelay } from "./workers/outbox-relay.js";
 
 export function errorInterceptor(logger: pino.Logger): Interceptor {
@@ -30,7 +31,8 @@ export async function startServer(): Promise<() => Promise<void>> {
   const database = new Database(config);
   const authenticator = new ServiceAuthenticator(config.serviceJwtIssuer, config.serviceSecrets);
   const repo = new ProposalRepository();
-  const service = new ProposalServiceImpl(database, authenticator, repo);
+  const catalogClient = new GrpcCatalogClient(config.catalogUrl);
+  const service = new ProposalServiceImpl(database, authenticator, repo, catalogClient);
   const bus = createBus({
     provider: "kafka",
     kafka: { brokers: [config.kafkaBroker], clientId: "proposal-svc" },

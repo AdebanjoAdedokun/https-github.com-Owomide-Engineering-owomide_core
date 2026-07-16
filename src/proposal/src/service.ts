@@ -8,20 +8,28 @@ import {
   ListProposalsResponseSchema,
   SubmitProposalResponseSchema,
   ApproveProposalResponseSchema,
+  PublishProposalResponseSchema,
   type CreateProposalRequest,
   type GetProposalRequest,
   type UpdateDraftRequest,
   type ListProposalsRequest,
   type SubmitProposalRequest,
   type ApproveProposalRequest,
+  type PublishProposalRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
+import {
+  ApplyPriceChangesRequestSchema,
+  PriceChangeSchema,
+} from "@owomide/proto/services/catalog/v1/catalog_pb.js";
 import { PaginatedResponseSchema } from "@owomide/proto/common/v1/common_pb.js";
 import {
   ProposalSubmittedSchema,
   ProposalBlockedSchema,
   ProposalApprovedSchema,
+  ProposalPublishedSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
 import { requestContext, requireApproverRole, ServiceAuthenticator } from "./context.js";
+import type { CatalogClient } from "./clients/catalog.js";
 import { Database } from "./db.js";
 import { dateToTimestamp } from "./domain/time.js";
 import { transition, type ProposalState } from "./domain/state-machine.js";
@@ -80,7 +88,8 @@ export class ProposalServiceImpl {
   constructor(
     private readonly db: Database,
     private readonly authenticator: ServiceAuthenticator,
-    private readonly repo: ProposalRepository
+    private readonly repo: ProposalRepository,
+    private readonly catalogClient: CatalogClient
   ) {
     this.implementation = {
       createProposal: this.createProposal.bind(this),
@@ -89,7 +98,7 @@ export class ProposalServiceImpl {
       updateDraft: this.updateDraft.bind(this),
       submitProposal: this.submitProposal.bind(this),
       approveProposal: this.approveProposal.bind(this),
-      publishProposal: notImplemented,
+      publishProposal: this.publishProposal.bind(this),
       requestOverride: notImplemented,
       approveOverride: notImplemented,
       buildScope: notImplemented,
@@ -302,6 +311,94 @@ export class ProposalServiceImpl {
     });
 
     return create(ApproveProposalResponseSchema, {
+      proposal: proposalMessage(updated.row, updated.lines),
+    });
+  }
+
+  private async publishProposal(
+    request: PublishProposalRequest,
+    context: HandlerContext
+  ) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.id, "id");
+    const actorId = ctx.userId ?? "";
+    if (!actorId) {
+      throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
+    }
+
+    const current = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.getProposal(c, request.id)
+    );
+    if (!current) {
+      throw new ConnectError("Proposal not found", Code.NotFound);
+    }
+
+    const smResult = transition(
+      current.row.state as ProposalState,
+      { type: "PUBLISH" },
+      { actorId, proposalActorId: current.row.actor_id }
+    );
+    if (!smResult.ok) {
+      throw new ConnectError(smResult.error.message, Code.FailedPrecondition);
+    }
+
+    const now = new Date();
+    const effectiveAt = dateToTimestamp(now);
+
+    const changes = current.lines.map((line) =>
+      create(PriceChangeSchema, {
+        proposalLineId: line.id,
+        skuId: line.sku_id,
+        channelId: line.channel_id,
+        newPrice: {
+          amount: BigInt(line.proposed_price_minor),
+          currency: line.proposed_price_currency,
+        },
+        effectiveAt,
+      })
+    );
+
+    await this.catalogClient.applyPriceChanges(
+      create(ApplyPriceChangesRequestSchema, {
+        idempotencyKey: request.id,
+        proposalId: request.id,
+        actorId,
+        changes,
+      })
+    );
+
+    const payload = toBinary(
+      ProposalPublishedSchema,
+      create(ProposalPublishedSchema, {
+        orgId: ctx.orgId,
+        proposalId: request.id,
+        actorId,
+        effectiveAt,
+        createdAt: dateToTimestamp(now),
+      })
+    );
+
+    const updated = await this.db.withOrgTransaction(ctx.orgId, async (c) => {
+      const result = await this.repo.publishProposal(
+        c,
+        request.id,
+        current.row.state,
+        actorId,
+        {}
+      );
+      await this.repo.insertOutboxEvent(c, {
+        id: crypto.randomUUID(),
+        orgId: ctx.orgId,
+        eventType: "proposal.published",
+        aggregateId: request.id,
+        partitionKey: request.id,
+        payload,
+      });
+      return result;
+    });
+
+    return create(PublishProposalResponseSchema, {
       proposal: proposalMessage(updated.row, updated.lines),
     });
   }
