@@ -10,6 +10,7 @@ const ConfigSchema = z.object({
   serviceJwtIssuer: z.string().min(1).default("owomide-internal"),
   serviceSecretsJson: z.string().default("{}"),
   logLevel: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+  kafkaBroker: z.string().default("localhost:9092"),
 });
 
 export interface ProposalConfig extends z.infer<typeof ConfigSchema> {
@@ -48,6 +49,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ProposalConfig
     serviceJwtIssuer: env["PROPOSAL_SERVICE_JWT_ISSUER"],
     serviceSecretsJson: env["PROPOSAL_SERVICE_SECRETS_JSON"],
     logLevel: env["LOG_LEVEL"],
+    kafkaBroker: env["KAFKA_BROKER"],
   });
   return {
     ...base,

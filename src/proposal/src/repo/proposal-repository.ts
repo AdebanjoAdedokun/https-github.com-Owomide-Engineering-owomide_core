@@ -15,6 +15,15 @@ export interface ProposalWithLines {
   lines: ProposalLineRow[];
 }
 
+export interface OutboxEventInput {
+  id: string;
+  orgId: string;
+  eventType: string;
+  aggregateId: string;
+  partitionKey: string;
+  payload: Uint8Array;
+}
+
 function dbState(s: ProposalState): string | null {
   switch (s) {
     case ProposalState.DRAFT:
@@ -88,7 +97,8 @@ export class ProposalRepository {
 
   async getProposal(client: PoolClient, id: string): Promise<ProposalWithLines | null> {
     const proposalResult = await client.query<ProposalRow>(
-      `SELECT * FROM proposal.proposal WHERE id = $1`,
+      `SELECT * FROM proposal.proposal
+       WHERE id = $1 AND org_id = proposal.current_org_id()`,
       [id]
     );
     const row = proposalResult.rows[0];
@@ -161,6 +171,60 @@ export class ProposalRepository {
     }
 
     return { row, lines };
+  }
+
+  async submitProposal(
+    client: PoolClient,
+    id: string,
+    fromState: string,
+    nextState: "submitted" | "blocked",
+    actorId: string,
+    meta: Record<string, unknown>
+  ): Promise<ProposalWithLines> {
+    // Guard against TOCTOU: only update if state hasn't changed since we read it
+    const proposalResult = await client.query<ProposalRow>(
+      `UPDATE proposal.proposal
+       SET state = $1, updated_at = clock_timestamp()
+       WHERE id = $2 AND state = $3 AND org_id = proposal.current_org_id()
+       RETURNING *`,
+      [nextState, id, fromState]
+    );
+    const row = proposalResult.rows[0];
+    if (!row) {
+      throw new ConnectError(
+        "Proposal state changed concurrently or was not found",
+        Code.FailedPrecondition
+      );
+    }
+
+    await client.query(
+      `INSERT INTO proposal.proposal_transition (org_id, proposal_id, from_state, to_state, actor_id, meta)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
+      [row.org_id, id, fromState, nextState, actorId, JSON.stringify(meta)]
+    );
+
+    const linesResult = await client.query<ProposalLineRow>(
+      `SELECT * FROM proposal.proposal_line WHERE proposal_id = $1 ORDER BY id`,
+      [id]
+    );
+
+    return { row, lines: linesResult.rows };
+  }
+
+  async insertOutboxEvent(client: PoolClient, event: OutboxEventInput): Promise<void> {
+    await client.query(
+      `INSERT INTO proposal.outbox_event
+         (id, org_id, event_type, aggregate_type, aggregate_id, partition_key, payload, metadata, occurred_at)
+       VALUES ($1, $2, $3, 'proposal', $4, $5, $6, '{}'::jsonb, clock_timestamp())`,
+      [
+        event.id,
+        event.orgId,
+        event.eventType,
+        event.aggregateId,
+        event.partitionKey,
+        Buffer.from(event.payload),
+      ]
+    );
   }
 
   async listProposals(

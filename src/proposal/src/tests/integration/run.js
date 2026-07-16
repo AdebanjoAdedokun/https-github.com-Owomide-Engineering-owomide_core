@@ -15,6 +15,14 @@ const tests = [
     dirname,
     "../../../dist_integration/tests/integration/proposal-crud.integration.test.js"
   ),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/proposal-submit.integration.test.js"
+  ),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/outbox-relay.integration.test.js"
+  ),
 ];
 
 process.argv = [

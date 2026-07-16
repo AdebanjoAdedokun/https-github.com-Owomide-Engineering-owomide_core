@@ -204,6 +204,9 @@ importers:
       '@connectrpc/connect-node':
         specifier: ^2.1.2
         version: 2.1.2(@bufbuild/protobuf@2.12.1)(@connectrpc/connect@2.1.2)
+      '@owomide/bus':
+        specifier: workspace:*
+        version: link:../lib/bus/js
       '@owomide/proto':
         specifier: workspace:*
         version: link:../lib/proto
