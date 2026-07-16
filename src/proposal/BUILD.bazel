@@ -53,7 +53,9 @@ ts_project(
         ":node_modules/pg",
         ":node_modules/pino",
         ":node_modules/zod",
+        "//src/lib/bus/js:bus_js",
         "//src/lib/proto:pkg",
+        ":node_modules/@owomide/bus",
         ":node_modules/@owomide/proto",
     ],
 )
@@ -117,7 +119,9 @@ ts_project(
         ":node_modules/jose",
         ":node_modules/pg",
         ":node_modules/vitest",
+        "//src/lib/bus/js:bus_js",
         "//src/lib/proto:pkg",
+        ":node_modules/@owomide/bus",
         ":node_modules/@owomide/proto",
     ],
 )

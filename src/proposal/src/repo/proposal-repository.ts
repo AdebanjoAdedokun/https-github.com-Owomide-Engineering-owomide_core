@@ -163,6 +163,40 @@ export class ProposalRepository {
     return { row, lines };
   }
 
+  async submitProposal(
+    client: PoolClient,
+    id: string,
+    fromState: string,
+    nextState: "submitted" | "blocked",
+    actorId: string,
+    meta: Record<string, unknown>
+  ): Promise<ProposalWithLines> {
+    const proposalResult = await client.query<ProposalRow>(
+      `UPDATE proposal.proposal
+       SET state = $1, updated_at = clock_timestamp()
+       WHERE id = $2
+       RETURNING *`,
+      [nextState, id]
+    );
+    const row = proposalResult.rows[0];
+    if (!row) {
+      throw new ConnectError("Proposal not found", Code.NotFound);
+    }
+
+    await client.query(
+      `INSERT INTO proposal.proposal_transition (org_id, proposal_id, from_state, to_state, actor_id, meta)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
+      [row.org_id, id, fromState, nextState, actorId, JSON.stringify(meta)]
+    );
+
+    const linesResult = await client.query<ProposalLineRow>(
+      `SELECT * FROM proposal.proposal_line WHERE proposal_id = $1 ORDER BY id`,
+      [id]
+    );
+
+    return { row, lines: linesResult.rows };
+  }
+
   async listProposals(
     client: PoolClient,
     req: ListProposalsRequest

@@ -3,6 +3,7 @@ import * as http2 from "node:http2";
 import { Code, ConnectError, type ConnectRouter, type Interceptor } from "@connectrpc/connect";
 import { connectNodeAdapter } from "@connectrpc/connect-node";
 import { ProposalService } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
+import { createBus } from "@owomide/bus";
 import pino from "pino";
 import { loadConfig } from "./config.js";
 import { ServiceAuthenticator } from "./context.js";
@@ -28,7 +29,11 @@ export async function startServer(): Promise<() => Promise<void>> {
   const database = new Database(config);
   const authenticator = new ServiceAuthenticator(config.serviceJwtIssuer, config.serviceSecrets);
   const repo = new ProposalRepository();
-  const service = new ProposalServiceImpl(database, authenticator, repo);
+  const bus = createBus({
+    provider: "kafka",
+    kafka: { brokers: [config.kafkaBroker], clientId: "proposal-svc" },
+  });
+  const service = new ProposalServiceImpl(database, authenticator, repo, bus.publisher);
 
   const rpcHandler = connectNodeAdapter({
     interceptors: [errorInterceptor(logger)],
@@ -65,6 +70,7 @@ export async function startServer(): Promise<() => Promise<void>> {
         healthServer.close((error) => (error ? reject(error) : resolve()))
       ),
     ]);
+    await bus.publisher.close();
     await database.close();
   };
 }
