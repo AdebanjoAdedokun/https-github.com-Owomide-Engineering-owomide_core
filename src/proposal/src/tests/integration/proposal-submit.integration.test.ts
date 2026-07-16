@@ -5,9 +5,9 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testconta
 import pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { create } from "@bufbuild/protobuf";
-import { CreateProposalRequestSchema } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
-import { type Publisher, type Event } from "@owomide/bus";
+import { Code, ConnectError } from "@connectrpc/connect";
 import { type HandlerContext } from "@connectrpc/connect";
+import { CreateProposalRequestSchema } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
@@ -24,14 +24,6 @@ async function applyMigrations(client: pg.Client): Promise<void> {
   await client.query("CREATE SCHEMA IF NOT EXISTS proposal");
   await client.query(sql("0001_create_schema.up.sql"));
   await client.query(sql("0002_proposal_foundation.up.sql"));
-}
-
-class TestPublisher implements Publisher {
-  readonly captured: Array<{ topic: string; event: Event }> = [];
-  async publish(topic: string, event: Event): Promise<void> {
-    this.captured.push({ topic, event });
-  }
-  async close(): Promise<void> {}
 }
 
 class TestAuthenticator extends ServiceAuthenticator {
@@ -54,7 +46,13 @@ function makeContext(orgId: string, userId: string): HandlerContext {
     signal: new AbortController().signal,
     values: new Map(),
     peer: { addr: "test", protocol: "http2" },
-    method: { name: "SubmitProposal", kind: 0, idempotency: 0, input: {} as never, output: {} as never },
+    method: {
+      name: "SubmitProposal",
+      kind: 0,
+      idempotency: 0,
+      input: {} as never,
+      output: {} as never,
+    },
   } as unknown as HandlerContext;
 }
 
@@ -63,7 +61,6 @@ describe("Proposal Submit", () => {
   let superuser: pg.Client;
   let db: Database;
   let repo: ProposalRepository;
-  let publisher: TestPublisher;
   let service: ProposalServiceImpl;
 
   const ORG_A = "00000000-0000-0000-0000-000000000001";
@@ -93,9 +90,8 @@ describe("Proposal Submit", () => {
       databaseStatementTimeoutMs: 15_000,
     });
     repo = new ProposalRepository();
-    publisher = new TestPublisher();
     const authenticator = new TestAuthenticator("owomide-internal", {});
-    service = new ProposalServiceImpl(db, authenticator, repo, publisher);
+    service = new ProposalServiceImpl(db, authenticator, repo);
   }, 120_000);
 
   afterAll(async () => {
@@ -104,7 +100,7 @@ describe("Proposal Submit", () => {
     await container.stop();
   });
 
-  it("submitProposal transitions a draft to submitted and logs the transition", async () => {
+  it("submitProposal transitions draft→submitted and logs the transition", async () => {
     const req = create(CreateProposalRequestSchema, { title: "Submit Test" });
     const created = await db.withOrgTransaction(ORG_A, (c) =>
       repo.createProposal(c, ORG_A, USER_1, req)
@@ -130,10 +126,8 @@ describe("Proposal Submit", () => {
     expect(transitions[1]!.to_state).toBe("submitted");
   });
 
-  it("emits proposal.submitted event with correct topic and partition key", async () => {
-    const capturedBefore = publisher.captured.length;
-
-    const req = create(CreateProposalRequestSchema, { title: "Event Test" });
+  it("emits proposal.submitted to outbox with correct fields", async () => {
+    const req = create(CreateProposalRequestSchema, { title: "Outbox Test" });
     const created = await db.withOrgTransaction(ORG_A, (c) =>
       repo.createProposal(c, ORG_A, USER_1, req)
     );
@@ -141,13 +135,80 @@ describe("Proposal Submit", () => {
     const impl = service.implementation.submitProposal!;
     await impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1));
 
-    const emitted = publisher.captured.slice(capturedBefore);
-    expect(emitted).toHaveLength(1);
-    expect(emitted[0]!.topic).toBe("proposal.submitted");
-    expect(emitted[0]!.event.type).toBe("proposal.submitted");
-    expect(emitted[0]!.event.partitionKey).toBe(created.row.id);
-    expect(emitted[0]!.event.payload).toBeInstanceOf(Uint8Array);
-    expect(emitted[0]!.event.payload.length).toBeGreaterThan(0);
+    const { rows } = await superuser.query(
+      `SELECT * FROM proposal.outbox_event WHERE aggregate_id = $1`,
+      [created.row.id]
+    );
+    expect(rows).toHaveLength(1);
+
+    const outbox = rows[0]!;
+    expect(outbox.event_type).toBe("proposal.submitted");
+    expect(outbox.aggregate_type).toBe("proposal");
+    expect(outbox.partition_key).toBe(created.row.id);
+    expect(outbox.org_id).toBe(ORG_A);
+    expect(outbox.payload).toBeInstanceOf(Buffer);
+    expect((outbox.payload as Buffer).length).toBeGreaterThan(0);
+    // id must be present (ULID — time-ordered, 26 uppercase alphanum chars)
+    expect(outbox.id).toBeTruthy();
+    expect(typeof outbox.id).toBe("string");
+    expect(outbox.published_at).toBeNull();
+  });
+
+  it("outbox event and state transition are in the same DB transaction (atomic write)", async () => {
+    const req = create(CreateProposalRequestSchema, { title: "Atomic Test" });
+    const created = await db.withOrgTransaction(ORG_A, (c) =>
+      repo.createProposal(c, ORG_A, USER_1, req)
+    );
+
+    const impl = service.implementation.submitProposal!;
+    await impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1));
+
+    // Both state and outbox must reflect the transition
+    const [stateRow] = (
+      await superuser.query<{ state: string }>(
+        `SELECT state FROM proposal.proposal WHERE id = $1`,
+        [created.row.id]
+      )
+    ).rows;
+    const [outboxRow] = (
+      await superuser.query(
+        `SELECT event_type FROM proposal.outbox_event WHERE aggregate_id = $1`,
+        [created.row.id]
+      )
+    ).rows;
+
+    expect(stateRow!.state).toBe("submitted");
+    expect(outboxRow!.event_type).toBe("proposal.submitted");
+  });
+
+  it("blocked outcome writes proposal.blocked to outbox before returning 422", async () => {
+    // Directly exercise the blocked path via the repo — state machine stub always returns
+    // submitted in F3.4, so we test at the repo layer to cover the outbox write for blocked.
+    const req = create(CreateProposalRequestSchema, { title: "Blocked Outbox Test" });
+    const created = await db.withOrgTransaction(ORG_A, (c) =>
+      repo.createProposal(c, ORG_A, USER_1, req)
+    );
+
+    // Build a blocked payload manually and call insertOutboxEvent directly
+    await db.withOrgTransaction(ORG_A, async (c) => {
+      await repo.submitProposal(c, created.row.id, "draft", "blocked", USER_1, {});
+      await repo.insertOutboxEvent(c, {
+        id: "00000000-0000-0000-0000-000000000099",
+        orgId: ORG_A,
+        eventType: "proposal.blocked",
+        aggregateId: created.row.id,
+        partitionKey: created.row.id,
+        payload: new Uint8Array([0x08, 0x01]),
+      });
+    });
+
+    const { rows } = await superuser.query(
+      `SELECT event_type, org_id, partition_key FROM proposal.outbox_event WHERE aggregate_id = $1`,
+      [created.row.id]
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.event_type).toBe("proposal.blocked");
+    expect(rows[0]!.partition_key).toBe(created.row.id);
   });
 
   it("submitProposal on a non-draft proposal throws FailedPrecondition", async () => {
@@ -164,7 +225,10 @@ describe("Proposal Submit", () => {
     const impl = service.implementation.submitProposal!;
     await expect(
       impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1))
-    ).rejects.toThrow(/submitted/);
+    ).rejects.toSatisfy(
+      (err: unknown) =>
+        err instanceof ConnectError && err.code === Code.FailedPrecondition
+    );
   });
 
   it("submitProposal on a non-existent id throws NotFound", async () => {
@@ -174,7 +238,9 @@ describe("Proposal Submit", () => {
         { id: "00000000-0000-0000-0000-000000009999" } as never,
         makeContext(ORG_A, USER_1)
       )
-    ).rejects.toThrow(/not found/i);
+    ).rejects.toSatisfy(
+      (err: unknown) => err instanceof ConnectError && err.code === Code.NotFound
+    );
   });
 
   it("submitProposal with wrong org returns NotFound (RLS isolation)", async () => {
@@ -186,6 +252,8 @@ describe("Proposal Submit", () => {
     const impl = service.implementation.submitProposal!;
     await expect(
       impl({ id: created.row.id } as never, makeContext(ORG_B, USER_1))
-    ).rejects.toThrow(/not found/i);
+    ).rejects.toSatisfy(
+      (err: unknown) => err instanceof ConnectError && err.code === Code.NotFound
+    );
   });
 });

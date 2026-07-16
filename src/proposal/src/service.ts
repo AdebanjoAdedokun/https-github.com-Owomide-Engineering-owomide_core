@@ -18,14 +18,10 @@ import {
   ProposalSubmittedSchema,
   ProposalBlockedSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
-import { type Publisher, type Event } from "@owomide/bus";
 import { requestContext, ServiceAuthenticator } from "./context.js";
 import { Database } from "./db.js";
 import { dateToTimestamp } from "./domain/time.js";
-import {
-  transition,
-  type ProposalState,
-} from "./domain/state-machine.js";
+import { transition, type ProposalState } from "./domain/state-machine.js";
 import { proposalMessage } from "./repo/mappers.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
 
@@ -43,47 +39,36 @@ function notImplemented(): never {
   throw new ConnectError("Not implemented", Code.Unimplemented);
 }
 
-function dbStateToEnum(s: string): ProposalState {
-  return s as ProposalState;
-}
-
-function buildSubmitEvent(
-  eventType: "proposal.submitted" | "proposal.blocked",
+function buildPayload(
+  nextState: "submitted" | "blocked",
   proposalId: string,
   orgId: string,
   actorId: string,
   changeSetId: string | null
-): Event {
-  const now = new Date();
-  const payload =
-    eventType === "proposal.submitted"
-      ? toBinary(
-          ProposalSubmittedSchema,
-          create(ProposalSubmittedSchema, {
-            orgId,
-            proposalId,
-            changeSetId: changeSetId ?? "",
-            actorId,
-            createdAt: dateToTimestamp(now),
-          })
-        )
-      : toBinary(
-          ProposalBlockedSchema,
-          create(ProposalBlockedSchema, {
-            orgId,
-            proposalId,
-            violations: [],
-            actorId,
-            createdAt: dateToTimestamp(now),
-          })
-        );
-  return {
-    id: crypto.randomUUID(),
-    type: eventType,
-    occurredAt: now.toISOString(),
-    partitionKey: proposalId,
-    payload,
-  };
+): Uint8Array {
+  const createdAt = dateToTimestamp(new Date());
+  if (nextState === "blocked") {
+    return toBinary(
+      ProposalBlockedSchema,
+      create(ProposalBlockedSchema, {
+        orgId,
+        proposalId,
+        violations: [],
+        actorId,
+        createdAt,
+      })
+    );
+  }
+  return toBinary(
+    ProposalSubmittedSchema,
+    create(ProposalSubmittedSchema, {
+      orgId,
+      proposalId,
+      changeSetId: changeSetId ?? "",
+      actorId,
+      createdAt,
+    })
+  );
 }
 
 export class ProposalServiceImpl {
@@ -92,8 +77,7 @@ export class ProposalServiceImpl {
   constructor(
     private readonly db: Database,
     private readonly authenticator: ServiceAuthenticator,
-    private readonly repo: ProposalRepository,
-    private readonly publisher: Publisher
+    private readonly repo: ProposalRepository
   ) {
     this.implementation = {
       createProposal: this.createProposal.bind(this),
@@ -189,6 +173,7 @@ export class ProposalServiceImpl {
       throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
     }
 
+    // Read current state for the state machine guard
     const current = await this.db.withOrgTransaction(ctx.orgId, (c) =>
       this.repo.getProposal(c, request.id)
     );
@@ -198,7 +183,7 @@ export class ProposalServiceImpl {
 
     // Margin stub — F4.3 replaces [] with real ValidateBatch results
     const smResult = transition(
-      dbStateToEnum(current.row.state),
+      current.row.state as ProposalState,
       { type: "SUBMIT", marginViolations: [] },
       { actorId, proposalActorId: current.row.actor_id }
     );
@@ -207,16 +192,41 @@ export class ProposalServiceImpl {
     }
 
     const { nextState } = smResult;
-
-    const updated = await this.db.withOrgTransaction(ctx.orgId, (c) =>
-      this.repo.submitProposal(c, request.id, current.row.state, nextState as "submitted" | "blocked", actorId, {})
-    );
-
+    const castedNextState = nextState as "submitted" | "blocked";
     const eventType = nextState === "blocked" ? "proposal.blocked" : "proposal.submitted";
-    await this.publisher.publish(
-      eventType,
-      buildSubmitEvent(eventType, request.id, current.row.org_id, actorId, current.row.change_set_id)
+    const payload = buildPayload(
+      castedNextState,
+      request.id,
+      current.row.org_id,
+      actorId,
+      current.row.change_set_id
     );
+
+    // Atomic: state transition + transition log + outbox event in one transaction
+    const updated = await this.db.withOrgTransaction(ctx.orgId, async (c) => {
+      const result = await this.repo.submitProposal(
+        c,
+        request.id,
+        current.row.state,
+        castedNextState,
+        actorId,
+        {}
+      );
+      await this.repo.insertOutboxEvent(c, {
+        id: crypto.randomUUID(),
+        orgId: result.row.org_id,
+        eventType,
+        aggregateId: request.id,
+        partitionKey: request.id,
+        payload,
+      });
+      return result;
+    });
+
+    // Blocked means margin violations: return 422 after the DB commits
+    if (nextState === "blocked") {
+      throw new ConnectError("Proposal blocked: margin violations", Code.FailedPrecondition);
+    }
 
     return create(SubmitProposalResponseSchema, {
       proposal: proposalMessage(updated.row, updated.lines),

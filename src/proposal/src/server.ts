@@ -3,13 +3,14 @@ import * as http2 from "node:http2";
 import { Code, ConnectError, type ConnectRouter, type Interceptor } from "@connectrpc/connect";
 import { connectNodeAdapter } from "@connectrpc/connect-node";
 import { ProposalService } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
-import { createBus } from "@owomide/bus";
 import pino from "pino";
+import { createBus } from "@owomide/bus";
 import { loadConfig } from "./config.js";
 import { ServiceAuthenticator } from "./context.js";
 import { Database } from "./db.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
 import { ProposalServiceImpl } from "./service.js";
+import { OutboxRelay } from "./workers/outbox-relay.js";
 
 export function errorInterceptor(logger: pino.Logger): Interceptor {
   return (next) => async (request) => {
@@ -29,11 +30,12 @@ export async function startServer(): Promise<() => Promise<void>> {
   const database = new Database(config);
   const authenticator = new ServiceAuthenticator(config.serviceJwtIssuer, config.serviceSecrets);
   const repo = new ProposalRepository();
+  const service = new ProposalServiceImpl(database, authenticator, repo);
   const bus = createBus({
     provider: "kafka",
     kafka: { brokers: [config.kafkaBroker], clientId: "proposal-svc" },
   });
-  const service = new ProposalServiceImpl(database, authenticator, repo, bus.publisher);
+  const relay = new OutboxRelay(database.pool, bus.publisher, logger);
 
   const rpcHandler = connectNodeAdapter({
     interceptors: [errorInterceptor(logger)],
@@ -59,9 +61,11 @@ export async function startServer(): Promise<() => Promise<void>> {
     new Promise<void>((resolve) => rpcServer.listen(config.port, config.host, resolve)),
     new Promise<void>((resolve) => healthServer.listen(config.healthPort, config.host, resolve)),
   ]);
+  relay.start();
   logger.info({ rpcPort: config.port, healthPort: config.healthPort }, "Proposal service listening");
 
   return async () => {
+    await relay.stop();
     await Promise.all([
       new Promise<void>((resolve, reject) =>
         rpcServer.close((error) => (error ? reject(error) : resolve()))
@@ -70,7 +74,6 @@ export async function startServer(): Promise<() => Promise<void>> {
         healthServer.close((error) => (error ? reject(error) : resolve()))
       ),
     ]);
-    await bus.publisher.close();
     await database.close();
   };
 }
