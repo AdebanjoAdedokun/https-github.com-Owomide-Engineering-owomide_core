@@ -33,9 +33,9 @@ export declare type Proposal = Message<"owomide.services.proposal.v1.Proposal"> 
   state: ProposalState;
 
   /**
-   * @generated from field: string owner_id = 4;
+   * @generated from field: string actor_id = 4;
    */
-  ownerId: string;
+  actorId: string;
 
   /**
    * @generated from field: string title = 5;
@@ -160,14 +160,14 @@ export declare type OverrideRequest = Message<"owomide.services.proposal.v1.Over
   requestedAt?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp approved_at = 8;
+   * @generated from field: google.protobuf.Timestamp decided_at = 8;
    */
-  approvedAt?: Timestamp | undefined;
+  decidedAt?: Timestamp | undefined;
 
   /**
-   * @generated from field: string approver_id = 9;
+   * @generated from field: string decider_id = 9;
    */
-  approverId: string;
+  deciderId: string;
 };
 
 /**
@@ -196,9 +196,9 @@ export declare type ChangeSet = Message<"owomide.services.proposal.v1.ChangeSet"
   status: ChangeSetStatus;
 
   /**
-   * @generated from field: string owner_id = 4;
+   * @generated from field: string actor_id = 4;
    */
-  ownerId: string;
+  actorId: string;
 
   /**
    * @generated from field: string scope_json = 5;
@@ -340,9 +340,9 @@ export declare type ListProposalsRequest = Message<"owomide.services.proposal.v1
   state: ProposalState;
 
   /**
-   * @generated from field: string owner_id = 2;
+   * @generated from field: string actor_id = 2;
    */
-  ownerId: string;
+  actorId: string;
 
   /**
    * @generated from field: owomide.common.v1.Pagination pagination = 3;
@@ -1149,3 +1149,4 @@ export declare const ProposalService: GenService<{
     output: typeof ScheduleRolloutResponseSchema;
   },
 }>;
+

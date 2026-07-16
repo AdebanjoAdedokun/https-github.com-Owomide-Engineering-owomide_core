@@ -395,3 +395,4 @@ export declare const MarginService: GenService<{
     output: typeof DeactivateRuleResponseSchema;
   },
 }>;
+

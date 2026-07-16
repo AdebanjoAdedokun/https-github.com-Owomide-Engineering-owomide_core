@@ -82,3 +82,4 @@ export declare type OverrideApproved = Message<"owomide.events.override.v1.Overr
  * Use `create(OverrideApprovedSchema)` to create a new message.
  */
 export declare const OverrideApprovedSchema: GenMessage<OverrideApproved>;
+

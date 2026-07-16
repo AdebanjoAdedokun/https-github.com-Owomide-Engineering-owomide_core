@@ -72,3 +72,4 @@ export declare type PaginatedResponse = Message<"owomide.common.v1.PaginatedResp
  * Use `create(PaginatedResponseSchema)` to create a new message.
  */
 export declare const PaginatedResponseSchema: GenMessage<PaginatedResponse>;
+

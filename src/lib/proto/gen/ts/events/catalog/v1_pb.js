@@ -31,3 +31,4 @@ export const CostUpdatedSchema = /*@__PURE__*/
  */
 export const PriceUpdatedSchema = /*@__PURE__*/
   messageDesc(file_events_catalog_v1, 2);
+

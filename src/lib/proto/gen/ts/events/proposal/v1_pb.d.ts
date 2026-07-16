@@ -196,3 +196,4 @@ export declare type Violation = Message<"owomide.events.proposal.v1.Violation"> 
  * Use `create(ViolationSchema)` to create a new message.
  */
 export declare const ViolationSchema: GenMessage<Violation>;
+

@@ -9,6 +9,16 @@
     "test:unit": "vitest run src/tests/unit",
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.12.1",
+    "@connectrpc/connect": "^2.1.2",
+    "@connectrpc/connect-node": "^2.1.2",
+    "@owomide/proto": "workspace:*",
+    "jose": "^6.0.11",
+    "pg": "^8.16.3",
+    "pino": "^10.3.1",
+    "zod": "^3.24.4"
+  },
   "devDependencies": {
     "@testcontainers/postgresql": "^10.28.0",
     "@types/node": "^22.15.0",

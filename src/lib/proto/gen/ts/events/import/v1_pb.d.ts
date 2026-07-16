@@ -87,3 +87,4 @@ export declare type RowCounts = Message<"owomide.events.import.v1.RowCounts"> & 
  * Use `create(RowCountsSchema)` to create a new message.
  */
 export declare const RowCountsSchema: GenMessage<RowCounts>;
+

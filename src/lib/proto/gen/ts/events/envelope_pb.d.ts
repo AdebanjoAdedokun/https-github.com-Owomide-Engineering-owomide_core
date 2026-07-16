@@ -76,3 +76,4 @@ export declare type EventMetadata = Message<"owomide.events.EventMetadata"> & {
  * Use `create(EventMetadataSchema)` to create a new message.
  */
 export declare const EventMetadataSchema: GenMessage<EventMetadata>;
+
