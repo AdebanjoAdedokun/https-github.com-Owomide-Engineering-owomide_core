@@ -7,18 +7,21 @@ import {
   UpdateDraftResponseSchema,
   ListProposalsResponseSchema,
   SubmitProposalResponseSchema,
+  ApproveProposalResponseSchema,
   type CreateProposalRequest,
   type GetProposalRequest,
   type UpdateDraftRequest,
   type ListProposalsRequest,
   type SubmitProposalRequest,
+  type ApproveProposalRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { PaginatedResponseSchema } from "@owomide/proto/common/v1/common_pb.js";
 import {
   ProposalSubmittedSchema,
   ProposalBlockedSchema,
+  ProposalApprovedSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
-import { requestContext, ServiceAuthenticator } from "./context.js";
+import { requestContext, requireApproverRole, ServiceAuthenticator } from "./context.js";
 import { Database } from "./db.js";
 import { dateToTimestamp } from "./domain/time.js";
 import { transition, type ProposalState } from "./domain/state-machine.js";
@@ -85,7 +88,7 @@ export class ProposalServiceImpl {
       listProposals: this.listProposals.bind(this),
       updateDraft: this.updateDraft.bind(this),
       submitProposal: this.submitProposal.bind(this),
-      approveProposal: notImplemented,
+      approveProposal: this.approveProposal.bind(this),
       publishProposal: notImplemented,
       requestOverride: notImplemented,
       approveOverride: notImplemented,
@@ -231,6 +234,75 @@ export class ProposalServiceImpl {
     return create(SubmitProposalResponseSchema, {
       proposal: proposalMessage(updated.row, updated.lines),
       violations: [],
+    });
+  }
+
+  private async approveProposal(
+    request: ApproveProposalRequest,
+    context: HandlerContext
+  ) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.id, "id");
+    const actorId = ctx.userId ?? "";
+    if (!actorId) {
+      throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
+    }
+
+    requireApproverRole(ctx);
+
+    const current = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.getProposal(c, request.id)
+    );
+    if (!current) {
+      throw new ConnectError("Proposal not found", Code.NotFound);
+    }
+
+    const smResult = transition(
+      current.row.state as ProposalState,
+      { type: "APPROVE" },
+      { actorId, proposalActorId: current.row.actor_id }
+    );
+    if (!smResult.ok) {
+      const code =
+        smResult.error.code === "SAME_ACTOR_APPROVE"
+          ? Code.PermissionDenied
+          : Code.FailedPrecondition;
+      throw new ConnectError(smResult.error.message, code);
+    }
+
+    const payload = toBinary(
+      ProposalApprovedSchema,
+      create(ProposalApprovedSchema, {
+        orgId: ctx.orgId,
+        proposalId: request.id,
+        approverId: actorId,
+        actorId: current.row.actor_id,
+        createdAt: dateToTimestamp(new Date()),
+      })
+    );
+
+    const updated = await this.db.withOrgTransaction(ctx.orgId, async (c) => {
+      const result = await this.repo.approveProposal(
+        c,
+        request.id,
+        current.row.state,
+        actorId,
+        {}
+      );
+      await this.repo.insertOutboxEvent(c, {
+        id: crypto.randomUUID(),
+        orgId: ctx.orgId,
+        eventType: "proposal.approved",
+        aggregateId: request.id,
+        partitionKey: request.id,
+        payload,
+      });
+      return result;
+    });
+
+    return create(ApproveProposalResponseSchema, {
+      proposal: proposalMessage(updated.row, updated.lines),
     });
   }
 
