@@ -3,12 +3,13 @@ import type { PoolClient } from "pg";
 import type {
   CreateProposalRequest,
   ListProposalsRequest,
+  ListCommentsRequest,
   ProposalLine,
   UpdateDraftRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { ProposalState } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { decodeCursor, encodeCursor, pageSize } from "../domain/pagination.js";
-import { type ProposalLineRow, type ProposalRow } from "./mappers.js";
+import { type CommentRow, type ProposalLineRow, type ProposalRow } from "./mappers.js";
 
 export interface ProposalWithLines {
   row: ProposalRow;
@@ -381,5 +382,66 @@ export class ProposalRepository {
     }));
 
     return { proposals, nextPageToken, totalCount };
+  }
+
+  async addComment(
+    client: PoolClient,
+    proposalId: string,
+    orgId: string,
+    authorId: string,
+    body: string
+  ): Promise<CommentRow> {
+    const result = await client.query<CommentRow>(
+      `INSERT INTO proposal.proposal_comment (org_id, proposal_id, author_id, body)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [orgId, proposalId, authorId, body]
+    );
+    return result.rows[0]!;
+  }
+
+  async listComments(
+    client: PoolClient,
+    proposalId: string,
+    req: ListCommentsRequest
+  ): Promise<{ comments: CommentRow[]; nextPageToken: string; totalCount: number }> {
+    const limit = pageSize(req.pagination?.pageSize ?? 0);
+    const cursor = decodeCursor(req.pagination?.pageToken ?? "");
+
+    const countResult = await client.query<{ count: string }>(
+      `SELECT COUNT(*) AS count FROM proposal.proposal_comment WHERE proposal_id = $1`,
+      [proposalId]
+    );
+    const totalCount = Number(countResult.rows[0]?.count ?? 0);
+
+    const values: unknown[] = [proposalId];
+    let cursorClause = "";
+    if (cursor) {
+      cursorClause = `AND (occurred_at, id) < ($${values.length + 1}::timestamptz, $${values.length + 2}::uuid)`;
+      values.push(cursor.key, cursor.id);
+    }
+
+    const dataResult = await client.query<CommentRow>(
+      `SELECT * FROM proposal.proposal_comment
+       WHERE proposal_id = $1 ${cursorClause}
+       ORDER BY occurred_at DESC, id DESC
+       LIMIT $${values.length + 1}`,
+      [...values, limit + 1]
+    );
+
+    const rows = dataResult.rows;
+    const hasMore = rows.length > limit;
+    const pageRows = hasMore ? rows.slice(0, limit) : rows;
+
+    let nextPageToken = "";
+    if (hasMore) {
+      const last = pageRows[pageRows.length - 1]!;
+      nextPageToken = encodeCursor({
+        key: last.occurred_at instanceof Date ? last.occurred_at.toISOString() : String(last.occurred_at),
+        id: last.id,
+      });
+    }
+
+    return { comments: pageRows, nextPageToken, totalCount };
   }
 }

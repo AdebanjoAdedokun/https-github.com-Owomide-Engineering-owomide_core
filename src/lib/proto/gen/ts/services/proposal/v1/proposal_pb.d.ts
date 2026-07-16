@@ -935,6 +935,126 @@ export declare type ScheduleRolloutResponse = Message<"owomide.services.proposal
 export declare const ScheduleRolloutResponseSchema: GenMessage<ScheduleRolloutResponse>;
 
 /**
+ * @generated from message owomide.services.proposal.v1.ProposalComment
+ */
+export declare type ProposalComment = Message<"owomide.services.proposal.v1.ProposalComment"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string org_id = 2;
+   */
+  orgId: string;
+
+  /**
+   * @generated from field: string proposal_id = 3;
+   */
+  proposalId: string;
+
+  /**
+   * @generated from field: string author_id = 4;
+   */
+  authorId: string;
+
+  /**
+   * @generated from field: string body = 5;
+   */
+  body: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp occurred_at = 6;
+   */
+  occurredAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message owomide.services.proposal.v1.ProposalComment.
+ * Use `create(ProposalCommentSchema)` to create a new message.
+ */
+export declare const ProposalCommentSchema: GenMessage<ProposalComment>;
+
+/**
+ * @generated from message owomide.services.proposal.v1.AddCommentRequest
+ */
+export declare type AddCommentRequest = Message<"owomide.services.proposal.v1.AddCommentRequest"> & {
+  /**
+   * @generated from field: string proposal_id = 1;
+   */
+  proposalId: string;
+
+  /**
+   * @generated from field: string body = 2;
+   */
+  body: string;
+};
+
+/**
+ * Describes the message owomide.services.proposal.v1.AddCommentRequest.
+ * Use `create(AddCommentRequestSchema)` to create a new message.
+ */
+export declare const AddCommentRequestSchema: GenMessage<AddCommentRequest>;
+
+/**
+ * @generated from message owomide.services.proposal.v1.AddCommentResponse
+ */
+export declare type AddCommentResponse = Message<"owomide.services.proposal.v1.AddCommentResponse"> & {
+  /**
+   * @generated from field: owomide.services.proposal.v1.ProposalComment comment = 1;
+   */
+  comment?: ProposalComment | undefined;
+};
+
+/**
+ * Describes the message owomide.services.proposal.v1.AddCommentResponse.
+ * Use `create(AddCommentResponseSchema)` to create a new message.
+ */
+export declare const AddCommentResponseSchema: GenMessage<AddCommentResponse>;
+
+/**
+ * @generated from message owomide.services.proposal.v1.ListCommentsRequest
+ */
+export declare type ListCommentsRequest = Message<"owomide.services.proposal.v1.ListCommentsRequest"> & {
+  /**
+   * @generated from field: string proposal_id = 1;
+   */
+  proposalId: string;
+
+  /**
+   * @generated from field: owomide.common.v1.Pagination pagination = 2;
+   */
+  pagination?: Pagination | undefined;
+};
+
+/**
+ * Describes the message owomide.services.proposal.v1.ListCommentsRequest.
+ * Use `create(ListCommentsRequestSchema)` to create a new message.
+ */
+export declare const ListCommentsRequestSchema: GenMessage<ListCommentsRequest>;
+
+/**
+ * @generated from message owomide.services.proposal.v1.ListCommentsResponse
+ */
+export declare type ListCommentsResponse = Message<"owomide.services.proposal.v1.ListCommentsResponse"> & {
+  /**
+   * @generated from field: repeated owomide.services.proposal.v1.ProposalComment comments = 1;
+   */
+  comments: ProposalComment[];
+
+  /**
+   * @generated from field: owomide.common.v1.PaginatedResponse pagination = 2;
+   */
+  pagination?: PaginatedResponse | undefined;
+};
+
+/**
+ * Describes the message owomide.services.proposal.v1.ListCommentsResponse.
+ * Use `create(ListCommentsResponseSchema)` to create a new message.
+ */
+export declare const ListCommentsResponseSchema: GenMessage<ListCommentsResponse>;
+
+/**
  * @generated from enum owomide.services.proposal.v1.ProposalState
  */
 export enum ProposalState {
@@ -1147,6 +1267,24 @@ export declare const ProposalService: GenService<{
     methodKind: "unary";
     input: typeof ScheduleRolloutRequestSchema;
     output: typeof ScheduleRolloutResponseSchema;
+  },
+  /**
+   * Comments
+   *
+   * @generated from rpc owomide.services.proposal.v1.ProposalService.AddComment
+   */
+  addComment: {
+    methodKind: "unary";
+    input: typeof AddCommentRequestSchema;
+    output: typeof AddCommentResponseSchema;
+  },
+  /**
+   * @generated from rpc owomide.services.proposal.v1.ProposalService.ListComments
+   */
+  listComments: {
+    methodKind: "unary";
+    input: typeof ListCommentsRequestSchema;
+    output: typeof ListCommentsResponseSchema;
   },
 }>;
 

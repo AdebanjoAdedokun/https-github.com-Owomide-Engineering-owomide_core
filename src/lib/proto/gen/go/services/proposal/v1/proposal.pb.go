@@ -2342,6 +2342,290 @@ func (x *ScheduleRolloutResponse) GetProposal() *Proposal {
 	return nil
 }
 
+type ProposalComment struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrgId         string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	ProposalId    string                 `protobuf:"bytes,3,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	AuthorId      string                 `protobuf:"bytes,4,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
+	Body          string                 `protobuf:"bytes,5,opt,name=body,proto3" json:"body,omitempty"`
+	OccurredAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProposalComment) Reset() {
+	*x = ProposalComment{}
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProposalComment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProposalComment) ProtoMessage() {}
+
+func (x *ProposalComment) ProtoReflect() protoreflect.Message {
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProposalComment.ProtoReflect.Descriptor instead.
+func (*ProposalComment) Descriptor() ([]byte, []int) {
+	return file_services_proposal_v1_proposal_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *ProposalComment) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ProposalComment) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *ProposalComment) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *ProposalComment) GetAuthorId() string {
+	if x != nil {
+		return x.AuthorId
+	}
+	return ""
+}
+
+func (x *ProposalComment) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *ProposalComment) GetOccurredAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.OccurredAt
+	}
+	return nil
+}
+
+type AddCommentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProposalId    string                 `protobuf:"bytes,1,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	Body          string                 `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddCommentRequest) Reset() {
+	*x = AddCommentRequest{}
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddCommentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddCommentRequest) ProtoMessage() {}
+
+func (x *AddCommentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddCommentRequest.ProtoReflect.Descriptor instead.
+func (*AddCommentRequest) Descriptor() ([]byte, []int) {
+	return file_services_proposal_v1_proposal_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *AddCommentRequest) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *AddCommentRequest) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+type AddCommentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Comment       *ProposalComment       `protobuf:"bytes,1,opt,name=comment,proto3" json:"comment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddCommentResponse) Reset() {
+	*x = AddCommentResponse{}
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddCommentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddCommentResponse) ProtoMessage() {}
+
+func (x *AddCommentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddCommentResponse.ProtoReflect.Descriptor instead.
+func (*AddCommentResponse) Descriptor() ([]byte, []int) {
+	return file_services_proposal_v1_proposal_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *AddCommentResponse) GetComment() *ProposalComment {
+	if x != nil {
+		return x.Comment
+	}
+	return nil
+}
+
+type ListCommentsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProposalId    string                 `protobuf:"bytes,1,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	Pagination    *v1.Pagination         `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCommentsRequest) Reset() {
+	*x = ListCommentsRequest{}
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCommentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCommentsRequest) ProtoMessage() {}
+
+func (x *ListCommentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCommentsRequest.ProtoReflect.Descriptor instead.
+func (*ListCommentsRequest) Descriptor() ([]byte, []int) {
+	return file_services_proposal_v1_proposal_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *ListCommentsRequest) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *ListCommentsRequest) GetPagination() *v1.Pagination {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
+type ListCommentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Comments      []*ProposalComment     `protobuf:"bytes,1,rep,name=comments,proto3" json:"comments,omitempty"`
+	Pagination    *v1.PaginatedResponse  `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCommentsResponse) Reset() {
+	*x = ListCommentsResponse{}
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCommentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCommentsResponse) ProtoMessage() {}
+
+func (x *ListCommentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_proposal_v1_proposal_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCommentsResponse.ProtoReflect.Descriptor instead.
+func (*ListCommentsResponse) Descriptor() ([]byte, []int) {
+	return file_services_proposal_v1_proposal_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *ListCommentsResponse) GetComments() []*ProposalComment {
+	if x != nil {
+		return x.Comments
+	}
+	return nil
+}
+
+func (x *ListCommentsResponse) GetPagination() *v1.PaginatedResponse {
+	if x != nil {
+		return x.Pagination
+	}
+	return nil
+}
+
 var File_services_proposal_v1_proposal_proto protoreflect.FileDescriptor
 
 const file_services_proposal_v1_proposal_proto_rawDesc = "" +
@@ -2514,7 +2798,33 @@ const file_services_proposal_v1_proposal_proto_rawDesc = "" +
 	"\x17SubmitChangeSetResponse\x12B\n" +
 	"\bproposal\x18\x01 \x01(\v2&.owomide.services.proposal.v1.ProposalR\bproposal\"]\n" +
 	"\x17ScheduleRolloutResponse\x12B\n" +
-	"\bproposal\x18\x01 \x01(\v2&.owomide.services.proposal.v1.ProposalR\bproposal*\xbe\x01\n" +
+	"\bproposal\x18\x01 \x01(\v2&.owomide.services.proposal.v1.ProposalR\bproposal\"\xc7\x01\n" +
+	"\x0fProposalComment\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
+	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x1f\n" +
+	"\vproposal_id\x18\x03 \x01(\tR\n" +
+	"proposalId\x12\x1b\n" +
+	"\tauthor_id\x18\x04 \x01(\tR\bauthorId\x12\x12\n" +
+	"\x04body\x18\x05 \x01(\tR\x04body\x12;\n" +
+	"\voccurred_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"occurredAt\"H\n" +
+	"\x11AddCommentRequest\x12\x1f\n" +
+	"\vproposal_id\x18\x01 \x01(\tR\n" +
+	"proposalId\x12\x12\n" +
+	"\x04body\x18\x02 \x01(\tR\x04body\"]\n" +
+	"\x12AddCommentResponse\x12G\n" +
+	"\acomment\x18\x01 \x01(\v2-.owomide.services.proposal.v1.ProposalCommentR\acomment\"u\n" +
+	"\x13ListCommentsRequest\x12\x1f\n" +
+	"\vproposal_id\x18\x01 \x01(\tR\n" +
+	"proposalId\x12=\n" +
+	"\n" +
+	"pagination\x18\x02 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
+	"pagination\"\xa7\x01\n" +
+	"\x14ListCommentsResponse\x12I\n" +
+	"\bcomments\x18\x01 \x03(\v2-.owomide.services.proposal.v1.ProposalCommentR\bcomments\x12D\n" +
+	"\n" +
+	"pagination\x18\x02 \x01(\v2$.owomide.common.v1.PaginatedResponseR\n" +
+	"pagination*\xbe\x01\n" +
 	"\rProposalState\x12\x1e\n" +
 	"\x1aPROPOSAL_STATE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14PROPOSAL_STATE_DRAFT\x10\x01\x12\x1c\n" +
@@ -2526,7 +2836,7 @@ const file_services_proposal_v1_proposal_proto_rawDesc = "" +
 	"\x1dCHANGE_SET_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17CHANGE_SET_STATUS_DRAFT\x10\x01\x12\x1f\n" +
 	"\x1bCHANGE_SET_STATUS_SUBMITTED\x10\x02\x12\x1f\n" +
-	"\x1bCHANGE_SET_STATUS_DISCARDED\x10\x032\xda\x10\n" +
+	"\x1bCHANGE_SET_STATUS_DISCARDED\x10\x032\xc2\x12\n" +
 	"\x0fProposalService\x12{\n" +
 	"\x0eCreateProposal\x123.owomide.services.proposal.v1.CreateProposalRequest\x1a4.owomide.services.proposal.v1.CreateProposalResponse\x12r\n" +
 	"\vGetProposal\x120.owomide.services.proposal.v1.GetProposalRequest\x1a1.owomide.services.proposal.v1.GetProposalResponse\x12x\n" +
@@ -2545,7 +2855,10 @@ const file_services_proposal_v1_proposal_proto_rawDesc = "" +
 	"\x0fUpdateChangeSet\x124.owomide.services.proposal.v1.UpdateChangeSetRequest\x1a5.owomide.services.proposal.v1.UpdateChangeSetResponse\x12~\n" +
 	"\x0fSubmitChangeSet\x124.owomide.services.proposal.v1.SubmitChangeSetRequest\x1a5.owomide.services.proposal.v1.SubmitChangeSetResponse\x12\x81\x01\n" +
 	"\x10DiscardChangeSet\x125.owomide.services.proposal.v1.DiscardChangeSetRequest\x1a6.owomide.services.proposal.v1.DiscardChangeSetResponse\x12~\n" +
-	"\x0fScheduleRollout\x124.owomide.services.proposal.v1.ScheduleRolloutRequest\x1a5.owomide.services.proposal.v1.ScheduleRolloutResponseB/Z-github.com/owomide/proto/services/proposal/v1b\x06proto3"
+	"\x0fScheduleRollout\x124.owomide.services.proposal.v1.ScheduleRolloutRequest\x1a5.owomide.services.proposal.v1.ScheduleRolloutResponse\x12o\n" +
+	"\n" +
+	"AddComment\x12/.owomide.services.proposal.v1.AddCommentRequest\x1a0.owomide.services.proposal.v1.AddCommentResponse\x12u\n" +
+	"\fListComments\x121.owomide.services.proposal.v1.ListCommentsRequest\x1a2.owomide.services.proposal.v1.ListCommentsResponseB/Z-github.com/owomide/proto/services/proposal/v1b\x06proto3"
 
 var (
 	file_services_proposal_v1_proposal_proto_rawDescOnce sync.Once
@@ -2560,7 +2873,7 @@ func file_services_proposal_v1_proposal_proto_rawDescGZIP() []byte {
 }
 
 var file_services_proposal_v1_proposal_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_services_proposal_v1_proposal_proto_msgTypes = make([]protoimpl.MessageInfo, 40)
+var file_services_proposal_v1_proposal_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
 var file_services_proposal_v1_proposal_proto_goTypes = []any{
 	(ProposalState)(0),               // 0: owomide.services.proposal.v1.ProposalState
 	(ChangeSetStatus)(0),             // 1: owomide.services.proposal.v1.ChangeSetStatus
@@ -2604,43 +2917,48 @@ var file_services_proposal_v1_proposal_proto_goTypes = []any{
 	(*UpdateChangeSetResponse)(nil),  // 39: owomide.services.proposal.v1.UpdateChangeSetResponse
 	(*SubmitChangeSetResponse)(nil),  // 40: owomide.services.proposal.v1.SubmitChangeSetResponse
 	(*ScheduleRolloutResponse)(nil),  // 41: owomide.services.proposal.v1.ScheduleRolloutResponse
-	(*timestamppb.Timestamp)(nil),    // 42: google.protobuf.Timestamp
-	(*v1.Money)(nil),                 // 43: owomide.common.v1.Money
-	(*v1.Pagination)(nil),            // 44: owomide.common.v1.Pagination
-	(*v1.PaginatedResponse)(nil),     // 45: owomide.common.v1.PaginatedResponse
-	(*v11.Violation)(nil),            // 46: owomide.services.margin.v1.Violation
+	(*ProposalComment)(nil),          // 42: owomide.services.proposal.v1.ProposalComment
+	(*AddCommentRequest)(nil),        // 43: owomide.services.proposal.v1.AddCommentRequest
+	(*AddCommentResponse)(nil),       // 44: owomide.services.proposal.v1.AddCommentResponse
+	(*ListCommentsRequest)(nil),      // 45: owomide.services.proposal.v1.ListCommentsRequest
+	(*ListCommentsResponse)(nil),     // 46: owomide.services.proposal.v1.ListCommentsResponse
+	(*timestamppb.Timestamp)(nil),    // 47: google.protobuf.Timestamp
+	(*v1.Money)(nil),                 // 48: owomide.common.v1.Money
+	(*v1.Pagination)(nil),            // 49: owomide.common.v1.Pagination
+	(*v1.PaginatedResponse)(nil),     // 50: owomide.common.v1.PaginatedResponse
+	(*v11.Violation)(nil),            // 51: owomide.services.margin.v1.Violation
 }
 var file_services_proposal_v1_proposal_proto_depIdxs = []int32{
 	0,  // 0: owomide.services.proposal.v1.Proposal.state:type_name -> owomide.services.proposal.v1.ProposalState
 	3,  // 1: owomide.services.proposal.v1.Proposal.lines:type_name -> owomide.services.proposal.v1.ProposalLine
-	42, // 2: owomide.services.proposal.v1.Proposal.created_at:type_name -> google.protobuf.Timestamp
-	42, // 3: owomide.services.proposal.v1.Proposal.updated_at:type_name -> google.protobuf.Timestamp
-	43, // 4: owomide.services.proposal.v1.ProposalLine.current_price:type_name -> owomide.common.v1.Money
-	43, // 5: owomide.services.proposal.v1.ProposalLine.proposed_price:type_name -> owomide.common.v1.Money
-	42, // 6: owomide.services.proposal.v1.OverrideRequest.requested_at:type_name -> google.protobuf.Timestamp
-	42, // 7: owomide.services.proposal.v1.OverrideRequest.decided_at:type_name -> google.protobuf.Timestamp
+	47, // 2: owomide.services.proposal.v1.Proposal.created_at:type_name -> google.protobuf.Timestamp
+	47, // 3: owomide.services.proposal.v1.Proposal.updated_at:type_name -> google.protobuf.Timestamp
+	48, // 4: owomide.services.proposal.v1.ProposalLine.current_price:type_name -> owomide.common.v1.Money
+	48, // 5: owomide.services.proposal.v1.ProposalLine.proposed_price:type_name -> owomide.common.v1.Money
+	47, // 6: owomide.services.proposal.v1.OverrideRequest.requested_at:type_name -> google.protobuf.Timestamp
+	47, // 7: owomide.services.proposal.v1.OverrideRequest.decided_at:type_name -> google.protobuf.Timestamp
 	1,  // 8: owomide.services.proposal.v1.ChangeSet.status:type_name -> owomide.services.proposal.v1.ChangeSetStatus
 	6,  // 9: owomide.services.proposal.v1.ChangeSet.lines:type_name -> owomide.services.proposal.v1.ChangeSetLine
-	42, // 10: owomide.services.proposal.v1.ChangeSet.created_at:type_name -> google.protobuf.Timestamp
-	42, // 11: owomide.services.proposal.v1.ChangeSet.submitted_at:type_name -> google.protobuf.Timestamp
-	43, // 12: owomide.services.proposal.v1.ChangeSetLine.current_price:type_name -> owomide.common.v1.Money
-	43, // 13: owomide.services.proposal.v1.ChangeSetLine.proposed_price:type_name -> owomide.common.v1.Money
-	43, // 14: owomide.services.proposal.v1.ChangeSetLine.diff_absolute:type_name -> owomide.common.v1.Money
+	47, // 10: owomide.services.proposal.v1.ChangeSet.created_at:type_name -> google.protobuf.Timestamp
+	47, // 11: owomide.services.proposal.v1.ChangeSet.submitted_at:type_name -> google.protobuf.Timestamp
+	48, // 12: owomide.services.proposal.v1.ChangeSetLine.current_price:type_name -> owomide.common.v1.Money
+	48, // 13: owomide.services.proposal.v1.ChangeSetLine.proposed_price:type_name -> owomide.common.v1.Money
+	48, // 14: owomide.services.proposal.v1.ChangeSetLine.diff_absolute:type_name -> owomide.common.v1.Money
 	3,  // 15: owomide.services.proposal.v1.CreateProposalRequest.lines:type_name -> owomide.services.proposal.v1.ProposalLine
 	0,  // 16: owomide.services.proposal.v1.ListProposalsRequest.state:type_name -> owomide.services.proposal.v1.ProposalState
-	44, // 17: owomide.services.proposal.v1.ListProposalsRequest.pagination:type_name -> owomide.common.v1.Pagination
+	49, // 17: owomide.services.proposal.v1.ListProposalsRequest.pagination:type_name -> owomide.common.v1.Pagination
 	2,  // 18: owomide.services.proposal.v1.ListProposalsResponse.proposals:type_name -> owomide.services.proposal.v1.Proposal
-	45, // 19: owomide.services.proposal.v1.ListProposalsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	50, // 19: owomide.services.proposal.v1.ListProposalsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
 	3,  // 20: owomide.services.proposal.v1.UpdateDraftRequest.lines:type_name -> owomide.services.proposal.v1.ProposalLine
 	2,  // 21: owomide.services.proposal.v1.SubmitProposalResponse.proposal:type_name -> owomide.services.proposal.v1.Proposal
-	46, // 22: owomide.services.proposal.v1.SubmitProposalResponse.violations:type_name -> owomide.services.margin.v1.Violation
+	51, // 22: owomide.services.proposal.v1.SubmitProposalResponse.violations:type_name -> owomide.services.margin.v1.Violation
 	20, // 23: owomide.services.proposal.v1.BuildScopeResponse.skus:type_name -> owomide.services.proposal.v1.ScopedSku
-	43, // 24: owomide.services.proposal.v1.ScopedSku.current_price:type_name -> owomide.common.v1.Money
-	44, // 25: owomide.services.proposal.v1.ListChangeSetsRequest.pagination:type_name -> owomide.common.v1.Pagination
+	48, // 24: owomide.services.proposal.v1.ScopedSku.current_price:type_name -> owomide.common.v1.Money
+	49, // 25: owomide.services.proposal.v1.ListChangeSetsRequest.pagination:type_name -> owomide.common.v1.Pagination
 	5,  // 26: owomide.services.proposal.v1.ListChangeSetsResponse.change_sets:type_name -> owomide.services.proposal.v1.ChangeSet
-	45, // 27: owomide.services.proposal.v1.ListChangeSetsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	50, // 27: owomide.services.proposal.v1.ListChangeSetsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
 	6,  // 28: owomide.services.proposal.v1.UpdateChangeSetRequest.lines:type_name -> owomide.services.proposal.v1.ChangeSetLine
-	42, // 29: owomide.services.proposal.v1.ScheduleRolloutRequest.effective_at:type_name -> google.protobuf.Timestamp
+	47, // 29: owomide.services.proposal.v1.ScheduleRolloutRequest.effective_at:type_name -> google.protobuf.Timestamp
 	2,  // 30: owomide.services.proposal.v1.CreateProposalResponse.proposal:type_name -> owomide.services.proposal.v1.Proposal
 	2,  // 31: owomide.services.proposal.v1.GetProposalResponse.proposal:type_name -> owomide.services.proposal.v1.Proposal
 	2,  // 32: owomide.services.proposal.v1.UpdateDraftResponse.proposal:type_name -> owomide.services.proposal.v1.Proposal
@@ -2653,45 +2971,54 @@ var file_services_proposal_v1_proposal_proto_depIdxs = []int32{
 	5,  // 39: owomide.services.proposal.v1.UpdateChangeSetResponse.change_set:type_name -> owomide.services.proposal.v1.ChangeSet
 	2,  // 40: owomide.services.proposal.v1.SubmitChangeSetResponse.proposal:type_name -> owomide.services.proposal.v1.Proposal
 	2,  // 41: owomide.services.proposal.v1.ScheduleRolloutResponse.proposal:type_name -> owomide.services.proposal.v1.Proposal
-	7,  // 42: owomide.services.proposal.v1.ProposalService.CreateProposal:input_type -> owomide.services.proposal.v1.CreateProposalRequest
-	8,  // 43: owomide.services.proposal.v1.ProposalService.GetProposal:input_type -> owomide.services.proposal.v1.GetProposalRequest
-	9,  // 44: owomide.services.proposal.v1.ProposalService.ListProposals:input_type -> owomide.services.proposal.v1.ListProposalsRequest
-	11, // 45: owomide.services.proposal.v1.ProposalService.UpdateDraft:input_type -> owomide.services.proposal.v1.UpdateDraftRequest
-	12, // 46: owomide.services.proposal.v1.ProposalService.SubmitProposal:input_type -> owomide.services.proposal.v1.SubmitProposalRequest
-	14, // 47: owomide.services.proposal.v1.ProposalService.ApproveProposal:input_type -> owomide.services.proposal.v1.ApproveProposalRequest
-	15, // 48: owomide.services.proposal.v1.ProposalService.PublishProposal:input_type -> owomide.services.proposal.v1.PublishProposalRequest
-	16, // 49: owomide.services.proposal.v1.ProposalService.RequestOverride:input_type -> owomide.services.proposal.v1.RequestOverrideRequest
-	17, // 50: owomide.services.proposal.v1.ProposalService.ApproveOverride:input_type -> owomide.services.proposal.v1.ApproveOverrideRequest
-	18, // 51: owomide.services.proposal.v1.ProposalService.BuildScope:input_type -> owomide.services.proposal.v1.BuildScopeRequest
-	21, // 52: owomide.services.proposal.v1.ProposalService.PreviewChangeSet:input_type -> owomide.services.proposal.v1.PreviewChangeSetRequest
-	22, // 53: owomide.services.proposal.v1.ProposalService.GetChangeSet:input_type -> owomide.services.proposal.v1.GetChangeSetRequest
-	23, // 54: owomide.services.proposal.v1.ProposalService.ListChangeSets:input_type -> owomide.services.proposal.v1.ListChangeSetsRequest
-	25, // 55: owomide.services.proposal.v1.ProposalService.UpdateChangeSet:input_type -> owomide.services.proposal.v1.UpdateChangeSetRequest
-	26, // 56: owomide.services.proposal.v1.ProposalService.SubmitChangeSet:input_type -> owomide.services.proposal.v1.SubmitChangeSetRequest
-	27, // 57: owomide.services.proposal.v1.ProposalService.DiscardChangeSet:input_type -> owomide.services.proposal.v1.DiscardChangeSetRequest
-	29, // 58: owomide.services.proposal.v1.ProposalService.ScheduleRollout:input_type -> owomide.services.proposal.v1.ScheduleRolloutRequest
-	30, // 59: owomide.services.proposal.v1.ProposalService.CreateProposal:output_type -> owomide.services.proposal.v1.CreateProposalResponse
-	31, // 60: owomide.services.proposal.v1.ProposalService.GetProposal:output_type -> owomide.services.proposal.v1.GetProposalResponse
-	10, // 61: owomide.services.proposal.v1.ProposalService.ListProposals:output_type -> owomide.services.proposal.v1.ListProposalsResponse
-	32, // 62: owomide.services.proposal.v1.ProposalService.UpdateDraft:output_type -> owomide.services.proposal.v1.UpdateDraftResponse
-	13, // 63: owomide.services.proposal.v1.ProposalService.SubmitProposal:output_type -> owomide.services.proposal.v1.SubmitProposalResponse
-	33, // 64: owomide.services.proposal.v1.ProposalService.ApproveProposal:output_type -> owomide.services.proposal.v1.ApproveProposalResponse
-	34, // 65: owomide.services.proposal.v1.ProposalService.PublishProposal:output_type -> owomide.services.proposal.v1.PublishProposalResponse
-	35, // 66: owomide.services.proposal.v1.ProposalService.RequestOverride:output_type -> owomide.services.proposal.v1.RequestOverrideResponse
-	36, // 67: owomide.services.proposal.v1.ProposalService.ApproveOverride:output_type -> owomide.services.proposal.v1.ApproveOverrideResponse
-	19, // 68: owomide.services.proposal.v1.ProposalService.BuildScope:output_type -> owomide.services.proposal.v1.BuildScopeResponse
-	37, // 69: owomide.services.proposal.v1.ProposalService.PreviewChangeSet:output_type -> owomide.services.proposal.v1.PreviewChangeSetResponse
-	38, // 70: owomide.services.proposal.v1.ProposalService.GetChangeSet:output_type -> owomide.services.proposal.v1.GetChangeSetResponse
-	24, // 71: owomide.services.proposal.v1.ProposalService.ListChangeSets:output_type -> owomide.services.proposal.v1.ListChangeSetsResponse
-	39, // 72: owomide.services.proposal.v1.ProposalService.UpdateChangeSet:output_type -> owomide.services.proposal.v1.UpdateChangeSetResponse
-	40, // 73: owomide.services.proposal.v1.ProposalService.SubmitChangeSet:output_type -> owomide.services.proposal.v1.SubmitChangeSetResponse
-	28, // 74: owomide.services.proposal.v1.ProposalService.DiscardChangeSet:output_type -> owomide.services.proposal.v1.DiscardChangeSetResponse
-	41, // 75: owomide.services.proposal.v1.ProposalService.ScheduleRollout:output_type -> owomide.services.proposal.v1.ScheduleRolloutResponse
-	59, // [59:76] is the sub-list for method output_type
-	42, // [42:59] is the sub-list for method input_type
-	42, // [42:42] is the sub-list for extension type_name
-	42, // [42:42] is the sub-list for extension extendee
-	0,  // [0:42] is the sub-list for field type_name
+	47, // 42: owomide.services.proposal.v1.ProposalComment.occurred_at:type_name -> google.protobuf.Timestamp
+	42, // 43: owomide.services.proposal.v1.AddCommentResponse.comment:type_name -> owomide.services.proposal.v1.ProposalComment
+	49, // 44: owomide.services.proposal.v1.ListCommentsRequest.pagination:type_name -> owomide.common.v1.Pagination
+	42, // 45: owomide.services.proposal.v1.ListCommentsResponse.comments:type_name -> owomide.services.proposal.v1.ProposalComment
+	50, // 46: owomide.services.proposal.v1.ListCommentsResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	7,  // 47: owomide.services.proposal.v1.ProposalService.CreateProposal:input_type -> owomide.services.proposal.v1.CreateProposalRequest
+	8,  // 48: owomide.services.proposal.v1.ProposalService.GetProposal:input_type -> owomide.services.proposal.v1.GetProposalRequest
+	9,  // 49: owomide.services.proposal.v1.ProposalService.ListProposals:input_type -> owomide.services.proposal.v1.ListProposalsRequest
+	11, // 50: owomide.services.proposal.v1.ProposalService.UpdateDraft:input_type -> owomide.services.proposal.v1.UpdateDraftRequest
+	12, // 51: owomide.services.proposal.v1.ProposalService.SubmitProposal:input_type -> owomide.services.proposal.v1.SubmitProposalRequest
+	14, // 52: owomide.services.proposal.v1.ProposalService.ApproveProposal:input_type -> owomide.services.proposal.v1.ApproveProposalRequest
+	15, // 53: owomide.services.proposal.v1.ProposalService.PublishProposal:input_type -> owomide.services.proposal.v1.PublishProposalRequest
+	16, // 54: owomide.services.proposal.v1.ProposalService.RequestOverride:input_type -> owomide.services.proposal.v1.RequestOverrideRequest
+	17, // 55: owomide.services.proposal.v1.ProposalService.ApproveOverride:input_type -> owomide.services.proposal.v1.ApproveOverrideRequest
+	18, // 56: owomide.services.proposal.v1.ProposalService.BuildScope:input_type -> owomide.services.proposal.v1.BuildScopeRequest
+	21, // 57: owomide.services.proposal.v1.ProposalService.PreviewChangeSet:input_type -> owomide.services.proposal.v1.PreviewChangeSetRequest
+	22, // 58: owomide.services.proposal.v1.ProposalService.GetChangeSet:input_type -> owomide.services.proposal.v1.GetChangeSetRequest
+	23, // 59: owomide.services.proposal.v1.ProposalService.ListChangeSets:input_type -> owomide.services.proposal.v1.ListChangeSetsRequest
+	25, // 60: owomide.services.proposal.v1.ProposalService.UpdateChangeSet:input_type -> owomide.services.proposal.v1.UpdateChangeSetRequest
+	26, // 61: owomide.services.proposal.v1.ProposalService.SubmitChangeSet:input_type -> owomide.services.proposal.v1.SubmitChangeSetRequest
+	27, // 62: owomide.services.proposal.v1.ProposalService.DiscardChangeSet:input_type -> owomide.services.proposal.v1.DiscardChangeSetRequest
+	29, // 63: owomide.services.proposal.v1.ProposalService.ScheduleRollout:input_type -> owomide.services.proposal.v1.ScheduleRolloutRequest
+	43, // 64: owomide.services.proposal.v1.ProposalService.AddComment:input_type -> owomide.services.proposal.v1.AddCommentRequest
+	45, // 65: owomide.services.proposal.v1.ProposalService.ListComments:input_type -> owomide.services.proposal.v1.ListCommentsRequest
+	30, // 66: owomide.services.proposal.v1.ProposalService.CreateProposal:output_type -> owomide.services.proposal.v1.CreateProposalResponse
+	31, // 67: owomide.services.proposal.v1.ProposalService.GetProposal:output_type -> owomide.services.proposal.v1.GetProposalResponse
+	10, // 68: owomide.services.proposal.v1.ProposalService.ListProposals:output_type -> owomide.services.proposal.v1.ListProposalsResponse
+	32, // 69: owomide.services.proposal.v1.ProposalService.UpdateDraft:output_type -> owomide.services.proposal.v1.UpdateDraftResponse
+	13, // 70: owomide.services.proposal.v1.ProposalService.SubmitProposal:output_type -> owomide.services.proposal.v1.SubmitProposalResponse
+	33, // 71: owomide.services.proposal.v1.ProposalService.ApproveProposal:output_type -> owomide.services.proposal.v1.ApproveProposalResponse
+	34, // 72: owomide.services.proposal.v1.ProposalService.PublishProposal:output_type -> owomide.services.proposal.v1.PublishProposalResponse
+	35, // 73: owomide.services.proposal.v1.ProposalService.RequestOverride:output_type -> owomide.services.proposal.v1.RequestOverrideResponse
+	36, // 74: owomide.services.proposal.v1.ProposalService.ApproveOverride:output_type -> owomide.services.proposal.v1.ApproveOverrideResponse
+	19, // 75: owomide.services.proposal.v1.ProposalService.BuildScope:output_type -> owomide.services.proposal.v1.BuildScopeResponse
+	37, // 76: owomide.services.proposal.v1.ProposalService.PreviewChangeSet:output_type -> owomide.services.proposal.v1.PreviewChangeSetResponse
+	38, // 77: owomide.services.proposal.v1.ProposalService.GetChangeSet:output_type -> owomide.services.proposal.v1.GetChangeSetResponse
+	24, // 78: owomide.services.proposal.v1.ProposalService.ListChangeSets:output_type -> owomide.services.proposal.v1.ListChangeSetsResponse
+	39, // 79: owomide.services.proposal.v1.ProposalService.UpdateChangeSet:output_type -> owomide.services.proposal.v1.UpdateChangeSetResponse
+	40, // 80: owomide.services.proposal.v1.ProposalService.SubmitChangeSet:output_type -> owomide.services.proposal.v1.SubmitChangeSetResponse
+	28, // 81: owomide.services.proposal.v1.ProposalService.DiscardChangeSet:output_type -> owomide.services.proposal.v1.DiscardChangeSetResponse
+	41, // 82: owomide.services.proposal.v1.ProposalService.ScheduleRollout:output_type -> owomide.services.proposal.v1.ScheduleRolloutResponse
+	44, // 83: owomide.services.proposal.v1.ProposalService.AddComment:output_type -> owomide.services.proposal.v1.AddCommentResponse
+	46, // 84: owomide.services.proposal.v1.ProposalService.ListComments:output_type -> owomide.services.proposal.v1.ListCommentsResponse
+	66, // [66:85] is the sub-list for method output_type
+	47, // [47:66] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_services_proposal_v1_proposal_proto_init() }
@@ -2705,7 +3032,7 @@ func file_services_proposal_v1_proposal_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_proposal_v1_proposal_proto_rawDesc), len(file_services_proposal_v1_proposal_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   40,
+			NumMessages:   45,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

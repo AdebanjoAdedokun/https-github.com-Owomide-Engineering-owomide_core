@@ -156,6 +156,7 @@ Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Ca
 - [x] `proposal.submitted` and `proposal.blocked` written to transactional outbox on submit (F3.4); relay worker + remaining events deferred to later features
 - [x] `ApproveProposal` endpoint: role gate, same-actor guard, `submitted → approved` state transition, `proposal.approved` written to outbox (F3.5)
 - [x] `PublishProposal` endpoint: `approved → published` state transition, Catalog `ApplyPriceChanges` called (idempotent, Catalog-first ordering), `proposal.published` written to outbox (F3.6)
+- [x] Comments: `AddComment` + `ListComments` gRPC handlers; append-only `proposal_comment` table (already provisioned in F3.1); paginated list; RLS isolation (F3.7)
 - [ ] Scope DSL parser + validator (pure logic)
 - [ ] Integration test: full happy path (create → submit → approve → publish) against real Postgres + Margin stub
 - [ ] Integration test: blocked path (submit returns 422 with violations)
