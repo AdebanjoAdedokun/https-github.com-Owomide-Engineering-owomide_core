@@ -203,3 +203,4 @@ export declare type PriceUpdated = Message<"owomide.events.catalog.v1.PriceUpdat
  * Use `create(PriceUpdatedSchema)` to create a new message.
  */
 export declare const PriceUpdatedSchema: GenMessage<PriceUpdated>;
+

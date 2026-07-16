@@ -35,3 +35,4 @@ export declare type TestPing = Message<"owomide.events.test.v1.TestPing"> & {
  * Use `create(TestPingSchema)` to create a new message.
  */
 export declare const TestPingSchema: GenMessage<TestPing>;
+

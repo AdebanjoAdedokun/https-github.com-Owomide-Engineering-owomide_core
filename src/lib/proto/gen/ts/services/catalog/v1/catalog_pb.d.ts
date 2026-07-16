@@ -2080,3 +2080,4 @@ export declare const CatalogService: GenService<{
     output: typeof ApplyPriceChangesResponseSchema;
   },
 }>;
+

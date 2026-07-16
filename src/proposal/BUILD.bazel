@@ -1,4 +1,4 @@
-load("@aspect_rules_js//js:defs.bzl", "js_test")
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 
@@ -43,7 +43,26 @@ ts_project(
     source_map = True,
     tsconfig = ":tsconfig",
     visibility = ["//visibility:public"],
-    deps = [],
+    deps = [
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
+        ":node_modules/@connectrpc/connect-node",
+        ":node_modules/@types/node",
+        ":node_modules/@types/pg",
+        ":node_modules/jose",
+        ":node_modules/pg",
+        ":node_modules/pino",
+        ":node_modules/zod",
+        "//src/lib/proto:pkg",
+        ":node_modules/@owomide/proto",
+    ],
+)
+
+js_binary(
+    name = "server",
+    data = [":proposal_ts"],
+    entry_point = "dist/server.js",
+    visibility = ["//visibility:public"],
 )
 
 ts_project(
@@ -58,7 +77,12 @@ ts_project(
     tsconfig = ":tsconfig_test",
     deps = [
         ":proposal_ts",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
+        ":node_modules/@types/node",
         ":node_modules/vitest",
+        "//src/lib/proto:pkg",
+        ":node_modules/@owomide/proto",
     ],
 )
 
@@ -75,7 +99,7 @@ js_test(
 
 ts_project(
     name = "integration_tests_ts",
-    srcs = glob(["src/tests/integration/**/*.ts"]),
+    srcs = glob(["src/**/*.ts"], exclude = ["src/tests/unit/**"]),
     declaration = True,
     declaration_map = True,
     out_dir = "dist_integration",
@@ -84,11 +108,17 @@ ts_project(
     source_map = True,
     tsconfig = ":tsconfig_integration",
     deps = [
+        ":proposal_ts",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
         ":node_modules/@testcontainers/postgresql",
         ":node_modules/@types/node",
         ":node_modules/@types/pg",
+        ":node_modules/jose",
         ":node_modules/pg",
         ":node_modules/vitest",
+        "//src/lib/proto:pkg",
+        ":node_modules/@owomide/proto",
     ],
 )
 
@@ -98,7 +128,10 @@ js_test(
     chdir = package_name(),
     data = [
         ":integration_tests_ts",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
         ":node_modules/@testcontainers/postgresql",
+        ":node_modules/jose",
         ":node_modules/pg",
         ":node_modules/vitest",
         "migrations/0001_create_schema.down.sql",

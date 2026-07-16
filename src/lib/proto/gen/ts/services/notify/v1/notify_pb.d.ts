@@ -282,3 +282,4 @@ export declare const NotifyService: GenService<{
     output: typeof UpdatePreferencesResponseSchema;
   },
 }>;
+

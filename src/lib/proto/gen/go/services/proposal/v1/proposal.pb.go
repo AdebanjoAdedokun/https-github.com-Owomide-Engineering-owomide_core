@@ -139,7 +139,7 @@ type Proposal struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	OrgId         string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	State         ProposalState          `protobuf:"varint,3,opt,name=state,proto3,enum=owomide.services.proposal.v1.ProposalState" json:"state,omitempty"`
-	OwnerId       string                 `protobuf:"bytes,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	ActorId       string                 `protobuf:"bytes,4,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
 	Title         string                 `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
 	ChangeSetId   string                 `protobuf:"bytes,6,opt,name=change_set_id,json=changeSetId,proto3" json:"change_set_id,omitempty"`
 	Lines         []*ProposalLine        `protobuf:"bytes,7,rep,name=lines,proto3" json:"lines,omitempty"`
@@ -200,9 +200,9 @@ func (x *Proposal) GetState() ProposalState {
 	return ProposalState_PROPOSAL_STATE_UNSPECIFIED
 }
 
-func (x *Proposal) GetOwnerId() string {
+func (x *Proposal) GetActorId() string {
 	if x != nil {
-		return x.OwnerId
+		return x.ActorId
 	}
 	return ""
 }
@@ -351,8 +351,8 @@ type OverrideRequest struct {
 	Justification string                 `protobuf:"bytes,5,opt,name=justification,proto3" json:"justification,omitempty"`
 	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
 	RequestedAt   *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=requested_at,json=requestedAt,proto3" json:"requested_at,omitempty"`
-	ApprovedAt    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=approved_at,json=approvedAt,proto3" json:"approved_at,omitempty"`
-	ApproverId    string                 `protobuf:"bytes,9,opt,name=approver_id,json=approverId,proto3" json:"approver_id,omitempty"`
+	DecidedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=decided_at,json=decidedAt,proto3" json:"decided_at,omitempty"`
+	DeciderId     string                 `protobuf:"bytes,9,opt,name=decider_id,json=deciderId,proto3" json:"decider_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -436,16 +436,16 @@ func (x *OverrideRequest) GetRequestedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *OverrideRequest) GetApprovedAt() *timestamppb.Timestamp {
+func (x *OverrideRequest) GetDecidedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.ApprovedAt
+		return x.DecidedAt
 	}
 	return nil
 }
 
-func (x *OverrideRequest) GetApproverId() string {
+func (x *OverrideRequest) GetDeciderId() string {
 	if x != nil {
-		return x.ApproverId
+		return x.DeciderId
 	}
 	return ""
 }
@@ -455,7 +455,7 @@ type ChangeSet struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	OrgId         string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
 	Status        ChangeSetStatus        `protobuf:"varint,3,opt,name=status,proto3,enum=owomide.services.proposal.v1.ChangeSetStatus" json:"status,omitempty"`
-	OwnerId       string                 `protobuf:"bytes,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	ActorId       string                 `protobuf:"bytes,4,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
 	ScopeJson     string                 `protobuf:"bytes,5,opt,name=scope_json,json=scopeJson,proto3" json:"scope_json,omitempty"`
 	RuleJson      string                 `protobuf:"bytes,6,opt,name=rule_json,json=ruleJson,proto3" json:"rule_json,omitempty"`
 	Lines         []*ChangeSetLine       `protobuf:"bytes,7,rep,name=lines,proto3" json:"lines,omitempty"`
@@ -517,9 +517,9 @@ func (x *ChangeSet) GetStatus() ChangeSetStatus {
 	return ChangeSetStatus_CHANGE_SET_STATUS_UNSPECIFIED
 }
 
-func (x *ChangeSet) GetOwnerId() string {
+func (x *ChangeSet) GetActorId() string {
 	if x != nil {
-		return x.OwnerId
+		return x.ActorId
 	}
 	return ""
 }
@@ -773,7 +773,7 @@ func (x *GetProposalRequest) GetId() string {
 type ListProposalsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	State         ProposalState          `protobuf:"varint,1,opt,name=state,proto3,enum=owomide.services.proposal.v1.ProposalState" json:"state,omitempty"`
-	OwnerId       string                 `protobuf:"bytes,2,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	ActorId       string                 `protobuf:"bytes,2,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
 	Pagination    *v1.Pagination         `protobuf:"bytes,3,opt,name=pagination,proto3" json:"pagination,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -816,9 +816,9 @@ func (x *ListProposalsRequest) GetState() ProposalState {
 	return ProposalState_PROPOSAL_STATE_UNSPECIFIED
 }
 
-func (x *ListProposalsRequest) GetOwnerId() string {
+func (x *ListProposalsRequest) GetActorId() string {
 	if x != nil {
-		return x.OwnerId
+		return x.ActorId
 	}
 	return ""
 }
@@ -2351,7 +2351,7 @@ const file_services_proposal_v1_proposal_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12A\n" +
 	"\x05state\x18\x03 \x01(\x0e2+.owomide.services.proposal.v1.ProposalStateR\x05state\x12\x19\n" +
-	"\bowner_id\x18\x04 \x01(\tR\aownerId\x12\x14\n" +
+	"\bactor_id\x18\x04 \x01(\tR\aactorId\x12\x14\n" +
 	"\x05title\x18\x05 \x01(\tR\x05title\x12\"\n" +
 	"\rchange_set_id\x18\x06 \x01(\tR\vchangeSetId\x12@\n" +
 	"\x05lines\x18\a \x03(\v2*.owomide.services.proposal.v1.ProposalLineR\x05lines\x129\n" +
@@ -2369,7 +2369,7 @@ const file_services_proposal_v1_proposal_proto_rawDesc = "" +
 	"channel_id\x18\x05 \x01(\tR\tchannelId\x12=\n" +
 	"\rcurrent_price\x18\x06 \x01(\v2\x18.owomide.common.v1.MoneyR\fcurrentPrice\x12?\n" +
 	"\x0eproposed_price\x18\a \x01(\v2\x18.owomide.common.v1.MoneyR\rproposedPrice\x12\x16\n" +
-	"\x06reason\x18\b \x01(\tR\x06reason\"\xd7\x02\n" +
+	"\x06reason\x18\b \x01(\tR\x06reason\"\xd3\x02\n" +
 	"\x0fOverrideRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x1f\n" +
@@ -2378,16 +2378,16 @@ const file_services_proposal_v1_proposal_proto_rawDesc = "" +
 	"\frequester_id\x18\x04 \x01(\tR\vrequesterId\x12$\n" +
 	"\rjustification\x18\x05 \x01(\tR\rjustification\x12\x16\n" +
 	"\x06status\x18\x06 \x01(\tR\x06status\x12=\n" +
-	"\frequested_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\vrequestedAt\x12;\n" +
-	"\vapproved_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"approvedAt\x12\x1f\n" +
-	"\vapprover_id\x18\t \x01(\tR\n" +
-	"approverId\"\xae\x03\n" +
+	"\frequested_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\vrequestedAt\x129\n" +
+	"\n" +
+	"decided_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tdecidedAt\x12\x1d\n" +
+	"\n" +
+	"decider_id\x18\t \x01(\tR\tdeciderId\"\xae\x03\n" +
 	"\tChangeSet\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12E\n" +
 	"\x06status\x18\x03 \x01(\x0e2-.owomide.services.proposal.v1.ChangeSetStatusR\x06status\x12\x19\n" +
-	"\bowner_id\x18\x04 \x01(\tR\aownerId\x12\x1d\n" +
+	"\bactor_id\x18\x04 \x01(\tR\aactorId\x12\x1d\n" +
 	"\n" +
 	"scope_json\x18\x05 \x01(\tR\tscopeJson\x12\x1b\n" +
 	"\trule_json\x18\x06 \x01(\tR\bruleJson\x12A\n" +
@@ -2416,7 +2416,7 @@ const file_services_proposal_v1_proposal_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\xb3\x01\n" +
 	"\x14ListProposalsRequest\x12A\n" +
 	"\x05state\x18\x01 \x01(\x0e2+.owomide.services.proposal.v1.ProposalStateR\x05state\x12\x19\n" +
-	"\bowner_id\x18\x02 \x01(\tR\aownerId\x12=\n" +
+	"\bactor_id\x18\x02 \x01(\tR\aactorId\x12=\n" +
 	"\n" +
 	"pagination\x18\x03 \x01(\v2\x1d.owomide.common.v1.PaginationR\n" +
 	"pagination\"\xa3\x01\n" +
@@ -2618,7 +2618,7 @@ var file_services_proposal_v1_proposal_proto_depIdxs = []int32{
 	43, // 4: owomide.services.proposal.v1.ProposalLine.current_price:type_name -> owomide.common.v1.Money
 	43, // 5: owomide.services.proposal.v1.ProposalLine.proposed_price:type_name -> owomide.common.v1.Money
 	42, // 6: owomide.services.proposal.v1.OverrideRequest.requested_at:type_name -> google.protobuf.Timestamp
-	42, // 7: owomide.services.proposal.v1.OverrideRequest.approved_at:type_name -> google.protobuf.Timestamp
+	42, // 7: owomide.services.proposal.v1.OverrideRequest.decided_at:type_name -> google.protobuf.Timestamp
 	1,  // 8: owomide.services.proposal.v1.ChangeSet.status:type_name -> owomide.services.proposal.v1.ChangeSetStatus
 	6,  // 9: owomide.services.proposal.v1.ChangeSet.lines:type_name -> owomide.services.proposal.v1.ChangeSetLine
 	42, // 10: owomide.services.proposal.v1.ChangeSet.created_at:type_name -> google.protobuf.Timestamp
