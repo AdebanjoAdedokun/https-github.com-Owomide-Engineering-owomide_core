@@ -74,17 +74,26 @@ function buildPayload(
 ): Uint8Array {
   const createdAt = dateToTimestamp(new Date());
   if (nextState === "blocked") {
-    const skuToChannel = new Map(lines.map((l) => [l.sku_id, l.channel_id]));
-    const eventViolations = rawViolations.map((v) =>
-      create(EventViolationSchema, {
+    // channelId is omitted: Margin's Violation has no channel_id field so attribution
+    // cannot be reliable when the same SKU appears in multiple channels. Consumers
+    // should use skuId + ruleId as the unique violation key.
+    const skuToLines = new Map<string, string[]>();
+    for (const l of lines) {
+      const existing = skuToLines.get(l.sku_id);
+      if (existing) existing.push(l.channel_id);
+      else skuToLines.set(l.sku_id, [l.channel_id]);
+    }
+    const eventViolations = rawViolations.map((v) => {
+      const channels = skuToLines.get(v.skuId) ?? [];
+      return create(EventViolationSchema, {
         skuId: v.skuId,
-        channelId: skuToChannel.get(v.skuId) ?? "",
+        channelId: channels.length === 1 ? (channels[0] ?? "") : "",
         ruleId: v.ruleId,
         message: v.message,
         proposedPrice: v.proposed,
         floorPrice: v.floor,
-      })
-    );
+      });
+    });
     return toBinary(
       ProposalBlockedSchema,
       create(ProposalBlockedSchema, {
@@ -254,10 +263,16 @@ export class ProposalServiceImpl {
         );
         marginHeaders.set("Authorization", `Bearer ${jwt}`);
       }
-      const marginResp = await this.marginClient.validateBatch(
-        create(ValidateBatchRequestSchema, { items: marginItems }),
-        marginHeaders
-      );
+      let marginResp;
+      try {
+        marginResp = await this.marginClient.validateBatch(
+          create(ValidateBatchRequestSchema, { items: marginItems }),
+          marginHeaders
+        );
+      } catch {
+        // Re-throw as Internal so callers never see Margin hostnames or stack traces.
+        throw new ConnectError("margin validation unavailable", Code.Internal);
+      }
       rawViolations = marginResp.violations;
       marginViolations = rawViolations.map((v) => ({
         skuId: v.skuId,
@@ -309,14 +324,10 @@ export class ProposalServiceImpl {
       return result;
     });
 
-    // Blocked means margin violations: return 422 after the DB commits
-    if (nextState === "blocked") {
-      throw new ConnectError("Proposal blocked: margin violations", Code.FailedPrecondition);
-    }
-
+    // Return violations in response; gateway maps non-empty violations to 422.
     return create(SubmitProposalResponseSchema, {
       proposal: proposalMessage(updated.row, updated.lines),
-      violations: [],
+      violations: rawViolations,
     });
   }
 

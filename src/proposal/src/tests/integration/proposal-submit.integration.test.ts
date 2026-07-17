@@ -252,11 +252,9 @@ describe("Proposal Submit", () => {
     );
 
     const impl = blockedService.implementation.submitProposal!;
-    await expect(
-      impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1))
-    ).rejects.toSatisfy(
-      (err: unknown) => err instanceof ConnectError && err.code === Code.FailedPrecondition
-    );
+    const resp = await impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1));
+    expect(resp.violations).toHaveLength(1);
+    expect(resp.violations[0]!.skuId).toBe(SKU_ID);
 
     // State must be 'blocked' in DB
     const { rows: stateRows } = await superuser.query<{ state: string }>(

@@ -41,6 +41,9 @@ export async function registerProposalRoutes(app: FastifyInstance, config: Confi
     const result = await client.submitProposal({ id }, {
       headers: { "x-org-id": req.ctx.orgId, "x-user-id": req.ctx.userId },
     });
+    if (result.violations.length > 0) {
+      return reply.code(422).send(result);
+    }
     return reply.send(result);
   });
 
