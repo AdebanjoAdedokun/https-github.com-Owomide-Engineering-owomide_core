@@ -84,12 +84,15 @@ Postgres role `margin_svc` has access to schema `margin` only.
 
 ## Definition of done (MVP)
 
-- [ ] Schema migration applied with `org_id` on margin-owned customer data
-- [ ] `ValidateBatch` gRPC handler implemented
-- [ ] Rule precedence resolved in pure logic + unit-tested
-- [ ] Catalog `BatchGetCosts` integration tested against real Catalog
-- [ ] Integration test: batch with mixed violations and clean lines returns the right structured output
-- [ ] Integration test: per-SKU request rejected at API boundary
+- [x] Schema migration applied with `org_id` on margin-owned customer data (`margin_rule` + `margin_rule_application`, RLS, org-scoped indexes) (F4.1)
+- [x] `ListRules`, `UpsertRule`, `DeactivateRule` gRPC handlers with org-scoped RLS; Go module scaffolded (F4.1)
+- [x] `buf.gen.yaml` updated with `grpc/go` plugin; `margin_grpc.pb.go` generated (F4.1)
+- [x] Integration tests: 5 scenarios, real Postgres via dockertest + in-process gRPC (F4.1)
+- [ ] `ValidateBatch` gRPC handler implemented (F4.2)
+- [ ] Rule precedence resolved in pure logic + unit-tested (F4.2)
+- [ ] Catalog `BatchGetCosts` integration tested against real Catalog (F4.2)
+- [ ] Integration test: batch with mixed violations and clean lines returns the right structured output (F4.2)
+- [ ] Integration test: per-SKU request rejected at API boundary (F4.2)
 - [ ] Admin REST routes for rule CRUD
 - [ ] `make lint` clean, `bazel test //src/margin/...` green
 

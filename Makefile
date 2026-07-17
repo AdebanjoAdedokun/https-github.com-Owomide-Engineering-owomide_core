@@ -20,7 +20,7 @@ lint: ## Run linters (TS, Python, Go — skips languages with no implementation 
 	cd src/catalog && pnpm eslint "src/**/*.ts"
 	ruff check src/data-pipeline/owomide_data_pipeline src/data-pipeline/tests
 	@if find src -name "main.py" | grep -q .; then ruff check src --exclude src/data-pipeline; fi
-	@if find src -name "main.go" | grep -q .; then golangci-lint run src/...; fi
+	@find src -maxdepth 2 -name "go.mod" -not -path "*/lib/*" -exec dirname {} \; | while IFS= read -r dir; do (cd "$$dir" && golangci-lint run ./...); done
 
 .PHONY: fmt
 fmt: ## Auto-format code (skips languages with no implementation yet)
