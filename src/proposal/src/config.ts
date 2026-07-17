@@ -13,6 +13,8 @@ const ConfigSchema = z.object({
   kafkaBroker: z.string().default("localhost:9092"),
   catalogUrl: z.string().url().default("http://localhost:50052"),
   catalogServiceSecret: z.string().default(""),
+  marginUrl: z.string().url().default("http://localhost:50051"),
+  marginServiceSecret: z.string().default(""),
 });
 
 export interface ProposalConfig extends z.infer<typeof ConfigSchema> {
@@ -54,6 +56,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ProposalConfig
     kafkaBroker: env["KAFKA_BROKER"],
     catalogUrl: env["CATALOG_URL"],
     catalogServiceSecret: env["CATALOG_SERVICE_SECRET"],
+    marginUrl: env["MARGIN_URL"],
+    marginServiceSecret: env["MARGIN_SERVICE_SECRET"],
   });
   return {
     ...base,
