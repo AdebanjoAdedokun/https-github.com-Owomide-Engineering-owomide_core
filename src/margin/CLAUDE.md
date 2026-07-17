@@ -88,11 +88,11 @@ Postgres role `margin_svc` has access to schema `margin` only.
 - [x] `ListRules`, `UpsertRule`, `DeactivateRule` gRPC handlers with org-scoped RLS; Go module scaffolded (F4.1)
 - [x] `buf.gen.yaml` updated with `grpc/go` plugin; `margin_grpc.pb.go` generated (F4.1)
 - [x] Integration tests: 5 scenarios, real Postgres via dockertest + in-process gRPC (F4.1)
-- [ ] `ValidateBatch` gRPC handler implemented (F4.2)
-- [ ] Rule precedence resolved in pure logic + unit-tested (F4.2)
-- [ ] Catalog `BatchGetCosts` integration tested against real Catalog (F4.2)
-- [ ] Integration test: batch with mixed violations and clean lines returns the right structured output (F4.2)
-- [ ] Integration test: per-SKU request rejected at API boundary (F4.2)
+- [x] `ValidateBatch` gRPC handler implemented (F4.2)
+- [x] Rule precedence resolved in pure logic + unit-tested (F4.2)
+- [x] Catalog `BatchGetCosts` client wired via `CostFetcher` interface (F4.2)
+- [x] Integration test: batch with mixed violations and clean lines returns structured violations (F4.2)
+- [x] Integration test: empty items rejected at API boundary with `InvalidArgument` (F4.2)
 - [ ] Admin REST routes for rule CRUD
 - [ ] `make lint` clean, `bazel test //src/margin/...` green
 

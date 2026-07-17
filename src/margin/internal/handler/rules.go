@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/owomide/margin/internal/client"
 	"github.com/owomide/margin/internal/db"
 	"github.com/owomide/margin/internal/repo"
 	marginpb "github.com/owomide/proto/services/margin/v1"
@@ -18,13 +19,17 @@ import (
 
 type RulesServer struct {
 	marginpb.UnimplementedMarginServiceServer
-	db     *db.DB
-	repo   *repo.Repo
-	logger *slog.Logger
+	db          *db.DB
+	repo        *repo.Repo
+	logger      *slog.Logger
+	costFetcher client.CostFetcher
 }
 
-func NewRulesServer(database *db.DB, r *repo.Repo, logger *slog.Logger) *RulesServer {
-	return &RulesServer{db: database, repo: r, logger: logger}
+func NewRulesServer(database *db.DB, r *repo.Repo, logger *slog.Logger, costFetcher client.CostFetcher) *RulesServer {
+	if costFetcher == nil {
+		panic("NewRulesServer: costFetcher must not be nil")
+	}
+	return &RulesServer{db: database, repo: r, logger: logger, costFetcher: costFetcher}
 }
 
 func orgIDFromCtx(ctx context.Context) (string, error) {
@@ -206,7 +211,3 @@ func ruleToProto(r *repo.MarginRuleRow) *marginpb.MarginRule {
 	return rule
 }
 
-// ValidateBatch is implemented in F4.2.
-func (s *RulesServer) ValidateBatch(_ context.Context, _ *marginpb.ValidateBatchRequest) (*marginpb.ValidateBatchResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "ValidateBatch is implemented in F4.2")
-}

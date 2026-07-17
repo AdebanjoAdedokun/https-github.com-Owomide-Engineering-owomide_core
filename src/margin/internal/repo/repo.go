@@ -176,6 +176,46 @@ func (r *Repo) ListRules(ctx context.Context, tx pgx.Tx, p ListRulesParams) ([]*
 	return results, rows.Err()
 }
 
+// GetRulesForBatch returns all active, temporally-valid rules that could match
+// any SKU or channel in the provided lists, plus org-wide rules (no scope set).
+// RLS (via app.org_id on the transaction) automatically restricts to the caller's org.
+func (r *Repo) GetRulesForBatch(ctx context.Context, tx pgx.Tx, skuIDs, channelIDs []string) ([]*MarginRuleRow, error) {
+	rows, err := tx.Query(ctx, `
+		SELECT id, org_id, channel_id, category_id, sku_id, floor_type, floor_value,
+		       currency, effective_at, effective_until, created_by, version,
+		       is_active, created_at, updated_at
+		FROM margin.margin_rule
+		WHERE is_active = true
+		  AND effective_at <= clock_timestamp()
+		  AND (effective_until IS NULL OR effective_until > clock_timestamp())
+		  AND (
+		    sku_id = ANY($1::uuid[])
+		    OR (channel_id = ANY($2::uuid[]) AND sku_id IS NULL)
+		    OR (sku_id IS NULL AND channel_id IS NULL AND category_id IS NULL)
+		  )`,
+		skuIDs, channelIDs,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []*MarginRuleRow
+	for rows.Next() {
+		row := &MarginRuleRow{}
+		if err := rows.Scan(
+			&row.ID, &row.OrgID, &row.ChannelID, &row.CategoryID, &row.SkuID,
+			&row.FloorType, &row.FloorValue, &row.Currency,
+			&row.EffectiveAt, &row.EffectiveUntil, &row.CreatedBy,
+			&row.Version, &row.IsActive, &row.CreatedAt, &row.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		results = append(results, row)
+	}
+	return results, rows.Err()
+}
+
 func scanRule(row pgx.Row) (*MarginRuleRow, error) {
 	r := &MarginRuleRow{}
 	err := row.Scan(
