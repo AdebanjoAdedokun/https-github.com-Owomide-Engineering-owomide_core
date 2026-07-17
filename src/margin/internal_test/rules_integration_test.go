@@ -27,7 +27,11 @@ const (
 	orgB = "00000000-0000-0000-0000-000000000002"
 )
 
-var testClient marginpb.MarginServiceClient
+var (
+	testClient marginpb.MarginServiceClient
+	sharedDB   *db.DB
+	sharedRepo *repo.Repo
+)
 
 func TestMain(m *testing.M) {
 	pool, err := dockertest.NewPool("")
@@ -75,14 +79,15 @@ func TestMain(m *testing.M) {
 	superPool.Close()
 
 	svcConnStr := strings.Replace(connStr, "user=postgres password=postgres", "user=margin_svc password=test-password", 1)
-	testDB, err := db.New(svcConnStr)
-	if err != nil {
-		panic("service pool: " + err.Error())
+	var dbErr error
+	sharedDB, dbErr = db.New(svcConnStr)
+	if dbErr != nil {
+		panic("service pool: " + dbErr.Error())
 	}
-	defer testDB.Close()
+	defer sharedDB.Close()
 
-	r := repo.New()
-	svc := handler.NewRulesServer(testDB, r, slog.Default())
+	sharedRepo = repo.New()
+	svc := handler.NewRulesServer(sharedDB, sharedRepo, slog.Default(), nil)
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
