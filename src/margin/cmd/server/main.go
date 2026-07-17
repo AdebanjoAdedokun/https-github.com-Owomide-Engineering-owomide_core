@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"net"
+	"os"
 
 	"google.golang.org/grpc"
 
@@ -14,27 +15,32 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	cfg := config.Load()
 
 	database, err := db.New(cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("connect db: %v", err)
+		logger.Error("connect db", "error", err)
+		os.Exit(1)
 	}
 	defer database.Close()
 
 	r := repo.New()
-	svc := handler.NewRulesServer(database, r)
+	svc := handler.NewRulesServer(database, r, logger)
 
 	lis, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {
-		log.Fatalf("listen: %v", err)
+		logger.Error("listen", "error", err)
+		os.Exit(1)
 	}
 
 	s := grpc.NewServer()
 	marginpb.RegisterMarginServiceServer(s, svc)
 
-	log.Printf("margin service listening on :%s", cfg.Port)
+	logger.Info("margin service listening", "port", cfg.Port)
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("serve: %v", err)
+		logger.Error("serve", "error", err)
+		os.Exit(1)
 	}
 }

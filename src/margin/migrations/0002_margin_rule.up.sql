@@ -28,8 +28,8 @@ CREATE TABLE margin.margin_rule (
   category_id     UUID,
   sku_id          UUID,
   floor_type      TEXT NOT NULL CHECK (floor_type IN ('pct_margin', 'pct_markup', 'absolute_minimum')),
-  floor_value     BIGINT NOT NULL,
-  currency        TEXT NOT NULL,
+  floor_value     BIGINT NOT NULL CHECK (floor_value > 0),
+  currency        TEXT NOT NULL CHECK (currency ~ '^[A-Z]{3}$'),
   effective_at    TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
   effective_until TIMESTAMPTZ,
   created_by      UUID NOT NULL,
@@ -54,19 +54,24 @@ CREATE TABLE margin.margin_rule_application (
 );
 
 CREATE INDEX ON margin.margin_rule (org_id, is_active);
+CREATE INDEX ON margin.margin_rule (org_id, is_active, effective_at);
 CREATE INDEX ON margin.margin_rule (org_id, sku_id) WHERE sku_id IS NOT NULL;
 CREATE INDEX ON margin.margin_rule (org_id, channel_id) WHERE channel_id IS NOT NULL;
 CREATE INDEX ON margin.margin_rule (org_id, category_id) WHERE category_id IS NOT NULL;
 CREATE INDEX ON margin.margin_rule_application (org_id, proposal_id);
 
 ALTER TABLE margin.margin_rule ENABLE ROW LEVEL SECURITY;
+ALTER TABLE margin.margin_rule FORCE ROW LEVEL SECURITY;
 CREATE POLICY margin_rule_org_isolation ON margin.margin_rule
   USING (org_id::text = margin.current_org_id())
   WITH CHECK (org_id::text = margin.current_org_id());
 
 ALTER TABLE margin.margin_rule_application ENABLE ROW LEVEL SECURITY;
+ALTER TABLE margin.margin_rule_application FORCE ROW LEVEL SECURITY;
 CREATE POLICY margin_rule_application_org_isolation ON margin.margin_rule_application
-  USING (org_id::text = margin.current_org_id());
+  USING (org_id::text = margin.current_org_id())
+  WITH CHECK (org_id::text = margin.current_org_id());
 
 GRANT SELECT, INSERT, UPDATE ON margin.margin_rule TO margin_svc;
 GRANT SELECT, INSERT ON margin.margin_rule_application TO margin_svc;
+GRANT EXECUTE ON FUNCTION margin.current_org_id() TO margin_svc;

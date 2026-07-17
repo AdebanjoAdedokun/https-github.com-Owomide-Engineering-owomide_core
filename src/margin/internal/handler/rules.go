@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -17,12 +18,13 @@ import (
 
 type RulesServer struct {
 	marginpb.UnimplementedMarginServiceServer
-	db   *db.DB
-	repo *repo.Repo
+	db     *db.DB
+	repo   *repo.Repo
+	logger *slog.Logger
 }
 
-func NewRulesServer(database *db.DB, r *repo.Repo) *RulesServer {
-	return &RulesServer{db: database, repo: r}
+func NewRulesServer(database *db.DB, r *repo.Repo, logger *slog.Logger) *RulesServer {
+	return &RulesServer{db: database, repo: r, logger: logger}
 }
 
 func orgIDFromCtx(ctx context.Context) (string, error) {
@@ -48,6 +50,9 @@ func (s *RulesServer) UpsertRule(ctx context.Context, req *marginpb.UpsertRuleRe
 	}
 	if r.FloorType == marginpb.FloorType_FLOOR_TYPE_UNSPECIFIED {
 		return nil, status.Error(codes.InvalidArgument, "floor_type is required")
+	}
+	if r.FloorValue <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "floor_value must be positive")
 	}
 	if r.Currency == "" {
 		return nil, status.Error(codes.InvalidArgument, "currency is required")
@@ -87,7 +92,8 @@ func (s *RulesServer) UpsertRule(ctx context.Context, req *marginpb.UpsertRuleRe
 		row, txErr = s.repo.UpsertRule(ctx, tx, p)
 		return txErr
 	}); err != nil {
-		return nil, status.Errorf(codes.Internal, "upsert rule: %v", err)
+		s.logger.ErrorContext(ctx, "upsert rule", "error", err, "org_id", orgID)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	return &marginpb.UpsertRuleResponse{Rule: ruleToProto(row)}, nil
@@ -108,7 +114,8 @@ func (s *RulesServer) DeactivateRule(ctx context.Context, req *marginpb.Deactiva
 		row, txErr = s.repo.DeactivateRule(ctx, tx, req.Id)
 		return txErr
 	}); err != nil {
-		return nil, status.Errorf(codes.Internal, "deactivate rule: %v", err)
+		s.logger.ErrorContext(ctx, "deactivate rule", "error", err, "org_id", orgID, "rule_id", req.Id)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 	if row == nil {
 		return nil, status.Error(codes.NotFound, "rule not found")
@@ -142,7 +149,8 @@ func (s *RulesServer) ListRules(ctx context.Context, req *marginpb.ListRulesRequ
 		rows, txErr = s.repo.ListRules(ctx, tx, p)
 		return txErr
 	}); err != nil {
-		return nil, status.Errorf(codes.Internal, "list rules: %v", err)
+		s.logger.ErrorContext(ctx, "list rules", "error", err, "org_id", orgID)
+		return nil, status.Error(codes.Internal, "internal error")
 	}
 
 	resp := &marginpb.ListRulesResponse{}
@@ -202,4 +210,3 @@ func ruleToProto(r *repo.MarginRuleRow) *marginpb.MarginRule {
 func (s *RulesServer) ValidateBatch(_ context.Context, _ *marginpb.ValidateBatchRequest) (*marginpb.ValidateBatchResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "ValidateBatch is implemented in F4.2")
 }
-

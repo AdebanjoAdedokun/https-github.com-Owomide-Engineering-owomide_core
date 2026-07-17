@@ -3,6 +3,7 @@ package integration_test
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"os"
 	"strings"
@@ -81,7 +82,7 @@ func TestMain(m *testing.M) {
 	defer testDB.Close()
 
 	r := repo.New()
-	svc := handler.NewRulesServer(testDB, r)
+	svc := handler.NewRulesServer(testDB, r, slog.Default())
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
