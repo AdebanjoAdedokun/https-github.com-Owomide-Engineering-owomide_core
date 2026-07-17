@@ -99,7 +99,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic("grpc dial: " + err.Error())
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 	testClient = marginpb.NewMarginServiceClient(conn)
 
 	code := m.Run()
