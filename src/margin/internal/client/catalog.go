@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 
 	commonv1 "github.com/owomide/proto/common/v1"
 	catalogv1 "github.com/owomide/proto/services/catalog/v1"
@@ -24,7 +25,8 @@ func NewCatalogClient(conn *grpc.ClientConn) CostFetcher {
 	return &catalogClient{inner: catalogv1.NewCatalogServiceClient(conn)}
 }
 
-func (c *catalogClient) FetchCosts(ctx context.Context, _ string, skuIDs []string) (map[string]*commonv1.Money, error) {
+func (c *catalogClient) FetchCosts(ctx context.Context, orgID string, skuIDs []string) (map[string]*commonv1.Money, error) {
+	ctx = metadata.AppendToOutgoingContext(ctx, "x-org-id", orgID)
 	resp, err := c.inner.BatchGetCosts(ctx, &catalogv1.BatchGetCostsRequest{SkuIds: skuIDs})
 	if err != nil {
 		return nil, fmt.Errorf("catalog BatchGetCosts: %w", err)

@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"math"
 
 	commonv1 "github.com/owomide/proto/common/v1"
 
@@ -15,6 +16,10 @@ var ErrNoCost = errors.New("no cost record found for SKU")
 // ErrCurrencyMismatch is returned when the rule currency differs from the cost currency
 // in a way that makes floor computation impossible.
 var ErrCurrencyMismatch = errors.New("currency mismatch between rule and cost")
+
+// maxSafeCostAmount is the largest cost.Amount that can be multiplied by 10000
+// without overflowing int64 (math.MaxInt64 / 10000).
+const maxSafeCostAmount = int64(math.MaxInt64 / 10000)
 
 // ComputeFloor returns the minimum acceptable price amount (in rule.Currency minor units).
 //
@@ -34,6 +39,12 @@ func ComputeFloor(rule *repo.MarginRuleRow, cost *commonv1.Money) (int64, error)
 		if cost == nil {
 			return 0, ErrNoCost
 		}
+		if cost.Amount < 0 {
+			return 0, fmt.Errorf("cost amount %d is negative — cannot compute margin floor", cost.Amount)
+		}
+		if cost.Amount > maxSafeCostAmount {
+			return 0, fmt.Errorf("cost amount %d exceeds maximum safe value for floor calculation", cost.Amount)
+		}
 		// floor = ceil(cost / (1 - floor_value/10000))
 		//       = ceil(cost * 10000 / (10000 - floor_value))
 		denom := int64(10000) - rule.FloorValue
@@ -46,6 +57,12 @@ func ComputeFloor(rule *repo.MarginRuleRow, cost *commonv1.Money) (int64, error)
 		if cost == nil {
 			return 0, ErrNoCost
 		}
+		if cost.Amount < 0 {
+			return 0, fmt.Errorf("cost amount %d is negative — cannot compute markup floor", cost.Amount)
+		}
+		if cost.Amount > maxSafeCostAmount {
+			return 0, fmt.Errorf("cost amount %d exceeds maximum safe value for floor calculation", cost.Amount)
+		}
 		// floor = cost + ceil(cost * floor_value / 10000)
 		return cost.Amount + ceilDiv(cost.Amount*rule.FloorValue, 10000), nil
 
@@ -57,7 +74,11 @@ func ComputeFloor(rule *repo.MarginRuleRow, cost *commonv1.Money) (int64, error)
 	}
 }
 
-// ceilDiv returns ceil(a/b) for positive a and b.
+// ceilDiv returns ceil(a/b) for non-negative a and positive b.
 func ceilDiv(a, b int64) int64 {
-	return (a + b - 1) / b
+	q, r := a/b, a%b
+	if r > 0 {
+		return q + 1
+	}
+	return q
 }

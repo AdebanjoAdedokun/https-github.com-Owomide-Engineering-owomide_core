@@ -26,6 +26,9 @@ type RulesServer struct {
 }
 
 func NewRulesServer(database *db.DB, r *repo.Repo, logger *slog.Logger, costFetcher client.CostFetcher) *RulesServer {
+	if costFetcher == nil {
+		panic("NewRulesServer: costFetcher must not be nil")
+	}
 	return &RulesServer{db: database, repo: r, logger: logger, costFetcher: costFetcher}
 }
 

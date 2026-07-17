@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,12 +27,29 @@ func (s *RulesServer) ValidateBatch(ctx context.Context, req *marginpb.ValidateB
 		return nil, err
 	}
 
+	// Validate UUID format up-front so Postgres cast errors become InvalidArgument,
+	// not a misleading Internal.
+	for _, item := range req.Items {
+		if item.SkuId == "" {
+			return nil, status.Error(codes.InvalidArgument, "each item must have a sku_id")
+		}
+		if _, err := uuid.Parse(item.SkuId); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid sku_id %q: not a UUID", item.SkuId)
+		}
+		if item.ChannelId != "" {
+			if _, err := uuid.Parse(item.ChannelId); err != nil {
+				return nil, status.Errorf(codes.InvalidArgument, "invalid channel_id %q: not a UUID", item.ChannelId)
+			}
+		}
+		if item.ProposedPrice == nil {
+			return nil, status.Errorf(codes.InvalidArgument, "item with sku_id %q is missing proposed_price", item.SkuId)
+		}
+	}
+
 	skuSet := make(map[string]struct{}, len(req.Items))
 	chanSet := make(map[string]struct{}, len(req.Items))
 	for _, item := range req.Items {
-		if item.SkuId != "" {
-			skuSet[item.SkuId] = struct{}{}
-		}
+		skuSet[item.SkuId] = struct{}{}
 		if item.ChannelId != "" {
 			chanSet[item.ChannelId] = struct{}{}
 		}
@@ -71,6 +89,7 @@ func validateItem(item *marginpb.ValidateItem, rules []*repo.MarginRuleRow, cost
 		return nil
 	}
 
+	// proposed is guaranteed non-nil by the validation in ValidateBatch.
 	proposed := item.ProposedPrice
 	zeroCurrency := func() *commonv1.Money { return &commonv1.Money{Amount: 0, Currency: matched.Currency} }
 
