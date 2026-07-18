@@ -7,7 +7,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { create, fromBinary } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { type HandlerContext } from "@connectrpc/connect";
-import { CreateProposalRequestSchema } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
+import {
+  CreateProposalRequestSchema,
+  type SubmitProposalResponse,
+} from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   type ValidateBatchRequest,
   type ValidateBatchResponse,
@@ -17,7 +20,10 @@ import {
   ViolationSeverity,
 } from "@owomide/proto/services/margin/v1/margin_pb.js";
 import { MoneySchema } from "@owomide/proto/common/v1/common_pb.js";
-import { ProposalBlockedSchema } from "@owomide/proto/events/proposal/v1_pb.js";
+import {
+  ProposalBlockedSchema,
+  type ProposalBlocked,
+} from "@owomide/proto/events/proposal/v1_pb.js";
 import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
@@ -252,7 +258,7 @@ describe("Proposal Submit", () => {
     );
 
     const impl = blockedService.implementation.submitProposal!;
-    const resp = await impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1));
+    const resp = await impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1)) as unknown as SubmitProposalResponse;
     const violations = resp.violations ?? [];
     expect(violations).toHaveLength(1);
     expect(violations[0]!.skuId).toBe(SKU_ID);
@@ -275,7 +281,7 @@ describe("Proposal Submit", () => {
     const blocked = fromBinary(
       ProposalBlockedSchema,
       new Uint8Array(outboxRows[0]!.payload as Buffer)
-    );
+    ) as unknown as ProposalBlocked;
     expect(blocked.violations).toHaveLength(1);
     expect(blocked.violations[0]!.skuId).toBe(SKU_ID);
     expect(blocked.violations[0]!.channelId).toBe(CHANNEL_ID);

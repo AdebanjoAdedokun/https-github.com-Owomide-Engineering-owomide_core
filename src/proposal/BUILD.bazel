@@ -110,7 +110,6 @@ ts_project(
     source_map = True,
     tsconfig = ":tsconfig_integration",
     deps = [
-        ":proposal_ts",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@connectrpc/connect-node",
@@ -122,8 +121,6 @@ ts_project(
         ":node_modules/pino",
         ":node_modules/zod",
         ":node_modules/vitest",
-        "//src/lib/bus/js:bus_js",
-        "//src/lib/proto:pkg",
         ":node_modules/@owomide/bus",
         ":node_modules/@owomide/proto",
     ],
