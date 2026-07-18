@@ -253,8 +253,9 @@ describe("Proposal Submit", () => {
 
     const impl = blockedService.implementation.submitProposal!;
     const resp = await impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1));
-    expect(resp.violations).toHaveLength(1);
-    expect(resp.violations[0]!.skuId).toBe(SKU_ID);
+    const violations = resp.violations ?? [];
+    expect(violations).toHaveLength(1);
+    expect(violations[0]!.skuId).toBe(SKU_ID);
 
     // State must be 'blocked' in DB
     const { rows: stateRows } = await superuser.query<{ state: string }>(

@@ -15,6 +15,7 @@ import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
 import { ServiceAuthenticator } from "../../context.js";
 import type { CatalogClient } from "../../clients/catalog.js";
+import { type MarginClient } from "../../clients/margin.js";
 import { OutboxRelay } from "../../workers/outbox-relay.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -44,6 +45,10 @@ class NoOpCatalogClient implements CatalogClient {
   async applyPriceChanges(_req: never, _headers: Headers): Promise<never> {
     throw new Error("applyPriceChanges should not be called in approve tests");
   }
+}
+
+class StubMarginClient implements MarginClient {
+  validateBatch = () => Promise.reject(new Error("validateBatch should not be called in approve tests"));
 }
 
 class MockPublisher implements Publisher {
@@ -118,7 +123,7 @@ describe("Proposal Approve", () => {
     });
     repo = new ProposalRepository();
     const authenticator = new TestAuthenticator("owomide-internal", {});
-    service = new ProposalServiceImpl(db, authenticator, repo, new NoOpCatalogClient());
+    service = new ProposalServiceImpl(db, authenticator, repo, new NoOpCatalogClient(), new StubMarginClient());
   }, 120_000);
 
   afterAll(async () => {
