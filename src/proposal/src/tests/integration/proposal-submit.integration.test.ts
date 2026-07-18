@@ -4,15 +4,32 @@ import { fileURLToPath } from "node:url";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { create } from "@bufbuild/protobuf";
+import { create, fromBinary } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { type HandlerContext } from "@connectrpc/connect";
-import { CreateProposalRequestSchema } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
+import {
+  CreateProposalRequestSchema,
+  type SubmitProposalResponse,
+} from "@owomide/proto/services/proposal/v1/proposal_pb.js";
+import {
+  type ValidateBatchRequest,
+  type ValidateBatchResponse,
+  type Violation,
+  ValidateBatchResponseSchema,
+  ViolationSchema,
+  ViolationSeverity,
+} from "@owomide/proto/services/margin/v1/margin_pb.js";
+import { MoneySchema } from "@owomide/proto/common/v1/common_pb.js";
+import {
+  ProposalBlockedSchema,
+  type ProposalBlocked,
+} from "@owomide/proto/events/proposal/v1_pb.js";
 import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
 import { ServiceAuthenticator } from "../../context.js";
 import type { CatalogClient } from "../../clients/catalog.js";
+import type { MarginClient } from "../../clients/margin.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const migrationsDir = resolve(__dirname, "../../../migrations");
@@ -31,6 +48,19 @@ async function applyMigrations(client: pg.Client): Promise<void> {
 class NoOpCatalogClient implements CatalogClient {
   async applyPriceChanges(_req: never, _headers: Headers): Promise<never> {
     throw new Error("applyPriceChanges should not be called in submit tests");
+  }
+}
+
+class StubMarginClient implements MarginClient {
+  async validateBatch(_req: ValidateBatchRequest, _headers: Headers): Promise<ValidateBatchResponse> {
+    return create(ValidateBatchResponseSchema, { violations: [] });
+  }
+}
+
+class BlockedMarginClient implements MarginClient {
+  constructor(private readonly violations: Violation[]) {}
+  async validateBatch(_req: ValidateBatchRequest, _headers: Headers): Promise<ValidateBatchResponse> {
+    return create(ValidateBatchResponseSchema, { violations: this.violations });
   }
 }
 
@@ -74,6 +104,9 @@ describe("Proposal Submit", () => {
   const ORG_A = "00000000-0000-0000-0000-000000000001";
   const ORG_B = "00000000-0000-0000-0000-000000000002";
   const USER_1 = "00000000-0000-0000-0000-000000000011";
+  const SKU_ID = "00000000-0000-0000-0000-000000000101";
+  const CHANNEL_ID = "00000000-0000-0000-0000-000000000201";
+  const RULE_ID = "aaaaaaaa-0000-0000-0000-000000000001";
 
   beforeAll(async () => {
     container = await new PostgreSqlContainer("postgres:16-alpine")
@@ -99,7 +132,7 @@ describe("Proposal Submit", () => {
     });
     repo = new ProposalRepository();
     const authenticator = new TestAuthenticator("owomide-internal", {});
-    service = new ProposalServiceImpl(db, authenticator, repo, new NoOpCatalogClient());
+    service = new ProposalServiceImpl(db, authenticator, repo, new NoOpCatalogClient(), new StubMarginClient());
   }, 120_000);
 
   afterAll(async () => {
@@ -189,34 +222,71 @@ describe("Proposal Submit", () => {
     expect(outboxRow!.event_type).toBe("proposal.submitted");
   });
 
-  it("blocked outcome writes proposal.blocked to outbox before returning 422", async () => {
-    // Directly exercise the blocked path via the repo — state machine stub always returns
-    // submitted in F3.4, so we test at the repo layer to cover the outbox write for blocked.
-    const req = create(CreateProposalRequestSchema, { title: "Blocked Outbox Test" });
+  it("margin violations drive blocked state, 422, and proposal.blocked outbox with violation payload", async () => {
+    const authenticator = new TestAuthenticator("owomide-internal", {});
+    const violation = create(ViolationSchema, {
+      skuId: SKU_ID,
+      ruleId: RULE_ID,
+      severity: ViolationSeverity.BLOCK,
+      message: "proposed price 900 is below floor 1000 (absolute_minimum)",
+      floor: create(MoneySchema, { amount: 1000n, currency: "NGN" }),
+      proposed: create(MoneySchema, { amount: 900n, currency: "NGN" }),
+      gap: create(MoneySchema, { amount: 100n, currency: "NGN" }),
+    });
+    const blockedService = new ProposalServiceImpl(
+      db,
+      authenticator,
+      repo,
+      new NoOpCatalogClient(),
+      new BlockedMarginClient([violation])
+    );
+
+    const req = create(CreateProposalRequestSchema, {
+      title: "Blocked Proposal",
+      lines: [
+        {
+          skuId: SKU_ID,
+          channelId: CHANNEL_ID,
+          currentPrice: create(MoneySchema, { amount: 1000n, currency: "NGN" }),
+          proposedPrice: create(MoneySchema, { amount: 900n, currency: "NGN" }),
+          reason: "Testing blocked path",
+        },
+      ],
+    });
     const created = await db.withOrgTransaction(ORG_A, (c) =>
       repo.createProposal(c, ORG_A, USER_1, req)
     );
 
-    // Build a blocked payload manually and call insertOutboxEvent directly
-    await db.withOrgTransaction(ORG_A, async (c) => {
-      await repo.submitProposal(c, created.row.id, "draft", "blocked", USER_1, {});
-      await repo.insertOutboxEvent(c, {
-        id: "00000000-0000-0000-0000-000000000099",
-        orgId: ORG_A,
-        eventType: "proposal.blocked",
-        aggregateId: created.row.id,
-        partitionKey: created.row.id,
-        payload: new Uint8Array([0x08, 0x01]),
-      });
-    });
+    const impl = blockedService.implementation.submitProposal!;
+    const resp = await impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1)) as unknown as SubmitProposalResponse;
+    const violations = resp.violations ?? [];
+    expect(violations).toHaveLength(1);
+    expect(violations[0]!.skuId).toBe(SKU_ID);
 
-    const { rows } = await superuser.query(
-      `SELECT event_type, org_id, partition_key FROM proposal.outbox_event WHERE aggregate_id = $1`,
+    // State must be 'blocked' in DB
+    const { rows: stateRows } = await superuser.query<{ state: string }>(
+      `SELECT state FROM proposal.proposal WHERE id = $1`,
       [created.row.id]
     );
-    expect(rows).toHaveLength(1);
-    expect(rows[0]!.event_type).toBe("proposal.blocked");
-    expect(rows[0]!.partition_key).toBe(created.row.id);
+    expect(stateRows[0]!.state).toBe("blocked");
+
+    // Outbox must carry proposal.blocked with violations serialised in payload
+    const { rows: outboxRows } = await superuser.query(
+      `SELECT event_type, payload FROM proposal.outbox_event WHERE aggregate_id = $1`,
+      [created.row.id]
+    );
+    expect(outboxRows).toHaveLength(1);
+    expect(outboxRows[0]!.event_type).toBe("proposal.blocked");
+
+    const blocked = fromBinary(
+      ProposalBlockedSchema,
+      new Uint8Array(outboxRows[0]!.payload as Buffer)
+    ) as unknown as ProposalBlocked;
+    expect(blocked.violations).toHaveLength(1);
+    expect(blocked.violations[0]!.skuId).toBe(SKU_ID);
+    expect(blocked.violations[0]!.channelId).toBe(CHANNEL_ID);
+    expect(blocked.violations[0]!.ruleId).toBe(RULE_ID);
+    expect(blocked.violations[0]!.message).toContain("below floor");
   });
 
   it("submitProposal on a non-draft proposal throws FailedPrecondition", async () => {

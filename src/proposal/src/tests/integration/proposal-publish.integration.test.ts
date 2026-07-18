@@ -22,6 +22,7 @@ import { ProposalServiceImpl } from "../../service.js";
 import { ServiceAuthenticator } from "../../context.js";
 import { OutboxRelay } from "../../workers/outbox-relay.js";
 import type { CatalogClient } from "../../clients/catalog.js";
+import { type MarginClient } from "../../clients/margin.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const migrationsDir = resolve(__dirname, "../../../migrations");
@@ -54,6 +55,10 @@ class MockPublisher implements Publisher {
   }
 
   async close(): Promise<void> {}
+}
+
+class StubMarginClient implements MarginClient {
+  validateBatch = () => Promise.reject(new Error("validateBatch should not be called in publish tests"));
 }
 
 class MockCatalogClient implements CatalogClient {
@@ -134,7 +139,7 @@ describe("Proposal Publish", () => {
     repo = new ProposalRepository();
     catalogClient = new MockCatalogClient();
     const authenticator = new TestAuthenticator("owomide-internal", {});
-    service = new ProposalServiceImpl(db, authenticator, repo, catalogClient);
+    service = new ProposalServiceImpl(db, authenticator, repo, catalogClient, new StubMarginClient());
   }, 120_000);
 
   afterAll(async () => {

@@ -11,6 +11,7 @@ import { Database } from "./db.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
 import { ProposalServiceImpl } from "./service.js";
 import { GrpcCatalogClient } from "./clients/catalog.js";
+import { GrpcMarginClient } from "./clients/margin.js";
 import { OutboxRelay } from "./workers/outbox-relay.js";
 
 export function errorInterceptor(logger: pino.Logger): Interceptor {
@@ -32,9 +33,11 @@ export async function startServer(): Promise<() => Promise<void>> {
   const authenticator = new ServiceAuthenticator(config.serviceJwtIssuer, config.serviceSecrets);
   const repo = new ProposalRepository();
   const catalogClient = new GrpcCatalogClient(config.catalogUrl);
-  const service = new ProposalServiceImpl(database, authenticator, repo, catalogClient, {
+  const marginClient = new GrpcMarginClient(config.marginUrl);
+  const service = new ProposalServiceImpl(database, authenticator, repo, catalogClient, marginClient, {
     serviceJwtIssuer: config.serviceJwtIssuer,
     catalogServiceSecret: config.catalogServiceSecret,
+    marginServiceSecret: config.marginServiceSecret,
   });
   const bus = createBus({
     provider: "kafka",

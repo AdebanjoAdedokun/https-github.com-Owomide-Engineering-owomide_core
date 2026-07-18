@@ -25,19 +25,28 @@ import {
   ApplyPriceChangesRequestSchema,
   PriceChangeSchema,
 } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
-import { PaginatedResponseSchema } from "@owomide/proto/common/v1/common_pb.js";
+import {
+  ValidateBatchRequestSchema,
+  ValidateItemSchema,
+  type Violation,
+  ViolationSeverity,
+} from "@owomide/proto/services/margin/v1/margin_pb.js";
+import { MoneySchema, PaginatedResponseSchema } from "@owomide/proto/common/v1/common_pb.js";
 import {
   ProposalSubmittedSchema,
   ProposalBlockedSchema,
   ProposalApprovedSchema,
   ProposalPublishedSchema,
+  ViolationSchema as EventViolationSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
 import { requestContext, requireApproverRole, signServiceJwt, ServiceAuthenticator } from "./context.js";
 import type { CatalogClient } from "./clients/catalog.js";
+import type { MarginClient } from "./clients/margin.js";
+import type { MarginViolation } from "./domain/state-machine.js";
 import { Database } from "./db.js";
 import { dateToTimestamp } from "./domain/time.js";
 import { transition, type ProposalState } from "./domain/state-machine.js";
-import { commentMessage, proposalMessage } from "./repo/mappers.js";
+import { commentMessage, proposalMessage, type ProposalLineRow } from "./repo/mappers.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
 
 const UUID_RE =
@@ -59,16 +68,38 @@ function buildPayload(
   proposalId: string,
   orgId: string,
   actorId: string,
-  changeSetId: string | null
+  changeSetId: string | null,
+  rawViolations: Violation[] = [],
+  lines: ProposalLineRow[] = [],
 ): Uint8Array {
   const createdAt = dateToTimestamp(new Date());
   if (nextState === "blocked") {
+    // channelId is omitted: Margin's Violation has no channel_id field so attribution
+    // cannot be reliable when the same SKU appears in multiple channels. Consumers
+    // should use skuId + ruleId as the unique violation key.
+    const skuToLines = new Map<string, string[]>();
+    for (const l of lines) {
+      const existing = skuToLines.get(l.sku_id);
+      if (existing) existing.push(l.channel_id);
+      else skuToLines.set(l.sku_id, [l.channel_id]);
+    }
+    const eventViolations = rawViolations.map((v) => {
+      const channels = skuToLines.get(v.skuId) ?? [];
+      return create(EventViolationSchema, {
+        skuId: v.skuId,
+        channelId: channels.length === 1 ? (channels[0] ?? "") : "",
+        ruleId: v.ruleId,
+        message: v.message,
+        proposedPrice: v.proposed,
+        floorPrice: v.floor,
+      });
+    });
     return toBinary(
       ProposalBlockedSchema,
       create(ProposalBlockedSchema, {
         orgId,
         proposalId,
-        violations: [],
+        violations: eventViolations,
         actorId,
         createdAt,
       })
@@ -94,10 +125,12 @@ export class ProposalServiceImpl {
     private readonly authenticator: ServiceAuthenticator,
     private readonly repo: ProposalRepository,
     private readonly catalogClient: CatalogClient,
-    private readonly catalogOpts: { serviceJwtIssuer: string; catalogServiceSecret: string } = {
-      serviceJwtIssuer: "",
-      catalogServiceSecret: "",
-    }
+    private readonly marginClient: MarginClient,
+    private readonly opts: {
+      serviceJwtIssuer: string;
+      catalogServiceSecret: string;
+      marginServiceSecret: string;
+    } = { serviceJwtIssuer: "", catalogServiceSecret: "", marginServiceSecret: "" }
   ) {
     this.implementation = {
       createProposal: this.createProposal.bind(this),
@@ -203,10 +236,54 @@ export class ProposalServiceImpl {
       throw new ConnectError("Proposal not found", Code.NotFound);
     }
 
-    // Margin stub — F4.3 replaces [] with real ValidateBatch results
+    // Call Margin.ValidateBatch with all proposal lines (batched — never per-line)
+    const marginItems = current.lines.map((line) =>
+      create(ValidateItemSchema, {
+        skuId: line.sku_id,
+        channelId: line.channel_id,
+        proposedPrice: create(MoneySchema, {
+          amount: BigInt(line.proposed_price_minor),
+          currency: line.proposed_price_currency,
+        }),
+      })
+    );
+
+    let rawViolations: Violation[] = [];
+    let marginViolations: MarginViolation[] = [];
+
+    if (marginItems.length > 0) {
+      const marginHeaders = new Headers();
+      marginHeaders.set("x-org-id", ctx.orgId);
+      if (this.opts.marginServiceSecret) {
+        const jwt = await signServiceJwt(
+          "proposal_svc",
+          "margin",
+          this.opts.marginServiceSecret,
+          this.opts.serviceJwtIssuer
+        );
+        marginHeaders.set("Authorization", `Bearer ${jwt}`);
+      }
+      let marginResp;
+      try {
+        marginResp = await this.marginClient.validateBatch(
+          create(ValidateBatchRequestSchema, { items: marginItems }),
+          marginHeaders
+        );
+      } catch {
+        // Re-throw as Internal so callers never see Margin hostnames or stack traces.
+        throw new ConnectError("margin validation unavailable", Code.Internal);
+      }
+      rawViolations = marginResp.violations;
+      marginViolations = rawViolations.map((v) => ({
+        skuId: v.skuId,
+        code: v.severity === ViolationSeverity.WARN ? "WARN" : "BLOCK",
+        message: v.message,
+      }));
+    }
+
     const smResult = transition(
       current.row.state as ProposalState,
-      { type: "SUBMIT", marginViolations: [] },
+      { type: "SUBMIT", marginViolations },
       { actorId, proposalActorId: current.row.actor_id }
     );
     if (!smResult.ok) {
@@ -221,7 +298,9 @@ export class ProposalServiceImpl {
       request.id,
       current.row.org_id,
       actorId,
-      current.row.change_set_id
+      current.row.change_set_id,
+      rawViolations,
+      current.lines
     );
 
     // Atomic: state transition + transition log + outbox event in one transaction
@@ -245,14 +324,10 @@ export class ProposalServiceImpl {
       return result;
     });
 
-    // Blocked means margin violations: return 422 after the DB commits
-    if (nextState === "blocked") {
-      throw new ConnectError("Proposal blocked: margin violations", Code.FailedPrecondition);
-    }
-
+    // Return violations in response; gateway maps non-empty violations to 422.
     return create(SubmitProposalResponseSchema, {
       proposal: proposalMessage(updated.row, updated.lines),
-      violations: [],
+      violations: rawViolations,
     });
   }
 
@@ -371,12 +446,12 @@ export class ProposalServiceImpl {
 
     const catalogHeaders = new Headers();
     catalogHeaders.set("x-org-id", ctx.orgId);
-    if (this.catalogOpts.catalogServiceSecret) {
+    if (this.opts.catalogServiceSecret) {
       const jwt = await signServiceJwt(
         "proposal_svc",
         "catalog",
-        this.catalogOpts.catalogServiceSecret,
-        this.catalogOpts.serviceJwtIssuer
+        this.opts.catalogServiceSecret,
+        this.opts.serviceJwtIssuer
       );
       catalogHeaders.set("Authorization", `Bearer ${jwt}`);
     }
