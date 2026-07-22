@@ -47,3 +47,21 @@ message Violation {
   owomide.common.v1.Money proposed_price = 5;
   owomide.common.v1.Money floor_price = 6;
 }
+
+message OverrideRequested {
+  string org_id = 1;
+  string proposal_id = 2;
+  string override_request_id = 3;
+  string requester_id = 4;
+  string justification = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message OverrideApproved {
+  string org_id = 1;
+  string proposal_id = 2;
+  string override_request_id = 3;
+  string decider_id = 4;
+  string requester_id = 5;
+  google.protobuf.Timestamp created_at = 6;
+}

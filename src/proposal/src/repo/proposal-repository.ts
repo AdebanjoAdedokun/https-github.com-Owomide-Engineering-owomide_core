@@ -9,7 +9,7 @@ import type {
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { ProposalState } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { decodeCursor, encodeCursor, pageSize } from "../domain/pagination.js";
-import { type CommentRow, type ProposalLineRow, type ProposalRow } from "./mappers.js";
+import { type CommentRow, type OverrideRequestRow, type ProposalLineRow, type ProposalRow } from "./mappers.js";
 
 export interface ProposalWithLines {
   row: ProposalRow;
@@ -283,6 +283,23 @@ export class ProposalRepository {
     );
 
     return { row, lines: linesResult.rows };
+  }
+
+  async createOverrideRequest(
+    client: PoolClient,
+    orgId: string,
+    proposalId: string,
+    requesterId: string,
+    justification: string,
+  ): Promise<OverrideRequestRow> {
+    const { rows } = await client.query<OverrideRequestRow>(
+      `INSERT INTO proposal.override_request
+         (org_id, proposal_id, requester_id, justification, status)
+       VALUES ($1, $2, $3, $4, 'pending')
+       RETURNING *`,
+      [orgId, proposalId, requesterId, justification],
+    );
+    return rows[0]!;
   }
 
   async insertOutboxEvent(client: PoolClient, event: OutboxEventInput): Promise<void> {

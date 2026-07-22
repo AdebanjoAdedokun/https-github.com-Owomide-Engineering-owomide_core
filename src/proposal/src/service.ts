@@ -11,6 +11,7 @@ import {
   PublishProposalResponseSchema,
   AddCommentResponseSchema,
   ListCommentsResponseSchema,
+  RequestOverrideResponseSchema,
   type CreateProposalRequest,
   type GetProposalRequest,
   type UpdateDraftRequest,
@@ -20,6 +21,7 @@ import {
   type PublishProposalRequest,
   type AddCommentRequest,
   type ListCommentsRequest,
+  type RequestOverrideRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   ApplyPriceChangesRequestSchema,
@@ -37,6 +39,7 @@ import {
   ProposalBlockedSchema,
   ProposalApprovedSchema,
   ProposalPublishedSchema,
+  OverrideRequestedSchema,
   ViolationSchema as EventViolationSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
 import { requestContext, requireApproverRole, signServiceJwt, ServiceAuthenticator } from "./context.js";
@@ -46,7 +49,7 @@ import type { MarginViolation } from "./domain/state-machine.js";
 import { Database } from "./db.js";
 import { dateToTimestamp } from "./domain/time.js";
 import { transition, type ProposalState } from "./domain/state-machine.js";
-import { commentMessage, proposalMessage, type ProposalLineRow } from "./repo/mappers.js";
+import { commentMessage, overrideRequestMessage, proposalMessage, type ProposalLineRow } from "./repo/mappers.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
 
 const UUID_RE =
@@ -142,7 +145,7 @@ export class ProposalServiceImpl {
       publishProposal: this.publishProposal.bind(this),
       addComment: this.addComment.bind(this),
       listComments: this.listComments.bind(this),
-      requestOverride: notImplemented,
+      requestOverride: this.requestOverride.bind(this),
       approveOverride: notImplemented,
       buildScope: notImplemented,
       previewChangeSet: notImplemented,
@@ -550,6 +553,77 @@ export class ProposalServiceImpl {
         nextPageToken: result.nextPageToken,
         totalCount: result.totalCount,
       }),
+    });
+  }
+
+  private async requestOverride(
+    request: RequestOverrideRequest,
+    context: HandlerContext,
+  ) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.proposalId, "proposal_id");
+    if (!request.justification.trim()) {
+      throw new ConnectError("justification is required", Code.InvalidArgument);
+    }
+    const actorId = ctx.userId ?? "";
+    if (!actorId) {
+      throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
+    }
+
+    const current = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.getProposal(c, request.proposalId)
+    );
+    if (!current) {
+      throw new ConnectError("Proposal not found", Code.NotFound);
+    }
+
+    const smResult = transition(
+      current.row.state as ProposalState,
+      { type: "REQUEST_OVERRIDE" },
+      { actorId, proposalActorId: current.row.actor_id },
+    );
+    if (!smResult.ok) {
+      throw new ConnectError(smResult.error.message, Code.FailedPrecondition);
+    }
+
+    const now = new Date();
+
+    const overrideRow = await this.db.withOrgTransaction(ctx.orgId, async (c) => {
+      const row = await this.repo.createOverrideRequest(
+        c,
+        ctx.orgId,
+        request.proposalId,
+        actorId,
+        request.justification,
+      );
+
+      const payload = toBinary(
+        OverrideRequestedSchema,
+        create(OverrideRequestedSchema, {
+          orgId: ctx.orgId,
+          proposalId: request.proposalId,
+          overrideRequestId: row.id,
+          requesterId: actorId,
+          justification: request.justification,
+          createdAt: dateToTimestamp(now),
+        }),
+      );
+
+      await this.repo.insertOutboxEvent(c, {
+        id: crypto.randomUUID(),
+        orgId: ctx.orgId,
+        eventType: "override.requested",
+        aggregateId: request.proposalId,
+        partitionKey: request.proposalId,
+        payload,
+      });
+
+      return row;
+    });
+
+    return create(RequestOverrideResponseSchema, {
+      overrideRequest: overrideRequestMessage(overrideRow),
     });
   }
 
