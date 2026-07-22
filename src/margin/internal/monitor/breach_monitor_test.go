@@ -26,40 +26,6 @@ const (
 
 // --- stubs ---
 
-type stubOrgs struct {
-	orgs []string
-}
-
-func (s *stubOrgs) GetMonitoredOrgs(_ context.Context, _ interface{}) ([]string, error) {
-	return s.orgs, nil
-}
-
-type stubTargets struct {
-	targets map[string][]repo.RuleTarget
-}
-
-func (s *stubTargets) GetRuleTargets(_ context.Context, _ interface{}, orgID string) ([]repo.RuleTarget, error) {
-	return s.targets[orgID], nil
-}
-
-type stubPriceFetcher struct {
-	prices []*catalogPriceRecord
-}
-
-type catalogPriceRecord struct {
-	SkuId     string
-	ChannelId string
-	Price     *commonv1.Money
-}
-
-type stubCostFetcher struct {
-	costs map[string]*commonv1.Money
-}
-
-func (s *stubCostFetcher) FetchCosts(_ context.Context, _ string, _ []string) (map[string]*commonv1.Money, error) {
-	return s.costs, nil
-}
-
 type mockPublisher struct {
 	mu    sync.Mutex
 	calls []*buspkg.Event
