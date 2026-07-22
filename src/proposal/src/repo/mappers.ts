@@ -3,10 +3,12 @@ import {
   ProposalSchema,
   ProposalLineSchema,
   ProposalCommentSchema,
+  OverrideRequestSchema,
   ProposalState,
   type Proposal,
   type ProposalLine,
   type ProposalComment,
+  type OverrideRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { MoneySchema } from "@owomide/proto/common/v1/common_pb.js";
 import { dateToTimestamp } from "../domain/time.js";
@@ -88,6 +90,32 @@ export function commentMessage(row: CommentRow): ProposalComment {
     authorId: row.author_id,
     body: row.body,
     occurredAt: dateToTimestamp(row.occurred_at),
+  });
+}
+
+export interface OverrideRequestRow {
+  id: string;
+  org_id: string;
+  proposal_id: string;
+  requester_id: string;
+  justification: string;
+  status: string;
+  requested_at: Date;
+  decided_at: Date | null;
+  decider_id: string | null;
+}
+
+export function overrideRequestMessage(row: OverrideRequestRow): OverrideRequest {
+  return create(OverrideRequestSchema, {
+    id: row.id,
+    orgId: row.org_id,
+    proposalId: row.proposal_id,
+    requesterId: row.requester_id,
+    justification: row.justification,
+    status: row.status,
+    requestedAt: dateToTimestamp(row.requested_at),
+    decidedAt: row.decided_at ? dateToTimestamp(row.decided_at) : undefined,
+    deciderId: row.decider_id ?? "",
   });
 }
 

@@ -411,6 +411,174 @@ func (x *Violation) GetFloorPrice() *v1.Money {
 	return nil
 }
 
+type OverrideRequested struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	OrgId             string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	ProposalId        string                 `protobuf:"bytes,2,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	OverrideRequestId string                 `protobuf:"bytes,3,opt,name=override_request_id,json=overrideRequestId,proto3" json:"override_request_id,omitempty"`
+	RequesterId       string                 `protobuf:"bytes,4,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	Justification     string                 `protobuf:"bytes,5,opt,name=justification,proto3" json:"justification,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *OverrideRequested) Reset() {
+	*x = OverrideRequested{}
+	mi := &file_events_proposal_v1_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OverrideRequested) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OverrideRequested) ProtoMessage() {}
+
+func (x *OverrideRequested) ProtoReflect() protoreflect.Message {
+	mi := &file_events_proposal_v1_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OverrideRequested.ProtoReflect.Descriptor instead.
+func (*OverrideRequested) Descriptor() ([]byte, []int) {
+	return file_events_proposal_v1_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *OverrideRequested) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *OverrideRequested) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *OverrideRequested) GetOverrideRequestId() string {
+	if x != nil {
+		return x.OverrideRequestId
+	}
+	return ""
+}
+
+func (x *OverrideRequested) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+func (x *OverrideRequested) GetJustification() string {
+	if x != nil {
+		return x.Justification
+	}
+	return ""
+}
+
+func (x *OverrideRequested) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+type OverrideApproved struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	OrgId             string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	ProposalId        string                 `protobuf:"bytes,2,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	OverrideRequestId string                 `protobuf:"bytes,3,opt,name=override_request_id,json=overrideRequestId,proto3" json:"override_request_id,omitempty"`
+	DeciderId         string                 `protobuf:"bytes,4,opt,name=decider_id,json=deciderId,proto3" json:"decider_id,omitempty"`
+	RequesterId       string                 `protobuf:"bytes,5,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *OverrideApproved) Reset() {
+	*x = OverrideApproved{}
+	mi := &file_events_proposal_v1_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OverrideApproved) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OverrideApproved) ProtoMessage() {}
+
+func (x *OverrideApproved) ProtoReflect() protoreflect.Message {
+	mi := &file_events_proposal_v1_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OverrideApproved.ProtoReflect.Descriptor instead.
+func (*OverrideApproved) Descriptor() ([]byte, []int) {
+	return file_events_proposal_v1_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *OverrideApproved) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *OverrideApproved) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
+func (x *OverrideApproved) GetOverrideRequestId() string {
+	if x != nil {
+		return x.OverrideRequestId
+	}
+	return ""
+}
+
+func (x *OverrideApproved) GetDeciderId() string {
+	if x != nil {
+		return x.DeciderId
+	}
+	return ""
+}
+
+func (x *OverrideApproved) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+func (x *OverrideApproved) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
 var File_events_proposal_v1_proto protoreflect.FileDescriptor
 
 const file_events_proposal_v1_proto_rawDesc = "" +
@@ -459,7 +627,26 @@ const file_events_proposal_v1_proto_rawDesc = "" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x12?\n" +
 	"\x0eproposed_price\x18\x05 \x01(\v2\x18.owomide.common.v1.MoneyR\rproposedPrice\x129\n" +
 	"\vfloor_price\x18\x06 \x01(\v2\x18.owomide.common.v1.MoneyR\n" +
-	"floorPriceB-Z+github.com/owomide/proto/events/proposal/v1b\x06proto3"
+	"floorPrice\"\xff\x01\n" +
+	"\x11OverrideRequested\x12\x15\n" +
+	"\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x1f\n" +
+	"\vproposal_id\x18\x02 \x01(\tR\n" +
+	"proposalId\x12.\n" +
+	"\x13override_request_id\x18\x03 \x01(\tR\x11overrideRequestId\x12!\n" +
+	"\frequester_id\x18\x04 \x01(\tR\vrequesterId\x12$\n" +
+	"\rjustification\x18\x05 \x01(\tR\rjustification\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xf7\x01\n" +
+	"\x10OverrideApproved\x12\x15\n" +
+	"\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x1f\n" +
+	"\vproposal_id\x18\x02 \x01(\tR\n" +
+	"proposalId\x12.\n" +
+	"\x13override_request_id\x18\x03 \x01(\tR\x11overrideRequestId\x12\x1d\n" +
+	"\n" +
+	"decider_id\x18\x04 \x01(\tR\tdeciderId\x12!\n" +
+	"\frequester_id\x18\x05 \x01(\tR\vrequesterId\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB-Z+github.com/owomide/proto/events/proposal/v1b\x06proto3"
 
 var (
 	file_events_proposal_v1_proto_rawDescOnce sync.Once
@@ -473,30 +660,34 @@ func file_events_proposal_v1_proto_rawDescGZIP() []byte {
 	return file_events_proposal_v1_proto_rawDescData
 }
 
-var file_events_proposal_v1_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_events_proposal_v1_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_events_proposal_v1_proto_goTypes = []any{
 	(*ProposalSubmitted)(nil),     // 0: owomide.events.proposal.v1.ProposalSubmitted
 	(*ProposalBlocked)(nil),       // 1: owomide.events.proposal.v1.ProposalBlocked
 	(*ProposalApproved)(nil),      // 2: owomide.events.proposal.v1.ProposalApproved
 	(*ProposalPublished)(nil),     // 3: owomide.events.proposal.v1.ProposalPublished
 	(*Violation)(nil),             // 4: owomide.events.proposal.v1.Violation
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*v1.Money)(nil),              // 6: owomide.common.v1.Money
+	(*OverrideRequested)(nil),     // 5: owomide.events.proposal.v1.OverrideRequested
+	(*OverrideApproved)(nil),      // 6: owomide.events.proposal.v1.OverrideApproved
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*v1.Money)(nil),              // 8: owomide.common.v1.Money
 }
 var file_events_proposal_v1_proto_depIdxs = []int32{
-	5, // 0: owomide.events.proposal.v1.ProposalSubmitted.created_at:type_name -> google.protobuf.Timestamp
-	4, // 1: owomide.events.proposal.v1.ProposalBlocked.violations:type_name -> owomide.events.proposal.v1.Violation
-	5, // 2: owomide.events.proposal.v1.ProposalBlocked.created_at:type_name -> google.protobuf.Timestamp
-	5, // 3: owomide.events.proposal.v1.ProposalApproved.created_at:type_name -> google.protobuf.Timestamp
-	5, // 4: owomide.events.proposal.v1.ProposalPublished.effective_at:type_name -> google.protobuf.Timestamp
-	5, // 5: owomide.events.proposal.v1.ProposalPublished.created_at:type_name -> google.protobuf.Timestamp
-	6, // 6: owomide.events.proposal.v1.Violation.proposed_price:type_name -> owomide.common.v1.Money
-	6, // 7: owomide.events.proposal.v1.Violation.floor_price:type_name -> owomide.common.v1.Money
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	7,  // 0: owomide.events.proposal.v1.ProposalSubmitted.created_at:type_name -> google.protobuf.Timestamp
+	4,  // 1: owomide.events.proposal.v1.ProposalBlocked.violations:type_name -> owomide.events.proposal.v1.Violation
+	7,  // 2: owomide.events.proposal.v1.ProposalBlocked.created_at:type_name -> google.protobuf.Timestamp
+	7,  // 3: owomide.events.proposal.v1.ProposalApproved.created_at:type_name -> google.protobuf.Timestamp
+	7,  // 4: owomide.events.proposal.v1.ProposalPublished.effective_at:type_name -> google.protobuf.Timestamp
+	7,  // 5: owomide.events.proposal.v1.ProposalPublished.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 6: owomide.events.proposal.v1.Violation.proposed_price:type_name -> owomide.common.v1.Money
+	8,  // 7: owomide.events.proposal.v1.Violation.floor_price:type_name -> owomide.common.v1.Money
+	7,  // 8: owomide.events.proposal.v1.OverrideRequested.created_at:type_name -> google.protobuf.Timestamp
+	7,  // 9: owomide.events.proposal.v1.OverrideApproved.created_at:type_name -> google.protobuf.Timestamp
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_events_proposal_v1_proto_init() }
@@ -510,7 +701,7 @@ func file_events_proposal_v1_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_events_proposal_v1_proto_rawDesc), len(file_events_proposal_v1_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
