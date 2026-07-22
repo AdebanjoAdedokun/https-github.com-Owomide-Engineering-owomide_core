@@ -26,6 +26,10 @@ __pycache__/
 # OS
 .DS_Store
 
+# Go build artifacts
+src/*/server
+src/*/worker
+
 # IDE
 .idea/
 *.swp

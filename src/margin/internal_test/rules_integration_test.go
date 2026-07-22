@@ -127,6 +127,7 @@ func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 	files := []string{
 		"../migrations/0001_create_schema.up.sql",
 		"../migrations/0002_margin_rule.up.sql",
+		"../migrations/0003_breach_monitor_helpers.up.sql",
 	}
 	for _, f := range files {
 		data, err := os.ReadFile(f)

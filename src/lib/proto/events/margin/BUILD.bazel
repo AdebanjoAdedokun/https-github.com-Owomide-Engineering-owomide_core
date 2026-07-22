@@ -1,0 +1,13 @@
+# gazelle:proto disable
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "margin_events_proto",
+    srcs = ["v1.proto"],
+    strip_import_prefix = "/src/lib/proto",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/lib/proto/common/v1:common_proto",
+        "@protobuf//:timestamp_proto",
+    ],
+)
