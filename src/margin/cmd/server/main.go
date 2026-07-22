@@ -1,17 +1,21 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"net"
 	"os"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	buspkg "github.com/owomide/bus/pkg/bus"
 	"github.com/owomide/margin/internal/client"
 	"github.com/owomide/margin/internal/config"
 	"github.com/owomide/margin/internal/db"
 	"github.com/owomide/margin/internal/handler"
+	"github.com/owomide/margin/internal/monitor"
 	"github.com/owomide/margin/internal/repo"
 	marginpb "github.com/owomide/proto/services/margin/v1"
 )
@@ -36,8 +40,33 @@ func main() {
 	defer func() { _ = catalogConn.Close() }()
 
 	r := repo.New()
-	costFetcher := client.NewCatalogClient(catalogConn)
-	svc := handler.NewRulesServer(database, r, logger, costFetcher)
+	catalogClient := client.NewCatalogClient(catalogConn)
+	svc := handler.NewRulesServer(database, r, logger, catalogClient)
+
+	if cfg.BreachMonitorEnabled {
+		b, err := buspkg.New(buspkg.Config{
+			Provider: "kafka",
+			Kafka:    buspkg.KafkaConfig{Brokers: cfg.KafkaBrokers, ClientID: "margin-svc"},
+		})
+		if err != nil {
+			logger.Error("init bus", "error", err)
+			os.Exit(1)
+		}
+		defer func() { _ = b.Publisher.Close() }()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		mon := monitor.New(
+			database, r, catalogClient, catalogClient,
+			b.Publisher,
+			time.Duration(cfg.BreachMonitorIntervalSec)*time.Second,
+			cfg.BreachMonitorBatchSize,
+			logger,
+		)
+		mon.Start(ctx)
+		logger.Info("breach monitor started", "interval_sec", cfg.BreachMonitorIntervalSec)
+	}
 
 	lis, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {

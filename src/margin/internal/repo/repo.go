@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type MarginRuleRow struct {
@@ -214,6 +215,53 @@ func (r *Repo) GetRulesForBatch(ctx context.Context, tx pgx.Tx, skuIDs, channelI
 		results = append(results, row)
 	}
 	return results, rows.Err()
+}
+
+// GetMonitoredOrgs returns all org_ids with at least one currently active scoped rule.
+// Calls a SECURITY DEFINER function to bypass RLS — no app.org_id session var needed.
+func (r *Repo) GetMonitoredOrgs(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
+	rows, err := pool.Query(ctx, "SELECT org_id FROM margin.get_monitored_orgs()")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		out = append(out, id)
+	}
+	return out, rows.Err()
+}
+
+// RuleTarget is a (sku_id, channel_id) pair covered by a scoped margin rule.
+type RuleTarget struct {
+	SkuID     string
+	ChannelID string
+}
+
+// GetRuleTargets returns (sku_id, channel_id) pairs covered by scoped rules for a given org.
+// Org-wide rules are excluded — callers receive only pairs with both fields set.
+// Calls a SECURITY DEFINER function to bypass RLS.
+func (r *Repo) GetRuleTargets(ctx context.Context, pool *pgxpool.Pool, orgID string) ([]RuleTarget, error) {
+	rows, err := pool.Query(ctx, "SELECT sku_id, channel_id FROM margin.get_rule_targets($1::uuid)", orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []RuleTarget
+	for rows.Next() {
+		var t RuleTarget
+		if err := rows.Scan(&t.SkuID, &t.ChannelID); err != nil {
+			return nil, err
+		}
+		out = append(out, t)
+	}
+	return out, rows.Err()
 }
 
 func scanRule(row pgx.Row) (*MarginRuleRow, error) {

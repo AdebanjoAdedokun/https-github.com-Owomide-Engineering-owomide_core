@@ -93,6 +93,10 @@ Postgres role `margin_svc` has access to schema `margin` only.
 - [x] Catalog `BatchGetCosts` client wired via `CostFetcher` interface (F4.2)
 - [x] Integration test: batch with mixed violations and clean lines returns structured violations (F4.2)
 - [x] Integration test: empty items rejected at API boundary with `InvalidArgument` (F4.2)
+- [x] `margin.breach_detected` emitted from background monitor via Go bus (F4.4)
+- [x] SECURITY DEFINER helpers for cross-org enumeration without RLS bypass (F4.4)
+- [x] Unit tests: breach detected, no breach, org-wide rules skipped, no price, no matching rule (F4.4)
+- [x] Integration test: real Postgres + stub fetchers + mock publisher — `ScanOnce` emits correct event (F4.4)
 - [ ] Admin REST routes for rule CRUD
 - [ ] `make lint` clean, `bazel test //src/margin/...` green
 

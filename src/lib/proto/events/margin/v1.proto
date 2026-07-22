@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package owomide.events.margin.v1;
+
+option go_package = "github.com/owomide/proto/events/margin/v1";
+
+import "google/protobuf/timestamp.proto";
+import "common/v1/common.proto";
+
+message MarginBreachDetected {
+  string org_id = 1;
+  string sku_id = 2;
+  string channel_id = 3;
+  string rule_id = 4;
+  string message = 5;
+  owomide.common.v1.Money current_price = 6;
+  owomide.common.v1.Money floor_price = 7;
+  owomide.common.v1.Money gap = 8;
+  google.protobuf.Timestamp detected_at = 9;
+}
