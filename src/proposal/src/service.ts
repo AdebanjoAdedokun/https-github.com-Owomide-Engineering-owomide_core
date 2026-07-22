@@ -12,6 +12,7 @@ import {
   AddCommentResponseSchema,
   ListCommentsResponseSchema,
   RequestOverrideResponseSchema,
+  ApproveOverrideResponseSchema,
   type CreateProposalRequest,
   type GetProposalRequest,
   type UpdateDraftRequest,
@@ -22,6 +23,7 @@ import {
   type AddCommentRequest,
   type ListCommentsRequest,
   type RequestOverrideRequest,
+  type ApproveOverrideRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   ApplyPriceChangesRequestSchema,
@@ -40,6 +42,7 @@ import {
   ProposalApprovedSchema,
   ProposalPublishedSchema,
   OverrideRequestedSchema,
+  OverrideApprovedSchema,
   ViolationSchema as EventViolationSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
 import { requestContext, requireApproverRole, signServiceJwt, ServiceAuthenticator } from "./context.js";
@@ -146,7 +149,7 @@ export class ProposalServiceImpl {
       addComment: this.addComment.bind(this),
       listComments: this.listComments.bind(this),
       requestOverride: this.requestOverride.bind(this),
-      approveOverride: notImplemented,
+      approveOverride: this.approveOverride.bind(this),
       buildScope: notImplemented,
       previewChangeSet: notImplemented,
       getChangeSet: notImplemented,
@@ -624,6 +627,94 @@ export class ProposalServiceImpl {
 
     return create(RequestOverrideResponseSchema, {
       overrideRequest: overrideRequestMessage(overrideRow),
+    });
+  }
+
+  private async approveOverride(
+    request: ApproveOverrideRequest,
+    context: HandlerContext,
+  ) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    requireApproverRole(ctx);
+    validateUuid(request.overrideRequestId, "override_request_id");
+    const actorId = ctx.userId ?? "";
+    if (!actorId) {
+      throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
+    }
+
+    const overrideRow = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.getOverrideRequest(c, ctx.orgId, request.overrideRequestId)
+    );
+    if (!overrideRow) {
+      throw new ConnectError("Override request not found", Code.NotFound);
+    }
+    if (overrideRow.status !== "pending") {
+      throw new ConnectError(
+        `Override request is already '${overrideRow.status}'`,
+        Code.FailedPrecondition,
+      );
+    }
+
+    const current = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.getProposal(c, overrideRow.proposal_id)
+    );
+    if (!current) {
+      throw new ConnectError("Proposal not found", Code.NotFound);
+    }
+
+    const smResult = transition(
+      current.row.state as ProposalState,
+      { type: "APPROVE_OVERRIDE" },
+      {
+        actorId,
+        proposalActorId: current.row.actor_id,
+        overrideRequesterId: overrideRow.requester_id,
+      },
+    );
+    if (!smResult.ok) {
+      const code =
+        smResult.error.code === "SAME_ACTOR_OVERRIDE_APPROVE"
+          ? Code.PermissionDenied
+          : Code.FailedPrecondition;
+      throw new ConnectError(smResult.error.message, code);
+    }
+
+    const now = new Date();
+
+    const proposalWithLines = await this.db.withOrgTransaction(ctx.orgId, async (c) => {
+      const updated = await this.repo.approveProposal(c, overrideRow.proposal_id, "blocked", actorId, {
+        via: "override_approval",
+        overrideRequestId: request.overrideRequestId,
+      });
+
+      await this.repo.approveOverrideRequest(c, request.overrideRequestId, actorId, now);
+
+      const payload = toBinary(
+        OverrideApprovedSchema,
+        create(OverrideApprovedSchema, {
+          orgId: ctx.orgId,
+          proposalId: overrideRow.proposal_id,
+          overrideRequestId: request.overrideRequestId,
+          deciderId: actorId,
+          requesterId: overrideRow.requester_id,
+          createdAt: dateToTimestamp(now),
+        }),
+      );
+      await this.repo.insertOutboxEvent(c, {
+        id: crypto.randomUUID(),
+        orgId: ctx.orgId,
+        eventType: "override.approved",
+        aggregateId: overrideRow.proposal_id,
+        partitionKey: overrideRow.proposal_id,
+        payload,
+      });
+
+      return updated;
+    });
+
+    return create(ApproveOverrideResponseSchema, {
+      proposal: proposalMessage(proposalWithLines.row, proposalWithLines.lines),
     });
   }
 

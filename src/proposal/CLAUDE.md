@@ -159,6 +159,7 @@ Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Ca
 - [x] Comments: `AddComment` + `ListComments` gRPC handlers; append-only `proposal_comment` table (already provisioned in F3.1); paginated list; RLS isolation (F3.7)
 - [x] `SubmitProposal` calls `Margin.ValidateBatch` with all proposal lines; blocked proposals emit `proposal.blocked` with violations in event payload; HTTP 422 returned (F4.3)
 - [x] `RequestOverride` endpoint: validates proposal is `blocked`, inserts `override_request` row, writes `override.requested` outbox event atomically; proposal stays `blocked` (F4.6)
+- [x] `ApproveOverride` endpoint: different-actor check, `blocked → approved` transition, stamps `override_request` row, writes `override.approved` outbox event atomically (F4.7)
 - [ ] Scope DSL parser + validator (pure logic)
 - [ ] Integration test: full happy path (create → submit → approve → publish) against real Postgres + Margin stub
 - [ ] Integration test: blocked path (submit returns 422 with violations)

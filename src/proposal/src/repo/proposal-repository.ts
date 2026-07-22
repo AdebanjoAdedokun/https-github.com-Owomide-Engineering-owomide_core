@@ -302,6 +302,41 @@ export class ProposalRepository {
     return rows[0]!;
   }
 
+  async getOverrideRequest(
+    client: PoolClient,
+    _orgId: string,
+    overrideRequestId: string,
+  ): Promise<OverrideRequestRow | null> {
+    const { rows } = await client.query<OverrideRequestRow>(
+      `SELECT * FROM proposal.override_request
+       WHERE org_id = proposal.current_org_id() AND id = $1`,
+      [overrideRequestId],
+    );
+    return rows[0] ?? null;
+  }
+
+  async approveOverrideRequest(
+    client: PoolClient,
+    overrideRequestId: string,
+    deciderId: string,
+    decidedAt: Date,
+  ): Promise<OverrideRequestRow> {
+    const { rows } = await client.query<OverrideRequestRow>(
+      `UPDATE proposal.override_request
+       SET status = 'approved', decider_id = $1, decided_at = $2
+       WHERE id = $3 AND status = 'pending'
+       RETURNING *`,
+      [deciderId, decidedAt, overrideRequestId],
+    );
+    if (!rows[0]) {
+      throw new ConnectError(
+        "Override request not found or already decided",
+        Code.FailedPrecondition,
+      );
+    }
+    return rows[0];
+  }
+
   async insertOutboxEvent(client: PoolClient, event: OutboxEventInput): Promise<void> {
     await client.query(
       `INSERT INTO proposal.outbox_event
