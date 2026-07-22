@@ -7,8 +7,14 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { create, fromBinary } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
 import { type HandlerContext } from "@connectrpc/connect";
-import { CreateProposalRequestSchema } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
-import { OverrideRequestedSchema } from "@owomide/proto/events/proposal/v1_pb.js";
+import {
+  CreateProposalRequestSchema,
+  type RequestOverrideResponse,
+} from "@owomide/proto/services/proposal/v1/proposal_pb.js";
+import {
+  OverrideRequestedSchema,
+  type OverrideRequested,
+} from "@owomide/proto/events/proposal/v1_pb.js";
 import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
@@ -141,7 +147,7 @@ describe("RequestOverride", () => {
     const resp = await impl(
       { proposalId, justification } as never,
       makeContext(ORG_A, REQUESTER)
-    );
+    ) as unknown as RequestOverrideResponse;
 
     // Response contains the new override request
     expect(resp.overrideRequest).toBeDefined();
@@ -182,7 +188,7 @@ describe("RequestOverride", () => {
     const event = fromBinary(
       OverrideRequestedSchema,
       new Uint8Array(outboxRows[0]!.payload as Buffer)
-    );
+    ) as unknown as OverrideRequested;
     expect(event.proposalId).toBe(proposalId);
     expect(event.requesterId).toBe(REQUESTER);
     expect(event.overrideRequestId).toBe(resp.overrideRequest!.id);
