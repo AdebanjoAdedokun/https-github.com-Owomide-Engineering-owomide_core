@@ -13,6 +13,10 @@ import {
   ListCommentsResponseSchema,
   RequestOverrideResponseSchema,
   ApproveOverrideResponseSchema,
+  GetChangeSetResponseSchema,
+  ListChangeSetsResponseSchema,
+  UpdateChangeSetResponseSchema,
+  DiscardChangeSetResponseSchema,
   type CreateProposalRequest,
   type GetProposalRequest,
   type UpdateDraftRequest,
@@ -24,6 +28,10 @@ import {
   type ListCommentsRequest,
   type RequestOverrideRequest,
   type ApproveOverrideRequest,
+  type GetChangeSetRequest,
+  type ListChangeSetsRequest,
+  type UpdateChangeSetRequest,
+  type DiscardChangeSetRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   ApplyPriceChangesRequestSchema,
@@ -52,7 +60,7 @@ import type { MarginViolation } from "./domain/state-machine.js";
 import { Database } from "./db.js";
 import { dateToTimestamp } from "./domain/time.js";
 import { transition, type ProposalState } from "./domain/state-machine.js";
-import { commentMessage, overrideRequestMessage, proposalMessage, type ProposalLineRow } from "./repo/mappers.js";
+import { changeSetMessage, commentMessage, overrideRequestMessage, proposalMessage, type ProposalLineRow } from "./repo/mappers.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
 
 const UUID_RE =
@@ -152,11 +160,11 @@ export class ProposalServiceImpl {
       approveOverride: this.approveOverride.bind(this),
       buildScope: notImplemented,
       previewChangeSet: notImplemented,
-      getChangeSet: notImplemented,
-      listChangeSets: notImplemented,
-      updateChangeSet: notImplemented,
+      getChangeSet: this.getChangeSet.bind(this),
+      listChangeSets: this.listChangeSets.bind(this),
+      updateChangeSet: this.updateChangeSet.bind(this),
       submitChangeSet: notImplemented,
-      discardChangeSet: notImplemented,
+      discardChangeSet: this.discardChangeSet.bind(this),
       scheduleRollout: notImplemented,
     };
   }
@@ -734,5 +742,65 @@ export class ProposalServiceImpl {
         totalCount: result.totalCount,
       }),
     });
+  }
+
+  private async getChangeSet(request: GetChangeSetRequest, context: HandlerContext) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.id, "id");
+    const result = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.getChangeSet(c, request.id)
+    );
+    if (!result) throw new ConnectError("Change-set not found", Code.NotFound);
+    return create(GetChangeSetResponseSchema, {
+      changeSet: changeSetMessage(result.row, result.lines),
+    });
+  }
+
+  private async listChangeSets(request: ListChangeSetsRequest, context: HandlerContext) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    const result = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.listChangeSets(c, request)
+    );
+    return create(ListChangeSetsResponseSchema, {
+      changeSets: result.rows.map((r) => changeSetMessage(r, [])),
+      pagination: create(PaginatedResponseSchema, {
+        nextPageToken: result.nextCursor,
+        totalCount: result.totalCount,
+      }),
+    });
+  }
+
+  private async updateChangeSet(request: UpdateChangeSetRequest, context: HandlerContext) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.id, "id");
+    try {
+      JSON.parse(request.scopeJson);
+    } catch {
+      throw new ConnectError("scope_json must be valid JSON", Code.InvalidArgument);
+    }
+    try {
+      JSON.parse(request.ruleJson);
+    } catch {
+      throw new ConnectError("rule_json must be valid JSON", Code.InvalidArgument);
+    }
+    const result = await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.updateChangeSet(c, request.id, request.scopeJson, request.ruleJson)
+    );
+    return create(UpdateChangeSetResponseSchema, {
+      changeSet: changeSetMessage(result.row, result.lines),
+    });
+  }
+
+  private async discardChangeSet(request: DiscardChangeSetRequest, context: HandlerContext) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.id, "id");
+    await this.db.withOrgTransaction(ctx.orgId, (c) =>
+      this.repo.discardChangeSet(c, request.id)
+    );
+    return create(DiscardChangeSetResponseSchema, {});
   }
 }

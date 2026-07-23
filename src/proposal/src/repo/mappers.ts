@@ -4,11 +4,16 @@ import {
   ProposalLineSchema,
   ProposalCommentSchema,
   OverrideRequestSchema,
+  ChangeSetSchema,
+  ChangeSetLineSchema,
   ProposalState,
+  ChangeSetStatus,
   type Proposal,
   type ProposalLine,
   type ProposalComment,
   type OverrideRequest,
+  type ChangeSet,
+  type ChangeSetLine,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { MoneySchema } from "@owomide/proto/common/v1/common_pb.js";
 import { dateToTimestamp } from "../domain/time.js";
@@ -130,5 +135,84 @@ export function proposalMessage(row: ProposalRow, lines: ProposalLineRow[]): Pro
     lines: lines.map(proposalLineMessage),
     createdAt: dateToTimestamp(row.created_at),
     updatedAt: dateToTimestamp(row.updated_at),
+  });
+}
+
+export interface ChangeSetRow {
+  id: string;
+  org_id: string;
+  status: string;
+  actor_id: string;
+  scope: unknown;
+  rule: unknown;
+  proposal_id: string | null;
+  created_at: Date;
+  updated_at: Date;
+  submitted_at: Date | null;
+}
+
+export interface ChangeSetLineRow {
+  id: string;
+  org_id: string;
+  change_set_id: string;
+  sku_id: string;
+  channel_id: string;
+  current_price_minor: string;
+  current_price_currency: string;
+  proposed_price_minor: string;
+  proposed_price_currency: string;
+  diff_pct: string;
+  diff_absolute_minor: string;
+  diff_absolute_currency: string;
+}
+
+function protoChangeSetStatus(s: string): ChangeSetStatus {
+  switch (s) {
+    case "draft":
+      return ChangeSetStatus.DRAFT;
+    case "submitted":
+      return ChangeSetStatus.SUBMITTED;
+    case "discarded":
+      return ChangeSetStatus.DISCARDED;
+    default:
+      return ChangeSetStatus.UNSPECIFIED;
+  }
+}
+
+export function changeSetLineMessage(row: ChangeSetLineRow): ChangeSetLine {
+  return create(ChangeSetLineSchema, {
+    id: row.id,
+    orgId: row.org_id,
+    changeSetId: row.change_set_id,
+    skuId: row.sku_id,
+    channelId: row.channel_id,
+    currentPrice: create(MoneySchema, {
+      amount: BigInt(row.current_price_minor),
+      currency: row.current_price_currency,
+    }),
+    proposedPrice: create(MoneySchema, {
+      amount: BigInt(row.proposed_price_minor),
+      currency: row.proposed_price_currency,
+    }),
+    diffPct: Math.round(parseFloat(row.diff_pct) * 100),
+    diffAbsolute: create(MoneySchema, {
+      amount: BigInt(row.diff_absolute_minor),
+      currency: row.diff_absolute_currency,
+    }),
+  });
+}
+
+export function changeSetMessage(row: ChangeSetRow, lines: ChangeSetLineRow[]): ChangeSet {
+  return create(ChangeSetSchema, {
+    id: row.id,
+    orgId: row.org_id,
+    status: protoChangeSetStatus(row.status),
+    actorId: row.actor_id,
+    scopeJson: JSON.stringify(row.scope),
+    ruleJson: JSON.stringify(row.rule),
+    proposalId: row.proposal_id ?? "",
+    lines: lines.map(changeSetLineMessage),
+    createdAt: dateToTimestamp(row.created_at),
+    submittedAt: row.submitted_at ? dateToTimestamp(row.submitted_at) : undefined,
   });
 }
