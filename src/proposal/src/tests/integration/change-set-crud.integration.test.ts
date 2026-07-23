@@ -136,7 +136,7 @@ describe("ChangeSet CRUD", () => {
       const row = await seedChangeSet(ORG_A, ACTOR_A);
       const impl = service.implementation.getChangeSet!;
       const resp = await impl(
-        create(GetChangeSetRequestSchema, { id: row.id }),
+        create(GetChangeSetRequestSchema, { id: row.id }) as never,
         makeContext(ORG_A, ACTOR_A)
       ) as { changeSet?: { id: string; status: number } };
       expect(resp.changeSet?.id).toBe(row.id);
@@ -147,11 +147,23 @@ describe("ChangeSet CRUD", () => {
       const impl = service.implementation.getChangeSet!;
       await expect(
         impl(
-          create(GetChangeSetRequestSchema, { id: "00000000-0000-0000-0000-999999999999" }),
+          create(GetChangeSetRequestSchema, { id: "00000000-0000-0000-0000-999999999999" }) as never,
           makeContext(ORG_A, ACTOR_A)
         )
       ).rejects.toSatisfy(
         (err: unknown) => err instanceof ConnectError && err.code === Code.NotFound
+      );
+    });
+
+    it("returns InvalidArgument for a malformed id", async () => {
+      const impl = service.implementation.getChangeSet!;
+      await expect(
+        impl(
+          create(GetChangeSetRequestSchema, { id: "not-a-uuid" }) as never,
+          makeContext(ORG_A, ACTOR_A)
+        )
+      ).rejects.toSatisfy(
+        (err: unknown) => err instanceof ConnectError && err.code === Code.InvalidArgument
       );
     });
 
@@ -160,7 +172,7 @@ describe("ChangeSet CRUD", () => {
       const impl = service.implementation.getChangeSet!;
       await expect(
         impl(
-          create(GetChangeSetRequestSchema, { id: row.id }),
+          create(GetChangeSetRequestSchema, { id: row.id }) as never,
           makeContext(ORG_B, ACTOR_A)
         )
       ).rejects.toSatisfy(
@@ -177,7 +189,7 @@ describe("ChangeSet CRUD", () => {
 
       const impl = service.implementation.listChangeSets!;
       const resp = await impl(
-        create(ListChangeSetsRequestSchema, {}),
+        create(ListChangeSetsRequestSchema, {}) as never,
         makeContext(ORG_A, ACTOR_A)
       ) as { changeSets: { id: string }[] };
       expect(resp.changeSets.length).toBeGreaterThanOrEqual(2);
@@ -187,7 +199,7 @@ describe("ChangeSet CRUD", () => {
       await seedChangeSet(ORG_A, ACTOR_A);
       const impl = service.implementation.listChangeSets!;
       const resp = await impl(
-        create(ListChangeSetsRequestSchema, {}),
+        create(ListChangeSetsRequestSchema, {}) as never,
         makeContext(ORG_B, ACTOR_A)
       ) as { changeSets: { id: string }[] };
       // ORG_B has no change-sets
@@ -202,7 +214,7 @@ describe("ChangeSet CRUD", () => {
       );
       const impl = service.implementation.listChangeSets!;
       const resp = await impl(
-        create(ListChangeSetsRequestSchema, {}),
+        create(ListChangeSetsRequestSchema, {}) as never,
         makeContext(ORG_A, ACTOR_A)
       ) as { changeSets: { id: string }[] };
       const ids = resp.changeSets.map((cs) => cs.id);
@@ -219,7 +231,7 @@ describe("ChangeSet CRUD", () => {
           id: row.id,
           scopeJson: '{"channel":"wholesale"}',
           ruleJson: '{"type":"pct_increase","value":5}',
-        }),
+        }) as never,
         makeContext(ORG_A, ACTOR_A)
       ) as { changeSet?: { id: string; scopeJson: string; ruleJson: string } };
 
@@ -235,6 +247,23 @@ describe("ChangeSet CRUD", () => {
       expect(rows[0]!.rule).toEqual({ type: "pct_increase", value: 5 });
     });
 
+    it("returns InvalidArgument for malformed scopeJson", async () => {
+      const row = await seedChangeSet(ORG_A, ACTOR_A);
+      const impl = service.implementation.updateChangeSet!;
+      await expect(
+        impl(
+          create(UpdateChangeSetRequestSchema, {
+            id: row.id,
+            scopeJson: "not-json",
+            ruleJson: "{}",
+          }) as never,
+          makeContext(ORG_A, ACTOR_A)
+        )
+      ).rejects.toSatisfy(
+        (err: unknown) => err instanceof ConnectError && err.code === Code.InvalidArgument
+      );
+    });
+
     it("returns FailedPrecondition when change-set is not in draft state", async () => {
       const row = await seedChangeSet(ORG_A, ACTOR_A);
       await superuser.query(
@@ -248,8 +277,25 @@ describe("ChangeSet CRUD", () => {
             id: row.id,
             scopeJson: "{}",
             ruleJson: "{}",
-          }),
+          }) as never,
           makeContext(ORG_A, ACTOR_A)
+        )
+      ).rejects.toSatisfy(
+        (err: unknown) => err instanceof ConnectError && err.code === Code.FailedPrecondition
+      );
+    });
+
+    it("returns FailedPrecondition for ORG_B attempting to update ORG_A's change-set (RLS isolation)", async () => {
+      const row = await seedChangeSet(ORG_A, ACTOR_A);
+      const impl = service.implementation.updateChangeSet!;
+      await expect(
+        impl(
+          create(UpdateChangeSetRequestSchema, {
+            id: row.id,
+            scopeJson: "{}",
+            ruleJson: "{}",
+          }) as never,
+          makeContext(ORG_B, ACTOR_A)
         )
       ).rejects.toSatisfy(
         (err: unknown) => err instanceof ConnectError && err.code === Code.FailedPrecondition
@@ -262,7 +308,7 @@ describe("ChangeSet CRUD", () => {
       const row = await seedChangeSet(ORG_A, ACTOR_A);
       const impl = service.implementation.discardChangeSet!;
       await impl(
-        create(DiscardChangeSetRequestSchema, { id: row.id }),
+        create(DiscardChangeSetRequestSchema, { id: row.id }) as never,
         makeContext(ORG_A, ACTOR_A)
       );
       const { rows } = await superuser.query(
@@ -281,7 +327,7 @@ describe("ChangeSet CRUD", () => {
       const impl = service.implementation.discardChangeSet!;
       await expect(
         impl(
-          create(DiscardChangeSetRequestSchema, { id: row.id }),
+          create(DiscardChangeSetRequestSchema, { id: row.id }) as never,
           makeContext(ORG_A, ACTOR_A)
         )
       ).rejects.toSatisfy(
@@ -294,7 +340,7 @@ describe("ChangeSet CRUD", () => {
       const impl = service.implementation.discardChangeSet!;
       await expect(
         impl(
-          create(DiscardChangeSetRequestSchema, { id: row.id }),
+          create(DiscardChangeSetRequestSchema, { id: row.id }) as never,
           makeContext(ORG_B, ACTOR_A)
         )
       ).rejects.toSatisfy(

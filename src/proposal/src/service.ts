@@ -776,6 +776,16 @@ export class ProposalServiceImpl {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
     validateUuid(request.id, "id");
+    try {
+      JSON.parse(request.scopeJson);
+    } catch {
+      throw new ConnectError("scope_json must be valid JSON", Code.InvalidArgument);
+    }
+    try {
+      JSON.parse(request.ruleJson);
+    } catch {
+      throw new ConnectError("rule_json must be valid JSON", Code.InvalidArgument);
+    }
     const result = await this.db.withOrgTransaction(ctx.orgId, (c) =>
       this.repo.updateChangeSet(c, request.id, request.scopeJson, request.ruleJson)
     );
