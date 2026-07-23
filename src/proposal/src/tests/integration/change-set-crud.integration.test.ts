@@ -47,6 +47,12 @@ class NoOpCatalogClient implements CatalogClient {
   async applyPriceChanges(_req: never, _headers: Headers): Promise<never> {
     throw new Error("applyPriceChanges should not be called in change-set-crud tests");
   }
+  async listSkus(_req: never, _headers: Headers): Promise<never> {
+    throw new Error("listSkus should not be called in change-set-crud tests");
+  }
+  async batchGetPrices(_req: never, _headers: Headers): Promise<never> {
+    throw new Error("batchGetPrices should not be called in change-set-crud tests");
+  }
 }
 
 class StubMarginClient implements MarginClient {

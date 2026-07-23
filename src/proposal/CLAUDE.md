@@ -161,6 +161,7 @@ Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Ca
 - [x] `RequestOverride` endpoint: validates proposal is `blocked`, inserts `override_request` row, writes `override.requested` outbox event atomically; proposal stays `blocked` (F4.6)
 - [x] `ApproveOverride` endpoint: different-actor check, `blocked → approved` transition, stamps `override_request` row, writes `override.approved` outbox event atomically (F4.7)
 - [x] Change-set repo layer: `ChangeSetRow`/`ChangeSetLineRow` types, `changeSetMessage` mapper, `createChangeSet`/`getChangeSet`/`listChangeSets`/`updateChangeSet`/`discardChangeSet` repo methods; `GetChangeSet`/`ListChangeSets`/`UpdateChangeSet`/`DiscardChangeSet` gRPC handlers (F5.1)
+- [x] Scope builder: `domain/scope-dsl.ts` DSL v1 parser (channel_id required, UUID-validated optional fields), `listSkus`/`batchGetPrices` on `CatalogClient`, `BuildScope` gRPC handler (500-SKU cap, silent drop of unpriced SKUs), unit tests for DSL parser, integration test with stubbed Catalog (F5.2)
 - [ ] Scope DSL parser + validator (pure logic)
 - [ ] Integration test: full happy path (create → submit → approve → publish) against real Postgres + Margin stub
 - [ ] Integration test: blocked path (submit returns 422 with violations)

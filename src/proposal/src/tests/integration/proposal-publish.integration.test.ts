@@ -76,6 +76,12 @@ class MockCatalogClient implements CatalogClient {
       results: [],
     });
   }
+  async listSkus(_req: never, _headers: Headers): Promise<never> {
+    throw new Error("listSkus should not be called in publish tests");
+  }
+  async batchGetPrices(_req: never, _headers: Headers): Promise<never> {
+    throw new Error("batchGetPrices should not be called in publish tests");
+  }
 }
 
 function makeContext(orgId: string, userId: string): HandlerContext {
