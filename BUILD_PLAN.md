@@ -184,9 +184,11 @@ Bulk operations. The key trick: preview is a draft change-set, not a proposal. A
 | F5.3 | Preview endpoint | Given a scope + price rule, compute diff vs. current canonical prices; persist as draft change-set |
 | F5.4 | Commit endpoint | Wraps change-set in a new Proposal (transfers ownership), deletes draft state |
 | F5.5 | Scheduled rollouts | Delayed-apply worker keyed on `effective_at` |
-| F5.6 | Web UI: change-set builder + diff view | Scope wizard, preview table, submit-as-proposal button |
+| F5.6 | Web UI: change-set builder + diff view | Scope wizard, preview table, submit-as-proposal button. UI must surface a truncation warning when `BuildScope` or `PreviewChangeSet` hits the 500-SKU hard cap (both handlers take a single Catalog page — scopes returning >500 SKUs are silently truncated in v1). |
 
 **Phase 5 exit criteria:** A user can build a 500-SKU change-set, preview the diff, submit it, have it approved, and see the canonical prices update at the scheduled time.
+
+> **Known v1 cap (flagged for F5.6):** `BuildScope` and `PreviewChangeSet` both issue a single `listSkus` call with `pageSize: 500` (`service.ts` lines 783, 852). Scopes matching more than 500 SKUs silently drop the remainder. Lifting this requires either cursor pagination across multiple `listSkus` pages or a streaming variant. Address no later than F5.6 so the UI can warn the user or paginate.
 
 ### Phase 6 — Governance (theme 3)
 
