@@ -17,6 +17,8 @@ import {
   ListChangeSetsResponseSchema,
   UpdateChangeSetResponseSchema,
   DiscardChangeSetResponseSchema,
+  BuildScopeResponseSchema,
+  ScopedSkuSchema,
   type CreateProposalRequest,
   type GetProposalRequest,
   type UpdateDraftRequest,
@@ -32,10 +34,15 @@ import {
   type ListChangeSetsRequest,
   type UpdateChangeSetRequest,
   type DiscardChangeSetRequest,
+  type BuildScopeRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   ApplyPriceChangesRequestSchema,
   PriceChangeSchema,
+  ListSkusRequestSchema,
+  BatchGetPricesRequestSchema,
+  type Sku,
+  type PriceRecord,
 } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
 import {
   ValidateBatchRequestSchema,
@@ -43,7 +50,7 @@ import {
   type Violation,
   ViolationSeverity,
 } from "@owomide/proto/services/margin/v1/margin_pb.js";
-import { MoneySchema, PaginatedResponseSchema } from "@owomide/proto/common/v1/common_pb.js";
+import { MoneySchema, PaginatedResponseSchema, PaginationSchema } from "@owomide/proto/common/v1/common_pb.js";
 import {
   ProposalSubmittedSchema,
   ProposalBlockedSchema,
@@ -54,6 +61,7 @@ import {
   ViolationSchema as EventViolationSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
 import { requestContext, requireApproverRole, signServiceJwt, ServiceAuthenticator } from "./context.js";
+import { parseScopeDsl } from "./domain/scope-dsl.js";
 import type { CatalogClient } from "./clients/catalog.js";
 import type { MarginClient } from "./clients/margin.js";
 import type { MarginViolation } from "./domain/state-machine.js";
@@ -158,7 +166,7 @@ export class ProposalServiceImpl {
       listComments: this.listComments.bind(this),
       requestOverride: this.requestOverride.bind(this),
       approveOverride: this.approveOverride.bind(this),
-      buildScope: notImplemented,
+      buildScope: this.buildScope.bind(this),
       previewChangeSet: notImplemented,
       getChangeSet: this.getChangeSet.bind(this),
       listChangeSets: this.listChangeSets.bind(this),
@@ -742,6 +750,69 @@ export class ProposalServiceImpl {
         totalCount: result.totalCount,
       }),
     });
+  }
+
+  private async buildScope(request: BuildScopeRequest, context: HandlerContext) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    const scope = parseScopeDsl(request.scopeJson);
+
+    const catalogHeaders = new Headers();
+    catalogHeaders.set("x-org-id", ctx.orgId);
+    if (this.opts.catalogServiceSecret) {
+      const jwt = await signServiceJwt(
+        "proposal_svc",
+        "catalog",
+        this.opts.catalogServiceSecret,
+        this.opts.serviceJwtIssuer,
+      );
+      catalogHeaders.set("Authorization", `Bearer ${jwt}`);
+    }
+
+    // Single page, 500-SKU cap (matches Phase 5 bulk repricing exit criteria)
+    const skuResp = await this.catalogClient.listSkus(
+      create(ListSkusRequestSchema, {
+        channelId: scope.channel_id,
+        productId: scope.product_id ?? "",
+        category: scope.category ?? "",
+        query: scope.query ?? "",
+        pagination: create(PaginationSchema, { pageSize: 500 }),
+      }),
+      catalogHeaders,
+    );
+
+    if (skuResp.skus.length === 0) {
+      return create(BuildScopeResponseSchema, { skus: [] });
+    }
+
+    const skuIds = skuResp.skus.map((s: Sku) => s.id);
+    const priceResp = await this.catalogClient.batchGetPrices(
+      create(BatchGetPricesRequestSchema, {
+        skuIds,
+        channelId: scope.channel_id,
+        customerSegmentId: scope.customer_segment_id ?? "",
+      }),
+      catalogHeaders,
+    );
+
+    const priceBySkuId = new Map(priceResp.prices.map((p: PriceRecord) => [p.skuId, p.price]));
+
+    // SKUs with no active price for this channel are silently dropped — they cannot be repriced
+    const scopedSkus = [];
+    for (const sku of skuResp.skus) {
+      const price = priceBySkuId.get(sku.id);
+      if (price) {
+        scopedSkus.push(
+          create(ScopedSkuSchema, {
+            skuId: sku.id,
+            channelId: scope.channel_id,
+            currentPrice: price,
+          }),
+        );
+      }
+    }
+
+    return create(BuildScopeResponseSchema, { skus: scopedSkus });
   }
 
   private async getChangeSet(request: GetChangeSetRequest, context: HandlerContext) {

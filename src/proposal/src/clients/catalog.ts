@@ -3,11 +3,17 @@ import { createGrpcTransport } from "@connectrpc/connect-node";
 import type {
   ApplyPriceChangesRequest,
   ApplyPriceChangesResponse,
+  ListSkusRequest,
+  ListSkusResponse,
+  BatchGetPricesRequest,
+  BatchGetPricesResponse,
 } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
 import { CatalogService } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
 
 export interface CatalogClient {
   applyPriceChanges(req: ApplyPriceChangesRequest, headers: Headers): Promise<ApplyPriceChangesResponse>;
+  listSkus(req: ListSkusRequest, headers: Headers): Promise<ListSkusResponse>;
+  batchGetPrices(req: BatchGetPricesRequest, headers: Headers): Promise<BatchGetPricesResponse>;
 }
 
 export class GrpcCatalogClient implements CatalogClient {
@@ -20,5 +26,15 @@ export class GrpcCatalogClient implements CatalogClient {
   async applyPriceChanges(req: ApplyPriceChangesRequest, headers: Headers): Promise<ApplyPriceChangesResponse> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this.client.applyPriceChanges!(req, { headers });
+  }
+
+  async listSkus(req: ListSkusRequest, headers: Headers): Promise<ListSkusResponse> {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this.client.listSkus!(req, { headers });
+  }
+
+  async batchGetPrices(req: BatchGetPricesRequest, headers: Headers): Promise<BatchGetPricesResponse> {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this.client.batchGetPrices!(req, { headers });
   }
 }
