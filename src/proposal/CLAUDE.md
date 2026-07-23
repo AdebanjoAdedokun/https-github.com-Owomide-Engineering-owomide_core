@@ -162,7 +162,7 @@ Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Ca
 - [x] `ApproveOverride` endpoint: different-actor check, `blocked → approved` transition, stamps `override_request` row, writes `override.approved` outbox event atomically (F4.7)
 - [x] Change-set repo layer: `ChangeSetRow`/`ChangeSetLineRow` types, `changeSetMessage` mapper, `createChangeSet`/`getChangeSet`/`listChangeSets`/`updateChangeSet`/`discardChangeSet` repo methods; `GetChangeSet`/`ListChangeSets`/`UpdateChangeSet`/`DiscardChangeSet` gRPC handlers (F5.1)
 - [x] Scope builder: `domain/scope-dsl.ts` DSL v1 parser (channel_id required, UUID-validated optional fields), `listSkus`/`batchGetPrices` on `CatalogClient`, `BuildScope` gRPC handler (500-SKU cap, silent drop of unpriced SKUs), unit tests for DSL parser, integration test with stubbed Catalog (F5.2)
-- [ ] Scope DSL parser + validator (pure logic)
+- [x] PreviewChangeSet: `domain/repricing-rules.ts` rule DSL parser + applicator (RuleType const, four types), `domain/diff.ts` pure diff calculator, `bulkInsertChangeSetLines` repo method, `PreviewChangeSet` gRPC handler (atomic create+lines transaction, non-positive price guard), unit tests for both domain modules, integration test with real Postgres + stubbed Catalog (F5.3)
 - [ ] Integration test: full happy path (create → submit → approve → publish) against real Postgres + Margin stub
 - [ ] Integration test: blocked path (submit returns 422 with violations)
 - [ ] Integration test: override path (different actor, ends in approval)
