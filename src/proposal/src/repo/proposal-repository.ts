@@ -366,6 +366,59 @@ export class ProposalRepository {
     return rows[0]!;
   }
 
+  async bulkInsertChangeSetLines(
+    client: PoolClient,
+    orgId: string,
+    changeSetId: string,
+    lines: Array<{
+      skuId: string;
+      channelId: string;
+      currentPriceMinor: bigint;
+      currentPriceCurrency: string;
+      proposedPriceMinor: bigint;
+      proposedPriceCurrency: string;
+      diffPct: number;
+      diffAbsoluteMinor: bigint;
+      diffAbsoluteCurrency: string;
+    }>,
+  ): Promise<ChangeSetLineRow[]> {
+    if (lines.length === 0) return [];
+
+    const cols = 11;
+    const placeholders = lines
+      .map((_, i) => {
+        const base = i * cols;
+        return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7}, $${base + 8}, $${base + 9}, $${base + 10}, $${base + 11})`;
+      })
+      .join(", ");
+
+    const values = lines.flatMap((l) => [
+      orgId,
+      changeSetId,
+      l.skuId,
+      l.channelId,
+      l.currentPriceMinor.toString(),
+      l.currentPriceCurrency,
+      l.proposedPriceMinor.toString(),
+      l.proposedPriceCurrency,
+      l.diffPct.toString(),
+      l.diffAbsoluteMinor.toString(),
+      l.diffAbsoluteCurrency,
+    ]);
+
+    const { rows } = await client.query<ChangeSetLineRow>(
+      `INSERT INTO proposal.change_set_line
+         (org_id, change_set_id, sku_id, channel_id,
+          current_price_minor, current_price_currency,
+          proposed_price_minor, proposed_price_currency,
+          diff_pct, diff_absolute_minor, diff_absolute_currency)
+       VALUES ${placeholders}
+       RETURNING *`,
+      values,
+    );
+    return rows;
+  }
+
   async getChangeSet(
     client: PoolClient,
     changeSetId: string,

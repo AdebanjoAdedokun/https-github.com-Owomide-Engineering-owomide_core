@@ -35,6 +35,8 @@ import {
   type UpdateChangeSetRequest,
   type DiscardChangeSetRequest,
   type BuildScopeRequest,
+  PreviewChangeSetResponseSchema,
+  type PreviewChangeSetRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   ApplyPriceChangesRequestSchema,
@@ -50,7 +52,7 @@ import {
   type Violation,
   ViolationSeverity,
 } from "@owomide/proto/services/margin/v1/margin_pb.js";
-import { MoneySchema, PaginatedResponseSchema, PaginationSchema } from "@owomide/proto/common/v1/common_pb.js";
+import { type Money, MoneySchema, PaginatedResponseSchema, PaginationSchema } from "@owomide/proto/common/v1/common_pb.js";
 import {
   ProposalSubmittedSchema,
   ProposalBlockedSchema,
@@ -62,6 +64,8 @@ import {
 } from "@owomide/proto/events/proposal/v1_pb.js";
 import { requestContext, requireApproverRole, signServiceJwt, ServiceAuthenticator } from "./context.js";
 import { parseScopeDsl } from "./domain/scope-dsl.js";
+import { parseRepricingRule, applyRule } from "./domain/repricing-rules.js";
+import { computeDiff } from "./domain/diff.js";
 import type { CatalogClient } from "./clients/catalog.js";
 import type { MarginClient } from "./clients/margin.js";
 import type { MarginViolation } from "./domain/state-machine.js";
@@ -167,7 +171,7 @@ export class ProposalServiceImpl {
       requestOverride: this.requestOverride.bind(this),
       approveOverride: this.approveOverride.bind(this),
       buildScope: this.buildScope.bind(this),
-      previewChangeSet: notImplemented,
+      previewChangeSet: this.previewChangeSet.bind(this),
       getChangeSet: this.getChangeSet.bind(this),
       listChangeSets: this.listChangeSets.bind(this),
       updateChangeSet: this.updateChangeSet.bind(this),
@@ -813,6 +817,99 @@ export class ProposalServiceImpl {
     }
 
     return create(BuildScopeResponseSchema, { skus: scopedSkus });
+  }
+
+  private async previewChangeSet(request: PreviewChangeSetRequest, context: HandlerContext) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+
+    const actorId = ctx.userId ?? "";
+    if (!actorId) {
+      throw new ConnectError("Authenticated user required", Code.Unauthenticated);
+    }
+
+    const scope = parseScopeDsl(request.scopeJson);
+    const rule = parseRepricingRule(request.ruleJson);
+
+    const catalogHeaders = new Headers();
+    catalogHeaders.set("x-org-id", ctx.orgId);
+    if (this.opts.catalogServiceSecret) {
+      const jwt = await signServiceJwt(
+        "proposal_svc",
+        "catalog",
+        this.opts.catalogServiceSecret,
+        this.opts.serviceJwtIssuer,
+      );
+      catalogHeaders.set("Authorization", `Bearer ${jwt}`);
+    }
+
+    const skuResp = await this.catalogClient.listSkus(
+      create(ListSkusRequestSchema, {
+        channelId: scope.channel_id,
+        productId: scope.product_id ?? "",
+        category: scope.category ?? "",
+        query: scope.query ?? "",
+        pagination: create(PaginationSchema, { pageSize: 500 }),
+      }),
+      catalogHeaders,
+    );
+
+    const lineInputs: Parameters<typeof this.repo.bulkInsertChangeSetLines>[3] = [];
+
+    if (skuResp.skus.length > 0) {
+      const skuIds = skuResp.skus.map((s: Sku) => s.id);
+      const priceResp = await this.catalogClient.batchGetPrices(
+        create(BatchGetPricesRequestSchema, {
+          skuIds,
+          channelId: scope.channel_id,
+          customerSegmentId: scope.customer_segment_id ?? "",
+        }),
+        catalogHeaders,
+      );
+
+      const priceBySkuId = new Map<string, Money | undefined>(priceResp.prices.map((p: PriceRecord) => [p.skuId, p.price]));
+
+      for (const sku of skuResp.skus) {
+        const price = priceBySkuId.get(sku.id);
+        if (!price) continue;
+        const currentMinor = price.amount;
+        const currency = price.currency;
+        const proposedMinor = applyRule(rule, currentMinor, currency);
+        const diff = computeDiff(currentMinor, proposedMinor, currency);
+        lineInputs.push({
+          skuId: sku.id,
+          channelId: scope.channel_id,
+          currentPriceMinor: currentMinor,
+          currentPriceCurrency: currency,
+          proposedPriceMinor: proposedMinor,
+          proposedPriceCurrency: currency,
+          diffPct: diff.diffPct,
+          diffAbsoluteMinor: diff.diffAbsoluteMinor,
+          diffAbsoluteCurrency: diff.diffAbsoluteCurrency,
+        });
+      }
+    }
+
+    const { csRow, lineRows } = await this.db.withOrgTransaction(ctx.orgId, async (client) => {
+      const csRow = await this.repo.createChangeSet(
+        client,
+        ctx.orgId,
+        actorId,
+        request.scopeJson,
+        request.ruleJson,
+      );
+      const lineRows = await this.repo.bulkInsertChangeSetLines(
+        client,
+        ctx.orgId,
+        csRow.id,
+        lineInputs,
+      );
+      return { csRow, lineRows };
+    });
+
+    return create(PreviewChangeSetResponseSchema, {
+      changeSet: changeSetMessage(csRow, lineRows),
+    });
   }
 
   private async getChangeSet(request: GetChangeSetRequest, context: HandlerContext) {
