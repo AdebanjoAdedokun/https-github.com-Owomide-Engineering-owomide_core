@@ -4,16 +4,29 @@ import type {
   CreateProposalRequest,
   ListProposalsRequest,
   ListCommentsRequest,
+  ListChangeSetsRequest,
   ProposalLine,
   UpdateDraftRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { ProposalState } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import { decodeCursor, encodeCursor, pageSize } from "../domain/pagination.js";
-import { type CommentRow, type OverrideRequestRow, type ProposalLineRow, type ProposalRow } from "./mappers.js";
+import {
+  type ChangeSetLineRow,
+  type ChangeSetRow,
+  type CommentRow,
+  type OverrideRequestRow,
+  type ProposalLineRow,
+  type ProposalRow,
+} from "./mappers.js";
 
 export interface ProposalWithLines {
   row: ProposalRow;
   lines: ProposalLineRow[];
+}
+
+export interface ChangeSetWithLines {
+  row: ChangeSetRow;
+  lines: ChangeSetLineRow[];
 }
 
 export interface OutboxEventInput {
@@ -331,6 +344,126 @@ export class ProposalRepository {
     if (!rows[0]) {
       throw new ConnectError(
         "Override request not found or already decided",
+        Code.FailedPrecondition,
+      );
+    }
+    return rows[0];
+  }
+
+  async createChangeSet(
+    client: PoolClient,
+    orgId: string,
+    actorId: string,
+    scopeJson: string,
+    ruleJson: string,
+  ): Promise<ChangeSetRow> {
+    const { rows } = await client.query<ChangeSetRow>(
+      `INSERT INTO proposal.change_set (org_id, status, actor_id, scope, rule)
+       VALUES ($1, 'draft', $2, $3::jsonb, $4::jsonb)
+       RETURNING *`,
+      [orgId, actorId, scopeJson, ruleJson],
+    );
+    return rows[0]!;
+  }
+
+  async getChangeSet(
+    client: PoolClient,
+    changeSetId: string,
+  ): Promise<ChangeSetWithLines | null> {
+    const { rows } = await client.query<ChangeSetRow>(
+      `SELECT * FROM proposal.change_set WHERE id = $1`,
+      [changeSetId],
+    );
+    if (!rows[0]) return null;
+    const { rows: lines } = await client.query<ChangeSetLineRow>(
+      `SELECT * FROM proposal.change_set_line WHERE change_set_id = $1 ORDER BY id`,
+      [changeSetId],
+    );
+    return { row: rows[0], lines };
+  }
+
+  async listChangeSets(
+    client: PoolClient,
+    req: ListChangeSetsRequest,
+  ): Promise<{ rows: ChangeSetRow[]; nextCursor: string; totalCount: number }> {
+    const limit = pageSize(req.pagination?.pageSize ?? 0);
+    const cursor = decodeCursor(req.pagination?.pageToken ?? "");
+
+    const countResult = await client.query<{ count: string }>(
+      `SELECT COUNT(*) AS count FROM proposal.change_set WHERE status = 'draft'`,
+    );
+    const totalCount = Number(countResult.rows[0]?.count ?? 0);
+
+    const values: unknown[] = [];
+    let cursorClause = "";
+    if (cursor) {
+      cursorClause = `AND (created_at, id) < ($${values.length + 1}::timestamptz, $${values.length + 2}::uuid)`;
+      values.push(cursor.key, cursor.id);
+    }
+
+    const { rows } = await client.query<ChangeSetRow>(
+      `SELECT * FROM proposal.change_set
+       WHERE status = 'draft' ${cursorClause}
+       ORDER BY created_at DESC, id DESC
+       LIMIT $${values.length + 1}`,
+      [...values, limit + 1],
+    );
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+
+    let nextCursor = "";
+    if (hasMore) {
+      const last = page[page.length - 1]!;
+      nextCursor = encodeCursor({
+        key: last.created_at instanceof Date ? last.created_at.toISOString() : String(last.created_at),
+        id: last.id,
+      });
+    }
+
+    return { rows: page, nextCursor, totalCount };
+  }
+
+  async updateChangeSet(
+    client: PoolClient,
+    changeSetId: string,
+    scopeJson: string,
+    ruleJson: string,
+  ): Promise<ChangeSetWithLines> {
+    const { rows } = await client.query<ChangeSetRow>(
+      `UPDATE proposal.change_set
+       SET scope = $1::jsonb, rule = $2::jsonb, updated_at = clock_timestamp()
+       WHERE id = $3 AND status = 'draft'
+       RETURNING *`,
+      [scopeJson, ruleJson, changeSetId],
+    );
+    if (!rows[0]) {
+      throw new ConnectError(
+        "Change-set not found or not in draft state",
+        Code.FailedPrecondition,
+      );
+    }
+    const { rows: lines } = await client.query<ChangeSetLineRow>(
+      `SELECT * FROM proposal.change_set_line WHERE change_set_id = $1 ORDER BY id`,
+      [changeSetId],
+    );
+    return { row: rows[0], lines };
+  }
+
+  async discardChangeSet(
+    client: PoolClient,
+    changeSetId: string,
+  ): Promise<ChangeSetRow> {
+    const { rows } = await client.query<ChangeSetRow>(
+      `UPDATE proposal.change_set
+       SET status = 'discarded', updated_at = clock_timestamp()
+       WHERE id = $1 AND status = 'draft'
+       RETURNING *`,
+      [changeSetId],
+    );
+    if (!rows[0]) {
+      throw new ConnectError(
+        "Change-set not found or not in draft state",
         Code.FailedPrecondition,
       );
     }

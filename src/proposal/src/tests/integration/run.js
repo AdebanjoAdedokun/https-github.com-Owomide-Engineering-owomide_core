@@ -43,6 +43,10 @@ const tests = [
     dirname,
     "../../../dist_integration/tests/integration/proposal-override-approve.integration.test.js"
   ),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/change-set-crud.integration.test.js"
+  ),
 ];
 
 process.argv = [
