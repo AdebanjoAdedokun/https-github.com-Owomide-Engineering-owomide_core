@@ -567,6 +567,19 @@ export class ProposalRepository {
     return { row: proposalRow, lines: linesResult.rows };
   }
 
+  async createScheduledRollout(
+    client: PoolClient,
+    orgId: string,
+    proposalId: string,
+    effectiveAt: Date,
+  ): Promise<void> {
+    await client.query(
+      `INSERT INTO proposal.scheduled_rollout (org_id, proposal_id, effective_at, status)
+       VALUES ($1, $2, $3, 'pending')`,
+      [orgId, proposalId, effectiveAt],
+    );
+  }
+
   async discardChangeSet(
     client: PoolClient,
     changeSetId: string,
