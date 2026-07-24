@@ -27,8 +27,22 @@ import {
   SaveCustomerSegmentResponseSchema,
   SaveLocationRequestSchema,
   SaveLocationResponseSchema,
+  type BatchGetCostsResponse,
+  type BatchGetPricesResponse,
+  type BatchGetProductsResponse,
+  type DeactivateChannelResponse,
+  type DeactivateCustomerSegmentResponse,
+  type DeactivateLocationResponse,
+  type GetProductResponse,
+  type GetSkuResponse,
+  type ListChannelsResponse,
+  type ListCustomerSegmentsResponse,
+  type ListLocationsResponse,
+  type ListSkusResponse,
+  type SaveChannelResponse,
+  type SaveCustomerSegmentResponse,
+  type SaveLocationResponse,
 } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
-import type { Client } from "@connectrpc/connect";
 import { createServiceClient } from "../clients/factory.js";
 import { catalogServiceToken } from "../clients/service-auth.js";
 import type { Config } from "../config.js";
@@ -44,6 +58,26 @@ type SaveChannelInput = MessageInitShape<typeof SaveChannelRequestSchema>;
 type SaveLocationInput = MessageInitShape<typeof SaveLocationRequestSchema>;
 type SaveCustomerSegmentInput = MessageInitShape<typeof SaveCustomerSegmentRequestSchema>;
 
+// Hand-rolled typed interface — Client<typeof CatalogService> produces unresolvable
+// conditional types under strict mode due to mixed method kinds in the service descriptor.
+interface CatalogClient {
+  getProduct(req: { id: string }, opts: { headers: Record<string, string> }): Promise<GetProductResponse>;
+  batchGetProducts(req: object, opts: { headers: Record<string, string> }): Promise<BatchGetProductsResponse>;
+  getSku(req: { id: string }, opts: { headers: Record<string, string> }): Promise<GetSkuResponse>;
+  listSkus(req: object, opts: { headers: Record<string, string> }): Promise<ListSkusResponse>;
+  batchGetCosts(req: object, opts: { headers: Record<string, string> }): Promise<BatchGetCostsResponse>;
+  batchGetPrices(req: object, opts: { headers: Record<string, string> }): Promise<BatchGetPricesResponse>;
+  listChannels(req: object, opts: { headers: Record<string, string> }): Promise<ListChannelsResponse>;
+  listLocations(req: object, opts: { headers: Record<string, string> }): Promise<ListLocationsResponse>;
+  listCustomerSegments(req: object, opts: { headers: Record<string, string> }): Promise<ListCustomerSegmentsResponse>;
+  saveChannel(req: object, opts: { headers: Record<string, string> }): Promise<SaveChannelResponse>;
+  deactivateChannel(req: { id: string }, opts: { headers: Record<string, string> }): Promise<DeactivateChannelResponse>;
+  saveLocation(req: object, opts: { headers: Record<string, string> }): Promise<SaveLocationResponse>;
+  deactivateLocation(req: { id: string }, opts: { headers: Record<string, string> }): Promise<DeactivateLocationResponse>;
+  saveCustomerSegment(req: object, opts: { headers: Record<string, string> }): Promise<SaveCustomerSegmentResponse>;
+  deactivateCustomerSegment(req: { id: string }, opts: { headers: Record<string, string> }): Promise<DeactivateCustomerSegmentResponse>;
+}
+
 export interface CatalogRouteDependencies {
   client?: object;
   token?: () => Promise<string>;
@@ -56,7 +90,7 @@ export async function registerCatalogRoutes(
 ) {
   const client = (
     dependencies.client ?? createServiceClient(CatalogService, config.catalogServiceUrl)
-  ) as object as Client<typeof CatalogService>;
+  ) as object as CatalogClient;
   const token = dependencies.token ?? (() => catalogServiceToken(config));
   const headers = async (req: { ctx: { orgId: string; userId: string; roles: string[] } }) => ({
     authorization: `Bearer ${await token()}`,

@@ -1,4 +1,4 @@
-import { create, toJson, type MessageShape } from "@bufbuild/protobuf";
+import { create, toJson } from "@bufbuild/protobuf";
 import multipart, { type Multipart } from "@fastify/multipart";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
@@ -16,8 +16,18 @@ import {
   ListImportBatchesResponseSchema,
   MappingTemplateSchema,
   UploadImportFileRequestSchema,
+  type CommitBatchResponse,
+  type EditRowResponse,
+  type ExcludeRowResponse,
+  type GetColumnProfileResponse,
+  type GetImportBatchResponse,
+  type GetImportOperationResponse,
+  type GetValidationReportResponse,
   type ImportRow,
+  type ListImportBatchesResponse,
+  type ListMappingTemplatesResponse,
   type MappingTemplate,
+  type SaveMappingTemplateResponse,
   type UploadImportFileRequest,
 } from "@owomide/proto/services/data_pipeline/v1/data_pipeline_pb.js";
 import { createServiceClient } from "../clients/factory.js";
@@ -103,17 +113,17 @@ function sourceType(filename: string): ImportSourceType {
 // conditional types under strict mode when the service mixes client_streaming + unary methods.
 interface DataPipelineClient {
   uploadImportFile(req: AsyncIterable<UploadImportFileRequest>, opts: { headers: Record<string, string> }): Promise<{ batchId: string; operationId: string }>;
-  listImportBatches(req: object, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof ListImportBatchesResponseSchema>>;
-  getImportBatch(req: { batchId: string }, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof GetImportBatchResponseSchema>>;
-  getColumnProfile(req: { batchId: string }, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof GetColumnProfileResponseSchema>>;
+  listImportBatches(req: object, opts: { headers: Record<string, string> }): Promise<ListImportBatchesResponse>;
+  getImportBatch(req: { batchId: string }, opts: { headers: Record<string, string> }): Promise<GetImportBatchResponse>;
+  getColumnProfile(req: { batchId: string }, opts: { headers: Record<string, string> }): Promise<GetColumnProfileResponse>;
   applyMapping(req: object, opts: { headers: Record<string, string> }): Promise<{ batchId: string; operationId: string }>;
-  getValidationReport(req: object, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof GetValidationReportResponseSchema>>;
-  editRow(req: object, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof EditRowResponseSchema>>;
-  excludeRow(req: object, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof ExcludeRowResponseSchema>>;
-  commitBatch(req: { batchId: string; confirmWarnings: boolean }, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof CommitBatchResponseSchema>>;
-  listMappingTemplates(req: object, opts: { headers: Record<string, string> }): Promise<{ templates: MappingTemplate[]; pagination?: object }>;
-  saveMappingTemplate(req: object, opts: { headers: Record<string, string> }): Promise<{ template?: MappingTemplate }>;
-  getImportOperation(req: { operationId: string }, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof GetImportOperationResponseSchema>>;
+  getValidationReport(req: object, opts: { headers: Record<string, string> }): Promise<GetValidationReportResponse>;
+  editRow(req: object, opts: { headers: Record<string, string> }): Promise<EditRowResponse>;
+  excludeRow(req: object, opts: { headers: Record<string, string> }): Promise<ExcludeRowResponse>;
+  commitBatch(req: { batchId: string; confirmWarnings: boolean }, opts: { headers: Record<string, string> }): Promise<CommitBatchResponse>;
+  listMappingTemplates(req: object, opts: { headers: Record<string, string> }): Promise<ListMappingTemplatesResponse>;
+  saveMappingTemplate(req: object, opts: { headers: Record<string, string> }): Promise<SaveMappingTemplateResponse>;
+  getImportOperation(req: { operationId: string }, opts: { headers: Record<string, string> }): Promise<GetImportOperationResponse>;
 }
 
 export interface DataPipelineRouteDependencies {
