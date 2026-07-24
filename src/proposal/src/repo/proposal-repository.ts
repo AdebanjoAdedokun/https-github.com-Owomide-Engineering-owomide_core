@@ -503,6 +503,70 @@ export class ProposalRepository {
     return { row: rows[0], lines };
   }
 
+  async submitChangeSet(
+    client: PoolClient,
+    orgId: string,
+    changeSetId: string,
+    actorId: string,
+    title: string,
+  ): Promise<ProposalWithLines> {
+    // Guard: change-set must be draft and belong to this org — FOR UPDATE prevents TOCTOU
+    const csResult = await client.query<{ id: string }>(
+      `SELECT id FROM proposal.change_set
+       WHERE id = $1 AND org_id = proposal.current_org_id() AND status = 'draft'
+       FOR UPDATE`,
+      [changeSetId],
+    );
+    if (!csResult.rows[0]) {
+      throw new ConnectError(
+        "Change-set not found or not in draft state",
+        Code.FailedPrecondition,
+      );
+    }
+
+    // Create the Proposal linked to this change-set
+    const proposalResult = await client.query<ProposalRow>(
+      `INSERT INTO proposal.proposal (org_id, state, actor_id, title, change_set_id)
+       VALUES ($1, 'draft', $2, $3, $4)
+       RETURNING *`,
+      [orgId, actorId, title, changeSetId],
+    );
+    const proposalRow = proposalResult.rows[0]!;
+
+    // Copy change_set_line rows → proposal_line (reason = '' — not available on change-set lines)
+    const linesResult = await client.query<ProposalLineRow>(
+      `INSERT INTO proposal.proposal_line
+         (org_id, proposal_id, sku_id, channel_id,
+          current_price_minor, current_price_currency,
+          proposed_price_minor, proposed_price_currency, reason)
+       SELECT $1, $2, sku_id, channel_id,
+              current_price_minor, current_price_currency,
+              proposed_price_minor, proposed_price_currency, ''
+       FROM proposal.change_set_line
+       WHERE change_set_id = $3
+       RETURNING *`,
+      [orgId, proposalRow.id, changeSetId],
+    );
+
+    // Transition log: NULL → draft
+    await client.query(
+      `INSERT INTO proposal.proposal_transition
+         (org_id, proposal_id, from_state, to_state, actor_id, meta)
+       VALUES ($1, $2, NULL, 'draft', $3, '{}'::jsonb)`,
+      [orgId, proposalRow.id, actorId],
+    );
+
+    // Stamp the change-set as submitted and link it to the new proposal
+    await client.query(
+      `UPDATE proposal.change_set
+       SET status = 'submitted', submitted_at = clock_timestamp(), proposal_id = $1
+       WHERE id = $2`,
+      [proposalRow.id, changeSetId],
+    );
+
+    return { row: proposalRow, lines: linesResult.rows };
+  }
+
   async discardChangeSet(
     client: PoolClient,
     changeSetId: string,
