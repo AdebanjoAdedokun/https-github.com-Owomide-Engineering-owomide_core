@@ -37,6 +37,8 @@ import {
   type BuildScopeRequest,
   PreviewChangeSetResponseSchema,
   type PreviewChangeSetRequest,
+  SubmitChangeSetResponseSchema,
+  type SubmitChangeSetRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   ApplyPriceChangesRequestSchema,
@@ -175,7 +177,7 @@ export class ProposalServiceImpl {
       getChangeSet: this.getChangeSet.bind(this),
       listChangeSets: this.listChangeSets.bind(this),
       updateChangeSet: this.updateChangeSet.bind(this),
-      submitChangeSet: notImplemented,
+      submitChangeSet: this.submitChangeSet.bind(this),
       discardChangeSet: this.discardChangeSet.bind(this),
       scheduleRollout: notImplemented,
     };
@@ -959,6 +961,25 @@ export class ProposalServiceImpl {
     );
     return create(UpdateChangeSetResponseSchema, {
       changeSet: changeSetMessage(result.row, result.lines),
+    });
+  }
+
+  private async submitChangeSet(request: SubmitChangeSetRequest, context: HandlerContext) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.id, "id");
+    if (!request.title.trim()) {
+      throw new ConnectError("title is required", Code.InvalidArgument);
+    }
+    const actorId = ctx.userId ?? "";
+    if (!actorId) {
+      throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
+    }
+    const result = await this.db.withOrgTransaction(ctx.orgId, (client) =>
+      this.repo.submitChangeSet(client, ctx.orgId, request.id, actorId, request.title)
+    );
+    return create(SubmitChangeSetResponseSchema, {
+      proposal: proposalMessage(result.row, result.lines),
     });
   }
 

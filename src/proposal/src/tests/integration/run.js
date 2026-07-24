@@ -55,6 +55,10 @@ const tests = [
     dirname,
     "../../../dist_integration/tests/integration/preview-change-set.integration.test.js"
   ),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/submit-change-set.integration.test.js"
+  ),
 ];
 
 process.argv = [
