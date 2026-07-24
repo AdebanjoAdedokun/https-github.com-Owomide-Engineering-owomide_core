@@ -88,7 +88,7 @@ Postgres role `governance_svc` has GRANTed `INSERT, SELECT` on its own schema an
 
 ## Definition of done (MVP)
 
-- [ ] Schema migration applied with `org_id`, including REVOKE on UPDATE/DELETE
+- [x] Schema migration applied with `org_id`, including REVOKE on UPDATE/DELETE
 - [ ] Event subscriber for all locked events, idempotent by event_id
 - [ ] `GetActivityFeed` returning filtered, paged results
 - [ ] `GetEntityHistory` returning per-entity timeline
