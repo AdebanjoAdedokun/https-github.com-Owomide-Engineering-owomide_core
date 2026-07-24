@@ -1,4 +1,4 @@
-import { createClient } from "@connectrpc/connect";
+import { createClient, type Client } from "@connectrpc/connect";
 import { createGrpcTransport } from "@connectrpc/connect-node";
 import type { DescService } from "@bufbuild/protobuf";
 
@@ -16,6 +16,6 @@ function getTransport(baseUrl: string) {
 export function createServiceClient<T extends DescService>(
   service: T,
   baseUrl: string,
-) {
-  return createClient(service, getTransport(baseUrl)) as any;
+): Client<T> {
+  return createClient(service, getTransport(baseUrl));
 }

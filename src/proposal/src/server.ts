@@ -13,6 +13,7 @@ import { ProposalServiceImpl } from "./service.js";
 import { GrpcCatalogClient } from "./clients/catalog.js";
 import { GrpcMarginClient } from "./clients/margin.js";
 import { OutboxRelay } from "./workers/outbox-relay.js";
+import { ScheduledRolloutWorker } from "./workers/scheduled-rollout.js";
 
 export function errorInterceptor(logger: pino.Logger): Interceptor {
   return (next) => async (request) => {
@@ -44,6 +45,14 @@ export async function startServer(): Promise<() => Promise<void>> {
     kafka: { brokers: [config.kafkaBroker], clientId: "proposal-svc" },
   });
   const relay = new OutboxRelay(database.pool, bus.publisher, logger);
+  const rolloutWorker = new ScheduledRolloutWorker(
+    database.pool,
+    database,
+    repo,
+    catalogClient,
+    { catalogServiceSecret: config.catalogServiceSecret, serviceJwtIssuer: config.serviceJwtIssuer },
+    logger,
+  );
 
   const rpcHandler = connectNodeAdapter({
     interceptors: [errorInterceptor(logger)],
@@ -70,10 +79,12 @@ export async function startServer(): Promise<() => Promise<void>> {
     new Promise<void>((resolve) => healthServer.listen(config.healthPort, config.host, resolve)),
   ]);
   relay.start();
+  rolloutWorker.start();
   logger.info({ rpcPort: config.port, healthPort: config.healthPort }, "Proposal service listening");
 
   return async () => {
     await relay.stop();
+    rolloutWorker.stop();
     await Promise.all([
       new Promise<void>((resolve, reject) =>
         rpcServer.close((error) => (error ? reject(error) : resolve()))

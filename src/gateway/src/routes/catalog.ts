@@ -28,6 +28,7 @@ import {
   SaveLocationRequestSchema,
   SaveLocationResponseSchema,
 } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
+import type { Client } from "@connectrpc/connect";
 import { createServiceClient } from "../clients/factory.js";
 import { catalogServiceToken } from "../clients/service-auth.js";
 import type { Config } from "../config.js";
@@ -44,7 +45,7 @@ type SaveLocationInput = MessageInitShape<typeof SaveLocationRequestSchema>;
 type SaveCustomerSegmentInput = MessageInitShape<typeof SaveCustomerSegmentRequestSchema>;
 
 export interface CatalogRouteDependencies {
-  client?: ReturnType<typeof createServiceClient>;
+  client?: object;
   token?: () => Promise<string>;
 }
 
@@ -53,8 +54,9 @@ export async function registerCatalogRoutes(
   config: Config,
   dependencies: CatalogRouteDependencies = {}
 ) {
-  const client =
-    dependencies.client ?? createServiceClient(CatalogService, config.catalogServiceUrl);
+  const client = (
+    dependencies.client ?? createServiceClient(CatalogService, config.catalogServiceUrl)
+  ) as object as Client<typeof CatalogService>;
   const token = dependencies.token ?? (() => catalogServiceToken(config));
   const headers = async (req: { ctx: { orgId: string; userId: string; roles: string[] } }) => ({
     authorization: `Bearer ${await token()}`,

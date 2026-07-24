@@ -39,6 +39,8 @@ import {
   type PreviewChangeSetRequest,
   SubmitChangeSetResponseSchema,
   type SubmitChangeSetRequest,
+  ScheduleRolloutResponseSchema,
+  type ScheduleRolloutRequest,
 } from "@owomide/proto/services/proposal/v1/proposal_pb.js";
 import {
   ApplyPriceChangesRequestSchema,
@@ -72,7 +74,7 @@ import type { CatalogClient } from "./clients/catalog.js";
 import type { MarginClient } from "./clients/margin.js";
 import type { MarginViolation } from "./domain/state-machine.js";
 import { Database } from "./db.js";
-import { dateToTimestamp } from "./domain/time.js";
+import { dateToTimestamp, timestampToDate } from "./domain/time.js";
 import { transition, type ProposalState } from "./domain/state-machine.js";
 import { changeSetMessage, commentMessage, overrideRequestMessage, proposalMessage, type ProposalLineRow } from "./repo/mappers.js";
 import { ProposalRepository } from "./repo/proposal-repository.js";
@@ -87,8 +89,12 @@ function validateUuid(value: string, field: string): string {
   return value;
 }
 
-function notImplemented(): never {
-  throw new ConnectError("Not implemented", Code.Unimplemented);
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    err instanceof Error &&
+    "code" in err &&
+    (err as { code: unknown }).code === "23505"
+  );
 }
 
 function buildPayload(
@@ -179,7 +185,7 @@ export class ProposalServiceImpl {
       updateChangeSet: this.updateChangeSet.bind(this),
       submitChangeSet: this.submitChangeSet.bind(this),
       discardChangeSet: this.discardChangeSet.bind(this),
-      scheduleRollout: notImplemented,
+      scheduleRollout: this.scheduleRollout.bind(this),
     };
   }
 
@@ -991,5 +997,45 @@ export class ProposalServiceImpl {
       this.repo.discardChangeSet(c, request.id)
     );
     return create(DiscardChangeSetResponseSchema, {});
+  }
+
+  private async scheduleRollout(request: ScheduleRolloutRequest, context: HandlerContext) {
+    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const ctx = requestContext(context);
+    validateUuid(request.proposalId, "proposalId");
+    const actorId = ctx.userId ?? "";
+    if (!actorId) {
+      throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
+    }
+    const effectiveAt = timestampToDate(request.effectiveAt, "effectiveAt");
+
+    const result = await this.db.withOrgTransaction(ctx.orgId, async (client) => {
+      const current = await this.repo.getProposal(client, request.proposalId);
+      if (!current) {
+        throw new ConnectError("Proposal not found", Code.NotFound);
+      }
+      if (current.row.state !== "approved") {
+        throw new ConnectError(
+          "Only approved proposals can be scheduled for rollout",
+          Code.FailedPrecondition,
+        );
+      }
+      try {
+        await this.repo.createScheduledRollout(client, ctx.orgId, request.proposalId, effectiveAt);
+      } catch (err: unknown) {
+        if (isUniqueViolation(err)) {
+          throw new ConnectError(
+            "A pending rollout already exists for this proposal",
+            Code.AlreadyExists,
+          );
+        }
+        throw err;
+      }
+      return current;
+    });
+
+    return create(ScheduleRolloutResponseSchema, {
+      proposal: proposalMessage(result.row, result.lines),
+    });
   }
 }

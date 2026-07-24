@@ -20,6 +20,7 @@ import {
   type MappingTemplate,
   type UploadImportFileRequest,
 } from "@owomide/proto/services/data_pipeline/v1/data_pipeline_pb.js";
+import type { Client } from "@connectrpc/connect";
 import { createServiceClient } from "../clients/factory.js";
 import { dataPipelineServiceToken } from "../clients/service-auth.js";
 import type { Config } from "../config.js";
@@ -100,7 +101,7 @@ function sourceType(filename: string): ImportSourceType {
 }
 
 export interface DataPipelineRouteDependencies {
-  client?: ReturnType<typeof createServiceClient>;
+  client?: object;
   token?: () => Promise<string>;
 }
 
@@ -117,8 +118,9 @@ export async function registerDataPipelineRoutes(
       fileSize: config.dataPipelineUploadMaxBytes,
     },
   });
-  const client =
-    dependencies.client ?? createServiceClient(DataPipelineService, config.dataPipelineServiceUrl);
+  const client = (
+    dependencies.client ?? createServiceClient(DataPipelineService, config.dataPipelineServiceUrl)
+  ) as object as Client<typeof DataPipelineService>;
   const token = dependencies.token ?? (() => dataPipelineServiceToken(config));
 
   app.post("/imports", async (request, reply) => {
