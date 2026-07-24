@@ -5,7 +5,6 @@ import {
   GetProposalRequestSchema,
   UpdateDraftRequestSchema,
   SubmitProposalRequestSchema,
-  SubmitProposalResponseSchema,
   ApproveProposalRequestSchema,
   PublishProposalRequestSchema,
   AddCommentRequestSchema,
@@ -22,7 +21,7 @@ type ProposalClient = {
   getProposal(req: MessageInitShape<typeof GetProposalRequestSchema>, opts: Hdr): Promise<object>;
   listProposals(req: { state?: number; actorId?: string; pagination?: { pageSize?: number; pageToken?: string } }, opts: Hdr): Promise<object>;
   updateDraft(req: MessageInitShape<typeof UpdateDraftRequestSchema>, opts: Hdr): Promise<object>;
-  submitProposal(req: MessageInitShape<typeof SubmitProposalRequestSchema>, opts: Hdr): Promise<MessageInitShape<typeof SubmitProposalResponseSchema>>;
+  submitProposal(req: MessageInitShape<typeof SubmitProposalRequestSchema>, opts: Hdr): Promise<{ violations?: unknown[] }>;
   approveProposal(req: MessageInitShape<typeof ApproveProposalRequestSchema>, opts: Hdr): Promise<object>;
   publishProposal(req: MessageInitShape<typeof PublishProposalRequestSchema>, opts: Hdr): Promise<object>;
   addComment(req: MessageInitShape<typeof AddCommentRequestSchema>, opts: Hdr): Promise<object>;

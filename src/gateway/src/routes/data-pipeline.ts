@@ -1,4 +1,4 @@
-import { create, toJson } from "@bufbuild/protobuf";
+import { create, toJson, type MessageShape } from "@bufbuild/protobuf";
 import multipart, { type Multipart } from "@fastify/multipart";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
@@ -20,7 +20,6 @@ import {
   type MappingTemplate,
   type UploadImportFileRequest,
 } from "@owomide/proto/services/data_pipeline/v1/data_pipeline_pb.js";
-import type { Client } from "@connectrpc/connect";
 import { createServiceClient } from "../clients/factory.js";
 import { dataPipelineServiceToken } from "../clients/service-auth.js";
 import type { Config } from "../config.js";
@@ -100,6 +99,23 @@ function sourceType(filename: string): ImportSourceType {
   throw error;
 }
 
+// Hand-rolled typed interface — Client<typeof DataPipelineService> produces unresolvable
+// conditional types under strict mode when the service mixes client_streaming + unary methods.
+interface DataPipelineClient {
+  uploadImportFile(req: AsyncIterable<UploadImportFileRequest>, opts: { headers: Record<string, string> }): Promise<{ batchId: string; operationId: string }>;
+  listImportBatches(req: object, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof ListImportBatchesResponseSchema>>;
+  getImportBatch(req: { batchId: string }, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof GetImportBatchResponseSchema>>;
+  getColumnProfile(req: { batchId: string }, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof GetColumnProfileResponseSchema>>;
+  applyMapping(req: object, opts: { headers: Record<string, string> }): Promise<{ batchId: string; operationId: string }>;
+  getValidationReport(req: object, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof GetValidationReportResponseSchema>>;
+  editRow(req: object, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof EditRowResponseSchema>>;
+  excludeRow(req: object, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof ExcludeRowResponseSchema>>;
+  commitBatch(req: { batchId: string; confirmWarnings: boolean }, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof CommitBatchResponseSchema>>;
+  listMappingTemplates(req: object, opts: { headers: Record<string, string> }): Promise<{ templates: MappingTemplate[]; pagination?: object }>;
+  saveMappingTemplate(req: object, opts: { headers: Record<string, string> }): Promise<{ template?: MappingTemplate }>;
+  getImportOperation(req: { operationId: string }, opts: { headers: Record<string, string> }): Promise<MessageShape<typeof GetImportOperationResponseSchema>>;
+}
+
 export interface DataPipelineRouteDependencies {
   client?: object;
   token?: () => Promise<string>;
@@ -120,7 +136,7 @@ export async function registerDataPipelineRoutes(
   });
   const client = (
     dependencies.client ?? createServiceClient(DataPipelineService, config.dataPipelineServiceUrl)
-  ) as object as Client<typeof DataPipelineService>;
+  ) as object as DataPipelineClient;
   const token = dependencies.token ?? (() => dataPipelineServiceToken(config));
 
   app.post("/imports", async (request, reply) => {
