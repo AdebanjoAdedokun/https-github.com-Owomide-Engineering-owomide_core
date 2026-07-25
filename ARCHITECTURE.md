@@ -129,7 +129,7 @@ The event bus is the second backbone, sitting alongside gRPC. gRPC is used when 
 | `proposal.approved` | Approver clicks approve | org_id, proposal_id, approver_id, actor_id, at |
 | `proposal.published` | Approved proposal applies changes to Catalog | org_id, proposal_id, actor_id, effective_at, at |
 | `override.requested` | User initiates override for blocked proposal | org_id, override_request_id, proposal_id, justification, actor_id, at |
-| `override.approved` | Different actor approves override | org_id, override_request_id, approver_id, at |
+| `override.approved` | Different actor approves override | org_id, proposal_id, override_request_id, approver_id, requester_id, at |
 | `import.committed` | Canonical commit completes | org_id, batch_id, file_url, row_counts {ok, warned, excluded, errored}, template_id, actor_id, at |
 | `catalog.sku_added` | Catalog creates a SKU | org_id, sku_id, provenance, at |
 | `catalog.cost_updated` | Catalog records a new cost belief | org_id, sku_id, cost_record_id, provenance, at |

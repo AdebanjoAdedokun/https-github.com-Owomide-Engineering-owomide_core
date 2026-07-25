@@ -89,13 +89,13 @@ Postgres role `governance_svc` has GRANTed `INSERT, SELECT` on its own schema an
 ## Definition of done (MVP)
 
 - [x] Schema migration applied with `org_id`, including REVOKE on UPDATE/DELETE
-- [ ] Event subscriber for all locked events, idempotent by event_id
+- [x] Event subscriber for all locked events, idempotent by event_id
 - [ ] `GetActivityFeed` returning filtered, paged results
 - [ ] `GetEntityHistory` returning per-entity timeline
 - [ ] Snapshot worker: dump Catalog tables to MinIO with checksum, hourly schedule
 - [ ] Restore workflow (staging-only at MVP; prod gated to Phase 5.6)
-- [ ] Integration test: fire each locked event → verify org-scoped audit_log rows
-- [ ] Integration test: same event_id delivered twice → only one audit row
+- [x] Integration test: fire each locked event → verify org-scoped audit_log rows
+- [x] Integration test: same event_id delivered twice → only one audit row
 - [ ] Integration test: snapshot → restore → assert canonical state matches
 - [ ] `make lint` clean, `bazel test //src/governance/...` green
 

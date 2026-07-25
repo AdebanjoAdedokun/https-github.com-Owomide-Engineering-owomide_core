@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18\x65vents/override/v1.proto\x12\x1aowomide.events.override.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf7\x01\n\x11OverrideRequested\x12\x15\n\x06org_id\x18\x01 \x01(\tR\x05orgId\x12.\n\x13override_request_id\x18\x02 \x01(\tR\x11overrideRequestId\x12\x1f\n\x0bproposal_id\x18\x03 \x01(\tR\nproposalId\x12$\n\rjustification\x18\x04 \x01(\tR\rjustification\x12\x19\n\x08\x61\x63tor_id\x18\x05 \x01(\tR\x07\x61\x63torId\x12\x39\n\ncreated_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb5\x01\n\x10OverrideApproved\x12\x15\n\x06org_id\x18\x01 \x01(\tR\x05orgId\x12.\n\x13override_request_id\x18\x02 \x01(\tR\x11overrideRequestId\x12\x1f\n\x0b\x61pprover_id\x18\x03 \x01(\tR\napproverId\x12\x39\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAtB-Z+github.com/owomide/proto/events/override/v1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18\x65vents/override/v1.proto\x12\x1aowomide.events.override.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf7\x01\n\x11OverrideRequested\x12\x15\n\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x1f\n\x0bproposal_id\x18\x02 \x01(\tR\nproposalId\x12.\n\x13override_request_id\x18\x03 \x01(\tR\x11overrideRequestId\x12\x19\n\x08\x61\x63tor_id\x18\x04 \x01(\tR\x07\x61\x63torId\x12$\n\rjustification\x18\x05 \x01(\tR\rjustification\x12\x39\n\ncreated_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\"\xf9\x01\n\x10OverrideApproved\x12\x15\n\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x1f\n\x0bproposal_id\x18\x02 \x01(\tR\nproposalId\x12.\n\x13override_request_id\x18\x03 \x01(\tR\x11overrideRequestId\x12\x1f\n\x0b\x61pprover_id\x18\x04 \x01(\tR\napproverId\x12!\n\x0crequester_id\x18\x05 \x01(\tR\x0brequesterId\x12\x39\n\ncreated_at\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAtB-Z+github.com/owomide/proto/events/override/v1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,5 +36,5 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_OVERRIDEREQUESTED']._serialized_start=90
   _globals['_OVERRIDEREQUESTED']._serialized_end=337
   _globals['_OVERRIDEAPPROVED']._serialized_start=340
-  _globals['_OVERRIDEAPPROVED']._serialized_end=521
+  _globals['_OVERRIDEAPPROVED']._serialized_end=589
 # @@protoc_insertion_point(module_scope)

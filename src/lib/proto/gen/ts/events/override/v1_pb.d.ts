@@ -21,24 +21,24 @@ export declare type OverrideRequested = Message<"owomide.events.override.v1.Over
   orgId: string;
 
   /**
-   * @generated from field: string override_request_id = 2;
-   */
-  overrideRequestId: string;
-
-  /**
-   * @generated from field: string proposal_id = 3;
+   * @generated from field: string proposal_id = 2;
    */
   proposalId: string;
 
   /**
-   * @generated from field: string justification = 4;
+   * @generated from field: string override_request_id = 3;
    */
-  justification: string;
+  overrideRequestId: string;
 
   /**
-   * @generated from field: string actor_id = 5;
+   * @generated from field: string actor_id = 4;
    */
   actorId: string;
+
+  /**
+   * @generated from field: string justification = 5;
+   */
+  justification: string;
 
   /**
    * @generated from field: google.protobuf.Timestamp created_at = 6;
@@ -62,17 +62,27 @@ export declare type OverrideApproved = Message<"owomide.events.override.v1.Overr
   orgId: string;
 
   /**
-   * @generated from field: string override_request_id = 2;
+   * @generated from field: string proposal_id = 2;
+   */
+  proposalId: string;
+
+  /**
+   * @generated from field: string override_request_id = 3;
    */
   overrideRequestId: string;
 
   /**
-   * @generated from field: string approver_id = 3;
+   * @generated from field: string approver_id = 4;
    */
   approverId: string;
 
   /**
-   * @generated from field: google.protobuf.Timestamp created_at = 4;
+   * @generated from field: string requester_id = 5;
+   */
+  requesterId: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 6;
    */
   createdAt?: Timestamp | undefined;
 };

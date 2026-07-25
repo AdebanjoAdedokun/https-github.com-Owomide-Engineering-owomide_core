@@ -62,10 +62,12 @@ import {
   ProposalBlockedSchema,
   ProposalApprovedSchema,
   ProposalPublishedSchema,
-  OverrideRequestedSchema,
-  OverrideApprovedSchema,
   ViolationSchema as EventViolationSchema,
 } from "@owomide/proto/events/proposal/v1_pb.js";
+import {
+  OverrideRequestedSchema,
+  OverrideApprovedSchema,
+} from "@owomide/proto/events/override/v1_pb.js";
 import { requestContext, requireApproverRole, signServiceJwt, ServiceAuthenticator } from "./context.js";
 import { parseScopeDsl } from "./domain/scope-dsl.js";
 import { parseRepricingRule, applyRule } from "./domain/repricing-rules.js";
@@ -635,7 +637,7 @@ export class ProposalServiceImpl {
           orgId: ctx.orgId,
           proposalId: request.proposalId,
           overrideRequestId: row.id,
-          requesterId: actorId,
+          actorId,
           justification: request.justification,
           createdAt: dateToTimestamp(now),
         }),
@@ -724,7 +726,7 @@ export class ProposalServiceImpl {
           orgId: ctx.orgId,
           proposalId: overrideRow.proposal_id,
           overrideRequestId: request.overrideRequestId,
-          deciderId: actorId,
+          approverId: actorId,
           requesterId: overrideRow.requester_id,
           createdAt: dateToTimestamp(now),
         }),

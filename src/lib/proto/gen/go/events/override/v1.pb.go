@@ -25,10 +25,10 @@ const (
 type OverrideRequested struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	OrgId             string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	OverrideRequestId string                 `protobuf:"bytes,2,opt,name=override_request_id,json=overrideRequestId,proto3" json:"override_request_id,omitempty"`
-	ProposalId        string                 `protobuf:"bytes,3,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
-	Justification     string                 `protobuf:"bytes,4,opt,name=justification,proto3" json:"justification,omitempty"`
-	ActorId           string                 `protobuf:"bytes,5,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	ProposalId        string                 `protobuf:"bytes,2,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	OverrideRequestId string                 `protobuf:"bytes,3,opt,name=override_request_id,json=overrideRequestId,proto3" json:"override_request_id,omitempty"`
+	ActorId           string                 `protobuf:"bytes,4,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	Justification     string                 `protobuf:"bytes,5,opt,name=justification,proto3" json:"justification,omitempty"`
 	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
@@ -71,13 +71,6 @@ func (x *OverrideRequested) GetOrgId() string {
 	return ""
 }
 
-func (x *OverrideRequested) GetOverrideRequestId() string {
-	if x != nil {
-		return x.OverrideRequestId
-	}
-	return ""
-}
-
 func (x *OverrideRequested) GetProposalId() string {
 	if x != nil {
 		return x.ProposalId
@@ -85,9 +78,9 @@ func (x *OverrideRequested) GetProposalId() string {
 	return ""
 }
 
-func (x *OverrideRequested) GetJustification() string {
+func (x *OverrideRequested) GetOverrideRequestId() string {
 	if x != nil {
-		return x.Justification
+		return x.OverrideRequestId
 	}
 	return ""
 }
@@ -95,6 +88,13 @@ func (x *OverrideRequested) GetJustification() string {
 func (x *OverrideRequested) GetActorId() string {
 	if x != nil {
 		return x.ActorId
+	}
+	return ""
+}
+
+func (x *OverrideRequested) GetJustification() string {
+	if x != nil {
+		return x.Justification
 	}
 	return ""
 }
@@ -109,9 +109,11 @@ func (x *OverrideRequested) GetCreatedAt() *timestamppb.Timestamp {
 type OverrideApproved struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	OrgId             string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	OverrideRequestId string                 `protobuf:"bytes,2,opt,name=override_request_id,json=overrideRequestId,proto3" json:"override_request_id,omitempty"`
-	ApproverId        string                 `protobuf:"bytes,3,opt,name=approver_id,json=approverId,proto3" json:"approver_id,omitempty"`
-	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ProposalId        string                 `protobuf:"bytes,2,opt,name=proposal_id,json=proposalId,proto3" json:"proposal_id,omitempty"`
+	OverrideRequestId string                 `protobuf:"bytes,3,opt,name=override_request_id,json=overrideRequestId,proto3" json:"override_request_id,omitempty"`
+	ApproverId        string                 `protobuf:"bytes,4,opt,name=approver_id,json=approverId,proto3" json:"approver_id,omitempty"`
+	RequesterId       string                 `protobuf:"bytes,5,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -153,6 +155,13 @@ func (x *OverrideApproved) GetOrgId() string {
 	return ""
 }
 
+func (x *OverrideApproved) GetProposalId() string {
+	if x != nil {
+		return x.ProposalId
+	}
+	return ""
+}
+
 func (x *OverrideApproved) GetOverrideRequestId() string {
 	if x != nil {
 		return x.OverrideRequestId
@@ -163,6 +172,13 @@ func (x *OverrideApproved) GetOverrideRequestId() string {
 func (x *OverrideApproved) GetApproverId() string {
 	if x != nil {
 		return x.ApproverId
+	}
+	return ""
+}
+
+func (x *OverrideApproved) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
 	}
 	return ""
 }
@@ -180,21 +196,24 @@ const file_events_override_v1_proto_rawDesc = "" +
 	"\n" +
 	"\x18events/override/v1.proto\x12\x1aowomide.events.override.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf7\x01\n" +
 	"\x11OverrideRequested\x12\x15\n" +
-	"\x06org_id\x18\x01 \x01(\tR\x05orgId\x12.\n" +
-	"\x13override_request_id\x18\x02 \x01(\tR\x11overrideRequestId\x12\x1f\n" +
-	"\vproposal_id\x18\x03 \x01(\tR\n" +
-	"proposalId\x12$\n" +
-	"\rjustification\x18\x04 \x01(\tR\rjustification\x12\x19\n" +
-	"\bactor_id\x18\x05 \x01(\tR\aactorId\x129\n" +
+	"\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x1f\n" +
+	"\vproposal_id\x18\x02 \x01(\tR\n" +
+	"proposalId\x12.\n" +
+	"\x13override_request_id\x18\x03 \x01(\tR\x11overrideRequestId\x12\x19\n" +
+	"\bactor_id\x18\x04 \x01(\tR\aactorId\x12$\n" +
+	"\rjustification\x18\x05 \x01(\tR\rjustification\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb5\x01\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xf9\x01\n" +
 	"\x10OverrideApproved\x12\x15\n" +
-	"\x06org_id\x18\x01 \x01(\tR\x05orgId\x12.\n" +
-	"\x13override_request_id\x18\x02 \x01(\tR\x11overrideRequestId\x12\x1f\n" +
-	"\vapprover_id\x18\x03 \x01(\tR\n" +
-	"approverId\x129\n" +
+	"\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x1f\n" +
+	"\vproposal_id\x18\x02 \x01(\tR\n" +
+	"proposalId\x12.\n" +
+	"\x13override_request_id\x18\x03 \x01(\tR\x11overrideRequestId\x12\x1f\n" +
+	"\vapprover_id\x18\x04 \x01(\tR\n" +
+	"approverId\x12!\n" +
+	"\frequester_id\x18\x05 \x01(\tR\vrequesterId\x129\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB-Z+github.com/owomide/proto/events/override/v1b\x06proto3"
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB-Z+github.com/owomide/proto/events/override/v1b\x06proto3"
 
 var (
 	file_events_override_v1_proto_rawDescOnce sync.Once
