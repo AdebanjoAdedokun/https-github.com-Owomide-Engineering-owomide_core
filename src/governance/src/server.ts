@@ -3,7 +3,10 @@ import pino from "pino";
 import { createBus } from "@owomide/bus";
 import { loadConfig } from "./config.js";
 import { Database } from "./db.js";
+import { ObjectStore } from "./clients/object-store.js";
+import { GrpcCatalogSnapshotClient } from "./clients/catalog.js";
 import { startAuditSubscriber } from "./subscribers/audit-subscriber.js";
+import { startSnapshotSubscriber } from "./subscribers/snapshot-subscriber.js";
 
 export async function startServer(): Promise<() => Promise<void>> {
   const config = loadConfig();
@@ -14,7 +17,31 @@ export async function startServer(): Promise<() => Promise<void>> {
     kafka: { brokers: [config.kafkaBroker], clientId: "governance-svc" },
   });
 
-  const subscriptions = await startAuditSubscriber(bus.subscriber, database.pool, logger);
+  const objectStore = new ObjectStore({
+    endpoint: config.minioEndpoint,
+    accessKey: config.minioAccessKey,
+    secretKey: config.minioSecretKey,
+    secure: config.minioSecure,
+    bucket: config.minioBucket,
+  });
+
+  const catalogClient = new GrpcCatalogSnapshotClient(
+    config.catalogUrl,
+    config.catalogServiceSecret,
+    config.serviceJwtIssuer,
+  );
+
+  const auditSubscriptions = await startAuditSubscriber(bus.subscriber, database.pool, logger);
+  const snapshotSubscriptions = await startSnapshotSubscriber(
+    bus.subscriber,
+    {
+      pool: database.pool,
+      catalogClient,
+      objectStore,
+      debounceMs: config.snapshotDebounceMs,
+    },
+    logger,
+  );
 
   const healthServer = http.createServer(async (req, res) => {
     if (req.url === "/health") {
@@ -23,7 +50,8 @@ export async function startServer(): Promise<() => Promise<void>> {
       return;
     }
     if (req.url === "/readyz") {
-      const ready = await database.ready();
+      const [dbReady, minioReady] = await Promise.all([database.ready(), objectStore.ready()]);
+      const ready = dbReady && minioReady;
       res.writeHead(ready ? 200 : 503, { "content-type": "application/json" });
       res.end(JSON.stringify({ status: ready ? "ready" : "not_ready" }));
       return;
@@ -35,7 +63,7 @@ export async function startServer(): Promise<() => Promise<void>> {
   logger.info({ healthPort: config.healthPort }, "governance service listening");
 
   return async () => {
-    for (const sub of subscriptions) {
+    for (const sub of [...auditSubscriptions, ...snapshotSubscriptions]) {
       await sub.unsubscribe();
     }
     await bus.subscriber.close();

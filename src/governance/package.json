@@ -10,9 +10,13 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.12.1",
+    "@connectrpc/connect": "^2.1.2",
+    "@connectrpc/connect-node": "^2.1.2",
     "@owomide/bus": "workspace:*",
     "@owomide/proto": "workspace:*",
+    "jose": "^6.0.11",
     "kafkajs": "^2.2.4",
+    "minio": "^8.0.7",
     "pg": "^8.16.3",
     "pino": "^10.3.1"
   },

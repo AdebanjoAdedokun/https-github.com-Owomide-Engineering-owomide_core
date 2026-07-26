@@ -12,6 +12,10 @@ const tests = [
     dirname,
     "../../../dist_integration/tests/integration/audit-subscriber.integration.test.js"
   ),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/snapshot-repo.integration.test.js"
+  ),
 ];
 
 process.argv = [
