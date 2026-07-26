@@ -1,12 +1,29 @@
 import * as http from "node:http";
+import * as http2 from "node:http2";
+import { Code, ConnectError, type ConnectRouter, type Interceptor } from "@connectrpc/connect";
+import { connectNodeAdapter } from "@connectrpc/connect-node";
+import { GovernanceService } from "@owomide/proto/services/governance/v1/governance_pb.js";
 import pino from "pino";
 import { createBus } from "@owomide/bus";
 import { loadConfig } from "./config.js";
 import { Database } from "./db.js";
 import { ObjectStore } from "./clients/object-store.js";
 import { GrpcCatalogSnapshotClient } from "./clients/catalog.js";
+import { GovernanceServiceImpl } from "./service.js";
 import { startAuditSubscriber } from "./subscribers/audit-subscriber.js";
 import { startSnapshotSubscriber } from "./subscribers/snapshot-subscriber.js";
+
+export function errorInterceptor(logger: pino.Logger): Interceptor {
+  return (next) => async (request) => {
+    try {
+      return await next(request);
+    } catch (error) {
+      if (error instanceof ConnectError) throw error;
+      logger.error({ err: error, procedure: request.method.name }, "Governance RPC failed");
+      throw new ConnectError("Internal Governance error", Code.Internal);
+    }
+  };
+}
 
 export async function startServer(): Promise<() => Promise<void>> {
   const config = loadConfig();
@@ -30,6 +47,19 @@ export async function startServer(): Promise<() => Promise<void>> {
     config.catalogServiceSecret,
     config.serviceJwtIssuer,
   );
+
+  const service = new GovernanceServiceImpl({
+    pool: database.pool,
+    objectStore,
+    catalogClient,
+    logger,
+  });
+
+  const rpcHandler = connectNodeAdapter({
+    interceptors: [errorInterceptor(logger)],
+    routes: (router: ConnectRouter) => router.service(GovernanceService, service.implementation),
+  });
+  const rpcServer = http2.createServer(rpcHandler);
 
   const auditSubscriptions = await startAuditSubscriber(bus.subscriber, database.pool, logger);
   const snapshotSubscriptions = await startSnapshotSubscriber(
@@ -59,8 +89,11 @@ export async function startServer(): Promise<() => Promise<void>> {
     res.writeHead(404).end();
   });
 
-  await new Promise<void>((resolve) => healthServer.listen(config.healthPort, resolve));
-  logger.info({ healthPort: config.healthPort }, "governance service listening");
+  await Promise.all([
+    new Promise<void>((resolve) => rpcServer.listen(config.grpcPort, config.host, resolve)),
+    new Promise<void>((resolve) => healthServer.listen(config.healthPort, config.host, resolve)),
+  ]);
+  logger.info({ rpcPort: config.grpcPort, healthPort: config.healthPort }, "governance service listening");
 
   return async () => {
     for (const sub of [...auditSubscriptions, ...snapshotSubscriptions]) {
@@ -68,9 +101,14 @@ export async function startServer(): Promise<() => Promise<void>> {
     }
     await bus.subscriber.close();
     await bus.publisher.close();
-    await new Promise<void>((resolve, reject) =>
-      healthServer.close((err) => (err ? reject(err) : resolve())),
-    );
+    await Promise.all([
+      new Promise<void>((resolve, reject) =>
+        rpcServer.close((err) => (err ? reject(err) : resolve())),
+      ),
+      new Promise<void>((resolve, reject) =>
+        healthServer.close((err) => (err ? reject(err) : resolve())),
+      ),
+    ]);
     await database.close();
   };
 }

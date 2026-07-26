@@ -96,6 +96,51 @@ export async function getLatestSnapshot(
   }
 }
 
+export async function getSnapshotById(
+  pool: pg.Pool,
+  orgId: string,
+  snapshotId: string,
+): Promise<SnapshotRow | null> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("SELECT set_config('app.org_id', $1, true)", [orgId]);
+    const { rows } = await client.query<{
+      id: string;
+      org_id: string;
+      snapshot_at: Date;
+      scope: string;
+      storage_url: string;
+      row_counts: Record<string, number>;
+      checksum: string;
+      created_at: Date;
+    }>(
+      `SELECT id, org_id, snapshot_at, scope, storage_url, row_counts, checksum, created_at
+       FROM governance.snapshot
+       WHERE id = $1 AND org_id = $2`,
+      [snapshotId, orgId],
+    );
+    await client.query("COMMIT");
+    if (rows.length === 0) return null;
+    const r = rows[0]!;
+    return {
+      id: r.id,
+      orgId: r.org_id,
+      snapshotAt: r.snapshot_at,
+      scope: r.scope,
+      storageUrl: r.storage_url,
+      rowCounts: r.row_counts,
+      checksum: r.checksum,
+      createdAt: r.created_at,
+    };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 export async function listSnapshots(
   pool: pg.Pool,
   orgId: string,

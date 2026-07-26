@@ -47,6 +47,7 @@ ts_project(
         ":node_modules/minio",
         ":node_modules/pg",
         ":node_modules/pino",
+        ":node_modules/zod",
     ],
 )
 
@@ -82,6 +83,7 @@ ts_project(
         ":node_modules/pg",
         ":node_modules/pino",
         ":node_modules/vitest",
+        ":node_modules/zod",
     ],
 )
 
@@ -100,6 +102,8 @@ js_test(
         "migrations/0002_audit_log_foundation.up.sql",
         "migrations/0003_snapshot.down.sql",
         "migrations/0003_snapshot.up.sql",
+        "migrations/0004_restore_request.down.sql",
+        "migrations/0004_restore_request.up.sql",
     ],
     entry_point = "src/tests/integration/run.js",
     tags = [

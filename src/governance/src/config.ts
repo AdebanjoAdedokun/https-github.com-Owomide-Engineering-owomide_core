@@ -2,6 +2,8 @@ export interface GovernanceConfig {
   databaseUrl: string;
   kafkaBroker: string;
   logLevel: string;
+  grpcPort: number;
+  host: string;
   healthPort: number;
   catalogUrl: string;
   catalogServiceSecret: string;
@@ -22,6 +24,8 @@ export function loadConfig(): GovernanceConfig {
     databaseUrl,
     kafkaBroker: process.env["KAFKA_BROKER"] ?? "localhost:9092",
     logLevel: process.env["LOG_LEVEL"] ?? "info",
+    grpcPort: Number(process.env["GRPC_PORT"] ?? "50054"),
+    host: process.env["HOST"] ?? "0.0.0.0",
     healthPort: Number(process.env["HEALTH_PORT"] ?? "8081"),
     catalogUrl: process.env["CATALOG_URL"] ?? "http://localhost:50052",
     catalogServiceSecret: process.env["CATALOG_SERVICE_SECRET"] ?? "",
