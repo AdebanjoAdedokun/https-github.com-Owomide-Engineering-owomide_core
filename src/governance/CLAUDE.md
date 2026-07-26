@@ -92,7 +92,7 @@ Postgres role `governance_svc` has GRANTed `INSERT, SELECT` on its own schema an
 - [x] Event subscriber for all locked events, idempotent by event_id
 - [ ] `GetActivityFeed` returning filtered, paged results
 - [ ] `GetEntityHistory` returning per-entity timeline
-- [ ] Snapshot worker: dump Catalog tables to MinIO with checksum, hourly schedule
+- [x] Snapshot worker: dump Catalog tables to MinIO with checksum, hourly schedule
 - [ ] Restore workflow (staging-only at MVP; prod gated to Phase 5.6)
 - [x] Integration test: fire each locked event → verify org-scoped audit_log rows
 - [x] Integration test: same event_id delivered twice → only one audit row
