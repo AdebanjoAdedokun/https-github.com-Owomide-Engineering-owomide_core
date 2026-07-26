@@ -9,6 +9,10 @@
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.12.1",
+    "@owomide/bus": "workspace:*",
+    "@owomide/proto": "workspace:*",
+    "kafkajs": "^2.2.4",
     "pg": "^8.16.3",
     "pino": "^10.3.1"
   },
@@ -16,7 +20,6 @@
     "@testcontainers/postgresql": "^10.28.0",
     "@types/node": "^22.15.0",
     "@types/pg": "^8.15.5",
-    "pg": "^8.16.3",
     "typescript": "^5.7.3",
     "vitest": "^3.2.3"
   }
