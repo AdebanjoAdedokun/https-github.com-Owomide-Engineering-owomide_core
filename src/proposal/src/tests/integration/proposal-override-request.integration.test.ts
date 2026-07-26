@@ -14,7 +14,7 @@ import {
 import {
   OverrideRequestedSchema,
   type OverrideRequested,
-} from "@owomide/proto/events/proposal/v1_pb.js";
+} from "@owomide/proto/events/override/v1_pb.js";
 import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
@@ -196,7 +196,7 @@ describe("RequestOverride", () => {
       new Uint8Array(outboxRows[0]!.payload as Buffer)
     ) as unknown as OverrideRequested;
     expect(event.proposalId).toBe(proposalId);
-    expect(event.requesterId).toBe(REQUESTER);
+    expect(event.actorId).toBe(REQUESTER);
     expect(event.overrideRequestId).toBe(resp.overrideRequest!.id);
     expect(event.justification).toBe(justification);
   });

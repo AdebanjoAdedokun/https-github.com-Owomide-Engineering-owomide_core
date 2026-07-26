@@ -14,7 +14,7 @@ import {
 import {
   OverrideApprovedSchema,
   type OverrideApproved,
-} from "@owomide/proto/events/proposal/v1_pb.js";
+} from "@owomide/proto/events/override/v1_pb.js";
 import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
@@ -238,7 +238,7 @@ describe("ApproveOverride", () => {
     ) as unknown as OverrideApproved;
     expect(event.proposalId).toBe(proposalId);
     expect(event.overrideRequestId).toBe(overrideRequestId);
-    expect(event.deciderId).toBe(DECIDER);
+    expect(event.approverId).toBe(DECIDER);
     expect(event.requesterId).toBe(REQUESTER);
   });
 
