@@ -18,7 +18,8 @@
     "kafkajs": "^2.2.4",
     "minio": "^8.0.7",
     "pg": "^8.16.3",
-    "pino": "^10.3.1"
+    "pino": "^10.3.1",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^10.28.0",

@@ -243,7 +243,7 @@ export class CatalogServiceImpl {
       },
       upsertCanonical: async (request: UpsertCanonicalRequest, context: HandlerContext) => {
         const ctx = requestContext(context);
-        const caller = await this.authenticator.authorize(context, ["data_pipeline_svc"]);
+        const caller = await this.authenticator.authorize(context, ["data_pipeline_svc", "governance_svc"]);
         return create(
           UpsertCanonicalResponseSchema,
           await this.writes.upsertCanonical(ctx.orgId, caller, request)
@@ -266,9 +266,9 @@ export class CatalogServiceImpl {
   }
 
   private async referenceWriteContext(context: HandlerContext) {
-    await this.authenticator.authorize(context, ["gateway_svc"]);
+    const caller = await this.authenticator.authorize(context, ["gateway_svc", "governance_svc"]);
     const ctx = requestContext(context);
-    requireOrgAdmin(ctx);
+    if (caller === "gateway_svc") requireOrgAdmin(ctx);
     return ctx;
   }
 }
