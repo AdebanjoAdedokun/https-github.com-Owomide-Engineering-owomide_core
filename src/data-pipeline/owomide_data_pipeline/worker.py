@@ -11,6 +11,8 @@ from owomide_data_pipeline.catalog import CatalogClient
 from owomide_data_pipeline.config import Config
 from owomide_data_pipeline.db import Database
 from owomide_data_pipeline.health import start_health_server
+from owomide_data_pipeline.intelligence.fx import FxCalculator
+from owomide_data_pipeline.intelligence.repository import FxRateRepository
 from owomide_data_pipeline.outbox import KafkaEventPublisher, OutboxProcessor
 from owomide_data_pipeline.processor import ImportProcessor
 from owomide_data_pipeline.repository import ImportRepository
@@ -43,6 +45,10 @@ def main() -> None:
     )
     worker_id = f"{socket.gethostname()}-{os.getpid()}-{uuid4().hex[:8]}"
     repository = ImportRepository(database)
+    fx_calculator = FxCalculator(
+        FxRateRepository(database),
+        max_rate_age_seconds=config.fx_max_rate_age_seconds,
+    )
     processor = ImportProcessor(
         repository=repository,
         object_store=object_store,
@@ -54,6 +60,7 @@ def main() -> None:
         insert_batch_size=config.import_insert_batch_size,
         xlsx_spool_memory_bytes=config.xlsx_spool_memory_bytes,
         catalog_client=catalog_client,
+        fx_calculator=fx_calculator,
     )
     outbox = OutboxProcessor(
         repository=repository,

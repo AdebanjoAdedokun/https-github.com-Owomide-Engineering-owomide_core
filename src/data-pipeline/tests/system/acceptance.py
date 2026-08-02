@@ -436,6 +436,7 @@ class AcceptanceScenario:
     async def run(self) -> None:
         await self._wait_services()
         self.token = self._login()
+        self._assert_fx_intelligence()
         references = self._create_references()
 
         from aiokafka import AIOKafkaConsumer
@@ -468,7 +469,7 @@ class AcceptanceScenario:
             self._assert_tenant_isolation(csv_batch)
         finally:
             await consumer.stop()
-        print("Phase 2 system acceptance passed", flush=True)
+        print("Data Pipeline system acceptance passed", flush=True)
 
     async def _wait_services(self) -> None:
         deadline = time.monotonic() + 90
@@ -499,6 +500,124 @@ class AcceptanceScenario:
             authenticated=False,
         )
         return str(response["token"])
+
+    def _assert_fx_intelligence(self) -> None:
+        effective_at = "2026-08-01T16:00:00Z"
+        first = self._request(
+            "POST",
+            "/intelligence/fx/rate-snapshots",
+            body={
+                "idempotencyKey": "acceptance-fx-close-1",
+                "source": "treasury",
+                "baseCurrency": "USD",
+                "effectiveAt": effective_at,
+                "rates": [
+                    {"currency": "GBP", "rate": "0.75"},
+                    {"currency": "NGN", "rate": "1500"},
+                ],
+                "providerRef": "acceptance-close-1",
+            },
+        )
+        self._expect(first, {"replayed": False})
+        first_snapshot = first.get("snapshot")
+        if not isinstance(first_snapshot, dict):
+            raise AssertionError(f"FX snapshot response is invalid: {first}")
+        self._expect(
+            first_snapshot,
+            {"orgId": ORG_ID, "source": "treasury", "baseCurrency": "USD"},
+        )
+        replay = self._request(
+            "POST",
+            "/intelligence/fx/rate-snapshots",
+            body={
+                "idempotencyKey": "acceptance-fx-close-1",
+                "source": "treasury",
+                "baseCurrency": "USD",
+                "effectiveAt": effective_at,
+                "rates": [
+                    {"currency": "NGN", "rate": "1500.0"},
+                    {"currency": "GBP", "rate": "0.7500"},
+                ],
+                "providerRef": "acceptance-close-1",
+            },
+        )
+        self._expect(replay, {"replayed": True})
+        replay_snapshot = replay.get("snapshot")
+        if (
+            not isinstance(replay_snapshot, dict)
+            or replay_snapshot.get("id") != first_snapshot["id"]
+        ):
+            raise AssertionError("FX idempotency replay returned a different snapshot")
+
+        second = self._request(
+            "POST",
+            "/intelligence/fx/rate-snapshots",
+            body={
+                "idempotencyKey": "acceptance-fx-close-2",
+                "source": "treasury",
+                "baseCurrency": "USD",
+                "effectiveAt": effective_at,
+                "rates": [{"currency": "NGN", "rate": "1600"}],
+                "providerRef": "acceptance-close-2",
+            },
+        )
+        second_snapshot = second.get("snapshot")
+        if not isinstance(second_snapshot, dict):
+            raise AssertionError(f"FX snapshot response is invalid: {second}")
+        query = urllib.parse.urlencode(
+            {
+                "sourceCurrency": "USD",
+                "targetCurrency": "NGN",
+                "rateSource": "treasury",
+                "effectiveAt": effective_at,
+                "recordedAsOf": first_snapshot["recordedAt"],
+            }
+        )
+        historical = self._request("GET", f"/intelligence/fx/rates?{query}")
+        historical_quote = historical.get("quote")
+        if not isinstance(historical_quote, dict):
+            raise AssertionError(f"Historical FX response is invalid: {historical}")
+        self._expect(historical_quote, {"rate": "1500", "snapshotId": first_snapshot["id"]})
+
+        current_query = urllib.parse.urlencode(
+            {
+                "sourceCurrency": "USD",
+                "targetCurrency": "NGN",
+                "rateSource": "treasury",
+                "effectiveAt": effective_at,
+            }
+        )
+        current = self._request("GET", f"/intelligence/fx/rates?{current_query}")
+        current_quote = current.get("quote")
+        if not isinstance(current_quote, dict):
+            raise AssertionError(f"Current FX response is invalid: {current}")
+        self._expect(current_quote, {"rate": "1600", "snapshotId": second_snapshot["id"]})
+        converted = self._request(
+            "POST",
+            "/intelligence/fx/convert",
+            body={
+                "amountMinor": "1050",
+                "sourceCurrency": "USD",
+                "targetCurrency": "NGN",
+                "rateSource": "treasury",
+                "effectiveAt": effective_at,
+                "recordedAsOf": first_snapshot["recordedAt"],
+            },
+        )
+        self._expect(
+            converted,
+            {
+                "sourceAmountMinor": "1050",
+                "targetAmountMinor": "1575000",
+                "sourceMinorUnit": 2,
+                "targetMinorUnit": 2,
+                "roundingMode": "FX_ROUNDING_MODE_HALF_EVEN",
+            },
+        )
+        converted_quote = converted.get("quote")
+        if not isinstance(converted_quote, dict):
+            raise AssertionError(f"FX conversion response is invalid: {converted}")
+        self._expect(converted_quote, {"snapshotId": first_snapshot["id"]})
 
     def _create_references(self) -> dict[str, str]:
         channel = self._request(

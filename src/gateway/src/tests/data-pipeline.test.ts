@@ -1,17 +1,21 @@
 import { create } from "@bufbuild/protobuf";
+import { timestampFromDate } from "@bufbuild/protobuf/wkt";
 import Fastify from "fastify";
 import { describe, expect, it } from "vitest";
 import {
   ApplyMappingResponseSchema,
   CommitBatchResponseSchema,
+  ConvertCurrencyResponseSchema,
   EditRowResponseSchema,
   ExcludeRowResponseSchema,
   GetColumnProfileResponseSchema,
   GetImportOperationResponseSchema,
+  GetFxRateResponseSchema,
   GetValidationReportResponseSchema,
   ImportBatchStatus,
   ImportOperationStatus,
   ListMappingTemplatesResponseSchema,
+  RecordFxRateSnapshotResponseSchema,
   SaveMappingTemplateResponseSchema,
   UploadImportFileResponseSchema,
   type UploadImportFileRequest,
@@ -57,6 +61,9 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
   let editRowRequest: unknown;
   let excludeRowRequest: unknown;
   let commitRequest: unknown;
+  let recordFxRequest: unknown;
+  let getFxRequest: unknown;
+  let convertFxRequest: unknown;
   const client = {
     async uploadImportFile(
       requests: AsyncIterable<UploadImportFileRequest>,
@@ -199,6 +206,55 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
         },
       });
     },
+    async recordFxRateSnapshot(request: Record<string, unknown>) {
+      recordFxRequest = request;
+      return create(RecordFxRateSnapshotResponseSchema, {
+        snapshot: {
+          id: "snapshot-1",
+          orgId: "org-test",
+          source: String(request["source"]),
+          baseCurrency: String(request["baseCurrency"]),
+          effectiveAt: request["effectiveAt"] as never,
+          recordedAt: timestampFromDate(new Date("2026-08-02T12:00:00Z")),
+          rates: request["rates"] as never,
+          checksumSha256: "a".repeat(64),
+          createdBy: "user-test",
+        },
+      });
+    },
+    async getFxRate(request: Record<string, unknown>) {
+      getFxRequest = request;
+      return create(GetFxRateResponseSchema, {
+        quote: {
+          sourceCurrency: String(request["sourceCurrency"]),
+          targetCurrency: String(request["targetCurrency"]),
+          rate: "1500",
+          rateSource: String(request["rateSource"]),
+          snapshotId: "snapshot-1",
+          effectiveAt: request["effectiveAt"] as never,
+          recordedAt: timestampFromDate(new Date("2026-08-02T12:00:00Z")),
+        },
+      });
+    },
+    async convertCurrency(request: Record<string, unknown>) {
+      convertFxRequest = request;
+      return create(ConvertCurrencyResponseSchema, {
+        sourceAmountMinor: request["amountMinor"] as bigint,
+        targetAmountMinor: 1_575_000n,
+        sourceMinorUnit: 2,
+        targetMinorUnit: 2,
+        exactTargetAmount: "15750",
+        quote: {
+          sourceCurrency: String(request["sourceCurrency"]),
+          targetCurrency: String(request["targetCurrency"]),
+          rate: "1500",
+          rateSource: String(request["rateSource"]),
+          snapshotId: "snapshot-1",
+          effectiveAt: request["effectiveAt"] as never,
+          recordedAt: timestampFromDate(new Date("2026-08-02T12:00:00Z")),
+        },
+      });
+    },
   };
   const config = { ...loadConfig(), dataPipelineUploadMaxBytes: maxBytes };
   await registerDataPipelineRoutes(app, config, {
@@ -217,6 +273,9 @@ async function testApp(maxBytes = 1024, operationBatchId = "batch-1") {
     editRowRequest: () => editRowRequest,
     excludeRowRequest: () => excludeRowRequest,
     commitRequest: () => commitRequest,
+    recordFxRequest: () => recordFxRequest,
+    getFxRequest: () => getFxRequest,
+    convertFxRequest: () => convertFxRequest,
   };
 }
 
@@ -476,6 +535,88 @@ describe("Data Pipeline routes", () => {
       operation: { id: "commit-1", status: "IMPORT_OPERATION_STATUS_QUEUED" },
     });
     expect(commitRequest()).toEqual({ batchId: "batch-1", confirmWarnings: true });
+    await app.close();
+  });
+
+  it("records, resolves, and converts historical FX rates", async () => {
+    const { app, recordFxRequest, getFxRequest, convertFxRequest } = await testApp();
+    const created = await app.inject({
+      method: "POST",
+      url: "/intelligence/fx/rate-snapshots",
+      payload: {
+        idempotencyKey: "close-1",
+        source: "treasury",
+        baseCurrency: "USD",
+        effectiveAt: "2026-08-01T16:00:00Z",
+        rates: [{ currency: "NGN", rate: "1500" }],
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    expect(created.json()).toMatchObject({
+      snapshot: { id: "snapshot-1", orgId: "org-test", rates: [{ rate: "1500" }] },
+      replayed: false,
+    });
+    expect(recordFxRequest()).toMatchObject({ idempotencyKey: "close-1" });
+
+    const rate = await app.inject({
+      method: "GET",
+      url: "/intelligence/fx/rates?sourceCurrency=USD&targetCurrency=NGN&rateSource=treasury&effectiveAt=2026-08-01T16%3A00%3A00Z&recordedAsOf=2026-08-02T12%3A00%3A00.508123Z",
+    });
+    expect(rate.statusCode).toBe(200);
+    expect(rate.json()).toMatchObject({ quote: { rate: "1500", snapshotId: "snapshot-1" } });
+    expect(getFxRequest()).toMatchObject({ sourceCurrency: "USD", targetCurrency: "NGN" });
+    expect((getFxRequest() as { recordedAsOf: { nanos: number } }).recordedAsOf.nanos).toBe(
+      508_123_000
+    );
+
+    const converted = await app.inject({
+      method: "POST",
+      url: "/intelligence/fx/convert",
+      payload: {
+        amountMinor: "1050",
+        sourceCurrency: "USD",
+        targetCurrency: "NGN",
+        rateSource: "treasury",
+        effectiveAt: "2026-08-01T16:00:00Z",
+      },
+    });
+    expect(converted.statusCode).toBe(200);
+    expect(converted.json()).toMatchObject({
+      sourceAmountMinor: "1050",
+      targetAmountMinor: "1575000",
+      quote: { snapshotId: "snapshot-1" },
+    });
+    expect(convertFxRequest()).toMatchObject({ amountMinor: 1050n });
+    await app.close();
+  });
+
+  it("rejects unsafe FX amounts and timezone-free timestamps at the gateway", async () => {
+    const { app, convertFxRequest } = await testApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/intelligence/fx/convert",
+      payload: {
+        amountMinor: 9007199254740992,
+        sourceCurrency: "USD",
+        targetCurrency: "NGN",
+        rateSource: "treasury",
+        effectiveAt: "2026-08-01T16:00:00",
+      },
+    });
+    expect(response.statusCode).toBe(400);
+    expect(convertFxRequest()).toBeUndefined();
+
+    const invalidCalendarDate = await app.inject({
+      method: "GET",
+      url: "/intelligence/fx/rates?sourceCurrency=USD&targetCurrency=NGN&rateSource=treasury&effectiveAt=2026-02-30T00%3A00%3A00Z",
+    });
+    expect(invalidCalendarDate.statusCode).toBe(400);
+
+    const invalidHour = await app.inject({
+      method: "GET",
+      url: "/intelligence/fx/rates?sourceCurrency=USD&targetCurrency=NGN&rateSource=treasury&effectiveAt=2026-08-01T24%3A00%3A00Z",
+    });
+    expect(invalidHour.statusCode).toBe(400);
     await app.close();
   });
 });

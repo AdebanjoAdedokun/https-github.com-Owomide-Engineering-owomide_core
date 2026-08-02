@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import copy
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, date, datetime
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 
 
 class TransformationError(ValueError):
@@ -65,13 +65,22 @@ def parse_money(value: object) -> tuple[Decimal, str | None]:
     return amount, raw_currency.upper()
 
 
-def decimal_to_minor_units(value: object, scale: int = 2) -> int:
+def decimal_to_minor_units(
+    value: object,
+    scale: int = 2,
+    rounding: object = None,
+) -> int:
     if isinstance(scale, bool) or not isinstance(scale, int) or not 0 <= scale <= 6:
         raise TransformationError("scale must be an integer between 0 and 6")
+    if rounding not in {None, "half_even"}:
+        raise TransformationError('rounding must be "half_even" when provided')
     amount = _decimal(value) * (Decimal(10) ** scale)
     integral = amount.to_integral_value()
     if amount != integral:
-        raise TransformationError(f"value has more than {scale} decimal places")
+        if rounding == "half_even":
+            integral = amount.to_integral_value(rounding=ROUND_HALF_EVEN)
+        else:
+            raise TransformationError(f"value has more than {scale} decimal places")
     result = int(integral)
     if not -(2**63) <= result < 2**63:
         raise TransformationError("minor-unit value is outside the signed 64-bit range")
@@ -177,6 +186,8 @@ def apply_transformations(
     mapped_data: Mapping[str, object],
     mappings: Mapping[str, str],
     rules: Sequence[Mapping[str, object]],
+    *,
+    fx_rate_resolver: Callable[[str, str, str, datetime], Decimal] | None = None,
 ) -> tuple[dict[str, object], list[tuple[str, str, object]]]:
     result = copy.deepcopy(dict(mapped_data))
     failures: list[tuple[str, str, object]] = []
@@ -192,7 +203,15 @@ def apply_transformations(
                 if currency:
                     _set(result, f"{target.rsplit('.', 1)[0]}.currency", currency)
             elif rule_type == "decimal_to_minor_units":
-                _set(result, target, decimal_to_minor_units(original, rule.get("scale", 2)))
+                _set(
+                    result,
+                    target,
+                    decimal_to_minor_units(
+                        original,
+                        rule.get("scale", 2),
+                        rule.get("rounding"),
+                    ),
+                )
             elif rule_type == "currency_convert_explicit":
                 rate = _decimal(rule.get("rate"))
                 if rate <= 0:
@@ -203,6 +222,35 @@ def apply_transformations(
                 current_currency = _get(result, f"{parent}.currency")
                 if _currency(current_currency, "mapped currency") != source_currency:
                     raise TransformationError("mapped currency does not match from_currency")
+                _set(result, target, format(_decimal(original) * rate, "f"))
+                _set(result, f"{parent}.currency", target_currency)
+            elif rule_type == "currency_convert":
+                if fx_rate_resolver is None:
+                    raise TransformationError("FX rate resolver is unavailable")
+                parent = target.rsplit(".", 1)[0]
+                source_currency = _currency(
+                    _get(result, f"{parent}.currency"),
+                    "mapped currency",
+                )
+                target_currency = _currency(rule.get("to_currency"), "to_currency")
+                source_name = rule.get("rate_source")
+                if not isinstance(source_name, str) or not source_name.strip():
+                    raise TransformationError("rate_source is required")
+                effective_at_field = rule.get("effective_at_field")
+                if not isinstance(effective_at_field, str) or effective_at_field not in mappings:
+                    raise TransformationError("effective_at_field is invalid")
+                effective_value = _get(result, mappings[effective_at_field])
+                parsed_effective = datetime.fromisoformat(
+                    parse_date(effective_value).replace("Z", "+00:00")
+                )
+                rate = fx_rate_resolver(
+                    source_currency,
+                    target_currency,
+                    source_name,
+                    parsed_effective,
+                )
+                if rate <= 0 or not rate.is_finite():
+                    raise TransformationError("resolved FX rate must be finite and positive")
                 _set(result, target, format(_decimal(original) * rate, "f"))
                 _set(result, f"{parent}.currency", target_currency)
             elif rule_type == "date_parse":

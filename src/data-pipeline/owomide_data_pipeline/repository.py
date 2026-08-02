@@ -1494,6 +1494,11 @@ class ImportRepository:
             )
             if updated.rowcount != 1:
                 raise RuntimeError("Import operation lease was lost")
+            validation_payload = dict(operation.request_payload)
+            database_now = connection.execute(
+                "SELECT clock_timestamp() AS recorded_as_of"
+            ).fetchone()["recorded_as_of"]
+            validation_payload["fx_recorded_as_of"] = database_now.astimezone(UTC).isoformat()
             connection.execute(
                 "DELETE FROM data_pipeline.validation_event WHERE batch_id = %s",
                 (operation.batch_id,),
@@ -1522,7 +1527,7 @@ class ImportRepository:
                     operation.org_id,
                     operation.batch_id,
                     total_rows,
-                    Jsonb(operation.request_payload),
+                    Jsonb(validation_payload),
                 ),
             )
 

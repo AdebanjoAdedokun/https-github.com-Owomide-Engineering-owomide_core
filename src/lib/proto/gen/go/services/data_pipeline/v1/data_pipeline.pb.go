@@ -368,6 +368,52 @@ func (ValidationSeverity) EnumDescriptor() ([]byte, []int) {
 	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{5}
 }
 
+type FxRoundingMode int32
+
+const (
+	FxRoundingMode_FX_ROUNDING_MODE_UNSPECIFIED FxRoundingMode = 0
+	FxRoundingMode_FX_ROUNDING_MODE_HALF_EVEN   FxRoundingMode = 1
+)
+
+// Enum value maps for FxRoundingMode.
+var (
+	FxRoundingMode_name = map[int32]string{
+		0: "FX_ROUNDING_MODE_UNSPECIFIED",
+		1: "FX_ROUNDING_MODE_HALF_EVEN",
+	}
+	FxRoundingMode_value = map[string]int32{
+		"FX_ROUNDING_MODE_UNSPECIFIED": 0,
+		"FX_ROUNDING_MODE_HALF_EVEN":   1,
+	}
+)
+
+func (x FxRoundingMode) Enum() *FxRoundingMode {
+	p := new(FxRoundingMode)
+	*p = x
+	return p
+}
+
+func (x FxRoundingMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FxRoundingMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_services_data_pipeline_v1_data_pipeline_proto_enumTypes[6].Descriptor()
+}
+
+func (FxRoundingMode) Type() protoreflect.EnumType {
+	return &file_services_data_pipeline_v1_data_pipeline_proto_enumTypes[6]
+}
+
+func (x FxRoundingMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FxRoundingMode.Descriptor instead.
+func (FxRoundingMode) EnumDescriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{6}
+}
+
 type UploadImportFileRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Payload:
@@ -2830,6 +2876,698 @@ func (x *SaveMappingTemplateResponse) GetTemplate() *MappingTemplate {
 	return nil
 }
 
+type FxRateEntry struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Currency      string                 `protobuf:"bytes,1,opt,name=currency,proto3" json:"currency,omitempty"`
+	Rate          string                 `protobuf:"bytes,2,opt,name=rate,proto3" json:"rate,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FxRateEntry) Reset() {
+	*x = FxRateEntry{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FxRateEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FxRateEntry) ProtoMessage() {}
+
+func (x *FxRateEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FxRateEntry.ProtoReflect.Descriptor instead.
+func (*FxRateEntry) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *FxRateEntry) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *FxRateEntry) GetRate() string {
+	if x != nil {
+		return x.Rate
+	}
+	return ""
+}
+
+type FxRateSnapshot struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrgId          string                 `protobuf:"bytes,2,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	Source         string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
+	BaseCurrency   string                 `protobuf:"bytes,4,opt,name=base_currency,json=baseCurrency,proto3" json:"base_currency,omitempty"`
+	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	RecordedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=recorded_at,json=recordedAt,proto3" json:"recorded_at,omitempty"`
+	Rates          []*FxRateEntry         `protobuf:"bytes,7,rep,name=rates,proto3" json:"rates,omitempty"`
+	ProviderRef    *string                `protobuf:"bytes,8,opt,name=provider_ref,json=providerRef,proto3,oneof" json:"provider_ref,omitempty"`
+	ChecksumSha256 string                 `protobuf:"bytes,9,opt,name=checksum_sha256,json=checksumSha256,proto3" json:"checksum_sha256,omitempty"`
+	CreatedBy      string                 `protobuf:"bytes,10,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *FxRateSnapshot) Reset() {
+	*x = FxRateSnapshot{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FxRateSnapshot) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FxRateSnapshot) ProtoMessage() {}
+
+func (x *FxRateSnapshot) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FxRateSnapshot.ProtoReflect.Descriptor instead.
+func (*FxRateSnapshot) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *FxRateSnapshot) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *FxRateSnapshot) GetOrgId() string {
+	if x != nil {
+		return x.OrgId
+	}
+	return ""
+}
+
+func (x *FxRateSnapshot) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *FxRateSnapshot) GetBaseCurrency() string {
+	if x != nil {
+		return x.BaseCurrency
+	}
+	return ""
+}
+
+func (x *FxRateSnapshot) GetEffectiveAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveAt
+	}
+	return nil
+}
+
+func (x *FxRateSnapshot) GetRecordedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RecordedAt
+	}
+	return nil
+}
+
+func (x *FxRateSnapshot) GetRates() []*FxRateEntry {
+	if x != nil {
+		return x.Rates
+	}
+	return nil
+}
+
+func (x *FxRateSnapshot) GetProviderRef() string {
+	if x != nil && x.ProviderRef != nil {
+		return *x.ProviderRef
+	}
+	return ""
+}
+
+func (x *FxRateSnapshot) GetChecksumSha256() string {
+	if x != nil {
+		return x.ChecksumSha256
+	}
+	return ""
+}
+
+func (x *FxRateSnapshot) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
+type FxRateQuote struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	SourceCurrency string                 `protobuf:"bytes,1,opt,name=source_currency,json=sourceCurrency,proto3" json:"source_currency,omitempty"`
+	TargetCurrency string                 `protobuf:"bytes,2,opt,name=target_currency,json=targetCurrency,proto3" json:"target_currency,omitempty"`
+	Rate           string                 `protobuf:"bytes,3,opt,name=rate,proto3" json:"rate,omitempty"`
+	RateSource     string                 `protobuf:"bytes,4,opt,name=rate_source,json=rateSource,proto3" json:"rate_source,omitempty"`
+	SnapshotId     *string                `protobuf:"bytes,5,opt,name=snapshot_id,json=snapshotId,proto3,oneof" json:"snapshot_id,omitempty"`
+	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	RecordedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=recorded_at,json=recordedAt,proto3" json:"recorded_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *FxRateQuote) Reset() {
+	*x = FxRateQuote{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FxRateQuote) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FxRateQuote) ProtoMessage() {}
+
+func (x *FxRateQuote) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FxRateQuote.ProtoReflect.Descriptor instead.
+func (*FxRateQuote) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *FxRateQuote) GetSourceCurrency() string {
+	if x != nil {
+		return x.SourceCurrency
+	}
+	return ""
+}
+
+func (x *FxRateQuote) GetTargetCurrency() string {
+	if x != nil {
+		return x.TargetCurrency
+	}
+	return ""
+}
+
+func (x *FxRateQuote) GetRate() string {
+	if x != nil {
+		return x.Rate
+	}
+	return ""
+}
+
+func (x *FxRateQuote) GetRateSource() string {
+	if x != nil {
+		return x.RateSource
+	}
+	return ""
+}
+
+func (x *FxRateQuote) GetSnapshotId() string {
+	if x != nil && x.SnapshotId != nil {
+		return *x.SnapshotId
+	}
+	return ""
+}
+
+func (x *FxRateQuote) GetEffectiveAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveAt
+	}
+	return nil
+}
+
+func (x *FxRateQuote) GetRecordedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RecordedAt
+	}
+	return nil
+}
+
+type RecordFxRateSnapshotRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	IdempotencyKey string                 `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	Source         string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	BaseCurrency   string                 `protobuf:"bytes,3,opt,name=base_currency,json=baseCurrency,proto3" json:"base_currency,omitempty"`
+	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	Rates          []*FxRateEntry         `protobuf:"bytes,5,rep,name=rates,proto3" json:"rates,omitempty"`
+	ProviderRef    *string                `protobuf:"bytes,6,opt,name=provider_ref,json=providerRef,proto3,oneof" json:"provider_ref,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *RecordFxRateSnapshotRequest) Reset() {
+	*x = RecordFxRateSnapshotRequest{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecordFxRateSnapshotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecordFxRateSnapshotRequest) ProtoMessage() {}
+
+func (x *RecordFxRateSnapshotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecordFxRateSnapshotRequest.ProtoReflect.Descriptor instead.
+func (*RecordFxRateSnapshotRequest) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *RecordFxRateSnapshotRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *RecordFxRateSnapshotRequest) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *RecordFxRateSnapshotRequest) GetBaseCurrency() string {
+	if x != nil {
+		return x.BaseCurrency
+	}
+	return ""
+}
+
+func (x *RecordFxRateSnapshotRequest) GetEffectiveAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveAt
+	}
+	return nil
+}
+
+func (x *RecordFxRateSnapshotRequest) GetRates() []*FxRateEntry {
+	if x != nil {
+		return x.Rates
+	}
+	return nil
+}
+
+func (x *RecordFxRateSnapshotRequest) GetProviderRef() string {
+	if x != nil && x.ProviderRef != nil {
+		return *x.ProviderRef
+	}
+	return ""
+}
+
+type RecordFxRateSnapshotResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Snapshot      *FxRateSnapshot        `protobuf:"bytes,1,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
+	Replayed      bool                   `protobuf:"varint,2,opt,name=replayed,proto3" json:"replayed,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecordFxRateSnapshotResponse) Reset() {
+	*x = RecordFxRateSnapshotResponse{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecordFxRateSnapshotResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecordFxRateSnapshotResponse) ProtoMessage() {}
+
+func (x *RecordFxRateSnapshotResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecordFxRateSnapshotResponse.ProtoReflect.Descriptor instead.
+func (*RecordFxRateSnapshotResponse) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *RecordFxRateSnapshotResponse) GetSnapshot() *FxRateSnapshot {
+	if x != nil {
+		return x.Snapshot
+	}
+	return nil
+}
+
+func (x *RecordFxRateSnapshotResponse) GetReplayed() bool {
+	if x != nil {
+		return x.Replayed
+	}
+	return false
+}
+
+type GetFxRateRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	SourceCurrency string                 `protobuf:"bytes,1,opt,name=source_currency,json=sourceCurrency,proto3" json:"source_currency,omitempty"`
+	TargetCurrency string                 `protobuf:"bytes,2,opt,name=target_currency,json=targetCurrency,proto3" json:"target_currency,omitempty"`
+	RateSource     string                 `protobuf:"bytes,3,opt,name=rate_source,json=rateSource,proto3" json:"rate_source,omitempty"`
+	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	RecordedAsOf   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=recorded_as_of,json=recordedAsOf,proto3,oneof" json:"recorded_as_of,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetFxRateRequest) Reset() {
+	*x = GetFxRateRequest{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFxRateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFxRateRequest) ProtoMessage() {}
+
+func (x *GetFxRateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFxRateRequest.ProtoReflect.Descriptor instead.
+func (*GetFxRateRequest) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *GetFxRateRequest) GetSourceCurrency() string {
+	if x != nil {
+		return x.SourceCurrency
+	}
+	return ""
+}
+
+func (x *GetFxRateRequest) GetTargetCurrency() string {
+	if x != nil {
+		return x.TargetCurrency
+	}
+	return ""
+}
+
+func (x *GetFxRateRequest) GetRateSource() string {
+	if x != nil {
+		return x.RateSource
+	}
+	return ""
+}
+
+func (x *GetFxRateRequest) GetEffectiveAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveAt
+	}
+	return nil
+}
+
+func (x *GetFxRateRequest) GetRecordedAsOf() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RecordedAsOf
+	}
+	return nil
+}
+
+type GetFxRateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Quote         *FxRateQuote           `protobuf:"bytes,1,opt,name=quote,proto3" json:"quote,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFxRateResponse) Reset() {
+	*x = GetFxRateResponse{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFxRateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFxRateResponse) ProtoMessage() {}
+
+func (x *GetFxRateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFxRateResponse.ProtoReflect.Descriptor instead.
+func (*GetFxRateResponse) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *GetFxRateResponse) GetQuote() *FxRateQuote {
+	if x != nil {
+		return x.Quote
+	}
+	return nil
+}
+
+type ConvertCurrencyRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	AmountMinor    int64                  `protobuf:"varint,1,opt,name=amount_minor,json=amountMinor,proto3" json:"amount_minor,omitempty"`
+	SourceCurrency string                 `protobuf:"bytes,2,opt,name=source_currency,json=sourceCurrency,proto3" json:"source_currency,omitempty"`
+	TargetCurrency string                 `protobuf:"bytes,3,opt,name=target_currency,json=targetCurrency,proto3" json:"target_currency,omitempty"`
+	RateSource     string                 `protobuf:"bytes,4,opt,name=rate_source,json=rateSource,proto3" json:"rate_source,omitempty"`
+	EffectiveAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
+	RecordedAsOf   *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=recorded_as_of,json=recordedAsOf,proto3,oneof" json:"recorded_as_of,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ConvertCurrencyRequest) Reset() {
+	*x = ConvertCurrencyRequest{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConvertCurrencyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConvertCurrencyRequest) ProtoMessage() {}
+
+func (x *ConvertCurrencyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConvertCurrencyRequest.ProtoReflect.Descriptor instead.
+func (*ConvertCurrencyRequest) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *ConvertCurrencyRequest) GetAmountMinor() int64 {
+	if x != nil {
+		return x.AmountMinor
+	}
+	return 0
+}
+
+func (x *ConvertCurrencyRequest) GetSourceCurrency() string {
+	if x != nil {
+		return x.SourceCurrency
+	}
+	return ""
+}
+
+func (x *ConvertCurrencyRequest) GetTargetCurrency() string {
+	if x != nil {
+		return x.TargetCurrency
+	}
+	return ""
+}
+
+func (x *ConvertCurrencyRequest) GetRateSource() string {
+	if x != nil {
+		return x.RateSource
+	}
+	return ""
+}
+
+func (x *ConvertCurrencyRequest) GetEffectiveAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EffectiveAt
+	}
+	return nil
+}
+
+func (x *ConvertCurrencyRequest) GetRecordedAsOf() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RecordedAsOf
+	}
+	return nil
+}
+
+type ConvertCurrencyResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	SourceAmountMinor int64                  `protobuf:"varint,1,opt,name=source_amount_minor,json=sourceAmountMinor,proto3" json:"source_amount_minor,omitempty"`
+	TargetAmountMinor int64                  `protobuf:"varint,2,opt,name=target_amount_minor,json=targetAmountMinor,proto3" json:"target_amount_minor,omitempty"`
+	SourceMinorUnit   int32                  `protobuf:"varint,3,opt,name=source_minor_unit,json=sourceMinorUnit,proto3" json:"source_minor_unit,omitempty"`
+	TargetMinorUnit   int32                  `protobuf:"varint,4,opt,name=target_minor_unit,json=targetMinorUnit,proto3" json:"target_minor_unit,omitempty"`
+	ExactTargetAmount string                 `protobuf:"bytes,5,opt,name=exact_target_amount,json=exactTargetAmount,proto3" json:"exact_target_amount,omitempty"`
+	RoundingMode      FxRoundingMode         `protobuf:"varint,6,opt,name=rounding_mode,json=roundingMode,proto3,enum=owomide.services.data_pipeline.v1.FxRoundingMode" json:"rounding_mode,omitempty"`
+	Quote             *FxRateQuote           `protobuf:"bytes,7,opt,name=quote,proto3" json:"quote,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ConvertCurrencyResponse) Reset() {
+	*x = ConvertCurrencyResponse{}
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConvertCurrencyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConvertCurrencyResponse) ProtoMessage() {}
+
+func (x *ConvertCurrencyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConvertCurrencyResponse.ProtoReflect.Descriptor instead.
+func (*ConvertCurrencyResponse) Descriptor() ([]byte, []int) {
+	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *ConvertCurrencyResponse) GetSourceAmountMinor() int64 {
+	if x != nil {
+		return x.SourceAmountMinor
+	}
+	return 0
+}
+
+func (x *ConvertCurrencyResponse) GetTargetAmountMinor() int64 {
+	if x != nil {
+		return x.TargetAmountMinor
+	}
+	return 0
+}
+
+func (x *ConvertCurrencyResponse) GetSourceMinorUnit() int32 {
+	if x != nil {
+		return x.SourceMinorUnit
+	}
+	return 0
+}
+
+func (x *ConvertCurrencyResponse) GetTargetMinorUnit() int32 {
+	if x != nil {
+		return x.TargetMinorUnit
+	}
+	return 0
+}
+
+func (x *ConvertCurrencyResponse) GetExactTargetAmount() string {
+	if x != nil {
+		return x.ExactTargetAmount
+	}
+	return ""
+}
+
+func (x *ConvertCurrencyResponse) GetRoundingMode() FxRoundingMode {
+	if x != nil {
+		return x.RoundingMode
+	}
+	return FxRoundingMode_FX_ROUNDING_MODE_UNSPECIFIED
+}
+
+func (x *ConvertCurrencyResponse) GetQuote() *FxRateQuote {
+	if x != nil {
+		return x.Quote
+	}
+	return nil
+}
+
 var File_services_data_pipeline_v1_data_pipeline_proto protoreflect.FileDescriptor
 
 const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
@@ -3101,7 +3839,75 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\v_channel_idB\x16\n" +
 	"\x14_customer_segment_id\"m\n" +
 	"\x1bSaveMappingTemplateResponse\x12N\n" +
-	"\btemplate\x18\x01 \x01(\v22.owomide.services.data_pipeline.v1.MappingTemplateR\btemplate*o\n" +
+	"\btemplate\x18\x01 \x01(\v22.owomide.services.data_pipeline.v1.MappingTemplateR\btemplate\"=\n" +
+	"\vFxRateEntry\x12\x1a\n" +
+	"\bcurrency\x18\x01 \x01(\tR\bcurrency\x12\x12\n" +
+	"\x04rate\x18\x02 \x01(\tR\x04rate\"\xb7\x03\n" +
+	"\x0eFxRateSnapshot\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
+	"\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x16\n" +
+	"\x06source\x18\x03 \x01(\tR\x06source\x12#\n" +
+	"\rbase_currency\x18\x04 \x01(\tR\fbaseCurrency\x12=\n" +
+	"\feffective_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12;\n" +
+	"\vrecorded_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"recordedAt\x12D\n" +
+	"\x05rates\x18\a \x03(\v2..owomide.services.data_pipeline.v1.FxRateEntryR\x05rates\x12&\n" +
+	"\fprovider_ref\x18\b \x01(\tH\x00R\vproviderRef\x88\x01\x01\x12'\n" +
+	"\x0fchecksum_sha256\x18\t \x01(\tR\x0echecksumSha256\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\n" +
+	" \x01(\tR\tcreatedByB\x0f\n" +
+	"\r_provider_ref\"\xc6\x02\n" +
+	"\vFxRateQuote\x12'\n" +
+	"\x0fsource_currency\x18\x01 \x01(\tR\x0esourceCurrency\x12'\n" +
+	"\x0ftarget_currency\x18\x02 \x01(\tR\x0etargetCurrency\x12\x12\n" +
+	"\x04rate\x18\x03 \x01(\tR\x04rate\x12\x1f\n" +
+	"\vrate_source\x18\x04 \x01(\tR\n" +
+	"rateSource\x12$\n" +
+	"\vsnapshot_id\x18\x05 \x01(\tH\x00R\n" +
+	"snapshotId\x88\x01\x01\x12=\n" +
+	"\feffective_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12;\n" +
+	"\vrecorded_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"recordedAtB\x0e\n" +
+	"\f_snapshot_id\"\xc1\x02\n" +
+	"\x1bRecordFxRateSnapshotRequest\x12'\n" +
+	"\x0fidempotency_key\x18\x01 \x01(\tR\x0eidempotencyKey\x12\x16\n" +
+	"\x06source\x18\x02 \x01(\tR\x06source\x12#\n" +
+	"\rbase_currency\x18\x03 \x01(\tR\fbaseCurrency\x12=\n" +
+	"\feffective_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12D\n" +
+	"\x05rates\x18\x05 \x03(\v2..owomide.services.data_pipeline.v1.FxRateEntryR\x05rates\x12&\n" +
+	"\fprovider_ref\x18\x06 \x01(\tH\x00R\vproviderRef\x88\x01\x01B\x0f\n" +
+	"\r_provider_ref\"\x89\x01\n" +
+	"\x1cRecordFxRateSnapshotResponse\x12M\n" +
+	"\bsnapshot\x18\x01 \x01(\v21.owomide.services.data_pipeline.v1.FxRateSnapshotR\bsnapshot\x12\x1a\n" +
+	"\breplayed\x18\x02 \x01(\bR\breplayed\"\x9e\x02\n" +
+	"\x10GetFxRateRequest\x12'\n" +
+	"\x0fsource_currency\x18\x01 \x01(\tR\x0esourceCurrency\x12'\n" +
+	"\x0ftarget_currency\x18\x02 \x01(\tR\x0etargetCurrency\x12\x1f\n" +
+	"\vrate_source\x18\x03 \x01(\tR\n" +
+	"rateSource\x12=\n" +
+	"\feffective_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12E\n" +
+	"\x0erecorded_as_of\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\frecordedAsOf\x88\x01\x01B\x11\n" +
+	"\x0f_recorded_as_of\"Y\n" +
+	"\x11GetFxRateResponse\x12D\n" +
+	"\x05quote\x18\x01 \x01(\v2..owomide.services.data_pipeline.v1.FxRateQuoteR\x05quote\"\xc7\x02\n" +
+	"\x16ConvertCurrencyRequest\x12!\n" +
+	"\famount_minor\x18\x01 \x01(\x03R\vamountMinor\x12'\n" +
+	"\x0fsource_currency\x18\x02 \x01(\tR\x0esourceCurrency\x12'\n" +
+	"\x0ftarget_currency\x18\x03 \x01(\tR\x0etargetCurrency\x12\x1f\n" +
+	"\vrate_source\x18\x04 \x01(\tR\n" +
+	"rateSource\x12=\n" +
+	"\feffective_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\veffectiveAt\x12E\n" +
+	"\x0erecorded_as_of\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\frecordedAsOf\x88\x01\x01B\x11\n" +
+	"\x0f_recorded_as_of\"\x9f\x03\n" +
+	"\x17ConvertCurrencyResponse\x12.\n" +
+	"\x13source_amount_minor\x18\x01 \x01(\x03R\x11sourceAmountMinor\x12.\n" +
+	"\x13target_amount_minor\x18\x02 \x01(\x03R\x11targetAmountMinor\x12*\n" +
+	"\x11source_minor_unit\x18\x03 \x01(\x05R\x0fsourceMinorUnit\x12*\n" +
+	"\x11target_minor_unit\x18\x04 \x01(\x05R\x0ftargetMinorUnit\x12.\n" +
+	"\x13exact_target_amount\x18\x05 \x01(\tR\x11exactTargetAmount\x12V\n" +
+	"\rrounding_mode\x18\x06 \x01(\x0e21.owomide.services.data_pipeline.v1.FxRoundingModeR\froundingMode\x12D\n" +
+	"\x05quote\x18\a \x01(\v2..owomide.services.data_pipeline.v1.FxRateQuoteR\x05quote*o\n" +
 	"\x10ImportSourceType\x12\"\n" +
 	"\x1eIMPORT_SOURCE_TYPE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16IMPORT_SOURCE_TYPE_CSV\x10\x01\x12\x1b\n" +
@@ -3142,7 +3948,10 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"\x1fVALIDATION_SEVERITY_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19VALIDATION_SEVERITY_ERROR\x10\x01\x12\x1f\n" +
 	"\x1bVALIDATION_SEVERITY_WARNING\x10\x02\x12\x1c\n" +
-	"\x18VALIDATION_SEVERITY_INFO\x10\x032\x94\r\n" +
+	"\x18VALIDATION_SEVERITY_INFO\x10\x03*R\n" +
+	"\x0eFxRoundingMode\x12 \n" +
+	"\x1cFX_ROUNDING_MODE_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aFX_ROUNDING_MODE_HALF_EVEN\x10\x012\xb1\x10\n" +
 	"\x13DataPipelineService\x12\x8d\x01\n" +
 	"\x10UploadImportFile\x12:.owomide.services.data_pipeline.v1.UploadImportFileRequest\x1a;.owomide.services.data_pipeline.v1.UploadImportFileResponse(\x01\x12\x85\x01\n" +
 	"\x0eGetImportBatch\x128.owomide.services.data_pipeline.v1.GetImportBatchRequest\x1a9.owomide.services.data_pipeline.v1.GetImportBatchResponse\x12\x8e\x01\n" +
@@ -3156,7 +3965,10 @@ const file_services_data_pipeline_v1_data_pipeline_proto_rawDesc = "" +
 	"ExcludeRow\x124.owomide.services.data_pipeline.v1.ExcludeRowRequest\x1a5.owomide.services.data_pipeline.v1.ExcludeRowResponse\x12|\n" +
 	"\vCommitBatch\x125.owomide.services.data_pipeline.v1.CommitBatchRequest\x1a6.owomide.services.data_pipeline.v1.CommitBatchResponse\x12\x97\x01\n" +
 	"\x14ListMappingTemplates\x12>.owomide.services.data_pipeline.v1.ListMappingTemplatesRequest\x1a?.owomide.services.data_pipeline.v1.ListMappingTemplatesResponse\x12\x94\x01\n" +
-	"\x13SaveMappingTemplate\x12=.owomide.services.data_pipeline.v1.SaveMappingTemplateRequest\x1a>.owomide.services.data_pipeline.v1.SaveMappingTemplateResponseB4Z2github.com/owomide/proto/services/data_pipeline/v1b\x06proto3"
+	"\x13SaveMappingTemplate\x12=.owomide.services.data_pipeline.v1.SaveMappingTemplateRequest\x1a>.owomide.services.data_pipeline.v1.SaveMappingTemplateResponse\x12\x97\x01\n" +
+	"\x14RecordFxRateSnapshot\x12>.owomide.services.data_pipeline.v1.RecordFxRateSnapshotRequest\x1a?.owomide.services.data_pipeline.v1.RecordFxRateSnapshotResponse\x12v\n" +
+	"\tGetFxRate\x123.owomide.services.data_pipeline.v1.GetFxRateRequest\x1a4.owomide.services.data_pipeline.v1.GetFxRateResponse\x12\x88\x01\n" +
+	"\x0fConvertCurrency\x129.owomide.services.data_pipeline.v1.ConvertCurrencyRequest\x1a:.owomide.services.data_pipeline.v1.ConvertCurrencyResponseB4Z2github.com/owomide/proto/services/data_pipeline/v1b\x06proto3"
 
 var (
 	file_services_data_pipeline_v1_data_pipeline_proto_rawDescOnce sync.Once
@@ -3170,8 +3982,8 @@ func file_services_data_pipeline_v1_data_pipeline_proto_rawDescGZIP() []byte {
 	return file_services_data_pipeline_v1_data_pipeline_proto_rawDescData
 }
 
-var file_services_data_pipeline_v1_data_pipeline_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_services_data_pipeline_v1_data_pipeline_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_services_data_pipeline_v1_data_pipeline_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_services_data_pipeline_v1_data_pipeline_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_services_data_pipeline_v1_data_pipeline_proto_goTypes = []any{
 	(ImportSourceType)(0),                // 0: owomide.services.data_pipeline.v1.ImportSourceType
 	(ImportBatchStatus)(0),               // 1: owomide.services.data_pipeline.v1.ImportBatchStatus
@@ -3179,121 +3991,152 @@ var file_services_data_pipeline_v1_data_pipeline_proto_goTypes = []any{
 	(ImportOperationType)(0),             // 3: owomide.services.data_pipeline.v1.ImportOperationType
 	(ImportOperationStatus)(0),           // 4: owomide.services.data_pipeline.v1.ImportOperationStatus
 	(ValidationSeverity)(0),              // 5: owomide.services.data_pipeline.v1.ValidationSeverity
-	(*UploadImportFileRequest)(nil),      // 6: owomide.services.data_pipeline.v1.UploadImportFileRequest
-	(*UploadImportFileMetadata)(nil),     // 7: owomide.services.data_pipeline.v1.UploadImportFileMetadata
-	(*UploadImportFileResponse)(nil),     // 8: owomide.services.data_pipeline.v1.UploadImportFileResponse
-	(*ImportBatch)(nil),                  // 9: owomide.services.data_pipeline.v1.ImportBatch
-	(*ImportRow)(nil),                    // 10: owomide.services.data_pipeline.v1.ImportRow
-	(*ImportOperation)(nil),              // 11: owomide.services.data_pipeline.v1.ImportOperation
-	(*ColumnProfile)(nil),                // 12: owomide.services.data_pipeline.v1.ColumnProfile
-	(*MappingTemplate)(nil),              // 13: owomide.services.data_pipeline.v1.MappingTemplate
-	(*ValidationEvent)(nil),              // 14: owomide.services.data_pipeline.v1.ValidationEvent
-	(*RowCounts)(nil),                    // 15: owomide.services.data_pipeline.v1.RowCounts
-	(*CatalogWriteSummary)(nil),          // 16: owomide.services.data_pipeline.v1.CatalogWriteSummary
-	(*CommitResult)(nil),                 // 17: owomide.services.data_pipeline.v1.CommitResult
-	(*GetImportBatchRequest)(nil),        // 18: owomide.services.data_pipeline.v1.GetImportBatchRequest
-	(*GetImportBatchResponse)(nil),       // 19: owomide.services.data_pipeline.v1.GetImportBatchResponse
-	(*ListImportBatchesRequest)(nil),     // 20: owomide.services.data_pipeline.v1.ListImportBatchesRequest
-	(*ListImportBatchesResponse)(nil),    // 21: owomide.services.data_pipeline.v1.ListImportBatchesResponse
-	(*GetImportOperationRequest)(nil),    // 22: owomide.services.data_pipeline.v1.GetImportOperationRequest
-	(*GetImportOperationResponse)(nil),   // 23: owomide.services.data_pipeline.v1.GetImportOperationResponse
-	(*GetColumnProfileRequest)(nil),      // 24: owomide.services.data_pipeline.v1.GetColumnProfileRequest
-	(*GetColumnProfileResponse)(nil),     // 25: owomide.services.data_pipeline.v1.GetColumnProfileResponse
-	(*ApplyMappingRequest)(nil),          // 26: owomide.services.data_pipeline.v1.ApplyMappingRequest
-	(*ApplyMappingResponse)(nil),         // 27: owomide.services.data_pipeline.v1.ApplyMappingResponse
-	(*GetValidationReportRequest)(nil),   // 28: owomide.services.data_pipeline.v1.GetValidationReportRequest
-	(*GetValidationReportResponse)(nil),  // 29: owomide.services.data_pipeline.v1.GetValidationReportResponse
-	(*EditRowRequest)(nil),               // 30: owomide.services.data_pipeline.v1.EditRowRequest
-	(*EditRowResponse)(nil),              // 31: owomide.services.data_pipeline.v1.EditRowResponse
-	(*ExcludeRowRequest)(nil),            // 32: owomide.services.data_pipeline.v1.ExcludeRowRequest
-	(*ExcludeRowResponse)(nil),           // 33: owomide.services.data_pipeline.v1.ExcludeRowResponse
-	(*CommitBatchRequest)(nil),           // 34: owomide.services.data_pipeline.v1.CommitBatchRequest
-	(*CommitBatchResponse)(nil),          // 35: owomide.services.data_pipeline.v1.CommitBatchResponse
-	(*ListMappingTemplatesRequest)(nil),  // 36: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
-	(*ListMappingTemplatesResponse)(nil), // 37: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
-	(*SaveMappingTemplateRequest)(nil),   // 38: owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
-	(*SaveMappingTemplateResponse)(nil),  // 39: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
-	(*timestamppb.Timestamp)(nil),        // 40: google.protobuf.Timestamp
-	(*v1.Pagination)(nil),                // 41: owomide.common.v1.Pagination
-	(*v1.PaginatedResponse)(nil),         // 42: owomide.common.v1.PaginatedResponse
+	(FxRoundingMode)(0),                  // 6: owomide.services.data_pipeline.v1.FxRoundingMode
+	(*UploadImportFileRequest)(nil),      // 7: owomide.services.data_pipeline.v1.UploadImportFileRequest
+	(*UploadImportFileMetadata)(nil),     // 8: owomide.services.data_pipeline.v1.UploadImportFileMetadata
+	(*UploadImportFileResponse)(nil),     // 9: owomide.services.data_pipeline.v1.UploadImportFileResponse
+	(*ImportBatch)(nil),                  // 10: owomide.services.data_pipeline.v1.ImportBatch
+	(*ImportRow)(nil),                    // 11: owomide.services.data_pipeline.v1.ImportRow
+	(*ImportOperation)(nil),              // 12: owomide.services.data_pipeline.v1.ImportOperation
+	(*ColumnProfile)(nil),                // 13: owomide.services.data_pipeline.v1.ColumnProfile
+	(*MappingTemplate)(nil),              // 14: owomide.services.data_pipeline.v1.MappingTemplate
+	(*ValidationEvent)(nil),              // 15: owomide.services.data_pipeline.v1.ValidationEvent
+	(*RowCounts)(nil),                    // 16: owomide.services.data_pipeline.v1.RowCounts
+	(*CatalogWriteSummary)(nil),          // 17: owomide.services.data_pipeline.v1.CatalogWriteSummary
+	(*CommitResult)(nil),                 // 18: owomide.services.data_pipeline.v1.CommitResult
+	(*GetImportBatchRequest)(nil),        // 19: owomide.services.data_pipeline.v1.GetImportBatchRequest
+	(*GetImportBatchResponse)(nil),       // 20: owomide.services.data_pipeline.v1.GetImportBatchResponse
+	(*ListImportBatchesRequest)(nil),     // 21: owomide.services.data_pipeline.v1.ListImportBatchesRequest
+	(*ListImportBatchesResponse)(nil),    // 22: owomide.services.data_pipeline.v1.ListImportBatchesResponse
+	(*GetImportOperationRequest)(nil),    // 23: owomide.services.data_pipeline.v1.GetImportOperationRequest
+	(*GetImportOperationResponse)(nil),   // 24: owomide.services.data_pipeline.v1.GetImportOperationResponse
+	(*GetColumnProfileRequest)(nil),      // 25: owomide.services.data_pipeline.v1.GetColumnProfileRequest
+	(*GetColumnProfileResponse)(nil),     // 26: owomide.services.data_pipeline.v1.GetColumnProfileResponse
+	(*ApplyMappingRequest)(nil),          // 27: owomide.services.data_pipeline.v1.ApplyMappingRequest
+	(*ApplyMappingResponse)(nil),         // 28: owomide.services.data_pipeline.v1.ApplyMappingResponse
+	(*GetValidationReportRequest)(nil),   // 29: owomide.services.data_pipeline.v1.GetValidationReportRequest
+	(*GetValidationReportResponse)(nil),  // 30: owomide.services.data_pipeline.v1.GetValidationReportResponse
+	(*EditRowRequest)(nil),               // 31: owomide.services.data_pipeline.v1.EditRowRequest
+	(*EditRowResponse)(nil),              // 32: owomide.services.data_pipeline.v1.EditRowResponse
+	(*ExcludeRowRequest)(nil),            // 33: owomide.services.data_pipeline.v1.ExcludeRowRequest
+	(*ExcludeRowResponse)(nil),           // 34: owomide.services.data_pipeline.v1.ExcludeRowResponse
+	(*CommitBatchRequest)(nil),           // 35: owomide.services.data_pipeline.v1.CommitBatchRequest
+	(*CommitBatchResponse)(nil),          // 36: owomide.services.data_pipeline.v1.CommitBatchResponse
+	(*ListMappingTemplatesRequest)(nil),  // 37: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
+	(*ListMappingTemplatesResponse)(nil), // 38: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
+	(*SaveMappingTemplateRequest)(nil),   // 39: owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
+	(*SaveMappingTemplateResponse)(nil),  // 40: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
+	(*FxRateEntry)(nil),                  // 41: owomide.services.data_pipeline.v1.FxRateEntry
+	(*FxRateSnapshot)(nil),               // 42: owomide.services.data_pipeline.v1.FxRateSnapshot
+	(*FxRateQuote)(nil),                  // 43: owomide.services.data_pipeline.v1.FxRateQuote
+	(*RecordFxRateSnapshotRequest)(nil),  // 44: owomide.services.data_pipeline.v1.RecordFxRateSnapshotRequest
+	(*RecordFxRateSnapshotResponse)(nil), // 45: owomide.services.data_pipeline.v1.RecordFxRateSnapshotResponse
+	(*GetFxRateRequest)(nil),             // 46: owomide.services.data_pipeline.v1.GetFxRateRequest
+	(*GetFxRateResponse)(nil),            // 47: owomide.services.data_pipeline.v1.GetFxRateResponse
+	(*ConvertCurrencyRequest)(nil),       // 48: owomide.services.data_pipeline.v1.ConvertCurrencyRequest
+	(*ConvertCurrencyResponse)(nil),      // 49: owomide.services.data_pipeline.v1.ConvertCurrencyResponse
+	(*timestamppb.Timestamp)(nil),        // 50: google.protobuf.Timestamp
+	(*v1.Pagination)(nil),                // 51: owomide.common.v1.Pagination
+	(*v1.PaginatedResponse)(nil),         // 52: owomide.common.v1.PaginatedResponse
 }
 var file_services_data_pipeline_v1_data_pipeline_proto_depIdxs = []int32{
-	7,  // 0: owomide.services.data_pipeline.v1.UploadImportFileRequest.metadata:type_name -> owomide.services.data_pipeline.v1.UploadImportFileMetadata
+	8,  // 0: owomide.services.data_pipeline.v1.UploadImportFileRequest.metadata:type_name -> owomide.services.data_pipeline.v1.UploadImportFileMetadata
 	0,  // 1: owomide.services.data_pipeline.v1.UploadImportFileMetadata.source_type:type_name -> owomide.services.data_pipeline.v1.ImportSourceType
 	1,  // 2: owomide.services.data_pipeline.v1.UploadImportFileResponse.status:type_name -> owomide.services.data_pipeline.v1.ImportBatchStatus
 	0,  // 3: owomide.services.data_pipeline.v1.ImportBatch.source_type:type_name -> owomide.services.data_pipeline.v1.ImportSourceType
 	1,  // 4: owomide.services.data_pipeline.v1.ImportBatch.status:type_name -> owomide.services.data_pipeline.v1.ImportBatchStatus
-	40, // 5: owomide.services.data_pipeline.v1.ImportBatch.created_at:type_name -> google.protobuf.Timestamp
-	40, // 6: owomide.services.data_pipeline.v1.ImportBatch.updated_at:type_name -> google.protobuf.Timestamp
-	40, // 7: owomide.services.data_pipeline.v1.ImportBatch.committed_at:type_name -> google.protobuf.Timestamp
+	50, // 5: owomide.services.data_pipeline.v1.ImportBatch.created_at:type_name -> google.protobuf.Timestamp
+	50, // 6: owomide.services.data_pipeline.v1.ImportBatch.updated_at:type_name -> google.protobuf.Timestamp
+	50, // 7: owomide.services.data_pipeline.v1.ImportBatch.committed_at:type_name -> google.protobuf.Timestamp
 	2,  // 8: owomide.services.data_pipeline.v1.ImportRow.status:type_name -> owomide.services.data_pipeline.v1.ImportRowStatus
 	3,  // 9: owomide.services.data_pipeline.v1.ImportOperation.operation_type:type_name -> owomide.services.data_pipeline.v1.ImportOperationType
 	4,  // 10: owomide.services.data_pipeline.v1.ImportOperation.status:type_name -> owomide.services.data_pipeline.v1.ImportOperationStatus
-	40, // 11: owomide.services.data_pipeline.v1.ImportOperation.next_attempt_at:type_name -> google.protobuf.Timestamp
-	40, // 12: owomide.services.data_pipeline.v1.ImportOperation.created_at:type_name -> google.protobuf.Timestamp
-	40, // 13: owomide.services.data_pipeline.v1.ImportOperation.started_at:type_name -> google.protobuf.Timestamp
-	40, // 14: owomide.services.data_pipeline.v1.ImportOperation.finished_at:type_name -> google.protobuf.Timestamp
-	17, // 15: owomide.services.data_pipeline.v1.ImportOperation.commit_result:type_name -> owomide.services.data_pipeline.v1.CommitResult
-	40, // 16: owomide.services.data_pipeline.v1.MappingTemplate.created_at:type_name -> google.protobuf.Timestamp
-	40, // 17: owomide.services.data_pipeline.v1.MappingTemplate.updated_at:type_name -> google.protobuf.Timestamp
+	50, // 11: owomide.services.data_pipeline.v1.ImportOperation.next_attempt_at:type_name -> google.protobuf.Timestamp
+	50, // 12: owomide.services.data_pipeline.v1.ImportOperation.created_at:type_name -> google.protobuf.Timestamp
+	50, // 13: owomide.services.data_pipeline.v1.ImportOperation.started_at:type_name -> google.protobuf.Timestamp
+	50, // 14: owomide.services.data_pipeline.v1.ImportOperation.finished_at:type_name -> google.protobuf.Timestamp
+	18, // 15: owomide.services.data_pipeline.v1.ImportOperation.commit_result:type_name -> owomide.services.data_pipeline.v1.CommitResult
+	50, // 16: owomide.services.data_pipeline.v1.MappingTemplate.created_at:type_name -> google.protobuf.Timestamp
+	50, // 17: owomide.services.data_pipeline.v1.MappingTemplate.updated_at:type_name -> google.protobuf.Timestamp
 	5,  // 18: owomide.services.data_pipeline.v1.ValidationEvent.severity:type_name -> owomide.services.data_pipeline.v1.ValidationSeverity
-	40, // 19: owomide.services.data_pipeline.v1.ValidationEvent.created_at:type_name -> google.protobuf.Timestamp
-	15, // 20: owomide.services.data_pipeline.v1.CommitResult.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
-	16, // 21: owomide.services.data_pipeline.v1.CommitResult.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
-	9,  // 22: owomide.services.data_pipeline.v1.GetImportBatchResponse.batch:type_name -> owomide.services.data_pipeline.v1.ImportBatch
+	50, // 19: owomide.services.data_pipeline.v1.ValidationEvent.created_at:type_name -> google.protobuf.Timestamp
+	16, // 20: owomide.services.data_pipeline.v1.CommitResult.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
+	17, // 21: owomide.services.data_pipeline.v1.CommitResult.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
+	10, // 22: owomide.services.data_pipeline.v1.GetImportBatchResponse.batch:type_name -> owomide.services.data_pipeline.v1.ImportBatch
 	1,  // 23: owomide.services.data_pipeline.v1.ListImportBatchesRequest.status:type_name -> owomide.services.data_pipeline.v1.ImportBatchStatus
-	41, // 24: owomide.services.data_pipeline.v1.ListImportBatchesRequest.pagination:type_name -> owomide.common.v1.Pagination
-	9,  // 25: owomide.services.data_pipeline.v1.ListImportBatchesResponse.batches:type_name -> owomide.services.data_pipeline.v1.ImportBatch
-	42, // 26: owomide.services.data_pipeline.v1.ListImportBatchesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	11, // 27: owomide.services.data_pipeline.v1.GetImportOperationResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	12, // 28: owomide.services.data_pipeline.v1.GetColumnProfileResponse.columns:type_name -> owomide.services.data_pipeline.v1.ColumnProfile
-	11, // 29: owomide.services.data_pipeline.v1.GetColumnProfileResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	51, // 24: owomide.services.data_pipeline.v1.ListImportBatchesRequest.pagination:type_name -> owomide.common.v1.Pagination
+	10, // 25: owomide.services.data_pipeline.v1.ListImportBatchesResponse.batches:type_name -> owomide.services.data_pipeline.v1.ImportBatch
+	52, // 26: owomide.services.data_pipeline.v1.ListImportBatchesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	12, // 27: owomide.services.data_pipeline.v1.GetImportOperationResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	13, // 28: owomide.services.data_pipeline.v1.GetColumnProfileResponse.columns:type_name -> owomide.services.data_pipeline.v1.ColumnProfile
+	12, // 29: owomide.services.data_pipeline.v1.GetColumnProfileResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
 	4,  // 30: owomide.services.data_pipeline.v1.ApplyMappingResponse.status:type_name -> owomide.services.data_pipeline.v1.ImportOperationStatus
-	41, // 31: owomide.services.data_pipeline.v1.GetValidationReportRequest.pagination:type_name -> owomide.common.v1.Pagination
-	15, // 32: owomide.services.data_pipeline.v1.GetValidationReportResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
-	14, // 33: owomide.services.data_pipeline.v1.GetValidationReportResponse.events:type_name -> owomide.services.data_pipeline.v1.ValidationEvent
-	42, // 34: owomide.services.data_pipeline.v1.GetValidationReportResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	11, // 35: owomide.services.data_pipeline.v1.GetValidationReportResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	10, // 36: owomide.services.data_pipeline.v1.EditRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
-	11, // 37: owomide.services.data_pipeline.v1.EditRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	10, // 38: owomide.services.data_pipeline.v1.ExcludeRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
-	11, // 39: owomide.services.data_pipeline.v1.ExcludeRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	15, // 40: owomide.services.data_pipeline.v1.CommitBatchResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
-	16, // 41: owomide.services.data_pipeline.v1.CommitBatchResponse.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
-	11, // 42: owomide.services.data_pipeline.v1.CommitBatchResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
-	41, // 43: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest.pagination:type_name -> owomide.common.v1.Pagination
-	13, // 44: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.templates:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
-	42, // 45: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
-	13, // 46: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse.template:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
-	6,  // 47: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:input_type -> owomide.services.data_pipeline.v1.UploadImportFileRequest
-	18, // 48: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:input_type -> owomide.services.data_pipeline.v1.GetImportBatchRequest
-	20, // 49: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:input_type -> owomide.services.data_pipeline.v1.ListImportBatchesRequest
-	22, // 50: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:input_type -> owomide.services.data_pipeline.v1.GetImportOperationRequest
-	24, // 51: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:input_type -> owomide.services.data_pipeline.v1.GetColumnProfileRequest
-	26, // 52: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:input_type -> owomide.services.data_pipeline.v1.ApplyMappingRequest
-	28, // 53: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:input_type -> owomide.services.data_pipeline.v1.GetValidationReportRequest
-	30, // 54: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:input_type -> owomide.services.data_pipeline.v1.EditRowRequest
-	32, // 55: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:input_type -> owomide.services.data_pipeline.v1.ExcludeRowRequest
-	34, // 56: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:input_type -> owomide.services.data_pipeline.v1.CommitBatchRequest
-	36, // 57: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:input_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
-	38, // 58: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:input_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
-	8,  // 59: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:output_type -> owomide.services.data_pipeline.v1.UploadImportFileResponse
-	19, // 60: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:output_type -> owomide.services.data_pipeline.v1.GetImportBatchResponse
-	21, // 61: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:output_type -> owomide.services.data_pipeline.v1.ListImportBatchesResponse
-	23, // 62: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:output_type -> owomide.services.data_pipeline.v1.GetImportOperationResponse
-	25, // 63: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:output_type -> owomide.services.data_pipeline.v1.GetColumnProfileResponse
-	27, // 64: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:output_type -> owomide.services.data_pipeline.v1.ApplyMappingResponse
-	29, // 65: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:output_type -> owomide.services.data_pipeline.v1.GetValidationReportResponse
-	31, // 66: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:output_type -> owomide.services.data_pipeline.v1.EditRowResponse
-	33, // 67: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:output_type -> owomide.services.data_pipeline.v1.ExcludeRowResponse
-	35, // 68: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:output_type -> owomide.services.data_pipeline.v1.CommitBatchResponse
-	37, // 69: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:output_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
-	39, // 70: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:output_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
-	59, // [59:71] is the sub-list for method output_type
-	47, // [47:59] is the sub-list for method input_type
-	47, // [47:47] is the sub-list for extension type_name
-	47, // [47:47] is the sub-list for extension extendee
-	0,  // [0:47] is the sub-list for field type_name
+	51, // 31: owomide.services.data_pipeline.v1.GetValidationReportRequest.pagination:type_name -> owomide.common.v1.Pagination
+	16, // 32: owomide.services.data_pipeline.v1.GetValidationReportResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
+	15, // 33: owomide.services.data_pipeline.v1.GetValidationReportResponse.events:type_name -> owomide.services.data_pipeline.v1.ValidationEvent
+	52, // 34: owomide.services.data_pipeline.v1.GetValidationReportResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	12, // 35: owomide.services.data_pipeline.v1.GetValidationReportResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	11, // 36: owomide.services.data_pipeline.v1.EditRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
+	12, // 37: owomide.services.data_pipeline.v1.EditRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	11, // 38: owomide.services.data_pipeline.v1.ExcludeRowResponse.row:type_name -> owomide.services.data_pipeline.v1.ImportRow
+	12, // 39: owomide.services.data_pipeline.v1.ExcludeRowResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	16, // 40: owomide.services.data_pipeline.v1.CommitBatchResponse.row_counts:type_name -> owomide.services.data_pipeline.v1.RowCounts
+	17, // 41: owomide.services.data_pipeline.v1.CommitBatchResponse.catalog_summary:type_name -> owomide.services.data_pipeline.v1.CatalogWriteSummary
+	12, // 42: owomide.services.data_pipeline.v1.CommitBatchResponse.operation:type_name -> owomide.services.data_pipeline.v1.ImportOperation
+	51, // 43: owomide.services.data_pipeline.v1.ListMappingTemplatesRequest.pagination:type_name -> owomide.common.v1.Pagination
+	14, // 44: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.templates:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
+	52, // 45: owomide.services.data_pipeline.v1.ListMappingTemplatesResponse.pagination:type_name -> owomide.common.v1.PaginatedResponse
+	14, // 46: owomide.services.data_pipeline.v1.SaveMappingTemplateResponse.template:type_name -> owomide.services.data_pipeline.v1.MappingTemplate
+	50, // 47: owomide.services.data_pipeline.v1.FxRateSnapshot.effective_at:type_name -> google.protobuf.Timestamp
+	50, // 48: owomide.services.data_pipeline.v1.FxRateSnapshot.recorded_at:type_name -> google.protobuf.Timestamp
+	41, // 49: owomide.services.data_pipeline.v1.FxRateSnapshot.rates:type_name -> owomide.services.data_pipeline.v1.FxRateEntry
+	50, // 50: owomide.services.data_pipeline.v1.FxRateQuote.effective_at:type_name -> google.protobuf.Timestamp
+	50, // 51: owomide.services.data_pipeline.v1.FxRateQuote.recorded_at:type_name -> google.protobuf.Timestamp
+	50, // 52: owomide.services.data_pipeline.v1.RecordFxRateSnapshotRequest.effective_at:type_name -> google.protobuf.Timestamp
+	41, // 53: owomide.services.data_pipeline.v1.RecordFxRateSnapshotRequest.rates:type_name -> owomide.services.data_pipeline.v1.FxRateEntry
+	42, // 54: owomide.services.data_pipeline.v1.RecordFxRateSnapshotResponse.snapshot:type_name -> owomide.services.data_pipeline.v1.FxRateSnapshot
+	50, // 55: owomide.services.data_pipeline.v1.GetFxRateRequest.effective_at:type_name -> google.protobuf.Timestamp
+	50, // 56: owomide.services.data_pipeline.v1.GetFxRateRequest.recorded_as_of:type_name -> google.protobuf.Timestamp
+	43, // 57: owomide.services.data_pipeline.v1.GetFxRateResponse.quote:type_name -> owomide.services.data_pipeline.v1.FxRateQuote
+	50, // 58: owomide.services.data_pipeline.v1.ConvertCurrencyRequest.effective_at:type_name -> google.protobuf.Timestamp
+	50, // 59: owomide.services.data_pipeline.v1.ConvertCurrencyRequest.recorded_as_of:type_name -> google.protobuf.Timestamp
+	6,  // 60: owomide.services.data_pipeline.v1.ConvertCurrencyResponse.rounding_mode:type_name -> owomide.services.data_pipeline.v1.FxRoundingMode
+	43, // 61: owomide.services.data_pipeline.v1.ConvertCurrencyResponse.quote:type_name -> owomide.services.data_pipeline.v1.FxRateQuote
+	7,  // 62: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:input_type -> owomide.services.data_pipeline.v1.UploadImportFileRequest
+	19, // 63: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:input_type -> owomide.services.data_pipeline.v1.GetImportBatchRequest
+	21, // 64: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:input_type -> owomide.services.data_pipeline.v1.ListImportBatchesRequest
+	23, // 65: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:input_type -> owomide.services.data_pipeline.v1.GetImportOperationRequest
+	25, // 66: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:input_type -> owomide.services.data_pipeline.v1.GetColumnProfileRequest
+	27, // 67: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:input_type -> owomide.services.data_pipeline.v1.ApplyMappingRequest
+	29, // 68: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:input_type -> owomide.services.data_pipeline.v1.GetValidationReportRequest
+	31, // 69: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:input_type -> owomide.services.data_pipeline.v1.EditRowRequest
+	33, // 70: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:input_type -> owomide.services.data_pipeline.v1.ExcludeRowRequest
+	35, // 71: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:input_type -> owomide.services.data_pipeline.v1.CommitBatchRequest
+	37, // 72: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:input_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesRequest
+	39, // 73: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:input_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateRequest
+	44, // 74: owomide.services.data_pipeline.v1.DataPipelineService.RecordFxRateSnapshot:input_type -> owomide.services.data_pipeline.v1.RecordFxRateSnapshotRequest
+	46, // 75: owomide.services.data_pipeline.v1.DataPipelineService.GetFxRate:input_type -> owomide.services.data_pipeline.v1.GetFxRateRequest
+	48, // 76: owomide.services.data_pipeline.v1.DataPipelineService.ConvertCurrency:input_type -> owomide.services.data_pipeline.v1.ConvertCurrencyRequest
+	9,  // 77: owomide.services.data_pipeline.v1.DataPipelineService.UploadImportFile:output_type -> owomide.services.data_pipeline.v1.UploadImportFileResponse
+	20, // 78: owomide.services.data_pipeline.v1.DataPipelineService.GetImportBatch:output_type -> owomide.services.data_pipeline.v1.GetImportBatchResponse
+	22, // 79: owomide.services.data_pipeline.v1.DataPipelineService.ListImportBatches:output_type -> owomide.services.data_pipeline.v1.ListImportBatchesResponse
+	24, // 80: owomide.services.data_pipeline.v1.DataPipelineService.GetImportOperation:output_type -> owomide.services.data_pipeline.v1.GetImportOperationResponse
+	26, // 81: owomide.services.data_pipeline.v1.DataPipelineService.GetColumnProfile:output_type -> owomide.services.data_pipeline.v1.GetColumnProfileResponse
+	28, // 82: owomide.services.data_pipeline.v1.DataPipelineService.ApplyMapping:output_type -> owomide.services.data_pipeline.v1.ApplyMappingResponse
+	30, // 83: owomide.services.data_pipeline.v1.DataPipelineService.GetValidationReport:output_type -> owomide.services.data_pipeline.v1.GetValidationReportResponse
+	32, // 84: owomide.services.data_pipeline.v1.DataPipelineService.EditRow:output_type -> owomide.services.data_pipeline.v1.EditRowResponse
+	34, // 85: owomide.services.data_pipeline.v1.DataPipelineService.ExcludeRow:output_type -> owomide.services.data_pipeline.v1.ExcludeRowResponse
+	36, // 86: owomide.services.data_pipeline.v1.DataPipelineService.CommitBatch:output_type -> owomide.services.data_pipeline.v1.CommitBatchResponse
+	38, // 87: owomide.services.data_pipeline.v1.DataPipelineService.ListMappingTemplates:output_type -> owomide.services.data_pipeline.v1.ListMappingTemplatesResponse
+	40, // 88: owomide.services.data_pipeline.v1.DataPipelineService.SaveMappingTemplate:output_type -> owomide.services.data_pipeline.v1.SaveMappingTemplateResponse
+	45, // 89: owomide.services.data_pipeline.v1.DataPipelineService.RecordFxRateSnapshot:output_type -> owomide.services.data_pipeline.v1.RecordFxRateSnapshotResponse
+	47, // 90: owomide.services.data_pipeline.v1.DataPipelineService.GetFxRate:output_type -> owomide.services.data_pipeline.v1.GetFxRateResponse
+	49, // 91: owomide.services.data_pipeline.v1.DataPipelineService.ConvertCurrency:output_type -> owomide.services.data_pipeline.v1.ConvertCurrencyResponse
+	77, // [77:92] is the sub-list for method output_type
+	62, // [62:77] is the sub-list for method input_type
+	62, // [62:62] is the sub-list for extension type_name
+	62, // [62:62] is the sub-list for extension extendee
+	0,  // [0:62] is the sub-list for field type_name
 }
 
 func init() { file_services_data_pipeline_v1_data_pipeline_proto_init() }
@@ -3318,13 +4161,18 @@ func file_services_data_pipeline_v1_data_pipeline_proto_init() {
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[23].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[30].OneofWrappers = []any{}
 	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[32].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[35].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[36].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[37].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[39].OneofWrappers = []any{}
+	file_services_data_pipeline_v1_data_pipeline_proto_msgTypes[41].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_data_pipeline_v1_data_pipeline_proto_rawDesc), len(file_services_data_pipeline_v1_data_pipeline_proto_rawDesc)),
-			NumEnums:      6,
-			NumMessages:   34,
+			NumEnums:      7,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

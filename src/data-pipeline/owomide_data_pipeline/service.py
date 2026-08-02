@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from collections.abc import Iterator
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import PurePath
 from urllib.parse import quote
 from uuid import UUID, uuid4
@@ -20,6 +20,15 @@ from owomide_data_pipeline.errors import (
     ImportStateError,
     InvalidImportError,
     UploadTooLargeError,
+)
+from owomide_data_pipeline.intelligence.fx import (
+    FxCalculator,
+    FxConflictError,
+    FxRateNotFoundError,
+    FxRateQuote,
+    FxRateSnapshot,
+    InvalidFxRequestError,
+    decimal_text,
 )
 from owomide_data_pipeline.mapping import (
     deterministic_json,
@@ -230,6 +239,77 @@ def _commit_result_message(record: CommitResultRecord) -> data_pipeline_pb2.Comm
     )
 
 
+def _fx_snapshot_message(record: FxRateSnapshot) -> data_pipeline_pb2.FxRateSnapshot:
+    return data_pipeline_pb2.FxRateSnapshot(
+        id=str(record.id),
+        org_id=record.org_id,
+        source=record.source,
+        base_currency=record.base_currency,
+        effective_at=_timestamp(record.effective_at),
+        recorded_at=_timestamp(record.recorded_at),
+        rates=[
+            data_pipeline_pb2.FxRateEntry(
+                currency=entry.currency,
+                rate=decimal_text(entry.rate),
+            )
+            for entry in record.rates
+        ],
+        provider_ref=record.provider_ref,
+        checksum_sha256=record.checksum_sha256,
+        created_by=record.created_by,
+    )
+
+
+def _fx_quote_message(record: FxRateQuote) -> data_pipeline_pb2.FxRateQuote:
+    return data_pipeline_pb2.FxRateQuote(
+        source_currency=record.source_currency,
+        target_currency=record.target_currency,
+        rate=decimal_text(record.rate),
+        rate_source=record.rate_source,
+        snapshot_id=str(record.snapshot_id) if record.snapshot_id is not None else None,
+        effective_at=_timestamp(record.effective_at),
+        recorded_at=_timestamp(record.recorded_at),
+    )
+
+
+def _required_proto_timestamp(
+    request: object,
+    field: str,
+    context: grpc.ServicerContext,
+) -> datetime:
+    if not request.HasField(field):
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, f"{field} is required")
+    timestamp = getattr(request, field)
+    if timestamp.nanos % 1_000:
+        context.abort(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            f"{field} supports at most microsecond precision",
+        )
+    try:
+        return timestamp.ToDatetime(tzinfo=UTC)
+    except (OverflowError, ValueError):
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, f"{field} is invalid")
+
+
+def _optional_proto_timestamp(
+    request: object,
+    field: str,
+    context: grpc.ServicerContext,
+) -> datetime | None:
+    if not request.HasField(field):
+        return None
+    timestamp = getattr(request, field)
+    if timestamp.nanos % 1_000:
+        context.abort(
+            grpc.StatusCode.INVALID_ARGUMENT,
+            f"{field} supports at most microsecond precision",
+        )
+    try:
+        return timestamp.ToDatetime(tzinfo=UTC)
+    except (OverflowError, ValueError):
+        context.abort(grpc.StatusCode.INVALID_ARGUMENT, f"{field} is invalid")
+
+
 def _mapped_data(raw: str) -> dict[str, object]:
     if not raw or len(raw.encode("utf-8")) > 1_000_000:
         raise InvalidImportError("mapped_data_json must be a JSON object under 1000000 bytes")
@@ -294,11 +374,18 @@ class DataPipelineService(data_pipeline_pb2_grpc.DataPipelineServiceServicer):
         object_store: ObjectStore,
         authenticator: ServiceAuthenticator,
         upload_max_bytes: int,
+        fx_calculator: FxCalculator | None = None,
     ) -> None:
         self._repository = repository
         self._object_store = object_store
         self._authenticator = authenticator
         self._upload_max_bytes = upload_max_bytes
+        self._fx_calculator = fx_calculator
+
+    def _fx(self, context: grpc.ServicerContext) -> FxCalculator:
+        if self._fx_calculator is None:
+            context.abort(grpc.StatusCode.UNAVAILABLE, "FX calculator is unavailable")
+        return self._fx_calculator
 
     def _request_context(self, context: grpc.ServicerContext):
         try:
@@ -701,4 +788,74 @@ class DataPipelineService(data_pipeline_pb2_grpc.DataPipelineServiceServicer):
             context.abort(grpc.StatusCode.ALREADY_EXISTS, str(exc))
         return data_pipeline_pb2.SaveMappingTemplateResponse(
             template=_mapping_template_message(record)
+        )
+
+    def RecordFxRateSnapshot(self, request, context):
+        request_context = self._request_context(context)
+        if "admin" not in request_context.roles:
+            context.abort(
+                grpc.StatusCode.PERMISSION_DENIED,
+                "Organization administrator role required",
+            )
+        try:
+            snapshot, replayed = self._fx(context).record_snapshot(
+                org_id=request_context.org_id,
+                user_id=request_context.user_id,
+                idempotency_key=request.idempotency_key,
+                source=request.source,
+                base_currency=request.base_currency,
+                effective_at=_required_proto_timestamp(request, "effective_at", context),
+                rates=[(entry.currency, entry.rate) for entry in request.rates],
+                provider_ref=request.provider_ref if request.HasField("provider_ref") else None,
+            )
+        except InvalidFxRequestError as exc:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except FxConflictError as exc:
+            context.abort(grpc.StatusCode.ALREADY_EXISTS, str(exc))
+        return data_pipeline_pb2.RecordFxRateSnapshotResponse(
+            snapshot=_fx_snapshot_message(snapshot),
+            replayed=replayed,
+        )
+
+    def GetFxRate(self, request, context):
+        request_context = self._request_context(context)
+        try:
+            result = self._fx(context).quote(
+                org_id=request_context.org_id,
+                source_currency=request.source_currency,
+                target_currency=request.target_currency,
+                rate_source_name=request.rate_source,
+                effective_at=_required_proto_timestamp(request, "effective_at", context),
+                recorded_as_of=_optional_proto_timestamp(request, "recorded_as_of", context),
+            )
+        except InvalidFxRequestError as exc:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except FxRateNotFoundError as exc:
+            context.abort(grpc.StatusCode.NOT_FOUND, str(exc))
+        return data_pipeline_pb2.GetFxRateResponse(quote=_fx_quote_message(result))
+
+    def ConvertCurrency(self, request, context):
+        request_context = self._request_context(context)
+        try:
+            result = self._fx(context).convert(
+                org_id=request_context.org_id,
+                amount_minor=request.amount_minor,
+                source_currency=request.source_currency,
+                target_currency=request.target_currency,
+                rate_source_name=request.rate_source,
+                effective_at=_required_proto_timestamp(request, "effective_at", context),
+                recorded_as_of=_optional_proto_timestamp(request, "recorded_as_of", context),
+            )
+        except InvalidFxRequestError as exc:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except FxRateNotFoundError as exc:
+            context.abort(grpc.StatusCode.NOT_FOUND, str(exc))
+        return data_pipeline_pb2.ConvertCurrencyResponse(
+            source_amount_minor=result.source_amount_minor,
+            target_amount_minor=result.target_amount_minor,
+            source_minor_unit=result.source_minor_unit,
+            target_minor_unit=result.target_minor_unit,
+            exact_target_amount=decimal_text(result.exact_target_amount),
+            rounding_mode=data_pipeline_pb2.FX_ROUNDING_MODE_HALF_EVEN,
+            quote=_fx_quote_message(result.quote),
         )

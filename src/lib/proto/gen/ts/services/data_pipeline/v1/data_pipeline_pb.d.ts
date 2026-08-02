@@ -1149,6 +1149,335 @@ export declare type SaveMappingTemplateResponse = Message<"owomide.services.data
 export declare const SaveMappingTemplateResponseSchema: GenMessage<SaveMappingTemplateResponse>;
 
 /**
+ * @generated from message owomide.services.data_pipeline.v1.FxRateEntry
+ */
+export declare type FxRateEntry = Message<"owomide.services.data_pipeline.v1.FxRateEntry"> & {
+  /**
+   * @generated from field: string currency = 1;
+   */
+  currency: string;
+
+  /**
+   * @generated from field: string rate = 2;
+   */
+  rate: string;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.FxRateEntry.
+ * Use `create(FxRateEntrySchema)` to create a new message.
+ */
+export declare const FxRateEntrySchema: GenMessage<FxRateEntry>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.FxRateSnapshot
+ */
+export declare type FxRateSnapshot = Message<"owomide.services.data_pipeline.v1.FxRateSnapshot"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string org_id = 2;
+   */
+  orgId: string;
+
+  /**
+   * @generated from field: string source = 3;
+   */
+  source: string;
+
+  /**
+   * @generated from field: string base_currency = 4;
+   */
+  baseCurrency: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp effective_at = 5;
+   */
+  effectiveAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp recorded_at = 6;
+   */
+  recordedAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: repeated owomide.services.data_pipeline.v1.FxRateEntry rates = 7;
+   */
+  rates: FxRateEntry[];
+
+  /**
+   * @generated from field: optional string provider_ref = 8;
+   */
+  providerRef?: string | undefined;
+
+  /**
+   * @generated from field: string checksum_sha256 = 9;
+   */
+  checksumSha256: string;
+
+  /**
+   * @generated from field: string created_by = 10;
+   */
+  createdBy: string;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.FxRateSnapshot.
+ * Use `create(FxRateSnapshotSchema)` to create a new message.
+ */
+export declare const FxRateSnapshotSchema: GenMessage<FxRateSnapshot>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.FxRateQuote
+ */
+export declare type FxRateQuote = Message<"owomide.services.data_pipeline.v1.FxRateQuote"> & {
+  /**
+   * @generated from field: string source_currency = 1;
+   */
+  sourceCurrency: string;
+
+  /**
+   * @generated from field: string target_currency = 2;
+   */
+  targetCurrency: string;
+
+  /**
+   * @generated from field: string rate = 3;
+   */
+  rate: string;
+
+  /**
+   * @generated from field: string rate_source = 4;
+   */
+  rateSource: string;
+
+  /**
+   * @generated from field: optional string snapshot_id = 5;
+   */
+  snapshotId?: string | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp effective_at = 6;
+   */
+  effectiveAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp recorded_at = 7;
+   */
+  recordedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.FxRateQuote.
+ * Use `create(FxRateQuoteSchema)` to create a new message.
+ */
+export declare const FxRateQuoteSchema: GenMessage<FxRateQuote>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.RecordFxRateSnapshotRequest
+ */
+export declare type RecordFxRateSnapshotRequest = Message<"owomide.services.data_pipeline.v1.RecordFxRateSnapshotRequest"> & {
+  /**
+   * @generated from field: string idempotency_key = 1;
+   */
+  idempotencyKey: string;
+
+  /**
+   * @generated from field: string source = 2;
+   */
+  source: string;
+
+  /**
+   * @generated from field: string base_currency = 3;
+   */
+  baseCurrency: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp effective_at = 4;
+   */
+  effectiveAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: repeated owomide.services.data_pipeline.v1.FxRateEntry rates = 5;
+   */
+  rates: FxRateEntry[];
+
+  /**
+   * @generated from field: optional string provider_ref = 6;
+   */
+  providerRef?: string | undefined;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.RecordFxRateSnapshotRequest.
+ * Use `create(RecordFxRateSnapshotRequestSchema)` to create a new message.
+ */
+export declare const RecordFxRateSnapshotRequestSchema: GenMessage<RecordFxRateSnapshotRequest>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.RecordFxRateSnapshotResponse
+ */
+export declare type RecordFxRateSnapshotResponse = Message<"owomide.services.data_pipeline.v1.RecordFxRateSnapshotResponse"> & {
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.FxRateSnapshot snapshot = 1;
+   */
+  snapshot?: FxRateSnapshot | undefined;
+
+  /**
+   * @generated from field: bool replayed = 2;
+   */
+  replayed: boolean;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.RecordFxRateSnapshotResponse.
+ * Use `create(RecordFxRateSnapshotResponseSchema)` to create a new message.
+ */
+export declare const RecordFxRateSnapshotResponseSchema: GenMessage<RecordFxRateSnapshotResponse>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.GetFxRateRequest
+ */
+export declare type GetFxRateRequest = Message<"owomide.services.data_pipeline.v1.GetFxRateRequest"> & {
+  /**
+   * @generated from field: string source_currency = 1;
+   */
+  sourceCurrency: string;
+
+  /**
+   * @generated from field: string target_currency = 2;
+   */
+  targetCurrency: string;
+
+  /**
+   * @generated from field: string rate_source = 3;
+   */
+  rateSource: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp effective_at = 4;
+   */
+  effectiveAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: optional google.protobuf.Timestamp recorded_as_of = 5;
+   */
+  recordedAsOf?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.GetFxRateRequest.
+ * Use `create(GetFxRateRequestSchema)` to create a new message.
+ */
+export declare const GetFxRateRequestSchema: GenMessage<GetFxRateRequest>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.GetFxRateResponse
+ */
+export declare type GetFxRateResponse = Message<"owomide.services.data_pipeline.v1.GetFxRateResponse"> & {
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.FxRateQuote quote = 1;
+   */
+  quote?: FxRateQuote | undefined;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.GetFxRateResponse.
+ * Use `create(GetFxRateResponseSchema)` to create a new message.
+ */
+export declare const GetFxRateResponseSchema: GenMessage<GetFxRateResponse>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.ConvertCurrencyRequest
+ */
+export declare type ConvertCurrencyRequest = Message<"owomide.services.data_pipeline.v1.ConvertCurrencyRequest"> & {
+  /**
+   * @generated from field: int64 amount_minor = 1;
+   */
+  amountMinor: bigint;
+
+  /**
+   * @generated from field: string source_currency = 2;
+   */
+  sourceCurrency: string;
+
+  /**
+   * @generated from field: string target_currency = 3;
+   */
+  targetCurrency: string;
+
+  /**
+   * @generated from field: string rate_source = 4;
+   */
+  rateSource: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp effective_at = 5;
+   */
+  effectiveAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: optional google.protobuf.Timestamp recorded_as_of = 6;
+   */
+  recordedAsOf?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.ConvertCurrencyRequest.
+ * Use `create(ConvertCurrencyRequestSchema)` to create a new message.
+ */
+export declare const ConvertCurrencyRequestSchema: GenMessage<ConvertCurrencyRequest>;
+
+/**
+ * @generated from message owomide.services.data_pipeline.v1.ConvertCurrencyResponse
+ */
+export declare type ConvertCurrencyResponse = Message<"owomide.services.data_pipeline.v1.ConvertCurrencyResponse"> & {
+  /**
+   * @generated from field: int64 source_amount_minor = 1;
+   */
+  sourceAmountMinor: bigint;
+
+  /**
+   * @generated from field: int64 target_amount_minor = 2;
+   */
+  targetAmountMinor: bigint;
+
+  /**
+   * @generated from field: int32 source_minor_unit = 3;
+   */
+  sourceMinorUnit: number;
+
+  /**
+   * @generated from field: int32 target_minor_unit = 4;
+   */
+  targetMinorUnit: number;
+
+  /**
+   * @generated from field: string exact_target_amount = 5;
+   */
+  exactTargetAmount: string;
+
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.FxRoundingMode rounding_mode = 6;
+   */
+  roundingMode: FxRoundingMode;
+
+  /**
+   * @generated from field: owomide.services.data_pipeline.v1.FxRateQuote quote = 7;
+   */
+  quote?: FxRateQuote | undefined;
+};
+
+/**
+ * Describes the message owomide.services.data_pipeline.v1.ConvertCurrencyResponse.
+ * Use `create(ConvertCurrencyResponseSchema)` to create a new message.
+ */
+export declare const ConvertCurrencyResponseSchema: GenMessage<ConvertCurrencyResponse>;
+
+/**
  * @generated from enum owomide.services.data_pipeline.v1.ImportSourceType
  */
 export enum ImportSourceType {
@@ -1384,6 +1713,26 @@ export enum ValidationSeverity {
 export declare const ValidationSeveritySchema: GenEnum<ValidationSeverity>;
 
 /**
+ * @generated from enum owomide.services.data_pipeline.v1.FxRoundingMode
+ */
+export enum FxRoundingMode {
+  /**
+   * @generated from enum value: FX_ROUNDING_MODE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: FX_ROUNDING_MODE_HALF_EVEN = 1;
+   */
+  HALF_EVEN = 1,
+}
+
+/**
+ * Describes the enum owomide.services.data_pipeline.v1.FxRoundingMode.
+ */
+export declare const FxRoundingModeSchema: GenEnum<FxRoundingMode>;
+
+/**
  * @generated from service owomide.services.data_pipeline.v1.DataPipelineService
  */
 export declare const DataPipelineService: GenService<{
@@ -1482,6 +1831,30 @@ export declare const DataPipelineService: GenService<{
     methodKind: "unary";
     input: typeof SaveMappingTemplateRequestSchema;
     output: typeof SaveMappingTemplateResponseSchema;
+  },
+  /**
+   * @generated from rpc owomide.services.data_pipeline.v1.DataPipelineService.RecordFxRateSnapshot
+   */
+  recordFxRateSnapshot: {
+    methodKind: "unary";
+    input: typeof RecordFxRateSnapshotRequestSchema;
+    output: typeof RecordFxRateSnapshotResponseSchema;
+  },
+  /**
+   * @generated from rpc owomide.services.data_pipeline.v1.DataPipelineService.GetFxRate
+   */
+  getFxRate: {
+    methodKind: "unary";
+    input: typeof GetFxRateRequestSchema;
+    output: typeof GetFxRateResponseSchema;
+  },
+  /**
+   * @generated from rpc owomide.services.data_pipeline.v1.DataPipelineService.ConvertCurrency
+   */
+  convertCurrency: {
+    methodKind: "unary";
+    input: typeof ConvertCurrencyRequestSchema;
+    output: typeof ConvertCurrencyResponseSchema;
   },
 }>;
 

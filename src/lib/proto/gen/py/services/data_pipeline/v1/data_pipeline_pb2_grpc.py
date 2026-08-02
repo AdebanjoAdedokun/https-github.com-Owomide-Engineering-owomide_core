@@ -74,6 +74,21 @@ class DataPipelineServiceStub:
                 request_serializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.SaveMappingTemplateRequest.SerializeToString,
                 response_deserializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.SaveMappingTemplateResponse.FromString,
                 _registered_method=True)
+        self.RecordFxRateSnapshot = channel.unary_unary(
+                '/owomide.services.data_pipeline.v1.DataPipelineService/RecordFxRateSnapshot',
+                request_serializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.RecordFxRateSnapshotRequest.SerializeToString,
+                response_deserializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.RecordFxRateSnapshotResponse.FromString,
+                _registered_method=True)
+        self.GetFxRate = channel.unary_unary(
+                '/owomide.services.data_pipeline.v1.DataPipelineService/GetFxRate',
+                request_serializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.GetFxRateRequest.SerializeToString,
+                response_deserializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.GetFxRateResponse.FromString,
+                _registered_method=True)
+        self.ConvertCurrency = channel.unary_unary(
+                '/owomide.services.data_pipeline.v1.DataPipelineService/ConvertCurrency',
+                request_serializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.ConvertCurrencyRequest.SerializeToString,
+                response_deserializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.ConvertCurrencyResponse.FromString,
+                _registered_method=True)
 
 
 class DataPipelineServiceServicer:
@@ -151,6 +166,24 @@ class DataPipelineServiceServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def RecordFxRateSnapshot(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetFxRate(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ConvertCurrency(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_DataPipelineServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -213,6 +246,21 @@ def add_DataPipelineServiceServicer_to_server(servicer, server):
                     servicer.SaveMappingTemplate,
                     request_deserializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.SaveMappingTemplateRequest.FromString,
                     response_serializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.SaveMappingTemplateResponse.SerializeToString,
+            ),
+            'RecordFxRateSnapshot': grpc.unary_unary_rpc_method_handler(
+                    servicer.RecordFxRateSnapshot,
+                    request_deserializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.RecordFxRateSnapshotRequest.FromString,
+                    response_serializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.RecordFxRateSnapshotResponse.SerializeToString,
+            ),
+            'GetFxRate': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetFxRate,
+                    request_deserializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.GetFxRateRequest.FromString,
+                    response_serializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.GetFxRateResponse.SerializeToString,
+            ),
+            'ConvertCurrency': grpc.unary_unary_rpc_method_handler(
+                    servicer.ConvertCurrency,
+                    request_deserializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.ConvertCurrencyRequest.FromString,
+                    response_serializer=services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.ConvertCurrencyResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -539,6 +587,87 @@ class DataPipelineService:
             '/owomide.services.data_pipeline.v1.DataPipelineService/SaveMappingTemplate',
             services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.SaveMappingTemplateRequest.SerializeToString,
             services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.SaveMappingTemplateResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RecordFxRateSnapshot(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/owomide.services.data_pipeline.v1.DataPipelineService/RecordFxRateSnapshot',
+            services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.RecordFxRateSnapshotRequest.SerializeToString,
+            services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.RecordFxRateSnapshotResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetFxRate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/owomide.services.data_pipeline.v1.DataPipelineService/GetFxRate',
+            services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.GetFxRateRequest.SerializeToString,
+            services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.GetFxRateResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ConvertCurrency(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/owomide.services.data_pipeline.v1.DataPipelineService/ConvertCurrency',
+            services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.ConvertCurrencyRequest.SerializeToString,
+            services_dot_data__pipeline_dot_v1_dot_data__pipeline__pb2.ConvertCurrencyResponse.FromString,
             options,
             channel_credentials,
             insecure,

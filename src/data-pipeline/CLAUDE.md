@@ -9,7 +9,8 @@ The Data Pipeline accepts untrusted customer pricing files and turns reviewed ro
 - Has no SQL grants on `catalog`; canonical writes use authenticated Catalog RPCs.
 - Receives tenant and actor context only from signed Gateway metadata.
 - Uses Kafka through `src/lib/bus`; Redis Streams are not part of this design.
-- Export and intelligence remain Phase 7 work.
+- Export remains Phase 7 work. F7.3 FX intelligence is implemented under
+  `owomide_data_pipeline/intelligence/`; the margin rule engine remains F7.4.
 
 ## Lifecycle
 
@@ -147,7 +148,8 @@ All customer-owned tables carry `org_id`, force PostgreSQL RLS, and use composit
 2. `mapped_data` never overwrites raw input and is eligible for cleanup after 30 days.
 3. CSV and XLSX are the MVP source types.
 4. Money is represented in integer minor units; floats are prohibited.
-5. Unsupported currency conversion produces an actionable validation error until Phase 7 FX support.
+5. Historical currency conversion uses immutable tenant FX snapshots, explicit rate sources,
+   effective/recorded-as-of semantics, and half-even rounding to target minor units.
 6. Error rows cannot commit; warning rows require explicit confirmation.
 7. Commit uses Catalog `source_type = IMPORT`, `source_ref = batch_id`, and `source_item_ref = row_id`.
 8. Catalog dimensions must exist before commit; imports do not create channels or segments implicitly.
@@ -173,6 +175,7 @@ Important optional settings:
 - `DATA_PIPELINE_OBJECT_STORE_ENDPOINT`, `DATA_PIPELINE_OBJECT_STORE_BUCKET`
 - `DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY`, `DATA_PIPELINE_OBJECT_STORE_SECRET_KEY`
 - `DATA_PIPELINE_OBJECT_STORE_SECURE`
+- `DATA_PIPELINE_FX_MAX_RATE_AGE_SECONDS` (default: seven days)
 - `DATA_PIPELINE_UPLOAD_MAX_BYTES`, `DATA_PIPELINE_IMPORT_MAX_ROWS`
 - `DATA_PIPELINE_IMPORT_MAX_COLUMNS`, `DATA_PIPELINE_IMPORT_INSERT_BATCH_SIZE`
 - `DATA_PIPELINE_WORKER_LEASE_SECONDS`, `DATA_PIPELINE_WORKER_RETRY_BASE_SECONDS`

@@ -213,7 +213,7 @@ The nice-to-haves that move the product from "works" to "feels finished". Data P
 |---|---|---|
 | F7.1 | Notify service | Email (Zoho ZeptoMail) + in-app banner; subscriber on all events |
 | F7.2 | Export packs per channel | CSV / XLSX builders, signed S3 URLs |
-| F7.3 | Data Pipeline intelligence: FX calculator | Python gRPC; called by Data Pipeline TransformationRules (lives in `src/data-pipeline/intelligence/`) |
+| F7.3 | Data Pipeline intelligence: FX calculator | Python gRPC; immutable tenant rate snapshots, bitemporal lookup, and deterministic TransformationRules integration (lives in `src/data-pipeline/intelligence/`) |
 | F7.4 | Data Pipeline intelligence: margin rule engine | Python gRPC; offloads complex rule evaluation from Margin (lives in `src/data-pipeline/intelligence/`) |
 | F7.5 | UI polish | Loading states, error states, empty states, keyboard shortcuts |
 | F7.6 | Performance | Catalog query caching, batched gRPC calls, Postgres index review |

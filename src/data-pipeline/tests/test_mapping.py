@@ -51,6 +51,70 @@ class MappingTest(unittest.TestCase):
             with self.subTest(raw=raw), self.assertRaises(InvalidImportError):
                 parse_transformation_rules_json(raw, mappings)
 
+    def test_fx_rule_requires_matching_effective_date_mapping(self) -> None:
+        mappings = {
+            "Price": "price_record.price_minor",
+            "Price Date": "price_record.effective_at",
+            "Cost Date": "cost_record.effective_at",
+            "Currency": "price_record.currency",
+        }
+        parsed = parse_transformation_rules_json(
+            """[{"field":"Price","type":"currency_convert","to_currency":"NGN",
+            "rate_source":"treasury","effective_at_field":"Price Date"},
+            {"field":"Price","type":"decimal_to_minor_units","scale":2,
+            "rounding":"half_even"}]""",
+            mappings,
+        )
+        self.assertEqual(parsed[0]["rate_source"], "treasury")
+
+        for raw in (
+            '[{"field":"Price","type":"currency_convert","to_currency":"NGN",'
+            '"rate_source":"treasury","effective_at_field":"Missing"}]',
+            '[{"field":"Price","type":"currency_convert","to_currency":"NGN",'
+            '"rate_source":"treasury","effective_at_field":"Cost Date"}]',
+        ):
+            with self.subTest(raw=raw), self.assertRaises(InvalidImportError):
+                parse_transformation_rules_json(raw, mappings)
+
+    def test_fx_rule_requires_safe_order_scale_and_rounding(self) -> None:
+        mappings = {
+            "Price": "price_record.price_minor",
+            "Price Date": "price_record.effective_at",
+            "Currency": "price_record.currency",
+        }
+        invalid_rules = (
+            '[{"field":"Price","type":"currency_convert","to_currency":"NGN",'
+            '"rate_source":"treasury","effective_at_field":"Price Date"}]',
+            '[{"field":"Price","type":"currency_convert","to_currency":"JPY",'
+            '"rate_source":"treasury","effective_at_field":"Price Date"},'
+            '{"field":"Price","type":"decimal_to_minor_units","scale":2,'
+            '"rounding":"half_even"}]',
+            '[{"field":"Price","type":"currency_convert","to_currency":"NGN",'
+            '"rate_source":"treasury","effective_at_field":"Price Date"},'
+            '{"field":"Price","type":"decimal_to_minor_units","scale":2}]',
+            '[{"field":"Price","type":"currency_convert","to_currency":"NGN",'
+            '"rate_source":"treasury","effective_at_field":"Price Date"},'
+            '{"field":"Price Date","type":"date_parse","format":"DD/MM/YYYY"},'
+            '{"field":"Price","type":"decimal_to_minor_units","scale":2,'
+            '"rounding":"half_even"}]',
+        )
+
+        for raw in invalid_rules:
+            with self.subTest(raw=raw), self.assertRaises(InvalidImportError):
+                parse_transformation_rules_json(raw, mappings)
+
+        with self.assertRaisesRegex(InvalidImportError, "mapped currency or money_parse"):
+            parse_transformation_rules_json(
+                '[{"field":"Price","type":"currency_convert","to_currency":"NGN",'
+                '"rate_source":"treasury","effective_at_field":"Price Date"},'
+                '{"field":"Price","type":"decimal_to_minor_units","scale":2,'
+                '"rounding":"half_even"}]',
+                {
+                    "Price": "price_record.price_minor",
+                    "Price Date": "price_record.effective_at",
+                },
+            )
+
     def test_maps_nested_values_without_mutating_raw_data(self) -> None:
         raw = {"SKU": "0012", "Price": "10.50", "Ignored": "kept raw"}
 
