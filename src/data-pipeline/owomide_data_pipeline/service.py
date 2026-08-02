@@ -389,9 +389,12 @@ class DataPipelineService(data_pipeline_pb2_grpc.DataPipelineServiceServicer):
 
     def _request_context(self, context: grpc.ServicerContext):
         try:
-            return self._authenticator.authenticate(context.invocation_metadata())
+            request_context = self._authenticator.authenticate(context.invocation_metadata())
         except AuthenticationError:
             context.abort(grpc.StatusCode.UNAUTHENTICATED, "Invalid internal service credential")
+        if request_context.service_id != "gateway_svc":
+            context.abort(grpc.StatusCode.PERMISSION_DENIED, "Caller is not authorized")
+        return request_context
 
     def _delete_safely(self, object_url: str | None) -> None:
         if object_url is None:

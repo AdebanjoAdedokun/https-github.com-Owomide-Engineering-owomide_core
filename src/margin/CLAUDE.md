@@ -9,7 +9,7 @@ The job is simple: given a batch of SKUs and proposed prices, return a list of v
 ## What this owns
 
 - Margin rule definitions and storage (`margin_rule` table).
-- The `ValidateBatch` validation engine.
+- Tenant rule storage and the `ValidateBatch` violation policy.
 - Background margin-breach monitor (scans recent canonical prices, emits breach signals).
 - Org-scoped rule lookup and validation.
 
@@ -20,6 +20,7 @@ The job is simple: given a batch of SKUs and proposed prices, return a list of v
 - The override flow → **Proposal**.
 - Cost data → **Catalog** (we fetch via gRPC).
 - Audit → **Governance** (subscribes to our breach signals if/when we emit them).
+- Exact condition evaluation and floor arithmetic → **IntelligenceService** in Data Pipeline.
 
 ---
 
@@ -29,7 +30,8 @@ The job is simple: given a batch of SKUs and proposed prices, return a list of v
 
 - `ValidateBatch(ValidateBatchRequest) → ValidateBatchResponse`
   - **Input:** array of `{sku_id, channel_id, proposed_price, currency}`.
-  - **Output:** array of `Violation` objects: `{sku_id, rule_id, severity, message, floor, proposed, gap}`.
+  - **Output:** violations with money fields plus rule version, Intelligence engine version, and
+    deterministic evaluation hash.
   - `org_id` comes from authenticated gRPC metadata, not from the body.
   - **Severity:** `block` (below cost or below floor) or `warn` (within margin of floor).
   - **Never returns per-SKU.** Always batched.
@@ -66,7 +68,8 @@ Postgres role `margin_svc` has access to schema `margin` only.
 ## Dependencies
 
 - **Catalog** (gRPC) — `BatchGetCosts(sku_ids[])` to fetch current costs for floor calculation.
-- That's it. No bus subscriptions.
+- **IntelligenceService** (gRPC) — batched typed condition matching and exact floor calculation.
+- No bus subscriptions.
 
 ---
 
@@ -74,11 +77,17 @@ Postgres role `margin_svc` has access to schema `margin` only.
 
 1. **Batched only.** Reject single-SKU requests at the API level. If a caller needs to validate one SKU, they wrap it in a one-element batch.
 2. **Every rule lookup is scoped by `org_id`.** A request cannot validate one org's proposed prices against another org's margin rules or costs.
-3. **Costs are read at validation time.** Use Catalog as-of reads to pick the right historical row. This makes validation reproducible after the fact.
-4. **Rule precedence:** most specific wins. A rule scoped to `(sku_id=X)` beats `(channel_id=Y)` beats `(category_id=Z)` beats an org-wide rule.
+3. **Costs are read at validation time.** The current client fetches the latest Catalog cost.
+   Business-time and recorded-as-of cost/rule resolution are still required for reproducible replay.
+4. **Rule precedence:** the Margin adapter assigns SKU `300`, channel `200`, category `100`, and
+   organization-wide `0`; Intelligence resolves priority, specificity, then stable rule ID.
 5. **Return violations, never decisions.** Don't return `{blocked: true}`. Return `severity` and let Proposal decide.
 6. **Currency mismatch is a `block` violation**, not an error. The proposed price's currency must match the rule's currency; otherwise the line cannot be evaluated.
 7. **Stateless server.** No session, no per-request caching beyond an in-process LRU for rule lookups (with TTL).
+8. **Fail closed.** An unavailable evaluator or malformed evaluation response cannot approve a
+   price. Per-item evaluator errors become blocking violations.
+9. **Category scope is not operational yet.** Catalog category enrichment is required because the
+   current validation request contains SKU and channel context only.
 
 ---
 
@@ -97,6 +106,9 @@ Postgres role `margin_svc` has access to schema `margin` only.
 - [x] SECURITY DEFINER helpers for cross-org enumeration without RLS bypass (F4.4)
 - [x] Unit tests: breach detected, no breach, org-wide rules skipped, no price, no matching rule (F4.4)
 - [x] Integration test: real Postgres + stub fetchers + mock publisher — `ScanOnce` emits correct event (F4.4)
+- [x] Validation and breach monitoring use the F7.4 Python Intelligence evaluator with signed
+  service credentials and reproducibility provenance
+- [x] Evaluator outages and malformed responses fail validation closed
 - [ ] Admin REST routes for rule CRUD
 - [ ] `make lint` clean, `bazel test //src/margin/...` green
 
@@ -116,13 +128,10 @@ src/margin/
 │   ├── handler/
 │   │   ├── validate_batch.go
 │   │   └── rules.go
-│   ├── domain/
-│   │   ├── rule_resolver.go        (precedence logic, pure)
-│   │   ├── floor_calculator.go     (pct margin / markup / absolute, pure)
-│   │   └── violation.go
 │   ├── repo/
 │   └── client/
-│       └── catalog.go              (gRPC client to Catalog)
+│       ├── catalog.go              (gRPC client to Catalog)
+│       └── intelligence.go         (signed gRPC client to Intelligence)
 └── internal_test/
 ```
 
@@ -130,6 +139,7 @@ src/margin/
 
 ## Conventions specific to this service
 
-- The rule resolver and floor calculator are pure functions with deterministic outputs. They have no DB access. The handler fetches inputs (rules, costs) and feeds them in.
+- Python Intelligence is the production source of truth for precedence and floor arithmetic. The
+  legacy pure Go functions remain only as focused reference fixtures until their callers are gone.
 - Violations include a `gap` field — how far below the floor (in the rule's units). Useful for sorting in the UI.
 - Never log proposed prices alongside identifiable customer/user data.

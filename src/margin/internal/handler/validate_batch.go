@@ -2,8 +2,9 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -11,9 +12,10 @@ import (
 	"google.golang.org/grpc/status"
 
 	commonv1 "github.com/owomide/proto/common/v1"
+	intelligencepb "github.com/owomide/proto/services/intelligence/v1"
 	marginpb "github.com/owomide/proto/services/margin/v1"
 
-	"github.com/owomide/margin/internal/domain"
+	"github.com/owomide/margin/internal/client"
 	"github.com/owomide/margin/internal/repo"
 )
 
@@ -73,68 +75,94 @@ func (s *RulesServer) ValidateBatch(ctx context.Context, req *marginpb.ValidateB
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
-	var violations []*marginpb.Violation
-	for _, item := range req.Items {
-		if v := validateItem(item, rules, costs); v != nil {
-			violations = append(violations, v)
-		}
+	if len(rules) == 0 {
+		return &marginpb.ValidateBatchResponse{}, nil
 	}
 
+	evaluation, err := s.evaluator.EvaluateMargin(ctx, orgID, rules, req.Items, costs)
+	if err != nil {
+		s.logger.ErrorContext(ctx, "validate batch: intelligence unavailable", "error", err, "org_id", orgID)
+		return nil, status.Error(codes.Internal, "margin intelligence unavailable")
+	}
+	violations, err := evaluationViolations(req.Items, evaluation)
+	if err != nil {
+		s.logger.ErrorContext(ctx, "validate batch: invalid intelligence response", "error", err, "org_id", orgID)
+		return nil, status.Error(codes.Internal, "margin intelligence returned an invalid response")
+	}
 	return &marginpb.ValidateBatchResponse{Violations: violations}, nil
 }
 
-func validateItem(item *marginpb.ValidateItem, rules []*repo.MarginRuleRow, costs map[string]*commonv1.Money) *marginpb.Violation {
-	matched := domain.FindBestRule(item.SkuId, item.ChannelId, rules)
-	if matched == nil {
-		return nil
+func evaluationViolations(
+	items []*marginpb.ValidateItem,
+	response *intelligencepb.EvaluateMarginBatchResponse,
+) ([]*marginpb.Violation, error) {
+	if response == nil || strings.TrimSpace(response.EngineVersion) == "" {
+		return nil, fmt.Errorf("missing intelligence engine version")
+	}
+	if len(response.Results) != len(items) {
+		return nil, fmt.Errorf("received %d results for %d items", len(response.Results), len(items))
+	}
+	indexed := make([]*intelligencepb.MarginEvaluationResult, len(items))
+	for _, result := range response.Results {
+		if result == nil {
+			return nil, fmt.Errorf("received a nil result")
+		}
+		index, err := strconv.Atoi(result.ItemId)
+		if err != nil || index < 0 || index >= len(items) {
+			return nil, fmt.Errorf("invalid result item_id %q", result.ItemId)
+		}
+		if indexed[index] != nil {
+			return nil, fmt.Errorf("duplicate result item_id %q", result.ItemId)
+		}
+		indexed[index] = result
 	}
 
-	// proposed is guaranteed non-nil by the validation in ValidateBatch.
-	proposed := item.ProposedPrice
-	zeroCurrency := func() *commonv1.Money { return &commonv1.Money{Amount: 0, Currency: matched.Currency} }
+	violations := make([]*marginpb.Violation, 0)
+	for index, item := range items {
+		result := indexed[index]
+		if result == nil {
+			return nil, fmt.Errorf("missing result for item %d", index)
+		}
+		if err := client.ValidateMarginEvaluation(item, result); err != nil {
+			return nil, fmt.Errorf("result %d: %w", index, err)
+		}
 
-	if proposed.Currency != matched.Currency {
-		return &marginpb.Violation{
-			SkuId:    item.SkuId,
-			RuleId:   matched.ID,
-			Severity: marginpb.ViolationSeverity_VIOLATION_SEVERITY_BLOCK,
-			Message:  fmt.Sprintf("currency mismatch: rule expects %s, proposed is %s", matched.Currency, proposed.Currency),
-			Floor:    zeroCurrency(),
-			Proposed: proposed,
-			Gap:      zeroCurrency(),
+		switch result.Status {
+		case intelligencepb.MarginEvaluationStatus_MARGIN_EVALUATION_STATUS_NO_MATCH:
+		case intelligencepb.MarginEvaluationStatus_MARGIN_EVALUATION_STATUS_MATCHED:
+			if result.Violated {
+				violations = append(violations, &marginpb.Violation{
+					SkuId:                     item.SkuId,
+					RuleId:                    result.GetAppliedRuleId(),
+					RuleVersion:               result.GetAppliedRuleVersion(),
+					Severity:                  marginpb.ViolationSeverity_VIOLATION_SEVERITY_BLOCK,
+					Message:                   fmt.Sprintf("proposed price %d is below floor %d", item.ProposedPrice.Amount, result.Floor.Amount),
+					Floor:                     result.Floor,
+					Proposed:                  item.ProposedPrice,
+					Gap:                       result.Gap,
+					IntelligenceEngineVersion: response.EngineVersion,
+					EvaluationHash:            result.EvaluationHash,
+				})
+			}
+		case intelligencepb.MarginEvaluationStatus_MARGIN_EVALUATION_STATUS_ERROR:
+			zero := &commonv1.Money{Amount: 0, Currency: item.ProposedPrice.Currency}
+			violations = append(violations, &marginpb.Violation{
+				SkuId:                     item.SkuId,
+				RuleId:                    result.GetAppliedRuleId(),
+				RuleVersion:               result.GetAppliedRuleVersion(),
+				Severity:                  marginpb.ViolationSeverity_VIOLATION_SEVERITY_BLOCK,
+				Message:                   fmt.Sprintf("margin evaluation failed (%s): %s", result.GetErrorCode(), result.GetErrorMessage()),
+				Floor:                     zero,
+				Proposed:                  item.ProposedPrice,
+				Gap:                       zero,
+				IntelligenceEngineVersion: response.EngineVersion,
+				EvaluationHash:            result.EvaluationHash,
+			})
+		default:
+			return nil, fmt.Errorf("result %d has an invalid status", index)
 		}
 	}
-
-	floor, err := domain.ComputeFloor(matched, costs[item.SkuId])
-	if err != nil {
-		msg := "cannot compute floor"
-		if errors.Is(err, domain.ErrNoCost) {
-			msg = "no cost record found for SKU — cannot validate margin"
-		}
-		return &marginpb.Violation{
-			SkuId:    item.SkuId,
-			RuleId:   matched.ID,
-			Severity: marginpb.ViolationSeverity_VIOLATION_SEVERITY_BLOCK,
-			Message:  msg,
-			Floor:    zeroCurrency(),
-			Proposed: proposed,
-			Gap:      zeroCurrency(),
-		}
-	}
-
-	if proposed.Amount < floor {
-		return &marginpb.Violation{
-			SkuId:    item.SkuId,
-			RuleId:   matched.ID,
-			Severity: marginpb.ViolationSeverity_VIOLATION_SEVERITY_BLOCK,
-			Message:  fmt.Sprintf("proposed price %d is below floor %d (%s)", proposed.Amount, floor, matched.FloorType),
-			Floor:    &commonv1.Money{Amount: floor, Currency: matched.Currency},
-			Proposed: proposed,
-			Gap:      &commonv1.Money{Amount: floor - proposed.Amount, Currency: matched.Currency},
-		}
-	}
-
-	return nil
+	return violations, nil
 }
 
 func mapKeys(m map[string]struct{}) []string {

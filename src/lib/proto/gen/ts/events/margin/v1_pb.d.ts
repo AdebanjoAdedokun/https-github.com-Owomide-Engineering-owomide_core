@@ -60,6 +60,21 @@ export declare type MarginBreachDetected = Message<"owomide.events.margin.v1.Mar
    * @generated from field: google.protobuf.Timestamp detected_at = 9;
    */
   detectedAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: int32 rule_version = 10;
+   */
+  ruleVersion: number;
+
+  /**
+   * @generated from field: string intelligence_engine_version = 11;
+   */
+  intelligenceEngineVersion: string;
+
+  /**
+   * @generated from field: string evaluation_hash = 12;
+   */
+  evaluationHash: string;
 };
 
 /**

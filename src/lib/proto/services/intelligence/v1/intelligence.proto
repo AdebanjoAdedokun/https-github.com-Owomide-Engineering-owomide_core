@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package owomide.services.intelligence.v1;
+
+option go_package = "github.com/owomide/proto/services/intelligence/v1";
+
+import "common/v1/common.proto";
+
+// IntelligenceService is an internal, stateless evaluation boundary. Callers
+// remain responsible for tenant-owned rule persistence and business workflow.
+service IntelligenceService {
+  rpc EvaluateMarginBatch(EvaluateMarginBatchRequest) returns (EvaluateMarginBatchResponse);
+}
+
+enum MarginFloorType {
+  MARGIN_FLOOR_TYPE_UNSPECIFIED = 0;
+  MARGIN_FLOOR_TYPE_PCT_MARGIN = 1;
+  MARGIN_FLOOR_TYPE_PCT_MARKUP = 2;
+  MARGIN_FLOOR_TYPE_ABSOLUTE_MINIMUM = 3;
+}
+
+enum MarginEvaluationStatus {
+  MARGIN_EVALUATION_STATUS_UNSPECIFIED = 0;
+  MARGIN_EVALUATION_STATUS_MATCHED = 1;
+  MARGIN_EVALUATION_STATUS_NO_MATCH = 2;
+  MARGIN_EVALUATION_STATUS_ERROR = 3;
+}
+
+enum ConditionOperator {
+  CONDITION_OPERATOR_UNSPECIFIED = 0;
+  CONDITION_OPERATOR_EQUALS = 1;
+  CONDITION_OPERATOR_NOT_EQUALS = 2;
+  CONDITION_OPERATOR_LESS_THAN = 3;
+  CONDITION_OPERATOR_LESS_THAN_OR_EQUALS = 4;
+  CONDITION_OPERATOR_GREATER_THAN = 5;
+  CONDITION_OPERATOR_GREATER_THAN_OR_EQUALS = 6;
+  CONDITION_OPERATOR_IN = 7;
+  CONDITION_OPERATOR_NOT_IN = 8;
+  CONDITION_OPERATOR_EXISTS = 9;
+  CONDITION_OPERATOR_NOT_EXISTS = 10;
+}
+
+enum ConditionGroupOperator {
+  CONDITION_GROUP_OPERATOR_UNSPECIFIED = 0;
+  CONDITION_GROUP_OPERATOR_ALL = 1;
+  CONDITION_GROUP_OPERATOR_ANY = 2;
+}
+
+message RuleValue {
+  oneof kind {
+    string string_value = 1;
+    sint64 integer_value = 2;
+    bool boolean_value = 3;
+  }
+}
+
+message RuleCondition {
+  string fact = 1;
+  ConditionOperator operator = 2;
+  repeated RuleValue values = 3;
+}
+
+message RulePredicate {
+  oneof expression {
+    RuleCondition condition = 1;
+    RuleConditionGroup group = 2;
+  }
+}
+
+message RuleConditionGroup {
+  ConditionGroupOperator operator = 1;
+  repeated RulePredicate predicates = 2;
+}
+
+message MarginRuleDefinition {
+  string rule_id = 1;
+  int32 rule_version = 2;
+  int32 priority = 3;
+  string currency = 4;
+  MarginFloorType floor_type = 5;
+  int64 floor_value = 6;
+  optional RulePredicate when = 7;
+}
+
+message MarginEvaluationItem {
+  string item_id = 1;
+  string sku_id = 2;
+  optional string channel_id = 3;
+  optional string category_id = 4;
+  owomide.common.v1.Money proposed_price = 5;
+  optional owomide.common.v1.Money cost = 6;
+  map<string, RuleValue> facts = 7;
+}
+
+message EvaluateMarginBatchRequest {
+  repeated MarginRuleDefinition rules = 1;
+  repeated MarginEvaluationItem items = 2;
+}
+
+message MarginEvaluationResult {
+  string item_id = 1;
+  MarginEvaluationStatus status = 2;
+  optional string applied_rule_id = 3;
+  optional int32 applied_rule_version = 4;
+  optional owomide.common.v1.Money floor = 5;
+  owomide.common.v1.Money proposed_price = 6;
+  optional owomide.common.v1.Money gap = 7;
+  bool violated = 8;
+  repeated string matched_rule_ids = 9;
+  optional string error_code = 10;
+  optional string error_message = 11;
+  string evaluation_hash = 12;
+}
+
+message EvaluateMarginBatchResponse {
+  string engine_version = 1;
+  repeated MarginEvaluationResult results = 2;
+}

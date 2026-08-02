@@ -1,0 +1,10 @@
+# gazelle:proto disable
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "intelligence_proto",
+    srcs = ["intelligence.proto"],
+    strip_import_prefix = "/src/lib/proto",
+    visibility = ["//visibility:public"],
+    deps = ["//src/lib/proto/common/v1:common_proto"],
+)

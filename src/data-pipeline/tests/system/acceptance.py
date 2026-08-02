@@ -26,6 +26,7 @@ MINIO_SECRET_KEY = "minioadmin"
 GATEWAY_CATALOG_SECRET = "acceptance-gateway-catalog-secret-change-me"
 GATEWAY_PIPELINE_SECRET = "acceptance-gateway-pipeline-secret-change-me"
 PIPELINE_CATALOG_SECRET = "acceptance-pipeline-catalog-secret-change-me"
+MARGIN_PIPELINE_SECRET = "acceptance-margin-pipeline-secret-change-me"
 USER_JWT_SECRET = "acceptance-user-jwt-secret-change-me"
 ORG_ID = "org-acceptance"
 USER_ID = "user-acceptance"
@@ -160,7 +161,10 @@ class AcceptanceStack:
                 "data_pipeline_svc", DATA_PIPELINE_PASSWORD
             ),
             "DATA_PIPELINE_SERVICE_SECRETS_JSON": json.dumps(
-                {"gateway_svc": GATEWAY_PIPELINE_SECRET}
+                {
+                    "gateway_svc": GATEWAY_PIPELINE_SECRET,
+                    "margin_svc": MARGIN_PIPELINE_SECRET,
+                }
             ),
             "DATA_PIPELINE_OBJECT_STORE_ENDPOINT": "minio:9000",
             "DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY": MINIO_ACCESS_KEY,
@@ -437,6 +441,7 @@ class AcceptanceScenario:
         await self._wait_services()
         self.token = self._login()
         self._assert_fx_intelligence()
+        self._assert_margin_intelligence()
         references = self._create_references()
 
         from aiokafka import AIOKafkaConsumer
@@ -618,6 +623,114 @@ class AcceptanceScenario:
         if not isinstance(converted_quote, dict):
             raise AssertionError(f"FX conversion response is invalid: {converted}")
         self._expect(converted_quote, {"snapshotId": first_snapshot["id"]})
+
+    def _assert_margin_intelligence(self) -> None:
+        import grpc
+        import jwt
+        from services.intelligence.v1 import intelligence_pb2, intelligence_pb2_grpc
+
+        now = datetime.now(UTC)
+        token = jwt.encode(
+            {
+                "iss": "owomide-internal",
+                "sub": "margin_svc",
+                "aud": "data-pipeline",
+                "iat": now,
+                "exp": now + timedelta(minutes=2),
+            },
+            MARGIN_PIPELINE_SECRET,
+            algorithm="HS256",
+        )
+        metadata = (
+            ("authorization", f"Bearer {token}"),
+            ("x-org-id", ORG_ID),
+            ("x-user-id", "margin_svc"),
+        )
+        request = intelligence_pb2.EvaluateMarginBatchRequest(
+            rules=[
+                intelligence_pb2.MarginRuleDefinition(
+                    rule_id="acceptance-enterprise-margin",
+                    rule_version=7,
+                    priority=200,
+                    currency="NGN",
+                    floor_type=intelligence_pb2.MARGIN_FLOOR_TYPE_PCT_MARGIN,
+                    floor_value=2_000,
+                    when=intelligence_pb2.RulePredicate(
+                        group=intelligence_pb2.RuleConditionGroup(
+                            operator=intelligence_pb2.CONDITION_GROUP_OPERATOR_ALL,
+                            predicates=[
+                                intelligence_pb2.RulePredicate(
+                                    condition=intelligence_pb2.RuleCondition(
+                                        fact="sku_id",
+                                        operator=intelligence_pb2.CONDITION_OPERATOR_EQUALS,
+                                        values=[
+                                            intelligence_pb2.RuleValue(
+                                                string_value="acceptance-sku"
+                                            )
+                                        ],
+                                    )
+                                ),
+                                intelligence_pb2.RulePredicate(
+                                    condition=intelligence_pb2.RuleCondition(
+                                        fact="customer_tier",
+                                        operator=intelligence_pb2.CONDITION_OPERATOR_EQUALS,
+                                        values=[
+                                            intelligence_pb2.RuleValue(
+                                                string_value="enterprise"
+                                            )
+                                        ],
+                                    )
+                                ),
+                            ],
+                        )
+                    ),
+                )
+            ],
+            items=[
+                intelligence_pb2.MarginEvaluationItem(
+                    item_id="acceptance-line",
+                    sku_id="acceptance-sku",
+                    proposed_price={"amount": 90_000, "currency": "NGN"},
+                    cost={"amount": 80_000, "currency": "NGN"},
+                    facts={
+                        "customer_tier": intelligence_pb2.RuleValue(
+                            string_value="enterprise"
+                        )
+                    },
+                )
+            ],
+        )
+        with grpc.insecure_channel("data-pipeline:50055") as channel:
+            response = intelligence_pb2_grpc.IntelligenceServiceStub(
+                channel
+            ).EvaluateMarginBatch(request, metadata=metadata, timeout=5)
+
+        if response.engine_version != "margin-rules-v1" or len(response.results) != 1:
+            raise AssertionError(f"Margin intelligence response is invalid: {response}")
+        result = response.results[0]
+        expected = {
+            "status": intelligence_pb2.MARGIN_EVALUATION_STATUS_MATCHED,
+            "applied_rule_id": "acceptance-enterprise-margin",
+            "applied_rule_version": 7,
+            "floor": 100_000,
+            "gap": 10_000,
+            "violated": True,
+        }
+        actual = {
+            "status": result.status,
+            "applied_rule_id": result.applied_rule_id,
+            "applied_rule_version": result.applied_rule_version,
+            "floor": result.floor.amount,
+            "gap": result.gap.amount,
+            "violated": result.violated,
+        }
+        valid_hash = len(result.evaluation_hash) == 64 and all(
+            character in "0123456789abcdef" for character in result.evaluation_hash
+        )
+        if actual != expected or not valid_hash:
+            raise AssertionError(
+                f"Margin intelligence result mismatch: expected {expected}, got {actual}"
+            )
 
     def _create_references(self) -> dict[str, str]:
         channel = self._request(

@@ -26,7 +26,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from common.v1 import common_pb2 as common_dot_v1_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1fservices/margin/v1/margin.proto\x12\x1aowomide.services.margin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16\x63ommon/v1/common.proto\"\xca\x03\n\nMarginRule\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x1d\n\nchannel_id\x18\x03 \x01(\tR\tchannelId\x12\x1f\n\x0b\x63\x61tegory_id\x18\x04 \x01(\tR\ncategoryId\x12\x15\n\x06sku_id\x18\x05 \x01(\tR\x05skuId\x12\x44\n\nfloor_type\x18\x06 \x01(\x0e\x32%.owomide.services.margin.v1.FloorTypeR\tfloorType\x12\x1f\n\x0b\x66loor_value\x18\x07 \x01(\x03R\nfloorValue\x12\x1a\n\x08\x63urrency\x18\x08 \x01(\tR\x08\x63urrency\x12=\n\x0c\x65\x66\x66\x65\x63tive_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x0b\x65\x66\x66\x65\x63tiveAt\x12\x43\n\x0f\x65\x66\x66\x65\x63tive_until\x18\n \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x0e\x65\x66\x66\x65\x63tiveUntil\x12\x1d\n\ncreated_by\x18\x0b \x01(\tR\tcreatedBy\x12\x18\n\x07version\x18\x0c \x01(\x05R\x07version\"\xb2\x02\n\tViolation\x12\x15\n\x06sku_id\x18\x01 \x01(\tR\x05skuId\x12\x17\n\x07rule_id\x18\x02 \x01(\tR\x06ruleId\x12I\n\x08severity\x18\x03 \x01(\x0e\x32-.owomide.services.margin.v1.ViolationSeverityR\x08severity\x12\x18\n\x07message\x18\x04 \x01(\tR\x07message\x12.\n\x05\x66loor\x18\x05 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x05\x66loor\x12\x34\n\x08proposed\x18\x06 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x08proposed\x12*\n\x03gap\x18\x07 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x03gap\"V\n\x14ValidateBatchRequest\x12>\n\x05items\x18\x01 \x03(\x0b\x32(.owomide.services.margin.v1.ValidateItemR\x05items\"\x85\x01\n\x0cValidateItem\x12\x15\n\x06sku_id\x18\x01 \x01(\tR\x05skuId\x12\x1d\n\nchannel_id\x18\x02 \x01(\tR\tchannelId\x12?\n\x0eproposed_price\x18\x03 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\rproposedPrice\"^\n\x15ValidateBatchResponse\x12\x45\n\nviolations\x18\x01 \x03(\x0b\x32%.owomide.services.margin.v1.ViolationR\nviolations\"\xa8\x01\n\x10ListRulesRequest\x12\x1d\n\nchannel_id\x18\x01 \x01(\tR\tchannelId\x12\x1f\n\x0b\x63\x61tegory_id\x18\x02 \x01(\tR\ncategoryId\x12\x15\n\x06sku_id\x18\x03 \x01(\tR\x05skuId\x12=\n\npagination\x18\x04 \x01(\x0b\x32\x1d.owomide.common.v1.PaginationR\npagination\"\x97\x01\n\x11ListRulesResponse\x12<\n\x05rules\x18\x01 \x03(\x0b\x32&.owomide.services.margin.v1.MarginRuleR\x05rules\x12\x44\n\npagination\x18\x02 \x01(\x0b\x32$.owomide.common.v1.PaginatedResponseR\npagination\"O\n\x11UpsertRuleRequest\x12:\n\x04rule\x18\x01 \x01(\x0b\x32&.owomide.services.margin.v1.MarginRuleR\x04rule\"\'\n\x15\x44\x65\x61\x63tivateRuleRequest\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\"P\n\x12UpsertRuleResponse\x12:\n\x04rule\x18\x01 \x01(\x0b\x32&.owomide.services.margin.v1.MarginRuleR\x04rule\"T\n\x16\x44\x65\x61\x63tivateRuleResponse\x12:\n\x04rule\x18\x01 \x01(\x0b\x32&.owomide.services.margin.v1.MarginRuleR\x04rule*~\n\tFloorType\x12\x1a\n\x16\x46LOOR_TYPE_UNSPECIFIED\x10\x00\x12\x19\n\x15\x46LOOR_TYPE_PCT_MARGIN\x10\x01\x12\x19\n\x15\x46LOOR_TYPE_PCT_MARKUP\x10\x02\x12\x1f\n\x1b\x46LOOR_TYPE_ABSOLUTE_MINIMUM\x10\x03*r\n\x11ViolationSeverity\x12\"\n\x1eVIOLATION_SEVERITY_UNSPECIFIED\x10\x00\x12\x1c\n\x18VIOLATION_SEVERITY_BLOCK\x10\x01\x12\x1b\n\x17VIOLATION_SEVERITY_WARN\x10\x02\x32\xd5\x03\n\rMarginService\x12t\n\rValidateBatch\x12\x30.owomide.services.margin.v1.ValidateBatchRequest\x1a\x31.owomide.services.margin.v1.ValidateBatchResponse\x12h\n\tListRules\x12,.owomide.services.margin.v1.ListRulesRequest\x1a-.owomide.services.margin.v1.ListRulesResponse\x12k\n\nUpsertRule\x12-.owomide.services.margin.v1.UpsertRuleRequest\x1a..owomide.services.margin.v1.UpsertRuleResponse\x12w\n\x0e\x44\x65\x61\x63tivateRule\x12\x31.owomide.services.margin.v1.DeactivateRuleRequest\x1a\x32.owomide.services.margin.v1.DeactivateRuleResponseB-Z+github.com/owomide/proto/services/margin/v1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1fservices/margin/v1/margin.proto\x12\x1aowomide.services.margin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16\x63ommon/v1/common.proto\"\xca\x03\n\nMarginRule\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n\x06org_id\x18\x02 \x01(\tR\x05orgId\x12\x1d\n\nchannel_id\x18\x03 \x01(\tR\tchannelId\x12\x1f\n\x0b\x63\x61tegory_id\x18\x04 \x01(\tR\ncategoryId\x12\x15\n\x06sku_id\x18\x05 \x01(\tR\x05skuId\x12\x44\n\nfloor_type\x18\x06 \x01(\x0e\x32%.owomide.services.margin.v1.FloorTypeR\tfloorType\x12\x1f\n\x0b\x66loor_value\x18\x07 \x01(\x03R\nfloorValue\x12\x1a\n\x08\x63urrency\x18\x08 \x01(\tR\x08\x63urrency\x12=\n\x0c\x65\x66\x66\x65\x63tive_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x0b\x65\x66\x66\x65\x63tiveAt\x12\x43\n\x0f\x65\x66\x66\x65\x63tive_until\x18\n \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x0e\x65\x66\x66\x65\x63tiveUntil\x12\x1d\n\ncreated_by\x18\x0b \x01(\tR\tcreatedBy\x12\x18\n\x07version\x18\x0c \x01(\x05R\x07version\"\xbe\x03\n\tViolation\x12\x15\n\x06sku_id\x18\x01 \x01(\tR\x05skuId\x12\x17\n\x07rule_id\x18\x02 \x01(\tR\x06ruleId\x12I\n\x08severity\x18\x03 \x01(\x0e\x32-.owomide.services.margin.v1.ViolationSeverityR\x08severity\x12\x18\n\x07message\x18\x04 \x01(\tR\x07message\x12.\n\x05\x66loor\x18\x05 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x05\x66loor\x12\x34\n\x08proposed\x18\x06 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x08proposed\x12*\n\x03gap\x18\x07 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x03gap\x12!\n\x0crule_version\x18\x08 \x01(\x05R\x0bruleVersion\x12>\n\x1bintelligence_engine_version\x18\t \x01(\tR\x19intelligenceEngineVersion\x12\'\n\x0f\x65valuation_hash\x18\n \x01(\tR\x0e\x65valuationHash\"V\n\x14ValidateBatchRequest\x12>\n\x05items\x18\x01 \x03(\x0b\x32(.owomide.services.margin.v1.ValidateItemR\x05items\"\x85\x01\n\x0cValidateItem\x12\x15\n\x06sku_id\x18\x01 \x01(\tR\x05skuId\x12\x1d\n\nchannel_id\x18\x02 \x01(\tR\tchannelId\x12?\n\x0eproposed_price\x18\x03 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\rproposedPrice\"^\n\x15ValidateBatchResponse\x12\x45\n\nviolations\x18\x01 \x03(\x0b\x32%.owomide.services.margin.v1.ViolationR\nviolations\"\xa8\x01\n\x10ListRulesRequest\x12\x1d\n\nchannel_id\x18\x01 \x01(\tR\tchannelId\x12\x1f\n\x0b\x63\x61tegory_id\x18\x02 \x01(\tR\ncategoryId\x12\x15\n\x06sku_id\x18\x03 \x01(\tR\x05skuId\x12=\n\npagination\x18\x04 \x01(\x0b\x32\x1d.owomide.common.v1.PaginationR\npagination\"\x97\x01\n\x11ListRulesResponse\x12<\n\x05rules\x18\x01 \x03(\x0b\x32&.owomide.services.margin.v1.MarginRuleR\x05rules\x12\x44\n\npagination\x18\x02 \x01(\x0b\x32$.owomide.common.v1.PaginatedResponseR\npagination\"O\n\x11UpsertRuleRequest\x12:\n\x04rule\x18\x01 \x01(\x0b\x32&.owomide.services.margin.v1.MarginRuleR\x04rule\"\'\n\x15\x44\x65\x61\x63tivateRuleRequest\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\"P\n\x12UpsertRuleResponse\x12:\n\x04rule\x18\x01 \x01(\x0b\x32&.owomide.services.margin.v1.MarginRuleR\x04rule\"T\n\x16\x44\x65\x61\x63tivateRuleResponse\x12:\n\x04rule\x18\x01 \x01(\x0b\x32&.owomide.services.margin.v1.MarginRuleR\x04rule*~\n\tFloorType\x12\x1a\n\x16\x46LOOR_TYPE_UNSPECIFIED\x10\x00\x12\x19\n\x15\x46LOOR_TYPE_PCT_MARGIN\x10\x01\x12\x19\n\x15\x46LOOR_TYPE_PCT_MARKUP\x10\x02\x12\x1f\n\x1b\x46LOOR_TYPE_ABSOLUTE_MINIMUM\x10\x03*r\n\x11ViolationSeverity\x12\"\n\x1eVIOLATION_SEVERITY_UNSPECIFIED\x10\x00\x12\x1c\n\x18VIOLATION_SEVERITY_BLOCK\x10\x01\x12\x1b\n\x17VIOLATION_SEVERITY_WARN\x10\x02\x32\xd5\x03\n\rMarginService\x12t\n\rValidateBatch\x12\x30.owomide.services.margin.v1.ValidateBatchRequest\x1a\x31.owomide.services.margin.v1.ValidateBatchResponse\x12h\n\tListRules\x12,.owomide.services.margin.v1.ListRulesRequest\x1a-.owomide.services.margin.v1.ListRulesResponse\x12k\n\nUpsertRule\x12-.owomide.services.margin.v1.UpsertRuleRequest\x1a..owomide.services.margin.v1.UpsertRuleResponse\x12w\n\x0e\x44\x65\x61\x63tivateRule\x12\x31.owomide.services.margin.v1.DeactivateRuleRequest\x1a\x32.owomide.services.margin.v1.DeactivateRuleResponseB-Z+github.com/owomide/proto/services/margin/v1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,32 +34,32 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'services.margin.v1.margin_p
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z+github.com/owomide/proto/services/margin/v1'
-  _globals['_FLOORTYPE']._serialized_start=1825
-  _globals['_FLOORTYPE']._serialized_end=1951
-  _globals['_VIOLATIONSEVERITY']._serialized_start=1953
-  _globals['_VIOLATIONSEVERITY']._serialized_end=2067
+  _globals['_FLOORTYPE']._serialized_start=1965
+  _globals['_FLOORTYPE']._serialized_end=2091
+  _globals['_VIOLATIONSEVERITY']._serialized_start=2093
+  _globals['_VIOLATIONSEVERITY']._serialized_end=2207
   _globals['_MARGINRULE']._serialized_start=121
   _globals['_MARGINRULE']._serialized_end=579
   _globals['_VIOLATION']._serialized_start=582
-  _globals['_VIOLATION']._serialized_end=888
-  _globals['_VALIDATEBATCHREQUEST']._serialized_start=890
-  _globals['_VALIDATEBATCHREQUEST']._serialized_end=976
-  _globals['_VALIDATEITEM']._serialized_start=979
-  _globals['_VALIDATEITEM']._serialized_end=1112
-  _globals['_VALIDATEBATCHRESPONSE']._serialized_start=1114
-  _globals['_VALIDATEBATCHRESPONSE']._serialized_end=1208
-  _globals['_LISTRULESREQUEST']._serialized_start=1211
-  _globals['_LISTRULESREQUEST']._serialized_end=1379
-  _globals['_LISTRULESRESPONSE']._serialized_start=1382
-  _globals['_LISTRULESRESPONSE']._serialized_end=1533
-  _globals['_UPSERTRULEREQUEST']._serialized_start=1535
-  _globals['_UPSERTRULEREQUEST']._serialized_end=1614
-  _globals['_DEACTIVATERULEREQUEST']._serialized_start=1616
-  _globals['_DEACTIVATERULEREQUEST']._serialized_end=1655
-  _globals['_UPSERTRULERESPONSE']._serialized_start=1657
-  _globals['_UPSERTRULERESPONSE']._serialized_end=1737
-  _globals['_DEACTIVATERULERESPONSE']._serialized_start=1739
-  _globals['_DEACTIVATERULERESPONSE']._serialized_end=1823
-  _globals['_MARGINSERVICE']._serialized_start=2070
-  _globals['_MARGINSERVICE']._serialized_end=2539
+  _globals['_VIOLATION']._serialized_end=1028
+  _globals['_VALIDATEBATCHREQUEST']._serialized_start=1030
+  _globals['_VALIDATEBATCHREQUEST']._serialized_end=1116
+  _globals['_VALIDATEITEM']._serialized_start=1119
+  _globals['_VALIDATEITEM']._serialized_end=1252
+  _globals['_VALIDATEBATCHRESPONSE']._serialized_start=1254
+  _globals['_VALIDATEBATCHRESPONSE']._serialized_end=1348
+  _globals['_LISTRULESREQUEST']._serialized_start=1351
+  _globals['_LISTRULESREQUEST']._serialized_end=1519
+  _globals['_LISTRULESRESPONSE']._serialized_start=1522
+  _globals['_LISTRULESRESPONSE']._serialized_end=1673
+  _globals['_UPSERTRULEREQUEST']._serialized_start=1675
+  _globals['_UPSERTRULEREQUEST']._serialized_end=1754
+  _globals['_DEACTIVATERULEREQUEST']._serialized_start=1756
+  _globals['_DEACTIVATERULEREQUEST']._serialized_end=1795
+  _globals['_UPSERTRULERESPONSE']._serialized_start=1797
+  _globals['_UPSERTRULERESPONSE']._serialized_end=1877
+  _globals['_DEACTIVATERULERESPONSE']._serialized_start=1879
+  _globals['_DEACTIVATERULERESPONSE']._serialized_end=1963
+  _globals['_MARGINSERVICE']._serialized_start=2210
+  _globals['_MARGINSERVICE']._serialized_end=2679
 # @@protoc_insertion_point(module_scope)

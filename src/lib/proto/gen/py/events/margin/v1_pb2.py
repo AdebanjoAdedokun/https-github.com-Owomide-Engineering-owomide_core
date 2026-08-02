@@ -26,7 +26,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from common.v1 import common_pb2 as common_dot_v1_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x65vents/margin/v1.proto\x12\x18owomide.events.margin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16\x63ommon/v1/common.proto\"\xf9\x02\n\x14MarginBreachDetected\x12\x15\n\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x15\n\x06sku_id\x18\x02 \x01(\tR\x05skuId\x12\x1d\n\nchannel_id\x18\x03 \x01(\tR\tchannelId\x12\x17\n\x07rule_id\x18\x04 \x01(\tR\x06ruleId\x12\x18\n\x07message\x18\x05 \x01(\tR\x07message\x12=\n\rcurrent_price\x18\x06 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x0c\x63urrentPrice\x12\x39\n\x0b\x66loor_price\x18\x07 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\nfloorPrice\x12*\n\x03gap\x18\x08 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x03gap\x12;\n\x0b\x64\x65tected_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.TimestampR\ndetectedAtB+Z)github.com/owomide/proto/events/margin/v1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x65vents/margin/v1.proto\x12\x18owomide.events.margin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16\x63ommon/v1/common.proto\"\x85\x04\n\x14MarginBreachDetected\x12\x15\n\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x15\n\x06sku_id\x18\x02 \x01(\tR\x05skuId\x12\x1d\n\nchannel_id\x18\x03 \x01(\tR\tchannelId\x12\x17\n\x07rule_id\x18\x04 \x01(\tR\x06ruleId\x12\x18\n\x07message\x18\x05 \x01(\tR\x07message\x12=\n\rcurrent_price\x18\x06 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x0c\x63urrentPrice\x12\x39\n\x0b\x66loor_price\x18\x07 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\nfloorPrice\x12*\n\x03gap\x18\x08 \x01(\x0b\x32\x18.owomide.common.v1.MoneyR\x03gap\x12;\n\x0b\x64\x65tected_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.TimestampR\ndetectedAt\x12!\n\x0crule_version\x18\n \x01(\x05R\x0bruleVersion\x12>\n\x1bintelligence_engine_version\x18\x0b \x01(\tR\x19intelligenceEngineVersion\x12\'\n\x0f\x65valuation_hash\x18\x0c \x01(\tR\x0e\x65valuationHashB+Z)github.com/owomide/proto/events/margin/v1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,5 +35,5 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z)github.com/owomide/proto/events/margin/v1'
   _globals['_MARGINBREACHDETECTED']._serialized_start=110
-  _globals['_MARGINBREACHDETECTED']._serialized_end=487
+  _globals['_MARGINBREACHDETECTED']._serialized_end=627
 # @@protoc_insertion_point(module_scope)

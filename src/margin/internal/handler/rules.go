@@ -23,13 +23,25 @@ type RulesServer struct {
 	repo        *repo.Repo
 	logger      *slog.Logger
 	costFetcher client.CostFetcher
+	evaluator   client.MarginEvaluator
 }
 
-func NewRulesServer(database *db.DB, r *repo.Repo, logger *slog.Logger, costFetcher client.CostFetcher) *RulesServer {
+func NewRulesServer(
+	database *db.DB,
+	r *repo.Repo,
+	logger *slog.Logger,
+	costFetcher client.CostFetcher,
+	evaluator client.MarginEvaluator,
+) *RulesServer {
 	if costFetcher == nil {
 		panic("NewRulesServer: costFetcher must not be nil")
 	}
-	return &RulesServer{db: database, repo: r, logger: logger, costFetcher: costFetcher}
+	if evaluator == nil {
+		panic("NewRulesServer: evaluator must not be nil")
+	}
+	return &RulesServer{
+		db: database, repo: r, logger: logger, costFetcher: costFetcher, evaluator: evaluator,
+	}
 }
 
 func orgIDFromCtx(ctx context.Context) (string, error) {
@@ -210,4 +222,3 @@ func ruleToProto(r *repo.MarginRuleRow) *marginpb.MarginRule {
 	}
 	return rule
 }
-
