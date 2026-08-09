@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/ory/dockertest/v3"
@@ -16,6 +17,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
+	"github.com/owomide/margin/internal/auth"
 	"github.com/owomide/margin/internal/db"
 	"github.com/owomide/margin/internal/handler"
 	"github.com/owomide/margin/internal/repo"
@@ -23,8 +25,10 @@ import (
 )
 
 const (
-	orgA = "00000000-0000-0000-0000-000000000001"
-	orgB = "00000000-0000-0000-0000-000000000002"
+	orgA              = "00000000-0000-0000-0000-000000000001"
+	orgB              = "00000000-0000-0000-0000-000000000002"
+	testServiceSecret = "test-margin-gateway-secret-change-me"
+	testIssuer        = "owomide-internal"
 )
 
 var (
@@ -99,7 +103,11 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic("listen: " + err.Error())
 	}
-	s := grpc.NewServer()
+	authenticator, err := newTestAuthenticator()
+	if err != nil {
+		panic("authenticator: " + err.Error())
+	}
+	s := grpc.NewServer(grpc.UnaryInterceptor(authenticator.UnaryServerInterceptor()))
 	marginpb.RegisterMarginServiceServer(s, svc)
 	go func() { _ = s.Serve(lis) }()
 	defer s.Stop()
@@ -116,6 +124,20 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 	_ = pool.Purge(resource)
 	os.Exit(code)
+}
+
+func newTestAuthenticator() (*auth.Authenticator, error) {
+	return auth.NewAuthenticator(
+		testIssuer,
+		"margin",
+		map[string]string{"gateway_svc": testServiceSecret},
+		map[string][]string{
+			marginpb.MarginService_ValidateBatch_FullMethodName:  {"gateway_svc"},
+			marginpb.MarginService_ListRules_FullMethodName:      {"gateway_svc"},
+			marginpb.MarginService_UpsertRule_FullMethodName:     {"gateway_svc"},
+			marginpb.MarginService_DeactivateRule_FullMethodName: {"gateway_svc"},
+		},
+	)
 }
 
 func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
@@ -148,7 +170,20 @@ func applyMigrations(ctx context.Context, pool *pgxpool.Pool) error {
 }
 
 func ctxOrg(orgID string) context.Context {
-	md := metadata.Pairs("x-org-id", orgID)
+	signer, err := auth.NewSigner("gateway_svc", testIssuer, testServiceSecret)
+	if err != nil {
+		panic("signer: " + err.Error())
+	}
+	token, err := signer.Token("margin", time.Now())
+	if err != nil {
+		panic("token: " + err.Error())
+	}
+	md := metadata.Pairs(
+		"authorization", "Bearer "+token,
+		"x-org-id", orgID,
+		"x-user-id", "00000000-0000-0000-0000-000000000011",
+		"x-user-roles", "admin",
+	)
 	return metadata.NewOutgoingContext(context.Background(), md)
 }
 

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: margin
+spec:
+  selector:
+    app: margin
+  ports:
+    - name: grpc
+      port: 50053
+      targetPort: grpc
+    - name: health
+      port: 8080
+      targetPort: health

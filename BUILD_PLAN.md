@@ -170,6 +170,7 @@ Now Proposal grows teeth. Below-cost prevents bad submissions; override is the e
 | F4.5 | Web UI: violations panel | Inline error list on proposal detail; below-cost flag per line |
 | F4.6 | Override request endpoint | `POST /override-requests`; cannot be approved by same actor (server-side check) |
 | F4.7 | Override approval flow | Approver path; emit `override.requested` + `override.approved`; proposal re-evaluates with override token |
+| F4.8 | Margin runtime hardening | Authenticated service boundaries, deployable runtime, health probes, CI coverage, and service-stack acceptance |
 
 **Phase 4 exit criteria:** Submitting a below-cost proposal blocks it. Requesting an override and having a different user approve it lets the proposal proceed. All steps appear in Governance's audit table.
 

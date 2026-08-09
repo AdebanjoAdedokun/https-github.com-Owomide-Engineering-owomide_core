@@ -2,11 +2,8 @@ package client
 
 import (
 	"context"
-	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -20,6 +17,7 @@ import (
 	intelligencepb "github.com/owomide/proto/services/intelligence/v1"
 	marginpb "github.com/owomide/proto/services/margin/v1"
 
+	"github.com/owomide/margin/internal/auth"
 	"github.com/owomide/margin/internal/repo"
 )
 
@@ -42,8 +40,7 @@ type MarginEvaluator interface {
 
 type intelligenceClient struct {
 	inner   intelligencepb.IntelligenceServiceClient
-	secret  []byte
-	issuer  string
+	signer  *auth.Signer
 	timeout time.Duration
 }
 
@@ -144,19 +141,16 @@ func NewIntelligenceClient(
 	if conn == nil {
 		return nil, errors.New("intelligence gRPC connection is required")
 	}
-	if len(secret) < 32 {
-		return nil, errors.New("intelligence service secret must be at least 32 characters")
-	}
-	if strings.TrimSpace(issuer) == "" {
-		return nil, errors.New("service JWT issuer is required")
-	}
 	if timeout <= 0 {
 		return nil, errors.New("intelligence timeout must be positive")
 	}
+	signer, err := auth.NewSigner(intelligenceSubject, issuer, secret)
+	if err != nil {
+		return nil, fmt.Errorf("configure intelligence service credential: %w", err)
+	}
 	return &intelligenceClient{
 		inner:   intelligencepb.NewIntelligenceServiceClient(conn),
-		secret:  []byte(secret),
-		issuer:  issuer,
+		signer:  signer,
 		timeout: timeout,
 	}, nil
 }
@@ -171,13 +165,7 @@ func (c *intelligenceClient) EvaluateMargin(
 	if strings.TrimSpace(orgID) == "" {
 		return nil, errors.New("organization ID is required")
 	}
-	token, err := signServiceJWT(
-		intelligenceSubject,
-		intelligenceAudience,
-		c.issuer,
-		c.secret,
-		time.Now().UTC(),
-	)
+	token, err := c.signer.Token(intelligenceAudience, time.Now())
 	if err != nil {
 		return nil, fmt.Errorf("sign intelligence credential: %w", err)
 	}
@@ -188,11 +176,13 @@ func (c *intelligenceClient) EvaluateMargin(
 	}
 	callCtx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
-	callCtx = metadata.AppendToOutgoingContext(
+	callCtx = metadata.NewOutgoingContext(
 		callCtx,
-		"authorization", "Bearer "+token,
-		"x-org-id", orgID,
-		"x-user-id", intelligenceSubject,
+		metadata.Pairs(
+			"authorization", "Bearer "+token,
+			"x-org-id", orgID,
+			"x-user-id", intelligenceSubject,
+		),
 	)
 	response, err := c.inner.EvaluateMarginBatch(callCtx, request)
 	if err != nil {
@@ -286,34 +276,4 @@ func ruleDefinition(rule *repo.MarginRuleRow) (*intelligencepb.MarginRuleDefinit
 		}
 	}
 	return definition, nil
-}
-
-func signServiceJWT(
-	subject string,
-	audience string,
-	issuer string,
-	secret []byte,
-	now time.Time,
-) (string, error) {
-	header, err := json.Marshal(map[string]string{"alg": "HS256", "typ": "JWT"})
-	if err != nil {
-		return "", err
-	}
-	claims, err := json.Marshal(map[string]any{
-		"aud": audience,
-		"exp": now.Add(5 * time.Minute).Unix(),
-		"iat": now.Unix(),
-		"iss": issuer,
-		"sub": subject,
-	})
-	if err != nil {
-		return "", err
-	}
-	encoder := base64.RawURLEncoding
-	unsigned := encoder.EncodeToString(header) + "." + encoder.EncodeToString(claims)
-	mac := hmac.New(sha256.New, secret)
-	if _, err := mac.Write([]byte(unsigned)); err != nil {
-		return "", err
-	}
-	return unsigned + "." + encoder.EncodeToString(mac.Sum(nil)), nil
 }

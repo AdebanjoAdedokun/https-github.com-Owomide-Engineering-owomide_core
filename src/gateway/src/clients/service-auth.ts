@@ -22,3 +22,14 @@ export async function dataPipelineServiceToken(config: Config): Promise<string> 
     .setExpirationTime("2m")
     .sign(new TextEncoder().encode(config.dataPipelineGatewayServiceSecret));
 }
+
+export async function marginServiceToken(config: Config): Promise<string> {
+  return new SignJWT({})
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(config.serviceJwtIssuer)
+    .setSubject("gateway_svc")
+    .setAudience("margin")
+    .setIssuedAt()
+    .setExpirationTime("2m")
+    .sign(new TextEncoder().encode(config.marginGatewayServiceSecret));
+}

@@ -22,6 +22,10 @@ build:
       context: .
       docker:
         dockerfile: src/data-pipeline/Dockerfile
+    - image: owomide/margin
+      context: .
+      docker:
+        dockerfile: src/margin/Dockerfile
     # - image: owomide/bus-smoke
     #   context: .
     #   docker:
@@ -63,6 +67,16 @@ portForward:
     namespace: default
     port: 8080
     localPort: 58055
+  - resourceType: Service
+    resourceName: margin
+    namespace: default
+    port: 50053
+    localPort: 50053
+  - resourceType: Service
+    resourceName: margin
+    namespace: default
+    port: 8080
+    localPort: 58053
   - resourceType: Service
     resourceName: postgres
     namespace: default

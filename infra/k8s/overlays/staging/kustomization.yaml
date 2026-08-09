@@ -12,9 +12,18 @@ images:
     newTag: staging
   - name: owomide/data-pipeline
     newTag: staging
+  - name: owomide/margin
+    newTag: staging
 
 # Staging-sized resource requests and larger storage.
 patches:
+  - patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: margin-config
+      data:
+        ENVIRONMENT: staging
   - patch: |-
       apiVersion: apps/v1
       kind: Deployment
