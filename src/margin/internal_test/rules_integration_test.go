@@ -87,7 +87,13 @@ func TestMain(m *testing.M) {
 	defer sharedDB.Close()
 
 	sharedRepo = repo.New()
-	svc := handler.NewRulesServer(sharedDB, sharedRepo, slog.Default(), &stubCostFetcher{})
+	svc := handler.NewRulesServer(
+		sharedDB,
+		sharedRepo,
+		slog.Default(),
+		&stubCostFetcher{},
+		&stubMarginEvaluator{},
+	)
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {

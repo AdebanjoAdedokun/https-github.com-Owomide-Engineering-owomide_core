@@ -212,7 +212,8 @@ These are decisions made early and locked. Changing them requires explicit ADR (
 - **No org administration UI** — MVP may operate a single customer organization, but customer-owned tables still include `org_id`.
 - **No mobile app** — responsive web only.
 - **No real-time collaborative editing** — single-editor at a time, optimistic locking.
-- **No ML / pricing optimization** — Intelligence service ships Phase-6 with FX + rule engine only.
+- **No ML / pricing optimization** — Intelligence ships in Phase 7 with deterministic FX and rule
+  evaluation only.
 - **No external API for customers** — internal-facing tools only at launch.
 - **No SSO / SAML** — JWT + email/password for MVP, add later.
 

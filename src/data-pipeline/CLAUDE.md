@@ -9,8 +9,8 @@ The Data Pipeline accepts untrusted customer pricing files and turns reviewed ro
 - Has no SQL grants on `catalog`; canonical writes use authenticated Catalog RPCs.
 - Receives tenant and actor context only from signed Gateway metadata.
 - Uses Kafka through `src/lib/bus`; Redis Streams are not part of this design.
-- Export remains Phase 7 work. F7.3 FX intelligence is implemented under
-  `owomide_data_pipeline/intelligence/`; the margin rule engine remains F7.4.
+- Export remains Phase 7 work. F7.3 FX and F7.4 deterministic margin-rule evaluation are
+  implemented under `owomide_data_pipeline/intelligence/`.
 
 ## Lifecycle
 
@@ -112,6 +112,17 @@ If a worker stops after Catalog accepts a chunk but before Data Pipeline records
 retry sends the same rows with the same idempotency key and receives Catalog's stored response.
 Logical event duplicates use one deterministic event ID so consumers can deduplicate safely.
 
+## F7.3-F7.4 Intelligence Scope
+
+F7.3 provides immutable historical FX snapshots, bitemporal lookup, exact cross rates, and
+deterministic import conversion. F7.4 registers a separate internal `IntelligenceService` on the
+same Python runtime. Its batched margin evaluator supports bounded typed condition trees,
+deterministic precedence, integer-only floor calculations, per-item errors, and reproducibility
+hashes. It is stateless and does not own Margin rules or workflow decisions.
+
+Only `margin_svc` can invoke `EvaluateMarginBatch`; allowing that service through the shared gRPC
+interceptor does not authorize it for Data Pipeline import or FX methods.
+
 ## Public RPCs
 
 - `UploadImportFile` (client streaming)
@@ -124,6 +135,10 @@ Logical event duplicates use one deterministic event ID so consumers can dedupli
 - `ListMappingTemplates`, `SaveMappingTemplate`
 
 Gateway REST routes map to these RPCs. Requests never carry editable `org_id` or `user_id` fields.
+
+Internal Intelligence RPC:
+
+- `EvaluateMarginBatch` on `IntelligenceService` (Margin service only; no Gateway route)
 
 ## Database
 
@@ -155,6 +170,8 @@ All customer-owned tables carry `org_id`, force PostgreSQL RLS, and use composit
 8. Catalog dimensions must exist before commit; imports do not create channels or segments implicitly.
 9. Catalog calls use stable chunk idempotency keys and handle row outcomes independently.
 10. `import.committed` uses `batch_id` as the Kafka partition key and includes ok, warned, excluded, and errored counts.
+11. Intelligence rule evaluation is stateless, deterministic, bounded, and uses integer-only money
+    arithmetic. Margin owns stored rules and treats unavailable or malformed evaluation as blocking.
 
 ## Runtime Configuration
 
@@ -171,6 +188,7 @@ Important optional settings:
 - `DATA_PIPELINE_GRPC_WORKERS`
 - `DATA_PIPELINE_DATABASE_STATEMENT_TIMEOUT_MS`
 - `DATA_PIPELINE_SERVICE_JWT_ISSUER`, `DATA_PIPELINE_SERVICE_JWT_AUDIENCE`
+- `DATA_PIPELINE_SERVICE_SECRETS_JSON` must include `margin_svc` before Margin integration is enabled
 - `DATA_PIPELINE_WORKER_POLL_SECONDS`
 - `DATA_PIPELINE_OBJECT_STORE_ENDPOINT`, `DATA_PIPELINE_OBJECT_STORE_BUCKET`
 - `DATA_PIPELINE_OBJECT_STORE_ACCESS_KEY`, `DATA_PIPELINE_OBJECT_STORE_SECRET_KEY`

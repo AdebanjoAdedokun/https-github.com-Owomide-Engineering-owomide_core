@@ -121,6 +121,21 @@ export declare type Violation = Message<"owomide.services.margin.v1.Violation"> 
    * @generated from field: owomide.common.v1.Money gap = 7;
    */
   gap?: Money | undefined;
+
+  /**
+   * @generated from field: int32 rule_version = 8;
+   */
+  ruleVersion: number;
+
+  /**
+   * @generated from field: string intelligence_engine_version = 9;
+   */
+  intelligenceEngineVersion: string;
+
+  /**
+   * @generated from field: string evaluation_hash = 10;
+   */
+  evaluationHash: string;
 };
 
 /**

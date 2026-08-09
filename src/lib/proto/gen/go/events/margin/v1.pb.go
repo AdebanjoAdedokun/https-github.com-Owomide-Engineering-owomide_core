@@ -24,18 +24,21 @@ const (
 )
 
 type MarginBreachDetected struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrgId         string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
-	SkuId         string                 `protobuf:"bytes,2,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	RuleId        string                 `protobuf:"bytes,4,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
-	Message       string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
-	CurrentPrice  *v1.Money              `protobuf:"bytes,6,opt,name=current_price,json=currentPrice,proto3" json:"current_price,omitempty"`
-	FloorPrice    *v1.Money              `protobuf:"bytes,7,opt,name=floor_price,json=floorPrice,proto3" json:"floor_price,omitempty"`
-	Gap           *v1.Money              `protobuf:"bytes,8,opt,name=gap,proto3" json:"gap,omitempty"`
-	DetectedAt    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=detected_at,json=detectedAt,proto3" json:"detected_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"open.v1"`
+	OrgId                     string                 `protobuf:"bytes,1,opt,name=org_id,json=orgId,proto3" json:"org_id,omitempty"`
+	SkuId                     string                 `protobuf:"bytes,2,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
+	ChannelId                 string                 `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	RuleId                    string                 `protobuf:"bytes,4,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	Message                   string                 `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	CurrentPrice              *v1.Money              `protobuf:"bytes,6,opt,name=current_price,json=currentPrice,proto3" json:"current_price,omitempty"`
+	FloorPrice                *v1.Money              `protobuf:"bytes,7,opt,name=floor_price,json=floorPrice,proto3" json:"floor_price,omitempty"`
+	Gap                       *v1.Money              `protobuf:"bytes,8,opt,name=gap,proto3" json:"gap,omitempty"`
+	DetectedAt                *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=detected_at,json=detectedAt,proto3" json:"detected_at,omitempty"`
+	RuleVersion               int32                  `protobuf:"varint,10,opt,name=rule_version,json=ruleVersion,proto3" json:"rule_version,omitempty"`
+	IntelligenceEngineVersion string                 `protobuf:"bytes,11,opt,name=intelligence_engine_version,json=intelligenceEngineVersion,proto3" json:"intelligence_engine_version,omitempty"`
+	EvaluationHash            string                 `protobuf:"bytes,12,opt,name=evaluation_hash,json=evaluationHash,proto3" json:"evaluation_hash,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *MarginBreachDetected) Reset() {
@@ -131,11 +134,32 @@ func (x *MarginBreachDetected) GetDetectedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *MarginBreachDetected) GetRuleVersion() int32 {
+	if x != nil {
+		return x.RuleVersion
+	}
+	return 0
+}
+
+func (x *MarginBreachDetected) GetIntelligenceEngineVersion() string {
+	if x != nil {
+		return x.IntelligenceEngineVersion
+	}
+	return ""
+}
+
+func (x *MarginBreachDetected) GetEvaluationHash() string {
+	if x != nil {
+		return x.EvaluationHash
+	}
+	return ""
+}
+
 var File_events_margin_v1_proto protoreflect.FileDescriptor
 
 const file_events_margin_v1_proto_rawDesc = "" +
 	"\n" +
-	"\x16events/margin/v1.proto\x12\x18owomide.events.margin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16common/v1/common.proto\"\xf9\x02\n" +
+	"\x16events/margin/v1.proto\x12\x18owomide.events.margin.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16common/v1/common.proto\"\x85\x04\n" +
 	"\x14MarginBreachDetected\x12\x15\n" +
 	"\x06org_id\x18\x01 \x01(\tR\x05orgId\x12\x15\n" +
 	"\x06sku_id\x18\x02 \x01(\tR\x05skuId\x12\x1d\n" +
@@ -148,7 +172,11 @@ const file_events_margin_v1_proto_rawDesc = "" +
 	"floorPrice\x12*\n" +
 	"\x03gap\x18\b \x01(\v2\x18.owomide.common.v1.MoneyR\x03gap\x12;\n" +
 	"\vdetected_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"detectedAtB+Z)github.com/owomide/proto/events/margin/v1b\x06proto3"
+	"detectedAt\x12!\n" +
+	"\frule_version\x18\n" +
+	" \x01(\x05R\vruleVersion\x12>\n" +
+	"\x1bintelligence_engine_version\x18\v \x01(\tR\x19intelligenceEngineVersion\x12'\n" +
+	"\x0fevaluation_hash\x18\f \x01(\tR\x0eevaluationHashB+Z)github.com/owomide/proto/events/margin/v1b\x06proto3"
 
 var (
 	file_events_margin_v1_proto_rawDescOnce sync.Once

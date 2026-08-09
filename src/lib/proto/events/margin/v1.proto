@@ -17,4 +17,7 @@ message MarginBreachDetected {
   owomide.common.v1.Money floor_price = 7;
   owomide.common.v1.Money gap = 8;
   google.protobuf.Timestamp detected_at = 9;
+  int32 rule_version = 10;
+  string intelligence_engine_version = 11;
+  string evaluation_hash = 12;
 }

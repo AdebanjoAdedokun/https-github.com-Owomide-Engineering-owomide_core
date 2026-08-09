@@ -8,6 +8,7 @@ from threading import Event
 
 import grpc
 from services.data_pipeline.v1 import data_pipeline_pb2_grpc
+from services.intelligence.v1 import intelligence_pb2_grpc
 
 from owomide_data_pipeline.auth import AuthenticationInterceptor, ServiceAuthenticator
 from owomide_data_pipeline.config import Config
@@ -15,6 +16,7 @@ from owomide_data_pipeline.db import Database
 from owomide_data_pipeline.health import HealthServer, start_health_server
 from owomide_data_pipeline.intelligence.fx import FxCalculator
 from owomide_data_pipeline.intelligence.repository import FxRateRepository
+from owomide_data_pipeline.intelligence.service import IntelligenceService
 from owomide_data_pipeline.repository import ImportRepository
 from owomide_data_pipeline.service import DataPipelineService
 from owomide_data_pipeline.storage import ObjectStore
@@ -48,6 +50,7 @@ def start_server(config: Config) -> Runtime:
         issuer=config.service_jwt_issuer,
         audience=config.service_jwt_audience,
         secrets=config.service_secrets,
+        allowed_services=frozenset({"gateway_svc", "margin_svc"}),
     )
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=config.grpc_workers),
@@ -61,6 +64,10 @@ def start_server(config: Config) -> Runtime:
             upload_max_bytes=config.upload_max_bytes,
             fx_calculator=fx_calculator,
         ),
+        server,
+    )
+    intelligence_pb2_grpc.add_IntelligenceServiceServicer_to_server(
+        IntelligenceService(authenticator=authenticator),
         server,
     )
     bound_port = server.add_insecure_port(f"{config.grpc_host}:{config.grpc_port}")

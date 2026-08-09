@@ -257,16 +257,19 @@ func (x *MarginRule) GetVersion() int32 {
 }
 
 type Violation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SkuId         string                 `protobuf:"bytes,1,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
-	RuleId        string                 `protobuf:"bytes,2,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
-	Severity      ViolationSeverity      `protobuf:"varint,3,opt,name=severity,proto3,enum=owomide.services.margin.v1.ViolationSeverity" json:"severity,omitempty"`
-	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	Floor         *v1.Money              `protobuf:"bytes,5,opt,name=floor,proto3" json:"floor,omitempty"`
-	Proposed      *v1.Money              `protobuf:"bytes,6,opt,name=proposed,proto3" json:"proposed,omitempty"`
-	Gap           *v1.Money              `protobuf:"bytes,7,opt,name=gap,proto3" json:"gap,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"open.v1"`
+	SkuId                     string                 `protobuf:"bytes,1,opt,name=sku_id,json=skuId,proto3" json:"sku_id,omitempty"`
+	RuleId                    string                 `protobuf:"bytes,2,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	Severity                  ViolationSeverity      `protobuf:"varint,3,opt,name=severity,proto3,enum=owomide.services.margin.v1.ViolationSeverity" json:"severity,omitempty"`
+	Message                   string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	Floor                     *v1.Money              `protobuf:"bytes,5,opt,name=floor,proto3" json:"floor,omitempty"`
+	Proposed                  *v1.Money              `protobuf:"bytes,6,opt,name=proposed,proto3" json:"proposed,omitempty"`
+	Gap                       *v1.Money              `protobuf:"bytes,7,opt,name=gap,proto3" json:"gap,omitempty"`
+	RuleVersion               int32                  `protobuf:"varint,8,opt,name=rule_version,json=ruleVersion,proto3" json:"rule_version,omitempty"`
+	IntelligenceEngineVersion string                 `protobuf:"bytes,9,opt,name=intelligence_engine_version,json=intelligenceEngineVersion,proto3" json:"intelligence_engine_version,omitempty"`
+	EvaluationHash            string                 `protobuf:"bytes,10,opt,name=evaluation_hash,json=evaluationHash,proto3" json:"evaluation_hash,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *Violation) Reset() {
@@ -346,6 +349,27 @@ func (x *Violation) GetGap() *v1.Money {
 		return x.Gap
 	}
 	return nil
+}
+
+func (x *Violation) GetRuleVersion() int32 {
+	if x != nil {
+		return x.RuleVersion
+	}
+	return 0
+}
+
+func (x *Violation) GetIntelligenceEngineVersion() string {
+	if x != nil {
+		return x.IntelligenceEngineVersion
+	}
+	return ""
+}
+
+func (x *Violation) GetEvaluationHash() string {
+	if x != nil {
+		return x.EvaluationHash
+	}
+	return ""
 }
 
 type ValidateBatchRequest struct {
@@ -816,7 +840,7 @@ const file_services_margin_v1_margin_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\x0eeffectiveUntil\x12\x1d\n" +
 	"\n" +
 	"created_by\x18\v \x01(\tR\tcreatedBy\x12\x18\n" +
-	"\aversion\x18\f \x01(\x05R\aversion\"\xb2\x02\n" +
+	"\aversion\x18\f \x01(\x05R\aversion\"\xbe\x03\n" +
 	"\tViolation\x12\x15\n" +
 	"\x06sku_id\x18\x01 \x01(\tR\x05skuId\x12\x17\n" +
 	"\arule_id\x18\x02 \x01(\tR\x06ruleId\x12I\n" +
@@ -824,7 +848,11 @@ const file_services_margin_v1_margin_proto_rawDesc = "" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x12.\n" +
 	"\x05floor\x18\x05 \x01(\v2\x18.owomide.common.v1.MoneyR\x05floor\x124\n" +
 	"\bproposed\x18\x06 \x01(\v2\x18.owomide.common.v1.MoneyR\bproposed\x12*\n" +
-	"\x03gap\x18\a \x01(\v2\x18.owomide.common.v1.MoneyR\x03gap\"V\n" +
+	"\x03gap\x18\a \x01(\v2\x18.owomide.common.v1.MoneyR\x03gap\x12!\n" +
+	"\frule_version\x18\b \x01(\x05R\vruleVersion\x12>\n" +
+	"\x1bintelligence_engine_version\x18\t \x01(\tR\x19intelligenceEngineVersion\x12'\n" +
+	"\x0fevaluation_hash\x18\n" +
+	" \x01(\tR\x0eevaluationHash\"V\n" +
 	"\x14ValidateBatchRequest\x12>\n" +
 	"\x05items\x18\x01 \x03(\v2(.owomide.services.margin.v1.ValidateItemR\x05items\"\x85\x01\n" +
 	"\fValidateItem\x12\x15\n" +

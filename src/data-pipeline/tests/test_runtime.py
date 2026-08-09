@@ -11,11 +11,13 @@ from urllib.request import urlopen
 import grpc
 import jwt
 from services.data_pipeline.v1 import data_pipeline_pb2, data_pipeline_pb2_grpc
+from services.intelligence.v1 import intelligence_pb2, intelligence_pb2_grpc
 
 from owomide_data_pipeline.config import Config
 from owomide_data_pipeline.server import Runtime, start_server
 
 SECRET = "data-pipeline-test-secret-that-is-at-least-32-chars"
+MARGIN_SECRET = "data-pipeline-margin-test-secret-at-least-32-chars"
 
 
 def free_port() -> int:
@@ -32,7 +34,9 @@ class RuntimeTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         base = Config.from_env(
             {
-                "DATA_PIPELINE_SERVICE_SECRETS_JSON": f'{{"gateway_svc":"{SECRET}"}}',
+                "DATA_PIPELINE_SERVICE_SECRETS_JSON": (
+                    f'{{"gateway_svc":"{SECRET}","margin_svc":"{MARGIN_SECRET}"}}'
+                ),
             }
         )
         cls.config = replace(
@@ -91,6 +95,57 @@ class RuntimeTest(unittest.TestCase):
                     metadata=metadata,
                 )
         self.assertEqual(error.exception.code(), grpc.StatusCode.INVALID_ARGUMENT)
+
+    def test_margin_service_can_call_intelligence_but_not_import_apis(self) -> None:
+        now = datetime.now(UTC)
+        encoded = jwt.encode(
+            {
+                "iss": "owomide-internal",
+                "sub": "margin_svc",
+                "aud": "data-pipeline",
+                "iat": now,
+                "exp": now + timedelta(minutes=2),
+            },
+            MARGIN_SECRET,
+            algorithm="HS256",
+        )
+        metadata = (
+            ("authorization", f"Bearer {encoded}"),
+            ("x-org-id", "org-a"),
+            ("x-user-id", "margin_svc"),
+        )
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            intelligence = intelligence_pb2_grpc.IntelligenceServiceStub(channel)
+            evaluated = intelligence.EvaluateMarginBatch(
+                intelligence_pb2.EvaluateMarginBatchRequest(
+                    rules=[
+                        intelligence_pb2.MarginRuleDefinition(
+                            rule_id="rule-1",
+                            rule_version=1,
+                            currency="NGN",
+                            floor_type=intelligence_pb2.MARGIN_FLOOR_TYPE_ABSOLUTE_MINIMUM,
+                            floor_value=100,
+                        )
+                    ],
+                    items=[
+                        intelligence_pb2.MarginEvaluationItem(
+                            item_id="line-1",
+                            sku_id="sku-1",
+                            proposed_price={"amount": 90, "currency": "NGN"},
+                        )
+                    ],
+                ),
+                metadata=metadata,
+            )
+            self.assertTrue(evaluated.results[0].violated)
+
+            imports = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            with self.assertRaises(grpc.RpcError) as denied:
+                imports.GetImportBatch(
+                    data_pipeline_pb2.GetImportBatchRequest(batch_id="batch"),
+                    metadata=metadata,
+                )
+        self.assertEqual(denied.exception.code(), grpc.StatusCode.PERMISSION_DENIED)
 
 
 if __name__ == "__main__":

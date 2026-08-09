@@ -18,6 +18,8 @@ py_library(
         "owomide_data_pipeline/intelligence/currencies.py",
         "owomide_data_pipeline/intelligence/fx.py",
         "owomide_data_pipeline/intelligence/repository.py",
+        "owomide_data_pipeline/intelligence/rules.py",
+        "owomide_data_pipeline/intelligence/service.py",
         "owomide_data_pipeline/mapping.py",
         "owomide_data_pipeline/outbox.py",
         "owomide_data_pipeline/parsers.py",
@@ -134,6 +136,24 @@ py_test(
     srcs = ["tests/test_fx.py"],
     main = "tests/test_fx.py",
     deps = [":runtime"],
+)
+
+py_test(
+    name = "intelligence_rules_test",
+    srcs = ["tests/test_intelligence_rules.py"],
+    main = "tests/test_intelligence_rules.py",
+    deps = [":runtime"],
+)
+
+py_test(
+    name = "intelligence_service_test",
+    srcs = ["tests/test_intelligence_service.py"],
+    main = "tests/test_intelligence_service.py",
+    deps = [
+        ":runtime",
+        "@data_pipeline_pip//grpcio",
+        "@data_pipeline_pip//pyjwt",
+    ],
 )
 
 py_test(

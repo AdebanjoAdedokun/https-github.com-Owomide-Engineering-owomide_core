@@ -103,6 +103,7 @@ func TestBreachMonitor_ScanOnce_EmitsBreachEvent(t *testing.T) {
 			ChannelId: chanID,
 			Price:     &commonv1.Money{Amount: 900, Currency: "NGN"},
 		}}},
+		&stubMarginEvaluator{},
 		pub,
 		time.Minute,
 		100,
@@ -125,6 +126,9 @@ func TestBreachMonitor_ScanOnce_EmitsBreachEvent(t *testing.T) {
 	assert.Equal(t, int64(900), breach.CurrentPrice.Amount)
 	assert.Equal(t, int64(1000), breach.FloorPrice.Amount)
 	assert.Equal(t, int64(100), breach.Gap.Amount)
+	assert.Equal(t, int32(1), breach.RuleVersion)
+	assert.Equal(t, "test-engine-v1", breach.IntelligenceEngineVersion)
+	assert.Len(t, breach.EvaluationHash, 64)
 }
 
 // TestBreachMonitor_ScanOnce_NoBreachWhenPriceAboveFloor verifies no event when
@@ -159,6 +163,7 @@ func TestBreachMonitor_ScanOnce_NoBreachWhenPriceAboveFloor(t *testing.T) {
 			ChannelId: chanID,
 			Price:     &commonv1.Money{Amount: 1500, Currency: "NGN"},
 		}}},
+		&stubMarginEvaluator{},
 		pub,
 		time.Minute,
 		100,

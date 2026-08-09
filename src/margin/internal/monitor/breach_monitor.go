@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,10 +15,11 @@ import (
 	buspkg "github.com/owomide/bus/pkg/bus"
 	commonv1 "github.com/owomide/proto/common/v1"
 	marginev1 "github.com/owomide/proto/events/margin"
+	intelligencepb "github.com/owomide/proto/services/intelligence/v1"
+	marginpb "github.com/owomide/proto/services/margin/v1"
 
 	"github.com/owomide/margin/internal/client"
 	"github.com/owomide/margin/internal/db"
-	"github.com/owomide/margin/internal/domain"
 	"github.com/owomide/margin/internal/repo"
 )
 
@@ -30,6 +32,7 @@ type BreachMonitor struct {
 	repo         *repo.Repo
 	costFetcher  client.CostFetcher
 	priceFetcher client.PriceFetcher
+	evaluator    client.MarginEvaluator
 	publisher    buspkg.Publisher
 	interval     time.Duration
 	batchSize    int
@@ -45,6 +48,7 @@ func New(
 	r *repo.Repo,
 	cost client.CostFetcher,
 	price client.PriceFetcher,
+	evaluator client.MarginEvaluator,
 	pub buspkg.Publisher,
 	interval time.Duration,
 	batchSize int,
@@ -53,11 +57,15 @@ func New(
 	if batchSize <= 0 {
 		batchSize = 100
 	}
+	if evaluator == nil {
+		panic("monitor.New: evaluator must not be nil")
+	}
 	return &BreachMonitor{
 		database:     database,
 		repo:         r,
 		costFetcher:  cost,
 		priceFetcher: price,
+		evaluator:    evaluator,
 		publisher:    pub,
 		interval:     interval,
 		batchSize:    batchSize,
@@ -163,26 +171,66 @@ func (m *BreachMonitor) scanOrg(ctx context.Context, orgID string) error {
 		return fmt.Errorf("GetRulesForBatch: %w", err)
 	}
 
-	now := time.Now().UTC()
+	items := make([]*marginpb.ValidateItem, 0, len(prices))
 	for _, pr := range prices {
 		if pr.Price == nil {
 			continue
 		}
-		bestRule := domain.FindBestRule(pr.SkuId, pr.ChannelId, rules)
-		if bestRule == nil {
+		items = append(items, &marginpb.ValidateItem{
+			SkuId: pr.SkuId, ChannelId: pr.ChannelId, ProposedPrice: pr.Price,
+		})
+	}
+	if len(items) == 0 || len(rules) == 0 {
+		return nil
+	}
+	evaluation, err := m.evaluator.EvaluateMargin(ctx, orgID, rules, items, costs)
+	if err != nil {
+		return fmt.Errorf("EvaluateMargin: %w", err)
+	}
+	if evaluation == nil || evaluation.EngineVersion == "" || len(evaluation.Results) != len(items) {
+		return fmt.Errorf("intelligence returned an invalid result count or engine version")
+	}
+	now := time.Now().UTC()
+	seen := make(map[int]struct{}, len(items))
+	for _, result := range evaluation.Results {
+		index, err := strconv.Atoi(result.ItemId)
+		if err != nil || index < 0 || index >= len(items) {
+			return fmt.Errorf("intelligence returned invalid item_id %q", result.ItemId)
+		}
+		if _, duplicate := seen[index]; duplicate {
+			return fmt.Errorf("intelligence repeated item_id %q", result.ItemId)
+		}
+		seen[index] = struct{}{}
+		item := items[index]
+		if err := client.ValidateMarginEvaluation(item, result); err != nil {
+			return fmt.Errorf("intelligence returned an invalid result for item %d: %w", index, err)
+		}
+		if result.Status == intelligencepb.MarginEvaluationStatus_MARGIN_EVALUATION_STATUS_ERROR {
+			m.logger.Warn(
+				"skip breach check",
+				"sku_id", item.SkuId,
+				"channel_id", item.ChannelId,
+				"reason", result.GetErrorCode(),
+			)
 			continue
 		}
-		cost := costs[pr.SkuId]
-		floor, err := domain.ComputeFloor(bestRule, cost)
-		if err != nil {
-			m.logger.Warn("skip breach check", "sku_id", pr.SkuId, "channel_id", pr.ChannelId, "reason", err.Error())
+		if result.Status == intelligencepb.MarginEvaluationStatus_MARGIN_EVALUATION_STATUS_NO_MATCH || !result.Violated {
 			continue
 		}
-		if pr.Price.Amount >= floor {
-			continue
-		}
-		if err := m.publishBreach(ctx, orgID, pr.SkuId, pr.ChannelId, bestRule.ID, pr.Price, floor, now); err != nil {
-			m.logger.Error("publish breach failed", "org_id", orgID, "sku_id", pr.SkuId, "error", err)
+		if err := m.publishBreach(
+			ctx,
+			orgID,
+			item.SkuId,
+			item.ChannelId,
+			result.GetAppliedRuleId(),
+			result.GetAppliedRuleVersion(),
+			evaluation.EngineVersion,
+			result.EvaluationHash,
+			item.ProposedPrice,
+			result.Floor.Amount,
+			now,
+		); err != nil {
+			m.logger.Error("publish breach failed", "org_id", orgID, "sku_id", item.SkuId, "error", err)
 		}
 	}
 	return nil
@@ -191,6 +239,8 @@ func (m *BreachMonitor) scanOrg(ctx context.Context, orgID string) error {
 func (m *BreachMonitor) publishBreach(
 	ctx context.Context,
 	orgID, skuID, channelID, ruleID string,
+	ruleVersion int32,
+	engineVersion, evaluationHash string,
 	currentPrice *commonv1.Money,
 	floorAmount int64,
 	now time.Time,
@@ -214,7 +264,10 @@ func (m *BreachMonitor) publishBreach(
 			Amount:   gap,
 			Currency: currentPrice.Currency,
 		},
-		DetectedAt: timestamppb.New(now),
+		DetectedAt:                timestamppb.New(now),
+		RuleVersion:               ruleVersion,
+		IntelligenceEngineVersion: engineVersion,
+		EvaluationHash:            evaluationHash,
 	})
 	if err != nil {
 		return fmt.Errorf("marshal breach payload: %w", err)

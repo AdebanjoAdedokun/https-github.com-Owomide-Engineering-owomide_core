@@ -41,7 +41,28 @@ func main() {
 
 	r := repo.New()
 	catalogClient := client.NewCatalogClient(catalogConn)
-	svc := handler.NewRulesServer(database, r, logger, catalogClient)
+
+	intelligenceConn, err := grpc.NewClient(
+		cfg.IntelligenceAddr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		logger.Error("connect intelligence", "error", err)
+		os.Exit(1)
+	}
+	defer func() { _ = intelligenceConn.Close() }()
+	intelligenceClient, err := client.NewIntelligenceClient(
+		intelligenceConn,
+		cfg.IntelligenceSecret,
+		cfg.ServiceJWTIssuer,
+		time.Duration(cfg.IntelligenceTimeoutSec)*time.Second,
+	)
+	if err != nil {
+		logger.Error("configure intelligence", "error", err)
+		os.Exit(1)
+	}
+
+	svc := handler.NewRulesServer(database, r, logger, catalogClient, intelligenceClient)
 
 	if cfg.BreachMonitorEnabled {
 		b, err := buspkg.New(buspkg.Config{
@@ -59,6 +80,7 @@ func main() {
 
 		mon := monitor.New(
 			database, r, catalogClient, catalogClient,
+			intelligenceClient,
 			b.Publisher,
 			time.Duration(cfg.BreachMonitorIntervalSec)*time.Second,
 			cfg.BreachMonitorBatchSize,
