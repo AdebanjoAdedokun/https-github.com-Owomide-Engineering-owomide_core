@@ -12,6 +12,8 @@ images:
     newTag: prod
   - name: owomide/data-pipeline
     newTag: prod
+  - name: owomide/margin
+    newTag: prod
 
 # Run 2 gateway replicas in production for availability.
 replicas:
@@ -20,6 +22,13 @@ replicas:
 
 # Production-grade resource requests and storage.
 patches:
+  - patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: margin-config
+      data:
+        ENVIRONMENT: production
   - patch: |-
       apiVersion: apps/v1
       kind: Deployment

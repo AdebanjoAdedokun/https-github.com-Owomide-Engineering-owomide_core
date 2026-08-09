@@ -20,6 +20,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 CATALOG_PASSWORD = "acceptance_catalog_password"
 DATA_PIPELINE_PASSWORD = "acceptance_data_pipeline_password"
+MARGIN_PASSWORD = "acceptance_margin_password"
 POSTGRES_PASSWORD = "acceptance_postgres_password"
 MINIO_ACCESS_KEY = "minioadmin"
 MINIO_SECRET_KEY = "minioadmin"
@@ -27,9 +28,13 @@ GATEWAY_CATALOG_SECRET = "acceptance-gateway-catalog-secret-change-me"
 GATEWAY_PIPELINE_SECRET = "acceptance-gateway-pipeline-secret-change-me"
 PIPELINE_CATALOG_SECRET = "acceptance-pipeline-catalog-secret-change-me"
 MARGIN_PIPELINE_SECRET = "acceptance-margin-pipeline-secret-change-me"
+MARGIN_CATALOG_SECRET = "acceptance-margin-catalog-secret-change-me"
+GATEWAY_MARGIN_SECRET = "acceptance-gateway-margin-secret-change-me"
+PROPOSAL_MARGIN_SECRET = "acceptance-proposal-margin-secret-change-me"
 USER_JWT_SECRET = "acceptance-user-jwt-secret-change-me"
-ORG_ID = "org-acceptance"
-USER_ID = "user-acceptance"
+ORG_ID = "00000000-0000-0000-0000-00000000a001"
+OTHER_ORG_ID = "00000000-0000-0000-0000-00000000a002"
+USER_ID = "00000000-0000-0000-0000-00000000b001"
 
 
 def run(
@@ -59,6 +64,7 @@ class AcceptanceStack:
             "catalog": f"owomide/catalog:acceptance-{suffix}",
             "data-pipeline": f"owomide/data-pipeline:acceptance-{suffix}",
             "gateway": f"owomide/gateway:acceptance-{suffix}",
+            "margin": f"owomide/margin:acceptance-{suffix}",
         }
         self.containers = {
             name: f"owomide-acceptance-{name}-{suffix}"
@@ -70,6 +76,7 @@ class AcceptanceStack:
                 "catalog-worker",
                 "data-pipeline",
                 "data-pipeline-worker",
+                "margin",
                 "gateway",
             )
         }
@@ -79,6 +86,7 @@ class AcceptanceStack:
             ("catalog", "src/catalog/Dockerfile"),
             ("data-pipeline", "src/data-pipeline/Dockerfile"),
             ("gateway", "src/gateway/Dockerfile"),
+            ("margin", "src/margin/Dockerfile"),
         ):
             run(
                 [
@@ -142,6 +150,7 @@ class AcceptanceStack:
                 {
                     "gateway_svc": GATEWAY_CATALOG_SECRET,
                     "data_pipeline_svc": PIPELINE_CATALOG_SECRET,
+                    "margin_svc": MARGIN_CATALOG_SECRET,
                 }
             ),
             "KAFKA_BROKERS": "kafka:9092",
@@ -187,6 +196,27 @@ class AcceptanceStack:
         )
 
         self._container(
+            "margin",
+            self.images["margin"],
+            env={
+                "ENVIRONMENT": "test",
+                "MARGIN_DATABASE_URL": self._database_url("margin_svc", MARGIN_PASSWORD),
+                "MARGIN_SERVICE_SECRETS_JSON": json.dumps(
+                    {
+                        "gateway_svc": GATEWAY_MARGIN_SECRET,
+                        "proposal_svc": PROPOSAL_MARGIN_SECRET,
+                    }
+                ),
+                "MARGIN_CATALOG_SERVICE_SECRET": MARGIN_CATALOG_SECRET,
+                "MARGIN_INTELLIGENCE_SERVICE_SECRET": MARGIN_PIPELINE_SECRET,
+                "CATALOG_ADDR": "catalog:50052",
+                "INTELLIGENCE_ADDR": "data-pipeline:50055",
+                "KAFKA_BROKERS": "kafka:9092",
+                "BREACH_MONITOR_ENABLED": "false",
+            },
+        )
+
+        self._container(
             "gateway",
             self.images["gateway"],
             env={
@@ -200,8 +230,10 @@ class AcceptanceStack:
                 "DEV_USER_ROLES": "admin",
                 "CATALOG_SERVICE_URL": "http://catalog:50052",
                 "DATA_PIPELINE_SERVICE_URL": "http://data-pipeline:50055",
+                "MARGIN_SERVICE_URL": "http://margin:50053",
                 "CATALOG_GATEWAY_SERVICE_SECRET": GATEWAY_CATALOG_SECRET,
                 "DATA_PIPELINE_GATEWAY_SERVICE_SECRET": GATEWAY_PIPELINE_SECRET,
+                "MARGIN_GATEWAY_SERVICE_SECRET": GATEWAY_MARGIN_SECRET,
                 "LOG_LEVEL": "warn",
             },
         )
@@ -231,6 +263,7 @@ class AcceptanceStack:
             "gateway",
             "data-pipeline",
             "data-pipeline-worker",
+            "margin",
             "catalog",
             "catalog-worker",
             "kafka",
@@ -377,10 +410,13 @@ class AcceptanceStack:
         bootstrap = f"""
             CREATE SCHEMA catalog;
             CREATE SCHEMA data_pipeline;
+            CREATE SCHEMA margin;
             CREATE ROLE catalog_svc LOGIN PASSWORD '{CATALOG_PASSWORD}';
             CREATE ROLE data_pipeline_svc LOGIN PASSWORD '{DATA_PIPELINE_PASSWORD}';
+            CREATE ROLE margin_svc LOGIN PASSWORD '{MARGIN_PASSWORD}';
             GRANT USAGE ON SCHEMA catalog TO catalog_svc;
             GRANT USAGE ON SCHEMA data_pipeline TO data_pipeline_svc;
+            GRANT USAGE ON SCHEMA margin TO margin_svc;
             ALTER DEFAULT PRIVILEGES IN SCHEMA catalog
               GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO catalog_svc;
             ALTER DEFAULT PRIVILEGES IN SCHEMA catalog
@@ -393,9 +429,15 @@ class AcceptanceStack:
               GRANT USAGE, SELECT ON SEQUENCES TO data_pipeline_svc;
             ALTER DEFAULT PRIVILEGES IN SCHEMA data_pipeline
               GRANT EXECUTE ON FUNCTIONS TO data_pipeline_svc;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA margin
+              GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO margin_svc;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA margin
+              GRANT USAGE, SELECT ON SEQUENCES TO margin_svc;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA margin
+              GRANT EXECUTE ON FUNCTIONS TO margin_svc;
         """.encode()
         self._psql(bootstrap)
-        for service in ("catalog", "data-pipeline"):
+        for service in ("catalog", "data-pipeline", "margin"):
             directory = REPO_ROOT / "src" / service / "migrations"
             for path in sorted(directory.glob("*.up.sql")):
                 self._psql(path.read_bytes())
@@ -469,6 +511,8 @@ class AcceptanceScenario:
                 },
             )
             self._assert_catalog_history(csv_batch, before_commit)
+            history_sku_id = self._catalog_sku_id("SKU-HISTORY-001")
+            self._assert_margin_service(history_sku_id)
             self._assert_xlsx_catalog(xlsx_batch, references)
             self._assert_durability_and_idempotency(csv_batch, xlsx_batch, invalid_batch)
             self._assert_tenant_isolation(csv_batch)
@@ -482,6 +526,7 @@ class AcceptanceScenario:
             "http://gateway:5000/health",
             "http://catalog:8080/readyz",
             "http://data-pipeline:8080/readyz",
+            "http://margin:8080/readyz",
         )
         remaining = set(urls)
         while remaining and time.monotonic() < deadline:
@@ -675,9 +720,7 @@ class AcceptanceScenario:
                                         fact="customer_tier",
                                         operator=intelligence_pb2.CONDITION_OPERATOR_EQUALS,
                                         values=[
-                                            intelligence_pb2.RuleValue(
-                                                string_value="enterprise"
-                                            )
+                                            intelligence_pb2.RuleValue(string_value="enterprise")
                                         ],
                                     )
                                 ),
@@ -692,18 +735,14 @@ class AcceptanceScenario:
                     sku_id="acceptance-sku",
                     proposed_price={"amount": 90_000, "currency": "NGN"},
                     cost={"amount": 80_000, "currency": "NGN"},
-                    facts={
-                        "customer_tier": intelligence_pb2.RuleValue(
-                            string_value="enterprise"
-                        )
-                    },
+                    facts={"customer_tier": intelligence_pb2.RuleValue(string_value="enterprise")},
                 )
             ],
         )
         with grpc.insecure_channel("data-pipeline:50055") as channel:
-            response = intelligence_pb2_grpc.IntelligenceServiceStub(
-                channel
-            ).EvaluateMarginBatch(request, metadata=metadata, timeout=5)
+            response = intelligence_pb2_grpc.IntelligenceServiceStub(channel).EvaluateMarginBatch(
+                request, metadata=metadata, timeout=5
+            )
 
         if response.engine_version != "margin-rules-v1" or len(response.results) != 1:
             raise AssertionError(f"Margin intelligence response is invalid: {response}")
@@ -1071,6 +1110,112 @@ class AcceptanceScenario:
         if recorded_before:
             raise AssertionError("Recorded-as-of query leaked knowledge from after the timestamp")
 
+    def _catalog_sku_id(self, sku_code: str) -> str:
+        from services.catalog.v1 import catalog_pb2
+
+        stub, metadata = self._catalog()
+        skus = stub.ListSkus(
+            catalog_pb2.ListSkusRequest(query=sku_code, pagination={"page_size": 10}),
+            metadata=metadata,
+        ).skus
+        exact = [sku for sku in skus if sku.sku_code == sku_code]
+        if len(exact) != 1:
+            raise AssertionError(f"Expected one Catalog SKU for {sku_code}, found {len(exact)}")
+        return str(exact[0].id)
+
+    def _assert_margin_service(self, sku_id: str) -> None:
+        created = self._request(
+            "PUT",
+            "/margin/rules",
+            body={
+                "rule": {
+                    "skuId": sku_id,
+                    "floorType": "FLOOR_TYPE_ABSOLUTE_MINIMUM",
+                    "floorValue": "1000",
+                    "currency": "NGN",
+                    "createdBy": "00000000-0000-0000-0000-00000000ffff",
+                }
+            },
+        )["rule"]
+        self._expect(
+            created,
+            {
+                "orgId": ORG_ID,
+                "skuId": sku_id,
+                "floorValue": "1000",
+                "createdBy": USER_ID,
+                "version": 1,
+            },
+        )
+        rule_id = str(created["id"])
+
+        listed = self._request("GET", f"/margin/rules?skuId={sku_id}")
+        rules = listed.get("rules", [])
+        if len(rules) != 1 or rules[0].get("id") != rule_id:
+            raise AssertionError(f"Margin rule list did not return the created rule: {listed}")
+
+        blocked = self._request(
+            "POST",
+            "/margin/validate",
+            body={
+                "items": [
+                    {
+                        "skuId": sku_id,
+                        "proposedPrice": {"amount": "950", "currency": "NGN"},
+                    }
+                ]
+            },
+        )
+        violations = blocked.get("violations", [])
+        if len(violations) != 1:
+            raise AssertionError(f"Expected one Margin violation, got {blocked}")
+        self._expect(
+            violations[0],
+            {
+                "skuId": sku_id,
+                "ruleId": rule_id,
+                "ruleVersion": 1,
+                "severity": "VIOLATION_SEVERITY_BLOCK",
+                "intelligenceEngineVersion": "margin-rules-v1",
+            },
+        )
+        self._expect(violations[0]["floor"], {"amount": "1000", "currency": "NGN"})
+        self._expect(violations[0]["gap"], {"amount": "50", "currency": "NGN"})
+        evaluation_hash = str(violations[0].get("evaluationHash", ""))
+        if len(evaluation_hash) != 64 or any(
+            character not in "0123456789abcdef" for character in evaluation_hash
+        ):
+            raise AssertionError("Margin violation has an invalid evaluation hash")
+
+        clean = self._request(
+            "POST",
+            "/margin/validate",
+            body={
+                "items": [
+                    {
+                        "skuId": sku_id,
+                        "proposedPrice": {"amount": "1100", "currency": "NGN"},
+                    }
+                ]
+            },
+        )
+        if clean.get("violations", []):
+            raise AssertionError(f"Price above the floor was blocked: {clean}")
+
+        other_tenant = self._request(
+            "GET",
+            "/margin/rules",
+            token=self._user_token(OTHER_ORG_ID, "00000000-0000-0000-0000-00000000b002"),
+        )
+        if other_tenant.get("rules", []):
+            raise AssertionError("Cross-tenant Margin rule was visible")
+
+        deactivated = self._request("DELETE", f"/margin/rules/{rule_id}")
+        if deactivated.get("rule", {}).get("id") != rule_id:
+            raise AssertionError("Margin rule deactivation did not return the rule")
+        if self._request("GET", f"/margin/rules?skuId={sku_id}").get("rules", []):
+            raise AssertionError("Deactivated Margin rule remained active")
+
     def _assert_xlsx_catalog(self, batch_id: str, references: dict[str, str]) -> None:
         from services.catalog.v1 import catalog_pb2
 
@@ -1151,19 +1296,9 @@ class AcceptanceScenario:
             client.stat_object("acceptance-imports", object_name)
 
     def _assert_tenant_isolation(self, batch_id: str) -> None:
-        import jwt
         from services.catalog.v1 import catalog_pb2
 
-        token = jwt.encode(
-            {
-                "sub": "user-other",
-                "org_id": "org-other",
-                "roles": ["admin"],
-                "exp": datetime.now(UTC) + timedelta(minutes=5),
-            },
-            USER_JWT_SECRET,
-            algorithm="HS256",
-        )
+        token = self._user_token(OTHER_ORG_ID, "00000000-0000-0000-0000-00000000b002")
         try:
             self._request("GET", f"/imports/{batch_id}", token=token)
         except ApiError as exc:
@@ -1173,13 +1308,28 @@ class AcceptanceScenario:
             raise AssertionError("Cross-tenant import batch was visible")
 
         stub, _ = self._catalog()
-        other_tenant_metadata = self._catalog_metadata(org_id="org-other")
+        other_tenant_metadata = self._catalog_metadata(org_id=OTHER_ORG_ID)
         other_tenant_skus = stub.ListSkus(
             catalog_pb2.ListSkusRequest(query="SKU-HISTORY-001", pagination={"page_size": 10}),
             metadata=other_tenant_metadata,
         ).skus
         if other_tenant_skus:
             raise AssertionError("Cross-tenant Catalog SKU was visible")
+
+    @staticmethod
+    def _user_token(org_id: str, user_id: str) -> str:
+        import jwt
+
+        return jwt.encode(
+            {
+                "sub": user_id,
+                "org_id": org_id,
+                "roles": ["admin"],
+                "exp": datetime.now(UTC) + timedelta(minutes=5),
+            },
+            USER_JWT_SECRET,
+            algorithm="HS256",
+        )
 
     def _upload(self, filename: str, payload: bytes) -> dict[str, object]:
         boundary = f"owomide-{uuid4().hex}"

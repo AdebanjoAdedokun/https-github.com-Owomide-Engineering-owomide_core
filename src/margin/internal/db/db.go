@@ -24,6 +24,10 @@ func (d *DB) Close() {
 	d.Pool.Close()
 }
 
+func (d *DB) Ready(ctx context.Context) error {
+	return d.Pool.Ping(ctx)
+}
+
 // WithOrgTx runs fn inside a transaction with app.org_id set for RLS.
 func (d *DB) WithOrgTx(ctx context.Context, orgID string, fn func(tx pgx.Tx) error) error {
 	return pgx.BeginTxFunc(ctx, d.Pool, pgx.TxOptions{}, func(tx pgx.Tx) error {

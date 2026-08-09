@@ -31,6 +31,11 @@ spec:
                 secretKeyRef:
                   name: data-pipeline-secrets
                   key: gateway-service-secret
+            - name: MARGIN_GATEWAY_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: margin-secrets
+                  key: gateway-service-secret
           livenessProbe:
             httpGet:
               path: /health

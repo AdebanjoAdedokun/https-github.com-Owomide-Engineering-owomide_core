@@ -7,10 +7,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/owomide/margin/internal/auth"
 	"github.com/owomide/margin/internal/client"
 	"github.com/owomide/margin/internal/db"
 	"github.com/owomide/margin/internal/repo"
@@ -45,21 +45,29 @@ func NewRulesServer(
 }
 
 func orgIDFromCtx(ctx context.Context) (string, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
+	principal, err := principalFromCtx(ctx)
+	if err != nil {
+		return "", err
+	}
+	return principal.OrgID, nil
+}
+
+func principalFromCtx(ctx context.Context) (auth.Principal, error) {
+	principal, ok := auth.PrincipalFromContext(ctx)
 	if !ok {
-		return "", status.Error(codes.Unauthenticated, "missing metadata")
+		return auth.Principal{}, status.Error(codes.Unauthenticated, "missing authenticated request context")
 	}
-	vals := md.Get("x-org-id")
-	if len(vals) == 0 || vals[0] == "" {
-		return "", status.Error(codes.Unauthenticated, "missing x-org-id")
-	}
-	return vals[0], nil
+	return principal, nil
 }
 
 func (s *RulesServer) UpsertRule(ctx context.Context, req *marginpb.UpsertRuleRequest) (*marginpb.UpsertRuleResponse, error) {
-	orgID, err := orgIDFromCtx(ctx)
+	principal, err := principalFromCtx(ctx)
 	if err != nil {
 		return nil, err
+	}
+	orgID := principal.OrgID
+	if principal.UserID == "" {
+		return nil, status.Error(codes.Unauthenticated, "authenticated user identity required")
 	}
 	r := req.GetRule()
 	if r == nil {
@@ -87,7 +95,7 @@ func (s *RulesServer) UpsertRule(ctx context.Context, req *marginpb.UpsertRuleRe
 		FloorValue:  r.FloorValue,
 		Currency:    r.Currency,
 		EffectiveAt: effectiveAt,
-		CreatedBy:   r.CreatedBy,
+		CreatedBy:   principal.UserID,
 	}
 	if r.ChannelId != "" {
 		p.ChannelID = &r.ChannelId

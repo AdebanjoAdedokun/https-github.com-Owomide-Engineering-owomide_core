@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: margin-config
+data:
+  ENVIRONMENT: development
+  HOST: 0.0.0.0
+  PORT: "50053"
+  HEALTH_HOST: 0.0.0.0
+  HEALTH_PORT: "8080"
+  CATALOG_ADDR: catalog:50052
+  CATALOG_TIMEOUT_SEC: "5"
+  INTELLIGENCE_ADDR: data-pipeline:50055
+  INTELLIGENCE_TIMEOUT_SEC: "5"
+  MARGIN_SERVICE_JWT_ISSUER: owomide-internal
+  KAFKA_BROKERS: kafka:9092
+  BREACH_MONITOR_ENABLED: "true"
+  BREACH_MONITOR_INTERVAL_SEC: "300"
+  BREACH_MONITOR_BATCH_SIZE: "100"

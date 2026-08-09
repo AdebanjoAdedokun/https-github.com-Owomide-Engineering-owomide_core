@@ -13,6 +13,7 @@ const ConfigSchema = z.object({
   serviceJwtIssuer: z.string().default("owomide-internal"),
   catalogGatewayServiceSecret: z.string().min(32),
   dataPipelineGatewayServiceSecret: z.string().min(32),
+  marginGatewayServiceSecret: z.string().min(32),
   dataPipelineUploadMaxBytes: z.coerce
     .number()
     .int()
@@ -52,6 +53,9 @@ export function loadConfig(): Config {
   const dataPipelineGatewayServiceSecret =
     process.env["DATA_PIPELINE_GATEWAY_SERVICE_SECRET"] ??
     (nodeEnv === "production" ? undefined : "dev-only-data-pipeline-gateway-secret-change-me");
+  const marginGatewayServiceSecret =
+    process.env["MARGIN_GATEWAY_SERVICE_SECRET"] ??
+    (nodeEnv === "production" ? undefined : "dev-only-margin-gateway-secret-change-me");
   return ConfigSchema.parse({
     nodeEnv,
     port: process.env["PORT"],
@@ -65,6 +69,7 @@ export function loadConfig(): Config {
     serviceJwtIssuer: process.env["SERVICE_JWT_ISSUER"],
     catalogGatewayServiceSecret,
     dataPipelineGatewayServiceSecret,
+    marginGatewayServiceSecret,
     dataPipelineUploadMaxBytes: process.env["DATA_PIPELINE_UPLOAD_MAX_BYTES"],
 
     jwtSecret: process.env["JWT_SECRET"],

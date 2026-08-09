@@ -144,7 +144,11 @@ func newBatchClientWithEvaluator(
 	if err != nil {
 		t.Fatal("listen:", err)
 	}
-	s := grpc.NewServer()
+	authenticator, err := newTestAuthenticator()
+	if err != nil {
+		t.Fatal("authenticator:", err)
+	}
+	s := grpc.NewServer(grpc.UnaryInterceptor(authenticator.UnaryServerInterceptor()))
 	marginpb.RegisterMarginServiceServer(s, svc)
 	go func() { _ = s.Serve(lis) }()
 

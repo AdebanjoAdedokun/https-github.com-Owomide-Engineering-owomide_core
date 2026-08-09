@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: margin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: margin
+  template:
+    metadata:
+      labels:
+        app: margin
+    spec:
+      terminationGracePeriodSeconds: 15
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: margin
+          image: owomide/margin
+          imagePullPolicy: Never
+          ports:
+            - name: grpc
+              containerPort: 50053
+            - name: health
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: margin-config
+          env:
+            - name: MARGIN_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: margin-secrets
+                  key: database-url
+            - name: MARGIN_SERVICE_SECRETS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: margin-secrets
+                  key: service-secrets-json
+            - name: MARGIN_CATALOG_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: margin-secrets
+                  key: catalog-service-secret
+            - name: MARGIN_INTELLIGENCE_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: margin-secrets
+                  key: intelligence-service-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi

@@ -76,6 +76,15 @@ jobs:
       - name: Run tests
         run: bazel test //... --config=ci
 
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: src/margin/go.mod
+
+      - name: Run Margin tests
+        run: go test ./...
+        working-directory: src/margin
+
   manifests-validate:
     name: Validate k8s Manifests
     runs-on: ubuntu-latest
