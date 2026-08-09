@@ -13,6 +13,8 @@ from owomide_data_pipeline.auth import AuthenticationInterceptor, ServiceAuthent
 from owomide_data_pipeline.config import Config
 from owomide_data_pipeline.db import Database
 from owomide_data_pipeline.health import HealthServer, start_health_server
+from owomide_data_pipeline.intelligence.fx import FxCalculator
+from owomide_data_pipeline.intelligence.repository import FxRateRepository
 from owomide_data_pipeline.repository import ImportRepository
 from owomide_data_pipeline.service import DataPipelineService
 from owomide_data_pipeline.storage import ObjectStore
@@ -38,6 +40,10 @@ def start_server(config: Config) -> Runtime:
         bucket=config.object_store_bucket,
     )
     repository = ImportRepository(database)
+    fx_calculator = FxCalculator(
+        FxRateRepository(database),
+        max_rate_age_seconds=config.fx_max_rate_age_seconds,
+    )
     authenticator = ServiceAuthenticator(
         issuer=config.service_jwt_issuer,
         audience=config.service_jwt_audience,
@@ -53,6 +59,7 @@ def start_server(config: Config) -> Runtime:
             object_store=object_store,
             authenticator=authenticator,
             upload_max_bytes=config.upload_max_bytes,
+            fx_calculator=fx_calculator,
         ),
         server,
     )

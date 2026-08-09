@@ -14,6 +14,7 @@ class ConfigTest(unittest.TestCase):
                 "DATA_PIPELINE_WORKER_POLL_SECONDS": "0.25",
                 "DATA_PIPELINE_OBJECT_STORE_SECURE": "true",
                 "DATA_PIPELINE_UPLOAD_MAX_BYTES": "1024",
+                "DATA_PIPELINE_FX_MAX_RATE_AGE_SECONDS": "86400",
                 "DATA_PIPELINE_SERVICE_SECRETS_JSON": (
                     '{"gateway_svc":"a-development-secret-that-is-long-enough"}'
                 ),
@@ -25,6 +26,7 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(config.worker_poll_seconds, 0.25)
         self.assertTrue(config.object_store_secure)
         self.assertEqual(config.upload_max_bytes, 1024)
+        self.assertEqual(config.fx_max_rate_age_seconds, 86_400)
         with self.assertRaises(TypeError):
             config.service_secrets["other"] = "not allowed"  # type: ignore[index]
 

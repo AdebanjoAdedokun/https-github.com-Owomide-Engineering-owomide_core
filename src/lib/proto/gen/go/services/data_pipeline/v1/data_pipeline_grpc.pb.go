@@ -31,6 +31,9 @@ const (
 	DataPipelineService_CommitBatch_FullMethodName          = "/owomide.services.data_pipeline.v1.DataPipelineService/CommitBatch"
 	DataPipelineService_ListMappingTemplates_FullMethodName = "/owomide.services.data_pipeline.v1.DataPipelineService/ListMappingTemplates"
 	DataPipelineService_SaveMappingTemplate_FullMethodName  = "/owomide.services.data_pipeline.v1.DataPipelineService/SaveMappingTemplate"
+	DataPipelineService_RecordFxRateSnapshot_FullMethodName = "/owomide.services.data_pipeline.v1.DataPipelineService/RecordFxRateSnapshot"
+	DataPipelineService_GetFxRate_FullMethodName            = "/owomide.services.data_pipeline.v1.DataPipelineService/GetFxRate"
+	DataPipelineService_ConvertCurrency_FullMethodName      = "/owomide.services.data_pipeline.v1.DataPipelineService/ConvertCurrency"
 )
 
 // DataPipelineServiceClient is the client API for DataPipelineService service.
@@ -49,6 +52,9 @@ type DataPipelineServiceClient interface {
 	CommitBatch(ctx context.Context, in *CommitBatchRequest, opts ...grpc.CallOption) (*CommitBatchResponse, error)
 	ListMappingTemplates(ctx context.Context, in *ListMappingTemplatesRequest, opts ...grpc.CallOption) (*ListMappingTemplatesResponse, error)
 	SaveMappingTemplate(ctx context.Context, in *SaveMappingTemplateRequest, opts ...grpc.CallOption) (*SaveMappingTemplateResponse, error)
+	RecordFxRateSnapshot(ctx context.Context, in *RecordFxRateSnapshotRequest, opts ...grpc.CallOption) (*RecordFxRateSnapshotResponse, error)
+	GetFxRate(ctx context.Context, in *GetFxRateRequest, opts ...grpc.CallOption) (*GetFxRateResponse, error)
+	ConvertCurrency(ctx context.Context, in *ConvertCurrencyRequest, opts ...grpc.CallOption) (*ConvertCurrencyResponse, error)
 }
 
 type dataPipelineServiceClient struct {
@@ -182,6 +188,36 @@ func (c *dataPipelineServiceClient) SaveMappingTemplate(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *dataPipelineServiceClient) RecordFxRateSnapshot(ctx context.Context, in *RecordFxRateSnapshotRequest, opts ...grpc.CallOption) (*RecordFxRateSnapshotResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RecordFxRateSnapshotResponse)
+	err := c.cc.Invoke(ctx, DataPipelineService_RecordFxRateSnapshot_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataPipelineServiceClient) GetFxRate(ctx context.Context, in *GetFxRateRequest, opts ...grpc.CallOption) (*GetFxRateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFxRateResponse)
+	err := c.cc.Invoke(ctx, DataPipelineService_GetFxRate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataPipelineServiceClient) ConvertCurrency(ctx context.Context, in *ConvertCurrencyRequest, opts ...grpc.CallOption) (*ConvertCurrencyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConvertCurrencyResponse)
+	err := c.cc.Invoke(ctx, DataPipelineService_ConvertCurrency_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DataPipelineServiceServer is the server API for DataPipelineService service.
 // All implementations should embed UnimplementedDataPipelineServiceServer
 // for forward compatibility.
@@ -198,6 +234,9 @@ type DataPipelineServiceServer interface {
 	CommitBatch(context.Context, *CommitBatchRequest) (*CommitBatchResponse, error)
 	ListMappingTemplates(context.Context, *ListMappingTemplatesRequest) (*ListMappingTemplatesResponse, error)
 	SaveMappingTemplate(context.Context, *SaveMappingTemplateRequest) (*SaveMappingTemplateResponse, error)
+	RecordFxRateSnapshot(context.Context, *RecordFxRateSnapshotRequest) (*RecordFxRateSnapshotResponse, error)
+	GetFxRate(context.Context, *GetFxRateRequest) (*GetFxRateResponse, error)
+	ConvertCurrency(context.Context, *ConvertCurrencyRequest) (*ConvertCurrencyResponse, error)
 }
 
 // UnimplementedDataPipelineServiceServer should be embedded to have
@@ -242,6 +281,15 @@ func (UnimplementedDataPipelineServiceServer) ListMappingTemplates(context.Conte
 }
 func (UnimplementedDataPipelineServiceServer) SaveMappingTemplate(context.Context, *SaveMappingTemplateRequest) (*SaveMappingTemplateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SaveMappingTemplate not implemented")
+}
+func (UnimplementedDataPipelineServiceServer) RecordFxRateSnapshot(context.Context, *RecordFxRateSnapshotRequest) (*RecordFxRateSnapshotResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RecordFxRateSnapshot not implemented")
+}
+func (UnimplementedDataPipelineServiceServer) GetFxRate(context.Context, *GetFxRateRequest) (*GetFxRateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFxRate not implemented")
+}
+func (UnimplementedDataPipelineServiceServer) ConvertCurrency(context.Context, *ConvertCurrencyRequest) (*ConvertCurrencyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConvertCurrency not implemented")
 }
 func (UnimplementedDataPipelineServiceServer) testEmbeddedByValue() {}
 
@@ -468,6 +516,60 @@ func _DataPipelineService_SaveMappingTemplate_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DataPipelineService_RecordFxRateSnapshot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecordFxRateSnapshotRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataPipelineServiceServer).RecordFxRateSnapshot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataPipelineService_RecordFxRateSnapshot_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataPipelineServiceServer).RecordFxRateSnapshot(ctx, req.(*RecordFxRateSnapshotRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataPipelineService_GetFxRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFxRateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataPipelineServiceServer).GetFxRate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataPipelineService_GetFxRate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataPipelineServiceServer).GetFxRate(ctx, req.(*GetFxRateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataPipelineService_ConvertCurrency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConvertCurrencyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataPipelineServiceServer).ConvertCurrency(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataPipelineService_ConvertCurrency_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataPipelineServiceServer).ConvertCurrency(ctx, req.(*ConvertCurrencyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DataPipelineService_ServiceDesc is the grpc.ServiceDesc for DataPipelineService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -518,6 +620,18 @@ var DataPipelineService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveMappingTemplate",
 			Handler:    _DataPipelineService_SaveMappingTemplate_Handler,
+		},
+		{
+			MethodName: "RecordFxRateSnapshot",
+			Handler:    _DataPipelineService_RecordFxRateSnapshot_Handler,
+		},
+		{
+			MethodName: "GetFxRate",
+			Handler:    _DataPipelineService_GetFxRate_Handler,
+		},
+		{
+			MethodName: "ConvertCurrency",
+			Handler:    _DataPipelineService_ConvertCurrency_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

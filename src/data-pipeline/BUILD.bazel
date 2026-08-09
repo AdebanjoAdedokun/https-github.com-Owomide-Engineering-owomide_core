@@ -14,6 +14,10 @@ py_library(
         "owomide_data_pipeline/errors.py",
         "owomide_data_pipeline/events.py",
         "owomide_data_pipeline/health.py",
+        "owomide_data_pipeline/intelligence/__init__.py",
+        "owomide_data_pipeline/intelligence/currencies.py",
+        "owomide_data_pipeline/intelligence/fx.py",
+        "owomide_data_pipeline/intelligence/repository.py",
         "owomide_data_pipeline/mapping.py",
         "owomide_data_pipeline/outbox.py",
         "owomide_data_pipeline/parsers.py",
@@ -126,6 +130,13 @@ py_test(
 )
 
 py_test(
+    name = "fx_test",
+    srcs = ["tests/test_fx.py"],
+    main = "tests/test_fx.py",
+    deps = [":runtime"],
+)
+
+py_test(
     name = "mapping_test",
     srcs = ["tests/test_mapping.py"],
     main = "tests/test_mapping.py",
@@ -182,6 +193,8 @@ py_test(
         "migrations/0006_validation_operations.up.sql",
         "migrations/0007_canonical_commit_outbox.down.sql",
         "migrations/0007_canonical_commit_outbox.up.sql",
+        "migrations/0008_fx_rate_snapshots.down.sql",
+        "migrations/0008_fx_rate_snapshots.up.sql",
     ],
     main = "tests/test_migration_integration.py",
     tags = [
@@ -206,6 +219,7 @@ py_test(
         "migrations/0005_mapping_operations.up.sql",
         "migrations/0006_validation_operations.up.sql",
         "migrations/0007_canonical_commit_outbox.up.sql",
+        "migrations/0008_fx_rate_snapshots.up.sql",
     ],
     main = "tests/test_import_integration.py",
     tags = [

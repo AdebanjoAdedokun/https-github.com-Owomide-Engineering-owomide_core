@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Iterator
+from datetime import UTC, datetime
+from decimal import Decimal
 from tempfile import SpooledTemporaryFile
 from uuid import UUID
 
@@ -10,6 +12,7 @@ from services.catalog.v1 import catalog_pb2
 from owomide_data_pipeline.canonical import canonical_row
 from owomide_data_pipeline.catalog import CatalogLoader, CatalogWriter
 from owomide_data_pipeline.errors import InvalidImportError
+from owomide_data_pipeline.intelligence.fx import FxCalculator, FxError
 from owomide_data_pipeline.mapping import map_row, mapping_from_operation_payload
 from owomide_data_pipeline.parsers import ParsedRow, iter_csv_rows, iter_xlsx_rows
 from owomide_data_pipeline.profiler import ColumnProfiler, ProfiledColumn
@@ -19,7 +22,7 @@ from owomide_data_pipeline.repository import (
     ImportRepository,
 )
 from owomide_data_pipeline.storage import ObjectStore
-from owomide_data_pipeline.transformations import apply_transformations
+from owomide_data_pipeline.transformations import TransformationError, apply_transformations
 from owomide_data_pipeline.validation import validate_row
 
 
@@ -37,6 +40,7 @@ class ImportProcessor:
         insert_batch_size: int,
         xlsx_spool_memory_bytes: int,
         catalog_client: CatalogLoader | CatalogWriter | None = None,
+        fx_calculator: FxCalculator | None = None,
     ) -> None:
         self._repository = repository
         self._object_store = object_store
@@ -48,6 +52,7 @@ class ImportProcessor:
         self._insert_batch_size = insert_batch_size
         self._xlsx_spool_memory_bytes = xlsx_spool_memory_bytes
         self._catalog_client = catalog_client
+        self._fx_calculator = fx_calculator
 
     def process_once(self) -> bool:
         operation = self._repository.claim_import_operation(
@@ -196,6 +201,46 @@ class ImportProcessor:
                 continue
         snapshot = self._catalog_client.load_snapshot(operation.org_id, valid_sku_ids)
 
+        recorded_raw = operation.request_payload.get("fx_recorded_as_of")
+        try:
+            recorded_as_of = (
+                datetime.fromisoformat(str(recorded_raw).replace("Z", "+00:00"))
+                if recorded_raw is not None
+                else None
+            )
+        except ValueError as exc:
+            raise InvalidImportError("FX recorded-as-of snapshot is invalid") from exc
+        if recorded_as_of is not None:
+            if recorded_as_of.tzinfo is None:
+                raise InvalidImportError("FX recorded-as-of snapshot must include a timezone")
+            recorded_as_of = recorded_as_of.astimezone(UTC)
+        rate_cache: dict[tuple[str, str, str, datetime], Decimal] = {}
+
+        def resolve_fx_rate(
+            source_currency: str,
+            target_currency: str,
+            source_name: str,
+            effective_at: datetime,
+        ) -> Decimal:
+            if self._fx_calculator is None:
+                raise TransformationError("FX calculator is unavailable")
+            if recorded_as_of is None:
+                raise TransformationError("FX recorded-as-of snapshot is unavailable")
+            key = (source_currency, target_currency, source_name, effective_at)
+            if key not in rate_cache:
+                try:
+                    rate_cache[key] = self._fx_calculator.quote(
+                        org_id=operation.org_id,
+                        source_currency=source_currency,
+                        target_currency=target_currency,
+                        rate_source_name=source_name,
+                        effective_at=effective_at,
+                        recorded_as_of=recorded_as_of,
+                    ).rate
+                except FxError as exc:
+                    raise TransformationError(str(exc)) from exc
+            return rate_cache[key]
+
         progress = 0
         for rows in self._repository.iter_validation_rows(operation, self._insert_batch_size):
             validated_rows = []
@@ -206,6 +251,7 @@ class ImportProcessor:
                     row.mapped_data,
                     mappings,
                     transformation_rules,
+                    fx_rate_resolver=resolve_fx_rate,
                 )
                 mapped_data, findings = validate_row(
                     transformed,

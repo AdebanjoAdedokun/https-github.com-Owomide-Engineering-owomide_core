@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from owomide_data_pipeline.transformations import (
@@ -44,7 +45,12 @@ class TransformationsTest(unittest.TestCase):
             {"Price": "price_record.price_minor", "Pack": "sku.pack_size"},
             [
                 {"field": "Price", "type": "money_parse"},
-                {"field": "Price", "type": "decimal_to_minor_units", "scale": 2},
+                {
+                    "field": "Price",
+                    "type": "decimal_to_minor_units",
+                    "scale": 2,
+                    "rounding": "half_even",
+                },
                 {"field": "Pack", "type": "pack_size_normalize"},
             ],
         )
@@ -70,6 +76,51 @@ class TransformationsTest(unittest.TestCase):
 
         self.assertEqual(mapped["price_record"]["price_minor"], "15002.50")
         self.assertEqual(mapped["price_record"]["currency"], "NGN")
+        self.assertEqual(failures, [])
+
+    def test_historical_currency_conversion_uses_effective_date_and_rate_source(self) -> None:
+        calls: list[tuple[str, str, str, datetime]] = []
+
+        def resolve(source: str, target: str, rate_source: str, effective_at: datetime):
+            calls.append((source, target, rate_source, effective_at))
+            return Decimal("1500.25")
+
+        mapped, failures = apply_transformations(
+            {
+                "price_record": {
+                    "price_minor": "10.50",
+                    "currency": "USD",
+                    "effective_at": "2026-07-31",
+                }
+            },
+            {
+                "Price": "price_record.price_minor",
+                "Effective At": "price_record.effective_at",
+            },
+            [
+                {
+                    "field": "Price",
+                    "type": "currency_convert",
+                    "to_currency": "NGN",
+                    "rate_source": "treasury",
+                    "effective_at_field": "Effective At",
+                },
+                {
+                    "field": "Price",
+                    "type": "decimal_to_minor_units",
+                    "scale": 2,
+                    "rounding": "half_even",
+                },
+            ],
+            fx_rate_resolver=resolve,
+        )
+
+        self.assertEqual(mapped["price_record"]["price_minor"], 1_575_262)
+        self.assertEqual(mapped["price_record"]["currency"], "NGN")
+        self.assertEqual(
+            calls,
+            [("USD", "NGN", "treasury", datetime(2026, 7, 31, tzinfo=UTC))],
+        )
         self.assertEqual(failures, [])
 
 

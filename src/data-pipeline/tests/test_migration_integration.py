@@ -4,12 +4,19 @@ import socket
 import subprocess
 import time
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
 import psycopg
 
 from owomide_data_pipeline.db import Database
+from owomide_data_pipeline.intelligence.fx import (
+    FxCalculator,
+    FxConflictError,
+    FxRateNotFoundError,
+)
+from owomide_data_pipeline.intelligence.repository import FxRateRepository
 
 POSTGRES_IMAGE = "postgres:16-alpine"
 ADMIN_PASSWORD = "data_pipeline_admin_test"
@@ -142,6 +149,7 @@ class MigrationIntegrationTest(unittest.TestCase):
             connection.execute(
                 cls._migration_path("0007_canonical_commit_outbox.up.sql").read_text()
             )
+            connection.execute(cls._migration_path("0008_fx_rate_snapshots.up.sql").read_text())
             # Keep the recovered fixture from competing with operations created by claim tests.
             connection.execute(
                 "UPDATE data_pipeline.import_operation "
@@ -160,6 +168,8 @@ class MigrationIntegrationTest(unittest.TestCase):
             [
                 "column_profile",
                 "commit_item",
+                "fx_rate_entry",
+                "fx_rate_snapshot",
                 "import_batch",
                 "import_operation",
                 "import_row",
@@ -415,9 +425,92 @@ class MigrationIntegrationTest(unittest.TestCase):
             ).fetchone()[0]
         self.assertTrue(published)
 
+    def test_fx_history_is_tenant_isolated_idempotent_and_bitemporal(self) -> None:
+        calculator = FxCalculator(FxRateRepository(Database(self.service_url, 1_000)))
+        effective_at = datetime(2026, 7, 31, 16, tzinfo=UTC)
+        first, replayed = calculator.record_snapshot(
+            org_id="org-fx-a",
+            user_id="user-a",
+            idempotency_key="close-1",
+            source="treasury",
+            base_currency="USD",
+            effective_at=effective_at,
+            rates=(("NGN", "1500"), ("GBP", "0.75")),
+        )
+        self.assertFalse(replayed)
+        replay, replayed = calculator.record_snapshot(
+            org_id="org-fx-a",
+            user_id="user-a",
+            idempotency_key="close-1",
+            source="treasury",
+            base_currency="USD",
+            effective_at=effective_at,
+            rates=(("GBP", "0.7500"), ("NGN", "1500.0")),
+        )
+        self.assertTrue(replayed)
+        self.assertEqual(replay.id, first.id)
+
+        with self.assertRaises(FxConflictError):
+            calculator.record_snapshot(
+                org_id="org-fx-a",
+                user_id="user-a",
+                idempotency_key="close-1",
+                source="treasury",
+                base_currency="USD",
+                effective_at=effective_at,
+                rates=(("NGN", "1600"),),
+            )
+
+        second, _ = calculator.record_snapshot(
+            org_id="org-fx-a",
+            user_id="user-a",
+            idempotency_key="close-2",
+            source="treasury",
+            base_currency="USD",
+            effective_at=effective_at,
+            rates=(("NGN", "1600"),),
+        )
+        historical = calculator.quote(
+            org_id="org-fx-a",
+            source_currency="USD",
+            target_currency="NGN",
+            rate_source_name="treasury",
+            effective_at=effective_at,
+            recorded_as_of=first.recorded_at,
+        )
+        current = calculator.quote(
+            org_id="org-fx-a",
+            source_currency="USD",
+            target_currency="NGN",
+            rate_source_name="treasury",
+            effective_at=effective_at,
+            recorded_as_of=second.recorded_at,
+        )
+        self.assertEqual(str(historical.rate), "1500.000000000000000000")
+        self.assertEqual(str(current.rate), "1600.000000000000000000")
+
+        with self.assertRaises(FxRateNotFoundError):
+            calculator.quote(
+                org_id="org-fx-b",
+                source_currency="USD",
+                target_currency="NGN",
+                rate_source_name="treasury",
+                effective_at=effective_at,
+                recorded_as_of=second.recorded_at,
+            )
+        with (
+            self.assertRaises(psycopg.errors.InsufficientPrivilege),
+            Database(self.service_url, 1_000).transaction("org-fx-a") as connection,
+        ):
+            connection.execute(
+                "UPDATE data_pipeline.fx_rate_snapshot SET source = 'changed' WHERE id = %s",
+                (first.id,),
+            )
+
     def test_z_down_migration_removes_owned_tables(self) -> None:
         with psycopg.connect(self.admin_url, autocommit=True) as connection:
             for filename in (
+                "0008_fx_rate_snapshots.down.sql",
                 "0007_canonical_commit_outbox.down.sql",
                 "0006_validation_operations.down.sql",
                 "0005_mapping_operations.down.sql",

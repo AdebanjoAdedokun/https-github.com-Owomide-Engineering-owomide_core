@@ -16,6 +16,7 @@ from uuid import UUID, uuid4
 import grpc
 import jwt
 import psycopg
+from google.protobuf.timestamp_pb2 import Timestamp
 from openpyxl import Workbook
 from psycopg.types.json import Jsonb
 from services.catalog.v1 import catalog_pb2
@@ -24,6 +25,8 @@ from services.data_pipeline.v1 import data_pipeline_pb2, data_pipeline_pb2_grpc
 from owomide_data_pipeline.catalog import CatalogSnapshot, ChannelReference
 from owomide_data_pipeline.config import Config
 from owomide_data_pipeline.db import Database
+from owomide_data_pipeline.intelligence.fx import FxCalculator
+from owomide_data_pipeline.intelligence.repository import FxRateRepository
 from owomide_data_pipeline.processor import ImportProcessor
 from owomide_data_pipeline.repository import ImportRepository
 from owomide_data_pipeline.server import Runtime, start_server
@@ -254,6 +257,7 @@ class ImportIntegrationTest(unittest.TestCase):
                 "0005_mapping_operations.up.sql",
                 "0006_validation_operations.up.sql",
                 "0007_canonical_commit_outbox.up.sql",
+                "0008_fx_rate_snapshots.up.sql",
             ):
                 connection.execute(cls._migration_path(filename).read_text())
 
@@ -275,6 +279,7 @@ class ImportIntegrationTest(unittest.TestCase):
             ("authorization", f"Bearer {encoded}"),
             ("x-org-id", org_id),
             ("x-user-id", "user-a"),
+            ("x-user-roles", "admin"),
         )
 
     @classmethod
@@ -297,8 +302,9 @@ class ImportIntegrationTest(unittest.TestCase):
     @classmethod
     def _process_one(cls, catalog_client: FakeCatalogClient | None = None) -> FakeCatalogClient:
         catalog = catalog_client or FakeCatalogClient()
+        database = Database(cls.service_url, statement_timeout_ms=15_000)
         processor = ImportProcessor(
-            repository=ImportRepository(Database(cls.service_url, statement_timeout_ms=15_000)),
+            repository=ImportRepository(database),
             object_store=cls.object_store,
             worker_id=f"integration-{uuid4().hex[:8]}",
             lease_seconds=60,
@@ -308,6 +314,7 @@ class ImportIntegrationTest(unittest.TestCase):
             insert_batch_size=2,
             xlsx_spool_memory_bytes=1024 * 1024,
             catalog_client=catalog,
+            fx_calculator=FxCalculator(FxRateRepository(database)),
         )
         if not processor.process_once():
             raise AssertionError("Expected the worker to claim an import operation")
@@ -758,6 +765,77 @@ class ImportIntegrationTest(unittest.TestCase):
             "duplicate_sku_channel_in_batch",
             {event.code for event in report.events},
         )
+
+    def test_historical_fx_transformation_is_snapshotted_and_validated(self) -> None:
+        effective_at = Timestamp()
+        effective_at.FromDatetime(datetime(2026, 7, 31, 16, tzinfo=UTC))
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            stub = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel)
+            recorded = stub.RecordFxRateSnapshot(
+                data_pipeline_pb2.RecordFxRateSnapshotRequest(
+                    idempotency_key="integration-close-1",
+                    source="treasury",
+                    base_currency="USD",
+                    effective_at=effective_at,
+                    rates=[data_pipeline_pb2.FxRateEntry(currency="NGN", rate="1500.25")],
+                ),
+                metadata=self._metadata(),
+            )
+        self.assertFalse(recorded.replayed)
+
+        upload = self._upload(
+            "fx-prices.csv",
+            data_pipeline_pb2.IMPORT_SOURCE_TYPE_CSV,
+            (b"SKU,Price,Currency,Effective,Channel\nFX-1,10.50,USD,2026-07-31T16:00:00Z,retail\n"),
+        )
+        catalog = FakeCatalogClient()
+        self._process_one(catalog)
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            data_pipeline_pb2_grpc.DataPipelineServiceStub(channel).ApplyMapping(
+                data_pipeline_pb2.ApplyMappingRequest(
+                    batch_id=upload.batch_id,
+                    mappings_json=(
+                        '{"SKU":"sku.sku_code","Price":"price_record.price_minor",'
+                        '"Currency":"price_record.currency",'
+                        '"Effective":"price_record.effective_at","Channel":"channel.code"}'
+                    ),
+                    transformation_rules_json=(
+                        '[{"field":"Price","type":"currency_convert",'
+                        '"to_currency":"NGN","rate_source":"treasury",'
+                        '"effective_at_field":"Effective"},'
+                        '{"field":"Price","type":"decimal_to_minor_units",'
+                        '"scale":2,"rounding":"half_even"}]'
+                    ),
+                ),
+                metadata=self._metadata(),
+            )
+        self._process_one(catalog)
+        self._process_one(catalog)
+
+        with psycopg.connect(self.admin_url) as connection:
+            mapped_data = connection.execute(
+                "SELECT mapped_data FROM data_pipeline.import_row WHERE batch_id = %s",
+                (upload.batch_id,),
+            ).fetchone()[0]
+            validation_payload = connection.execute(
+                "SELECT request_payload FROM data_pipeline.import_operation "
+                "WHERE batch_id = %s AND operation_type = 'validate'",
+                (upload.batch_id,),
+            ).fetchone()[0]
+        self.assertEqual(mapped_data["price_record"]["price_minor"], 1_575_262)
+        self.assertEqual(mapped_data["price_record"]["currency"], "NGN")
+        self.assertIn("fx_recorded_as_of", validation_payload)
+
+        with grpc.insecure_channel(f"127.0.0.1:{self.config.grpc_port}") as channel:
+            report = data_pipeline_pb2_grpc.DataPipelineServiceStub(channel).GetValidationReport(
+                data_pipeline_pb2.GetValidationReportRequest(batch_id=upload.batch_id),
+                metadata=self._metadata(),
+            )
+        self.assertEqual(
+            (report.row_counts.ok, report.row_counts.warned, report.row_counts.errored),
+            (0, 1, 0),
+        )
+        self.assertEqual([event.code for event in report.events], ["invalid_cost"])
 
     def test_validated_rows_commit_to_catalog_and_create_transactional_event(self) -> None:
         upload = self._upload(

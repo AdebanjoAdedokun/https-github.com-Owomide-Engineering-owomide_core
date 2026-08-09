@@ -9,9 +9,11 @@ from uuid import uuid4
 
 import grpc
 import jwt
+from google.protobuf.timestamp_pb2 import Timestamp
 from services.data_pipeline.v1 import data_pipeline_pb2
 
 from owomide_data_pipeline.auth import ServiceAuthenticator
+from owomide_data_pipeline.intelligence.fx import FxCalculator, FxRateSnapshot
 from owomide_data_pipeline.repository import (
     ColumnProfileRecord,
     ColumnProfileState,
@@ -33,7 +35,7 @@ class RpcAbort(Exception):
 
 
 class FakeContext:
-    def __init__(self) -> None:
+    def __init__(self, *, roles: tuple[str, ...] = ("admin",)) -> None:
         now = datetime.now(UTC)
         token = jwt.encode(
             {
@@ -50,6 +52,7 @@ class FakeContext:
             ("authorization", f"Bearer {token}"),
             ("x-org-id", "org-a"),
             ("x-user-id", "user-a"),
+            ("x-user-roles", ",".join(roles)),
         )
 
     def invocation_metadata(self):
@@ -152,7 +155,44 @@ class FakeRepository:
         )
 
 
-def service(repository: FakeRepository, object_store: FakeObjectStore, max_bytes: int = 100):
+class FakeFxStore:
+    def __init__(self) -> None:
+        self.recorded: dict | None = None
+        self.snapshot: FxRateSnapshot | None = None
+
+    def record_snapshot(self, **values):
+        self.recorded = values
+        self.snapshot = FxRateSnapshot(
+            id=uuid4(),
+            org_id=values["org_id"],
+            idempotency_key=values["idempotency_key"],
+            source=values["source"],
+            base_currency=values["base_currency"],
+            effective_at=values["effective_at"],
+            recorded_at=datetime(2026, 8, 2, 12, tzinfo=UTC),
+            rates=tuple(values["rates"]),
+            provider_ref=values["provider_ref"],
+            checksum_sha256=values["checksum_sha256"],
+            created_by=values["user_id"],
+        )
+        return self.snapshot, False
+
+    def find_snapshot(self, **_values):
+        return self.snapshot
+
+
+def timestamp(value: datetime) -> Timestamp:
+    result = Timestamp()
+    result.FromDatetime(value)
+    return result
+
+
+def service(
+    repository: FakeRepository,
+    object_store: FakeObjectStore,
+    max_bytes: int = 100,
+    fx_calculator: FxCalculator | None = None,
+):
     return DataPipelineService(
         repository=repository,  # type: ignore[arg-type]
         object_store=object_store,  # type: ignore[arg-type]
@@ -162,10 +202,102 @@ def service(repository: FakeRepository, object_store: FakeObjectStore, max_bytes
             secrets={"gateway_svc": SECRET},
         ),
         upload_max_bytes=max_bytes,
+        fx_calculator=fx_calculator,
     )
 
 
 class DataPipelineServiceTest(unittest.TestCase):
+    def test_fx_snapshot_uses_trusted_tenant_and_requires_admin(self) -> None:
+        store = FakeFxStore()
+        target = service(
+            FakeRepository(),
+            FakeObjectStore(),
+            fx_calculator=FxCalculator(store),
+        )
+        request = data_pipeline_pb2.RecordFxRateSnapshotRequest(
+            idempotency_key="close-1",
+            source="treasury",
+            base_currency="USD",
+            effective_at=timestamp(datetime(2026, 8, 1, tzinfo=UTC)),
+            rates=[data_pipeline_pb2.FxRateEntry(currency="NGN", rate="1500")],
+        )
+
+        response = target.RecordFxRateSnapshot(request, FakeContext())
+
+        self.assertEqual(response.snapshot.org_id, "org-a")
+        self.assertEqual(store.recorded["user_id"], "user-a")
+        self.assertEqual(response.snapshot.rates[0].rate, "1500")
+        with self.assertRaises(RpcAbort) as denied:
+            target.RecordFxRateSnapshot(request, FakeContext(roles=("analyst",)))
+        self.assertEqual(denied.exception.code, grpc.StatusCode.PERMISSION_DENIED)
+
+    def test_fx_conversion_returns_minor_units_and_provenance(self) -> None:
+        store = FakeFxStore()
+        calculator = FxCalculator(store)
+        calculator.record_snapshot(
+            org_id="org-a",
+            user_id="user-a",
+            idempotency_key="close-1",
+            source="treasury",
+            base_currency="USD",
+            effective_at=datetime(2026, 8, 1, tzinfo=UTC),
+            rates=(("NGN", "1500"),),
+        )
+
+        response = service(
+            FakeRepository(),
+            FakeObjectStore(),
+            fx_calculator=calculator,
+        ).ConvertCurrency(
+            data_pipeline_pb2.ConvertCurrencyRequest(
+                amount_minor=1050,
+                source_currency="USD",
+                target_currency="NGN",
+                rate_source="treasury",
+                effective_at=timestamp(datetime(2026, 8, 1, tzinfo=UTC)),
+                recorded_as_of=timestamp(datetime(2026, 8, 2, tzinfo=UTC)),
+            ),
+            FakeContext(),
+        )
+
+        self.assertEqual(response.target_amount_minor, 1_575_000)
+        self.assertEqual(response.quote.snapshot_id, str(store.snapshot.id))
+        self.assertEqual(response.rounding_mode, data_pipeline_pb2.FX_ROUNDING_MODE_HALF_EVEN)
+
+    def test_fx_invalid_currency_is_an_invalid_argument(self) -> None:
+        target = service(
+            FakeRepository(),
+            FakeObjectStore(),
+            fx_calculator=FxCalculator(FakeFxStore()),
+        )
+
+        with self.assertRaises(RpcAbort) as error:
+            target.GetFxRate(
+                data_pipeline_pb2.GetFxRateRequest(
+                    source_currency="ZZZ",
+                    target_currency="NGN",
+                    rate_source="treasury",
+                    effective_at=timestamp(datetime(2026, 8, 1, tzinfo=UTC)),
+                ),
+                FakeContext(),
+            )
+
+        self.assertEqual(error.exception.code, grpc.StatusCode.INVALID_ARGUMENT)
+
+        submicrosecond = timestamp(datetime(2026, 8, 1, tzinfo=UTC))
+        submicrosecond.nanos = 1
+        with self.assertRaises(RpcAbort) as precision_error:
+            target.GetFxRate(
+                data_pipeline_pb2.GetFxRateRequest(
+                    source_currency="USD",
+                    target_currency="NGN",
+                    rate_source="treasury",
+                    effective_at=submicrosecond,
+                ),
+                FakeContext(),
+            )
+        self.assertEqual(precision_error.exception.code, grpc.StatusCode.INVALID_ARGUMENT)
+
     def test_commit_uses_trusted_tenant_and_explicit_warning_confirmation(self) -> None:
         repository = FakeRepository()
         batch_id = uuid4()

@@ -1,32 +1,39 @@
-import { create, toJson } from "@bufbuild/protobuf";
+import { create, fromJson, toJson } from "@bufbuild/protobuf";
+import { TimestampSchema } from "@bufbuild/protobuf/wkt";
 import multipart, { type Multipart } from "@fastify/multipart";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
   DataPipelineService,
   CommitBatchResponseSchema,
+  ConvertCurrencyResponseSchema,
   EditRowResponseSchema,
   ExcludeRowResponseSchema,
   GetColumnProfileResponseSchema,
   GetImportBatchResponseSchema,
   GetImportOperationResponseSchema,
+  GetFxRateResponseSchema,
   GetValidationReportResponseSchema,
   ImportBatchStatus,
   ImportRowSchema,
   ImportSourceType,
   ListImportBatchesResponseSchema,
   MappingTemplateSchema,
+  RecordFxRateSnapshotResponseSchema,
   UploadImportFileRequestSchema,
   type CommitBatchResponse,
+  type ConvertCurrencyResponse,
   type EditRowResponse,
   type ExcludeRowResponse,
   type GetColumnProfileResponse,
   type GetImportBatchResponse,
   type GetImportOperationResponse,
+  type GetFxRateResponse,
   type GetValidationReportResponse,
   type ImportRow,
   type ListImportBatchesResponse,
   type ListMappingTemplatesResponse,
   type MappingTemplate,
+  type RecordFxRateSnapshotResponse,
   type SaveMappingTemplateResponse,
   type UploadImportFileRequest,
 } from "@owomide/proto/services/data_pipeline/v1/data_pipeline_pb.js";
@@ -67,6 +74,55 @@ function invalidArgument(reply: FastifyReply, message: string) {
 function pageSize(raw: string | undefined): number | null {
   const value = raw ? Number(raw) : 0;
   return Number.isInteger(value) && value >= 0 && value <= 200 ? value : null;
+}
+
+function instant(raw: unknown) {
+  if (typeof raw !== "string") {
+    return null;
+  }
+  const match =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(?:Z|[+-](\d{2}):(\d{2}))$/.exec(
+      raw
+    );
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6]);
+  const offsetHour = Number(match[7] ?? 0);
+  const offsetMinute = Number(match[8] ?? 0);
+  if (hour > 23 || minute > 59 || second > 59 || offsetHour > 23 || offsetMinute > 59) {
+    return null;
+  }
+  const calendarDate = new Date(0);
+  calendarDate.setUTCHours(0, 0, 0, 0);
+  calendarDate.setUTCFullYear(year, month - 1, day);
+  if (
+    calendarDate.getUTCFullYear() !== year ||
+    calendarDate.getUTCMonth() !== month - 1 ||
+    calendarDate.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  try {
+    return fromJson(TimestampSchema, raw);
+  } catch {
+    return null;
+  }
+}
+
+function signedInt64(raw: unknown): bigint | null {
+  if (
+    (typeof raw !== "string" && typeof raw !== "number") ||
+    (typeof raw === "number" && !Number.isSafeInteger(raw)) ||
+    !/^-?\d+$/.test(String(raw))
+  ) {
+    return null;
+  }
+  const value = BigInt(raw);
+  return value >= -(2n ** 63n) && value < 2n ** 63n ? value : null;
 }
 
 function mappingTemplateJson(template: MappingTemplate) {
@@ -112,18 +168,57 @@ function sourceType(filename: string): ImportSourceType {
 // Hand-rolled typed interface — Client<typeof DataPipelineService> produces unresolvable
 // conditional types under strict mode when the service mixes client_streaming + unary methods.
 interface DataPipelineClient {
-  uploadImportFile(req: AsyncIterable<UploadImportFileRequest>, opts: { headers: Record<string, string> }): Promise<{ batchId: string; operationId: string }>;
-  listImportBatches(req: object, opts: { headers: Record<string, string> }): Promise<ListImportBatchesResponse>;
-  getImportBatch(req: { batchId: string }, opts: { headers: Record<string, string> }): Promise<GetImportBatchResponse>;
-  getColumnProfile(req: { batchId: string }, opts: { headers: Record<string, string> }): Promise<GetColumnProfileResponse>;
-  applyMapping(req: object, opts: { headers: Record<string, string> }): Promise<{ batchId: string; operationId: string }>;
-  getValidationReport(req: object, opts: { headers: Record<string, string> }): Promise<GetValidationReportResponse>;
+  uploadImportFile(
+    req: AsyncIterable<UploadImportFileRequest>,
+    opts: { headers: Record<string, string> }
+  ): Promise<{ batchId: string; operationId: string }>;
+  listImportBatches(
+    req: object,
+    opts: { headers: Record<string, string> }
+  ): Promise<ListImportBatchesResponse>;
+  getImportBatch(
+    req: { batchId: string },
+    opts: { headers: Record<string, string> }
+  ): Promise<GetImportBatchResponse>;
+  getColumnProfile(
+    req: { batchId: string },
+    opts: { headers: Record<string, string> }
+  ): Promise<GetColumnProfileResponse>;
+  applyMapping(
+    req: object,
+    opts: { headers: Record<string, string> }
+  ): Promise<{ batchId: string; operationId: string }>;
+  getValidationReport(
+    req: object,
+    opts: { headers: Record<string, string> }
+  ): Promise<GetValidationReportResponse>;
   editRow(req: object, opts: { headers: Record<string, string> }): Promise<EditRowResponse>;
   excludeRow(req: object, opts: { headers: Record<string, string> }): Promise<ExcludeRowResponse>;
-  commitBatch(req: { batchId: string; confirmWarnings: boolean }, opts: { headers: Record<string, string> }): Promise<CommitBatchResponse>;
-  listMappingTemplates(req: object, opts: { headers: Record<string, string> }): Promise<ListMappingTemplatesResponse>;
-  saveMappingTemplate(req: object, opts: { headers: Record<string, string> }): Promise<SaveMappingTemplateResponse>;
-  getImportOperation(req: { operationId: string }, opts: { headers: Record<string, string> }): Promise<GetImportOperationResponse>;
+  commitBatch(
+    req: { batchId: string; confirmWarnings: boolean },
+    opts: { headers: Record<string, string> }
+  ): Promise<CommitBatchResponse>;
+  listMappingTemplates(
+    req: object,
+    opts: { headers: Record<string, string> }
+  ): Promise<ListMappingTemplatesResponse>;
+  saveMappingTemplate(
+    req: object,
+    opts: { headers: Record<string, string> }
+  ): Promise<SaveMappingTemplateResponse>;
+  getImportOperation(
+    req: { operationId: string },
+    opts: { headers: Record<string, string> }
+  ): Promise<GetImportOperationResponse>;
+  recordFxRateSnapshot(
+    req: object,
+    opts: { headers: Record<string, string> }
+  ): Promise<RecordFxRateSnapshotResponse>;
+  getFxRate(req: object, opts: { headers: Record<string, string> }): Promise<GetFxRateResponse>;
+  convertCurrency(
+    req: object,
+    opts: { headers: Record<string, string> }
+  ): Promise<ConvertCurrencyResponse>;
 }
 
 export interface DataPipelineRouteDependencies {
@@ -144,9 +239,11 @@ export async function registerDataPipelineRoutes(
       fileSize: config.dataPipelineUploadMaxBytes,
     },
   });
-  const client = (
-    dependencies.client ?? createServiceClient(DataPipelineService, config.dataPipelineServiceUrl)
-  ) as object as DataPipelineClient;
+  const client = (dependencies.client ??
+    createServiceClient(
+      DataPipelineService,
+      config.dataPipelineServiceUrl
+    )) as object as DataPipelineClient;
   const token = dependencies.token ?? (() => dataPipelineServiceToken(config));
 
   app.post("/imports", async (request, reply) => {
@@ -497,7 +594,113 @@ export async function registerDataPipelineRoutes(
     });
   });
 
-  const deferredPrefixes = ["/exports", "/intelligence"];
+  app.post("/intelligence/fx/rate-snapshots", async (request, reply) => {
+    if (!isJsonObject(request.body)) {
+      return invalidArgument(reply, "Request body must be a JSON object");
+    }
+    const body = request.body as {
+      idempotencyKey?: unknown;
+      source?: unknown;
+      baseCurrency?: unknown;
+      effectiveAt?: unknown;
+      rates?: unknown;
+      providerRef?: unknown;
+    };
+    const effectiveAt = instant(body.effectiveAt);
+    if (
+      typeof body.idempotencyKey !== "string" ||
+      typeof body.source !== "string" ||
+      typeof body.baseCurrency !== "string" ||
+      !effectiveAt ||
+      !Array.isArray(body.rates) ||
+      body.rates.some(
+        (entry) =>
+          !isJsonObject(entry) ||
+          typeof entry["currency"] !== "string" ||
+          typeof entry["rate"] !== "string"
+      ) ||
+      (body.providerRef !== undefined && typeof body.providerRef !== "string")
+    ) {
+      return invalidArgument(reply, "FX rate snapshot payload is invalid");
+    }
+    const result = await client.recordFxRateSnapshot(
+      {
+        idempotencyKey: body.idempotencyKey,
+        source: body.source,
+        baseCurrency: body.baseCurrency,
+        effectiveAt,
+        rates: body.rates,
+        providerRef: body.providerRef,
+      },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    const payload = toJson(RecordFxRateSnapshotResponseSchema, result) as JsonObject;
+    return reply
+      .status(result.replayed ? 200 : 201)
+      .send({ ...payload, replayed: result.replayed });
+  });
+
+  app.get("/intelligence/fx/rates", async (request, reply) => {
+    const query = request.query as Record<string, unknown>;
+    const effectiveAt = instant(query["effectiveAt"]);
+    const recordedAsOf =
+      query["recordedAsOf"] === undefined ? undefined : instant(query["recordedAsOf"]);
+    if (
+      typeof query["sourceCurrency"] !== "string" ||
+      typeof query["targetCurrency"] !== "string" ||
+      typeof query["rateSource"] !== "string" ||
+      !effectiveAt ||
+      recordedAsOf === null
+    ) {
+      return invalidArgument(reply, "FX rate query is invalid");
+    }
+    const result = await client.getFxRate(
+      {
+        sourceCurrency: query["sourceCurrency"],
+        targetCurrency: query["targetCurrency"],
+        rateSource: query["rateSource"],
+        effectiveAt,
+        recordedAsOf,
+      },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    return reply.send(toJson(GetFxRateResponseSchema, result));
+  });
+
+  app.post("/intelligence/fx/convert", async (request, reply) => {
+    if (!isJsonObject(request.body)) {
+      return invalidArgument(reply, "Request body must be a JSON object");
+    }
+    const body = request.body as Record<string, unknown>;
+    const amountMinor = signedInt64(body["amountMinor"]);
+    const effectiveAt = instant(body["effectiveAt"]);
+    const recordedAsOf =
+      body["recordedAsOf"] === undefined ? undefined : instant(body["recordedAsOf"]);
+    if (
+      amountMinor === null ||
+      typeof body["sourceCurrency"] !== "string" ||
+      typeof body["targetCurrency"] !== "string" ||
+      typeof body["rateSource"] !== "string" ||
+      !effectiveAt ||
+      recordedAsOf === null
+    ) {
+      return invalidArgument(reply, "FX conversion payload is invalid");
+    }
+    const result = await client.convertCurrency(
+      {
+        amountMinor,
+        sourceCurrency: body["sourceCurrency"],
+        targetCurrency: body["targetCurrency"],
+        rateSource: body["rateSource"],
+        effectiveAt,
+        recordedAsOf,
+      },
+      { headers: serviceHeaders(request, await token()) }
+    );
+    return reply.send(toJson(ConvertCurrencyResponseSchema, result));
+  });
+
+  const deferredPrefixes = ["/exports"];
   for (const prefix of deferredPrefixes) {
     app.all(prefix, async (_request, reply) => {
       return reply.status(501).send({

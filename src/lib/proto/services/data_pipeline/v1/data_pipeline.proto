@@ -20,6 +20,9 @@ service DataPipelineService {
   rpc CommitBatch(CommitBatchRequest) returns (CommitBatchResponse);
   rpc ListMappingTemplates(ListMappingTemplatesRequest) returns (ListMappingTemplatesResponse);
   rpc SaveMappingTemplate(SaveMappingTemplateRequest) returns (SaveMappingTemplateResponse);
+  rpc RecordFxRateSnapshot(RecordFxRateSnapshotRequest) returns (RecordFxRateSnapshotResponse);
+  rpc GetFxRate(GetFxRateRequest) returns (GetFxRateResponse);
+  rpc ConvertCurrency(ConvertCurrencyRequest) returns (ConvertCurrencyResponse);
 }
 
 enum ImportSourceType {
@@ -328,4 +331,82 @@ message SaveMappingTemplateRequest {
 
 message SaveMappingTemplateResponse {
   MappingTemplate template = 1;
+}
+
+enum FxRoundingMode {
+  FX_ROUNDING_MODE_UNSPECIFIED = 0;
+  FX_ROUNDING_MODE_HALF_EVEN = 1;
+}
+
+message FxRateEntry {
+  string currency = 1;
+  string rate = 2;
+}
+
+message FxRateSnapshot {
+  string id = 1;
+  string org_id = 2;
+  string source = 3;
+  string base_currency = 4;
+  google.protobuf.Timestamp effective_at = 5;
+  google.protobuf.Timestamp recorded_at = 6;
+  repeated FxRateEntry rates = 7;
+  optional string provider_ref = 8;
+  string checksum_sha256 = 9;
+  string created_by = 10;
+}
+
+message FxRateQuote {
+  string source_currency = 1;
+  string target_currency = 2;
+  string rate = 3;
+  string rate_source = 4;
+  optional string snapshot_id = 5;
+  google.protobuf.Timestamp effective_at = 6;
+  google.protobuf.Timestamp recorded_at = 7;
+}
+
+message RecordFxRateSnapshotRequest {
+  string idempotency_key = 1;
+  string source = 2;
+  string base_currency = 3;
+  google.protobuf.Timestamp effective_at = 4;
+  repeated FxRateEntry rates = 5;
+  optional string provider_ref = 6;
+}
+
+message RecordFxRateSnapshotResponse {
+  FxRateSnapshot snapshot = 1;
+  bool replayed = 2;
+}
+
+message GetFxRateRequest {
+  string source_currency = 1;
+  string target_currency = 2;
+  string rate_source = 3;
+  google.protobuf.Timestamp effective_at = 4;
+  optional google.protobuf.Timestamp recorded_as_of = 5;
+}
+
+message GetFxRateResponse {
+  FxRateQuote quote = 1;
+}
+
+message ConvertCurrencyRequest {
+  int64 amount_minor = 1;
+  string source_currency = 2;
+  string target_currency = 3;
+  string rate_source = 4;
+  google.protobuf.Timestamp effective_at = 5;
+  optional google.protobuf.Timestamp recorded_as_of = 6;
+}
+
+message ConvertCurrencyResponse {
+  int64 source_amount_minor = 1;
+  int64 target_amount_minor = 2;
+  int32 source_minor_unit = 3;
+  int32 target_minor_unit = 4;
+  string exact_target_amount = 5;
+  FxRoundingMode rounding_mode = 6;
+  FxRateQuote quote = 7;
 }

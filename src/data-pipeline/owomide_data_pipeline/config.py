@@ -90,6 +90,7 @@ class Config:
     import_insert_batch_size: int
     worker_lease_seconds: int
     worker_retry_base_seconds: int
+    fx_max_rate_age_seconds: int
     xlsx_spool_memory_bytes: int
     worker_poll_seconds: float
     log_level: str
@@ -211,6 +212,13 @@ class Config:
             ),
             worker_retry_base_seconds=_integer(
                 env, "DATA_PIPELINE_WORKER_RETRY_BASE_SECONDS", 5, 1, 3_600
+            ),
+            fx_max_rate_age_seconds=_integer(
+                env,
+                "DATA_PIPELINE_FX_MAX_RATE_AGE_SECONDS",
+                7 * 24 * 60 * 60,
+                1,
+                31 * 24 * 60 * 60,
             ),
             xlsx_spool_memory_bytes=_integer(
                 env,
