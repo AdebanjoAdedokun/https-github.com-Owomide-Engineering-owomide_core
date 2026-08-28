@@ -1,0 +1,32 @@
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//apps/workspace:vite/package_json.bzl", vite_bin = "bin")
+
+npm_link_all_packages()
+
+filegroup(
+    name = "sources",
+    srcs = glob(
+        [
+            "public/**",
+            "src/**",
+            "tests/**",
+        ],
+    ) + [
+        "index.html",
+        "package.json",
+        "vite.config.mjs",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+vite_bin.vite(
+    name = "build",
+    srcs = [
+        ":node_modules",
+        ":sources",
+    ],
+    args = ["build"],
+    chdir = package_name(),
+    out_dirs = ["dist"],
+    visibility = ["//visibility:public"],
+)

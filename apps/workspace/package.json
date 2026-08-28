@@ -1,0 +1,35 @@
+{
+  "name": "@owomide/workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "pnpm run test:all",
+    "test:data": "node --test tests/data/*.test.mjs",
+    "test:bdd": "vitest run tests/workspace-bdd.test.jsx --reporter=verbose",
+    "test:hosting": "node --test tests/hosting.test.mjs",
+    "test:all": "pnpm run test:data && pnpm run test:bdd && pnpm run test:hosting"
+  },
+  "dependencies": {
+    "@fontsource-variable/instrument-sans": "^5.2.6",
+    "@fontsource-variable/noto-sans": "^5.2.6",
+    "@phosphor-icons/react": "^2.1.10",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.4",
+    "@vitejs/plugin-react": "5.0.4",
+    "jsdom": "^26.1.0",
+    "vite": "6.4.2",
+    "vitest": "^3.2.7"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

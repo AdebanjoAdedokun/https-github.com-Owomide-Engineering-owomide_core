@@ -10,3 +10,6 @@ resources:
   - catalog
   - data-pipeline
   - margin
+  - marketing
+  - workspace
+  - ingress

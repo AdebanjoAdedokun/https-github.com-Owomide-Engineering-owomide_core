@@ -14,6 +14,22 @@ bootstrap: ## Install local dev tooling (macOS: Homebrew + mise + OrbStack)
 test: ## Run all tests
 	bazel test //...
 
+.PHONY: frontends-build
+frontends-build: ## Build the marketing and workspace applications
+	pnpm build:frontends
+
+.PHONY: frontends-test
+frontends-test: ## Run the marketing and workspace test suites
+	pnpm test:frontends
+
+.PHONY: marketing-dev
+marketing-dev: ## Run the public marketing site on localhost:4173
+	pnpm dev:marketing
+
+.PHONY: workspace-dev
+workspace-dev: ## Run the authenticated workspace on localhost:4174
+	pnpm dev:workspace
+
 .PHONY: lint
 lint: ## Run linters (TS, Python, Go — skips languages with no implementation yet)
 	cd src/gateway && pnpm eslint "src/**/*.ts"

@@ -9,6 +9,14 @@ build:
   local:
     push: false
   artifacts:
+    - image: owomide/marketing
+      context: .
+      docker:
+        dockerfile: apps/marketing/Dockerfile
+    - image: owomide/workspace
+      context: .
+      docker:
+        dockerfile: apps/workspace/Dockerfile
     - image: owomide/gateway
       # Context is the repo root — pnpm-lock.yaml and pnpm-workspace.yaml live here.
       context: .
@@ -42,6 +50,16 @@ deploy:
 # Port-forward cluster services to localhost for local development.
 # Gateway on 5000 (3000 is reserved for the frontend SPA).
 portForward:
+  - resourceType: Service
+    resourceName: marketing
+    namespace: default
+    port: 80
+    localPort: 4173
+  - resourceType: Service
+    resourceName: workspace
+    namespace: default
+    port: 80
+    localPort: 4174
   - resourceType: Service
     resourceName: gateway
     namespace: default

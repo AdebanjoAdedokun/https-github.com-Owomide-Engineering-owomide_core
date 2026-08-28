@@ -1,0 +1,1842 @@
+/*
+ * Workspace visual-system contract
+ * --------------------------------
+ * Late-loaded, shared rules only. Screen-specific composition remains in
+ * workspace.css, proposal.css and platform.css; this file keeps interaction,
+ * spacing and consequence geometry coherent across those surfaces.
+ */
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --control-size: 44px;
+  --touch-size: 48px;
+  --entity-box: 44px;
+  --step-node: 36px;
+  --radius-control: 8px;
+  --panel-shadow: 0 24px 64px rgba(6, 51, 44, .14);
+  --panel-motion: cubic-bezier(.22, 1, .36, 1);
+  --text-page-title: clamp(28px, 2.2vw, 32px);
+  --text-page-title-line: 1.05;
+  --text-page-title-tracking: -.025em;
+  --content-max: 1200px;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Controls share one physical rhythm. */
+.side-nav nav button,
+.side-nav__collapse,
+.resolved-identity,
+.icon-control,
+.page-actions button,
+.primary-action,
+.secondary-action,
+.tool-button,
+.table-tools label,
+.filter-strip button,
+.filter-strip select,
+.popover-close,
+.ops-primary,
+.ops-secondary,
+.ops-back,
+.ops-icon,
+.ops-error button,
+.ops-empty button,
+.audit-filters button,
+.load-more-lines,
+.line-load-error button,
+.proposal-tabs button,
+.proposal-authority-trigger,
+.proposal-authority__back {
+  min-height: var(--control-size);
+}
+
+.table-tools label,
+.ops-search {
+  height: var(--control-size);
+}
+
+.icon-control,
+.ops-icon {
+  width: var(--control-size);
+  height: var(--control-size);
+  min-width: var(--control-size);
+  padding: 0;
+  border-radius: var(--radius-control);
+}
+
+.tool-button,
+.table-tools .icon-control,
+.view-tabs button {
+  min-width: var(--control-size);
+}
+
+.side-nav nav button,
+.side-nav__collapse {
+  border-radius: var(--radius-control);
+}
+
+.side-nav nav {
+  gap: var(--space-4);
+}
+
+.side-nav nav section {
+  gap: var(--space-1);
+}
+
+.resolved-identity {
+  grid-template-columns: 40px minmax(0, 1fr) 16px;
+  gap: var(--space-3);
+}
+
+.resolved-identity > .avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.workspace-app.is-nav-collapsed .side-nav nav button,
+.workspace-app.is-nav-collapsed .side-nav__collapse {
+  width: var(--control-size);
+}
+
+@media (max-width: 1320px) {
+  .side-nav nav button,
+  .side-nav__collapse { width: var(--control-size); }
+}
+
+/* Entity glyphs are visual anchors, not incidental decoration. */
+.product-cell {
+  min-height: var(--control-size);
+  grid-template-columns: var(--entity-box) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.product-glyph,
+.catalog-identity > i,
+.import-file > svg,
+.profile-file > svg,
+.audit-event-icon,
+.rules-list > button > span:first-child > svg {
+  width: var(--entity-box);
+  height: var(--entity-box);
+  flex: 0 0 var(--entity-box);
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 10px;
+  background: var(--green-soft);
+}
+
+.product-glyph {
+  font-size: 13px;
+}
+
+.table-scroll.is-compact .product-cell {
+  grid-template-columns: 36px minmax(0, 1fr);
+}
+
+.table-scroll.is-compact .product-glyph {
+  width: 36px;
+  height: 36px;
+}
+
+.ops-section-head > span:first-child:not(.ops-status),
+.proposal-journey__node,
+.review-section-number {
+  width: var(--step-node);
+  height: var(--step-node);
+  align-self: start;
+}
+
+.ops-section-head:not(.ops-section-head--wide),
+.review-document__grid > section {
+  grid-template-columns: var(--step-node) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.import-stage-rail button > span {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+}
+
+/* Shared acknowledgement and recovery surfaces. */
+.record-note,
+.upload-boundary,
+.mapping-boundary,
+.scope-truth,
+.repair-suggestion,
+.proposal-lines-view__note,
+.proposal-authority__denial,
+.proposal-authority__boundary,
+.review-document__boundary,
+.decision-dialog__consequence,
+.line-load-error,
+.persistent-recovery {
+  border-radius: var(--radius-control);
+}
+
+.record-note,
+.upload-boundary,
+.mapping-boundary,
+.scope-truth,
+.proposal-lines-view__note,
+.proposal-authority__denial,
+.decision-dialog__consequence {
+  gap: var(--space-3);
+}
+
+.record-note,
+.upload-boundary,
+.scope-truth,
+.proposal-lines-view__note {
+  border: 1px solid color-mix(in srgb, var(--green-2) 18%, var(--line));
+  background: color-mix(in srgb, var(--green-soft) 72%, var(--paper));
+}
+
+.record-note > svg,
+.upload-boundary > svg,
+.scope-truth > svg,
+.mapping-boundary > svg,
+.proposal-lines-view__note > svg,
+.proposal-authority__denial > svg,
+.decision-dialog__consequence > svg,
+.persistent-recovery > svg {
+  align-self: start;
+  margin-top: 1px;
+}
+
+.record-note strong,
+.record-note small,
+.upload-boundary strong,
+.upload-boundary small,
+.mapping-boundary strong,
+.mapping-boundary small,
+.scope-truth strong,
+.scope-truth small,
+.proposal-lines-view__note strong,
+.proposal-lines-view__note small {
+  line-height: 18px;
+}
+
+.review-consequence {
+  min-height: 76px;
+  margin: var(--space-4) 28px var(--space-4);
+  padding: var(--space-4) 18px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--gold) 48%, var(--line));
+  border-radius: 9px;
+  color: var(--green);
+  background: linear-gradient(110deg, color-mix(in srgb, var(--gold-soft) 68%, var(--paper)), color-mix(in srgb, var(--green-soft) 46%, var(--paper)));
+}
+
+.review-consequence > svg {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--gold) 55%, var(--line));
+  border-radius: 10px;
+  color: var(--gold-deep);
+  background: color-mix(in srgb, var(--paper) 82%, var(--gold-soft));
+}
+
+.review-consequence > span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.review-consequence strong {
+  color: var(--green);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 650;
+}
+
+.review-consequence small {
+  margin-top: var(--space-1);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.risk-confirmation {
+  min-height: 80px;
+  margin: 0 28px var(--space-4);
+  padding: var(--space-4) 18px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: center;
+  border-color: var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.risk-confirmation:hover {
+  border-color: color-mix(in srgb, var(--green) 32%, var(--line));
+  background: color-mix(in srgb, var(--green-soft) 28%, var(--paper));
+}
+
+.risk-confirmation:focus-within {
+  border-color: color-mix(in srgb, var(--gold) 72%, var(--line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 22%, transparent);
+}
+
+.risk-confirmation:has(input:checked) {
+  border-color: color-mix(in srgb, var(--green-2) 46%, var(--line));
+  background: color-mix(in srgb, var(--green-soft) 62%, var(--paper));
+}
+
+.risk-confirmation input {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 7px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.risk-confirmation input::after {
+  content: "";
+  width: 6px;
+  height: 11px;
+  margin-top: -2px;
+  border-right: 2px solid #fffdf8;
+  border-bottom: 2px solid #fffdf8;
+  transform: rotate(45deg) scale(0);
+  transition: transform 160ms var(--panel-motion);
+}
+
+.risk-confirmation input:checked {
+  border-color: var(--green);
+  background: var(--green);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--green) 10%, transparent);
+}
+
+.risk-confirmation input:checked::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.risk-confirmation input:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--gold) 55%, transparent);
+  outline-offset: 3px;
+}
+
+.risk-confirmation span {
+  min-width: 0;
+}
+
+.risk-confirmation strong {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 650;
+}
+
+.risk-confirmation small {
+  margin-top: var(--space-1);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* List and detail planes land on the same 4px rhythm. */
+.queue-row,
+.catalog-list > button,
+.import-ledger > button,
+.proposal-list > button,
+.rules-list > button,
+.audit-ledger > article {
+  column-gap: var(--space-4);
+}
+
+.catalog-list > button,
+.import-ledger > button,
+.rules-list > button,
+.audit-ledger > article {
+  padding-block: var(--space-3);
+  padding-inline: var(--space-5);
+}
+
+.proposal-list > button {
+  padding: var(--space-4) var(--space-5);
+}
+
+.catalog-identity,
+.import-file,
+.profile-file,
+.audit-ledger > article {
+  align-items: center;
+}
+
+.ops-detail-grid > div,
+.proposal-authority dl div,
+.proposal-evidence-grid article dl div,
+.identifier-list > div {
+  min-height: var(--control-size);
+}
+
+/* Imports use one calm document rhythm from ledger through reconciliation. */
+.import-journey {
+  min-width: 0;
+  outline: 0;
+}
+
+.import-journey .ops-page-head h1,
+.import-journey .ops-page-meta span,
+.import-file strong,
+.profile-file strong,
+.review-document h3,
+.review-document dd,
+.issue-detail dd {
+  overflow-wrap: anywhere;
+}
+
+.import-journey > .ops-surface,
+.import-journey > .import-create-layout {
+  animation: import-stage-in 280ms var(--panel-motion) both;
+}
+
+.import-create-layout > .ops-surface {
+  padding: var(--space-6);
+}
+
+.import-upload-layout > .ops-surface {
+  display: flex;
+  flex-direction: column;
+}
+
+.import-upload-layout__action {
+  margin-top: var(--space-5);
+}
+
+.upload-well strong {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.intent-grid strong,
+.import-file strong,
+.import-counts strong,
+.profile-file strong,
+.profile-facts strong,
+.mapping-table strong,
+.issue-list strong,
+.mapping-boundary strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.intent-grid small,
+.upload-well small,
+.upload-boundary small,
+.mapping-boundary small,
+.issue-list .issue-reason,
+.import-journey .ops-section-head p,
+.import-journey .ops-page-head > div > p:not(.ops-eyebrow) {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.upload-well em,
+.profile-file small,
+.profile-facts small,
+.mapping-table small,
+.mapping-table em,
+.issue-list small,
+.issue-toolbar > span {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.profile-layout {
+  padding: var(--space-6);
+  gap: 32px;
+}
+
+.profile-facts > div {
+  padding: var(--space-4);
+}
+
+.source-sample span {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.source-sample strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.mapping-table > div:not(.mapping-head) {
+  padding: var(--space-4) var(--space-6);
+}
+
+.import-journey .mapping-boundary {
+  margin: 0 var(--space-6) var(--space-6);
+  padding: var(--space-4);
+  grid-template-columns: 20px minmax(0, 1fr);
+}
+
+.mapping-reviewed {
+  min-height: var(--control-size);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.mapping-reviewed svg {
+  width: 18px;
+  height: 18px;
+}
+
+.import-stage-rail {
+  /* Route changes settle the active step before paint; no drifting rail. */
+  scroll-behavior: auto;
+}
+
+.import-stage-rail button {
+  position: relative;
+  scroll-snap-align: center;
+  transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.import-stage-rail button:not(:disabled):hover {
+  background: color-mix(in srgb, var(--green-soft) 56%, var(--paper));
+}
+
+.import-stage-rail button:focus-visible {
+  z-index: 1;
+  outline: 2px solid color-mix(in srgb, var(--gold) 78%, transparent);
+  outline-offset: -4px;
+}
+
+.import-stage-rail button.is-current {
+  box-shadow: inset 0 -2px 0 var(--gold-deep);
+}
+
+.import-stage-rail button:disabled {
+  opacity: .58;
+}
+
+.import-ledger__owner,
+.import-ledger__updated {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.import-ledger__owner small,
+.import-ledger__updated small {
+  display: none;
+  color: var(--quiet);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 650;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.import-ledger__owner strong,
+.import-ledger__updated strong {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.issue-list > button {
+  min-height: 88px;
+  padding: var(--space-4) var(--space-6);
+  gap: var(--space-4);
+}
+
+.issue-list .issue-raw strong {
+  margin-top: var(--space-1);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.issue-peek:focus-visible,
+.import-journey:focus-visible {
+  outline: 0;
+}
+
+.issue-detail > div {
+  padding-block: var(--space-3);
+}
+
+.issue-detail dt {
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.issue-detail dd,
+.repair-suggestion strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.review-document > section {
+  padding: var(--space-2) var(--space-6) var(--space-3) 0;
+}
+
+.review-document > section + section {
+  padding-left: var(--space-6);
+}
+
+.review-document dl > div {
+  min-height: 56px;
+}
+
+.review-document dt,
+.review-document dd {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.review-consequence strong,
+.risk-confirmation strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.review-consequence small,
+.risk-confirmation small {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.import-journey .ops-sticky-actions {
+  min-height: 76px;
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-2);
+}
+
+.result-counts > div {
+  padding: var(--space-6);
+}
+
+.result-counts .is-pending strong {
+  max-width: 180px;
+  font-size: 22px;
+  line-height: 26px;
+  text-align: center;
+}
+
+.result-hero > p:not(.ops-eyebrow) {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.persistent-recovery {
+  margin: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-4);
+}
+
+.persistent-recovery strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.persistent-recovery small {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* One price-movement grammar from rows through governed Proposal detail. */
+.row-price-movement {
+  grid-template-columns: minmax(68px, 1fr) 52px minmax(68px, 1fr);
+  gap: var(--space-2);
+}
+
+.row-price-movement > i {
+  min-height: 36px;
+  position: relative;
+  grid-template-rows: 14px 10px;
+  align-content: center;
+  gap: var(--space-1);
+}
+
+.row-price-movement > i svg {
+  display: none;
+}
+
+.row-price-movement > i::before {
+  content: "";
+  width: 100%;
+  align-self: center;
+  border-top: 1px solid var(--gold);
+}
+
+.row-price-movement > i::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 7px;
+  width: 6px;
+  height: 6px;
+  border-top: 1px solid var(--gold);
+  border-right: 1px solid var(--gold);
+  transform: rotate(45deg);
+}
+
+.row-price-movement > i small {
+  grid-row: 1;
+  line-height: 14px;
+}
+
+.lens-price {
+  grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.proposal-anchor__prices {
+  grid-template-columns: minmax(136px, 1fr) minmax(104px, .68fr) minmax(136px, 1fr) minmax(136px, .88fr);
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+}
+
+/* Price blocks face the causal bridge so neither arrow appears attached to one side. */
+.proposal-anchor__prices > span:first-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.proposal-anchor__prices > span:nth-child(3) {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.lens-change,
+.proposal-anchor__delta {
+  min-height: 64px;
+  grid-template-rows: 16px 10px 14px;
+  gap: var(--space-1);
+}
+
+.lens-change i,
+.proposal-anchor__delta i {
+  width: 100%;
+  height: 10px;
+}
+
+.lens-change i::after,
+.proposal-anchor__delta i::after {
+  width: 6px;
+  height: 6px;
+  margin-left: -6px;
+}
+
+/* Repricing and operational detail panels use the same entrance curve. */
+.surface-body,
+.ops-split-surface,
+.proposal-surface__body {
+  transition: grid-template-columns 360ms var(--panel-motion);
+}
+
+.consequence-lens,
+.ops-peek,
+.proposal-authority {
+  animation: premium-panel-in 320ms var(--panel-motion) both;
+}
+
+.lens-controls .icon-control {
+  width: var(--control-size);
+  height: var(--control-size);
+  min-width: var(--control-size);
+}
+
+/* Proposal authority is optional context, never a permanent canvas tax. */
+.proposal-surface {
+  position: relative;
+}
+
+.proposal-surface__toolbar {
+  min-height: 60px;
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 94%, var(--green-soft));
+}
+
+.proposal-tabs {
+  min-width: 0;
+  min-height: 60px;
+  flex: 1 1 auto;
+  border-bottom: 0;
+}
+
+.proposal-authority-trigger {
+  flex: 0 0 auto;
+  min-width: 168px;
+  min-height: 60px;
+  align-self: stretch;
+  margin: 0;
+  padding: 0 var(--space-5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--green);
+  background: transparent;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.proposal-authority-trigger:hover,
+.proposal-authority-trigger[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--green-soft) 72%, var(--paper));
+}
+
+.proposal-authority-trigger[aria-expanded="true"] {
+  box-shadow: inset 0 -2px 0 var(--gold);
+}
+
+.proposal-authority-trigger:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--green) 72%, transparent);
+  outline-offset: -4px;
+}
+
+.proposal-authority-trigger svg {
+  width: 18px;
+  height: 18px;
+}
+
+.proposal-surface__body {
+  min-height: 586px;
+  display: block;
+  position: relative;
+  isolation: isolate;
+}
+
+.proposal-view {
+  min-width: 0;
+  border-right: 0;
+}
+
+.proposal-authority {
+  min-width: 0;
+  outline: 0;
+  border-left: 1px solid var(--line);
+  background: color-mix(in srgb, var(--green-soft) 34%, var(--paper));
+}
+
+.proposal-authority:focus-visible {
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--gold) 75%, transparent);
+}
+
+.proposal-authority__controls {
+  min-height: var(--control-size);
+  margin: -10px -6px var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.proposal-authority__back {
+  padding: 0 var(--space-2);
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  border: 0;
+  color: var(--green);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.proposal-authority__back svg {
+  width: 16px;
+  height: 16px;
+}
+
+.proposal-authority__actor {
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-control);
+}
+
+.proposal-authority__actor > .avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.proposal-authority-scrim {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(6, 33, 28, .16);
+  backdrop-filter: blur(1.5px);
+  cursor: default;
+  animation: premium-scrim-in 220ms ease both;
+}
+
+@media (min-width: 1280px) {
+  .proposal-surface__body.has-authority {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+
+  .proposal-surface__body.has-authority .proposal-view {
+    border-right: 1px solid var(--line);
+  }
+
+  .proposal-authority-scrim {
+    display: none;
+  }
+
+  .proposal-authority {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .proposal-surface__body.has-authority {
+    display: block;
+  }
+
+  .proposal-authority-scrim {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .proposal-authority {
+    position: absolute;
+    z-index: 5;
+    inset: 0 0 0 auto;
+    width: min(408px, calc(100% - 72px));
+    overflow-y: auto;
+    box-shadow: var(--panel-shadow);
+  }
+}
+
+@media (max-width: 1023px) {
+  .proposal-surface__body.has-authority {
+    display: block;
+    min-height: 0;
+  }
+
+  .proposal-surface__body.has-authority .proposal-view,
+  .proposal-authority-scrim {
+    display: none;
+  }
+
+  .proposal-authority {
+    width: 100%;
+    min-height: min(586px, calc(100dvh - 140px));
+    position: relative;
+    border: 0;
+  }
+
+  .proposal-authority__back {
+    display: inline-flex;
+  }
+}
+
+/* Mobile reflow keeps the authority journey scannable without a tall rail. */
+@media (max-width: 840px) {
+  .workspace-body main {
+    padding-inline: var(--space-4);
+  }
+
+  .proposal-journey {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .proposal-journey li {
+    min-height: 76px;
+    grid-template-columns: var(--step-node) minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .proposal-journey li:nth-child(2) {
+    border-right: 0;
+  }
+
+  .proposal-journey li:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .proposal-anchor__prices {
+    grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .row-price-movement {
+    grid-template-columns: minmax(68px, 1fr) 52px minmax(68px, 1fr);
+  }
+
+  .tool-button,
+  .table-tools .icon-control,
+  .view-tabs button {
+    min-width: var(--touch-size);
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-nav-trigger,
+  .resolved-identity,
+  .icon-control,
+  .mobile-navigation nav button,
+  .page-actions button,
+  .primary-action,
+  .secondary-action,
+  .tool-button,
+  .table-tools label,
+  .filter-strip button,
+  .filter-strip select,
+  .popover-close,
+  .ops-primary,
+  .ops-secondary,
+  .ops-back,
+  .ops-icon,
+  .ops-tabs button,
+  .view-tabs button,
+  .proposal-tabs button,
+  .proposal-authority-trigger,
+  .proposal-authority__back,
+  .lens-back,
+  .load-more-lines,
+  .line-load-error button {
+    min-height: var(--touch-size);
+  }
+
+  .mobile-nav-trigger,
+  .icon-control,
+  .ops-icon,
+  .lens-controls .icon-control {
+    width: var(--touch-size);
+    height: var(--touch-size);
+    min-width: var(--touch-size);
+  }
+
+  .table-tools .tool-button,
+  .table-tools .icon-control {
+    height: var(--touch-size);
+    min-height: var(--touch-size);
+  }
+
+  .tool-button,
+  .view-tabs button {
+    min-width: var(--touch-size);
+  }
+
+  .resolved-identity {
+    min-width: var(--touch-size);
+    grid-template-columns: 36px 12px;
+  }
+
+  .proposal-surface__toolbar {
+    min-height: 64px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px;
+  }
+
+  .proposal-tabs {
+    min-height: 64px;
+    gap: var(--space-4);
+  }
+
+  .proposal-authority-trigger {
+    width: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    align-self: stretch;
+    margin: 0;
+    padding: 0;
+    justify-self: stretch;
+  }
+
+  .proposal-authority-trigger span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .proposal-authority {
+    min-height: calc(100dvh - 126px);
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .proposal-authority__controls {
+    min-height: var(--touch-size);
+    margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-1)) var(--space-4);
+  }
+
+  .catalog-list > button,
+  .import-ledger > button,
+  .proposal-list > button,
+  .rules-list > button,
+  .audit-ledger > article {
+    padding: var(--space-4);
+  }
+
+  .persistent-recovery,
+  .mapping-boundary,
+  .risk-confirmation {
+    padding: var(--space-4);
+  }
+
+  .review-consequence,
+  .risk-confirmation {
+    margin-inline: var(--space-5);
+  }
+
+  .review-consequence {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .proposal-journey {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .proposal-journey li {
+    min-height: 78px;
+    padding: var(--space-3);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .proposal-journey li:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .proposal-journey li:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .proposal-journey em {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .proposal-anchor__prices {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .proposal-anchor__delta {
+    min-height: 56px;
+  }
+
+  .row-price-movement {
+    grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .review-consequence,
+  .risk-confirmation {
+    margin-inline: var(--space-4);
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 390px) {
+  .topbar {
+    padding-inline: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .mobile-brand img {
+    width: 92px;
+  }
+
+  .resolved-identity {
+    width: var(--touch-size);
+    min-width: var(--touch-size);
+    grid-template-columns: 36px 8px;
+    gap: 0;
+  }
+
+  .resolved-identity > svg {
+    width: 8px;
+  }
+
+  .workspace-body main {
+    padding-inline: var(--space-3);
+  }
+
+  .proposal-tabs {
+    padding-inline: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .proposal-anchor__prices {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .proposal-anchor__delta {
+    grid-template-columns: auto minmax(56px, 1fr) auto;
+    grid-template-rows: 1fr;
+    gap: var(--space-2);
+  }
+}
+
+/* Login, shell, Work Queue and Catalog share the same readable 4px rhythm. */
+.side-nav__brand,
+.topbar {
+  height: 72px;
+}
+
+.side-nav__workspace strong,
+.side-nav nav button span,
+.resolved-identity strong,
+.mobile-navigation__workspace strong,
+.mobile-navigation nav button span,
+.mobile-navigation > footer strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.side-nav__workspace small,
+.side-nav nav p,
+.side-nav nav button em,
+.side-nav__collapse span,
+.side-nav__boundary strong,
+.side-nav__boundary small,
+.topbar__route-context,
+.resolved-identity small,
+.workspace-popover header small,
+.identity-popover header small,
+.identity-popover header em,
+.workspace-popover dt,
+.identity-membership small,
+.identity-membership span,
+.identity-evidence-harness > small,
+.mobile-navigation__workspace small,
+.mobile-navigation nav p,
+.mobile-navigation nav button em,
+.mobile-navigation > footer small {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.workspace-popover header strong,
+.identity-popover header strong,
+.workspace-popover dd,
+.popover-boundary strong,
+.identity-capability strong,
+.identity-evidence-harness > p,
+.identity-evidence-harness button strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.popover-boundary small,
+.identity-capability small,
+.identity-evidence-harness button small,
+.popover-close {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.ops-page-head h1 {
+  margin-top: var(--space-2);
+}
+
+.ops-page-head > div > p:not(.ops-eyebrow) {
+  margin-top: var(--space-3);
+}
+
+.ops-page-meta {
+  margin-top: var(--space-4);
+}
+
+.login-panel h2 {
+  margin-top: var(--space-2);
+}
+
+.login-panel > p:not(.ops-eyebrow) {
+  margin-top: var(--space-3);
+}
+
+.login-context {
+  margin: 32px 0 var(--space-5);
+  padding-block: var(--space-4);
+}
+
+.login-boundary {
+  margin-top: var(--space-3);
+}
+
+.ops-primary,
+.ops-secondary {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ops-toolbar,
+.ops-tabs {
+  min-height: 64px;
+}
+
+/* Continued queue tabs fade softly at the scroll boundary, so a partial
+   neighbour reads as an intentional navigation affordance. */
+.ops-tabs.has-overflow-before:not(.has-overflow-after) {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 100%);
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 100%);
+}
+
+.ops-tabs.has-overflow-after:not(.has-overflow-before) {
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent);
+}
+
+.ops-tabs.has-overflow-before.has-overflow-after {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+}
+
+/* Repricing states keep their labels and accounting intact; a soft edge
+   communicates horizontal continuation instead of compressing the tabs. */
+.view-tabs.has-overflow-before:not(.has-overflow-after) {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 100%);
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 100%);
+}
+
+.view-tabs.has-overflow-after:not(.has-overflow-before) {
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent);
+}
+
+.view-tabs.has-overflow-before.has-overflow-after {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+}
+
+.ops-toolbar > div > strong,
+.ops-tabs button {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ops-search input {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.queue-row {
+  padding-block: var(--space-4);
+}
+
+.queue-row strong,
+.queue-row__main small {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.catalog-list > button {
+  padding-block: var(--space-4);
+}
+
+.catalog-identity strong,
+.catalog-identity small,
+.catalog-money strong,
+.catalog-list > button > span:not(.catalog-identity, .catalog-money, .ops-status) {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.catalog-money small,
+.catalog-identity em {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.catalog-list > button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--green) 66%, transparent);
+  outline-offset: -3px;
+  background: color-mix(in srgb, var(--green-soft) 56%, var(--paper));
+}
+
+.catalog-peek__context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.catalog-peek__context .ops-status {
+  min-height: 28px;
+}
+
+.ops-peek header p,
+.ops-detail-grid dd,
+.identifier-list strong,
+.peek-provenance strong,
+.record-note,
+.evidence-ledger strong {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.catalog-code,
+.ops-detail-grid > div,
+.record-note {
+  padding: var(--space-4);
+}
+
+.ops-detail-grid > div:nth-child(even) {
+  padding-left: var(--space-4);
+}
+
+/* Compact columns only when the record is genuinely docked beside the list. */
+@media (min-width: 1280px) {
+  .catalog-split-surface.has-peek.is-docked .catalog-header,
+  .catalog-split-surface.has-peek.is-docked .catalog-list > button {
+    grid-template-columns: minmax(200px, 1.35fr) minmax(148px, 1fr) 124px 20px;
+    gap: var(--space-4);
+  }
+
+  .catalog-split-surface.has-peek.is-docked .catalog-header > span:nth-child(4),
+  .catalog-split-surface.has-peek.is-docked .catalog-header > span:nth-child(5),
+  .catalog-split-surface.has-peek.is-docked .catalog-list > button > span:nth-child(4),
+  .catalog-split-surface.has-peek.is-docked .catalog-list > button > .ops-status {
+    display: none;
+  }
+}
+
+/* At 1024px the full record has room for a compact three-column value band. */
+@media (min-width: 601px) and (max-width: 1100px) {
+  .record-money {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .record-money > div {
+    min-height: 136px;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+  }
+
+  .record-money > div:last-child {
+    border-right: 0;
+  }
+}
+
+/* The effective timestamp is a single financial fact on desktop. Its protected
+   track is wider and optically quieter than the two money values; compact
+   surfaces may wrap at natural word boundaries instead of clipping. */
+@media (min-width: 901px) {
+  .record-money {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(224px, 1.2fr);
+  }
+
+  .record-money__effective {
+    min-width: 224px;
+  }
+
+  .record-money__effective strong,
+  .record-money__effective span {
+    white-space: nowrap;
+  }
+
+  .record-money__effective strong {
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.25;
+  }
+}
+
+@media (max-width: 900px) {
+  .record-money__effective {
+    min-width: 0;
+  }
+
+  .record-money__effective strong,
+  .record-money__effective span {
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+
+  .record-money__effective strong {
+    font-size: 22px;
+    line-height: 28px;
+  }
+}
+
+/* A split login is only retained while both panels have generous measure. */
+@media (max-width: 900px) {
+  .login-screen {
+    padding: 0;
+    grid-template-columns: minmax(0, 1fr);
+    background: var(--paper);
+  }
+
+  .login-story {
+    min-height: 42dvh;
+    padding: var(--space-8, 32px) var(--space-6) 36px;
+  }
+
+  .login-story > img {
+    width: 122px;
+  }
+
+  .login-story > div {
+    margin: auto 0 0;
+  }
+
+  .login-story h1 {
+    margin-top: var(--space-3);
+    font-size: clamp(36px, 8vw, 54px);
+  }
+
+  .login-story p:not(.ops-eyebrow) {
+    margin-top: var(--space-4);
+    font-size: 15px;
+    line-height: 24px;
+  }
+
+  .login-story footer {
+    display: none;
+  }
+
+  .login-panel {
+    min-height: 58dvh;
+    padding: var(--space-8, 32px) var(--space-6) 40px;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 1320px) and (min-width: 841px) {
+  /* The compact rail is mandatory here, so a collapse toggle would be inert. */
+  .side-nav__collapse {
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .ops-tabs {
+    min-height: var(--touch-size);
+  }
+
+  .queue-row {
+    padding: var(--space-4);
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .queue-row__actor,
+  .queue-row__source,
+  .catalog-list > button > span:not(.catalog-identity, .ops-status) {
+    padding-top: var(--space-3);
+  }
+
+  .catalog-list > button {
+    padding: var(--space-4);
+    gap: var(--space-3) var(--space-4);
+  }
+}
+
+@media (max-width: 840px) {
+  .topbar,
+  .mobile-navigation > header {
+    height: 64px;
+  }
+
+  .mobile-nav-trigger,
+  .resolved-identity,
+  .mobile-navigation > header .icon-control,
+  .mobile-navigation nav button {
+    min-width: var(--touch-size);
+    min-height: var(--touch-size);
+  }
+
+  .mobile-nav-trigger,
+  .mobile-navigation > header .icon-control {
+    width: var(--touch-size);
+    height: var(--touch-size);
+  }
+
+  .ops-search input {
+    font-size: 16px;
+    line-height: 22px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .import-stage-rail {
+    scroll-snap-type: none;
+    scroll-padding-inline: 0;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+
+  .import-stage-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .import-stage-rail button {
+    min-width: 124px;
+  }
+
+  .import-ledger > button {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-areas:
+      "file file"
+      "counts status"
+      "owner updated";
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .import-ledger .import-file {
+    grid-area: file;
+  }
+
+  .import-ledger > button > .ops-status {
+    grid-area: status;
+    align-self: start;
+    justify-self: end;
+  }
+
+  .import-ledger .import-counts {
+    grid-area: counts;
+  }
+
+  .import-ledger__owner {
+    grid-area: owner;
+  }
+
+  .import-ledger__updated {
+    grid-area: updated;
+    text-align: right;
+  }
+
+  .import-ledger__owner,
+  .import-ledger__updated {
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+  }
+
+  .import-ledger__owner small,
+  .import-ledger__updated small {
+    display: block;
+  }
+
+  .review-document > section {
+    padding: var(--space-1) 0 var(--space-6);
+  }
+
+  .review-document > section + section {
+    padding: var(--space-6) 0 var(--space-1);
+  }
+}
+
+@media (max-width: 840px) {
+  .mapping-table {
+    padding: var(--space-2) var(--space-4) var(--space-4);
+  }
+
+  .mapping-table > div:not(.mapping-head) {
+    padding: var(--space-4);
+  }
+
+  .mapping-table > div:not(.mapping-head) > span::before {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .import-stage-rail {
+    min-height: 64px;
+  }
+
+  .import-stage-rail button {
+    min-height: 62px;
+  }
+}
+
+@media (max-width: 767px) {
+  .import-journey .ops-page-head h1 {
+    font-size: clamp(32px, 9vw, 42px);
+    line-height: 1.03;
+  }
+
+  .import-journey .ops-page-meta {
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .import-stage-rail {
+    margin-bottom: var(--space-5);
+  }
+
+  .import-create-layout > .ops-surface,
+  .profile-layout {
+    padding: var(--space-5);
+  }
+
+  .profile-layout {
+    gap: var(--space-6);
+  }
+
+  .source-sample {
+    overflow: hidden;
+  }
+
+  .source-sample > * {
+    min-width: 0;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .import-journey .mapping-boundary {
+    margin: 0 var(--space-4) var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .review-document {
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .review-document dl > div {
+    min-height: 0;
+    padding-block: var(--space-3);
+  }
+
+  .import-journey .ops-sticky-actions {
+    min-height: 0;
+    padding: var(--space-4);
+  }
+
+  .persistent-recovery {
+    margin: var(--space-5);
+    padding: var(--space-4);
+  }
+
+  .import-journey .issue-toolbar button,
+  .import-journey .persistent-recovery button {
+    min-height: var(--touch-size);
+  }
+}
+
+@media (max-width: 520px) {
+  .mapping-table > div:not(.mapping-head) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .mapping-confidence,
+  .mapping-transform {
+    grid-column: 1;
+  }
+
+  .result-counts .is-pending strong {
+    max-width: 120px;
+    font-size: 18px;
+    line-height: 22px;
+  }
+
+  .review-document h3 {
+    font-size: 20px;
+    line-height: 24px;
+  }
+}
+
+@media (max-width: 390px) {
+  .import-ledger > button {
+    padding: var(--space-4);
+  }
+
+  .import-stage-rail button {
+    min-width: 116px;
+    padding-inline: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .source-sample {
+    grid-template-columns: minmax(64px, .8fr) minmax(0, 1.35fr) minmax(60px, .7fr);
+  }
+
+  .source-sample > * {
+    padding: var(--space-2);
+  }
+
+  .result-counts > div {
+    padding: var(--space-4);
+  }
+
+  .issue-list > button {
+    padding: var(--space-4);
+  }
+}
+
+@keyframes import-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes premium-panel-in {
+  from { opacity: 0; transform: translateX(12px); }
+}
+
+@keyframes premium-scrim-in {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface-body,
+  .ops-split-surface,
+  .proposal-surface__body,
+  .consequence-lens,
+  .ops-peek,
+  .proposal-authority,
+  .proposal-authority-scrim,
+  .import-journey > .ops-surface,
+  .import-journey > .import-create-layout {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .import-stage-rail {
+    scroll-behavior: auto;
+  }
+}

@@ -11,7 +11,8 @@ Owomide is a B2B pricing operations platform. The product surface is three theme
 The system is a Bazel monorepo of **Node.js (TypeScript) and Python** services — with **Go welcome later** for services that earn it — fronted by a React SPA, deployed on **Kubernetes** (minikube locally, self-managed k8s on Hetzner).
 
 ```
-Client ─────► Edge / Gateway ─────► Node Services ◄──► Python Intelligence
+Marketing SPA ──► public web service
+Workspace SPA ──► Edge / Gateway ──► Node Services ◄──► Python Intelligence
                                           │
                                           ▼
                                        Data: Postgres · Redis · MinIO
@@ -204,6 +205,7 @@ These are decisions made early and locked. Changing them requires explicit ADR (
 | ADR-011 | Kubernetes for orchestration (minikube local, k8s on Hetzner) | Industry-standard tooling, parity between local and prod via Kustomize overlays, ecosystem of controllers and operators we may want later (cert-manager, external-secrets, etc.) |
 | ADR-012 | `org_id` is present on customer-owned data from day one | Avoids retrofitting tenant isolation after customer data exists; enables RLS and per-org analytics later |
 | ADR-013 | Catalog cost and price records keep business time and system knowledge time | Supports backdated imports, reproducible margin math, and "what did we know then?" audits |
+| ADR-014 | Public marketing and authenticated workspace are separate apps in this monorepo | One reviewable source graph with independently deployable browser artifacts; the browser still reaches backend services only through the Gateway |
 
 ---
 

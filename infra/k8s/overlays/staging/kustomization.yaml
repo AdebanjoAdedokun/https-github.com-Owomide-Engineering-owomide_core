@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
 
-# Pin gateway to a staging image tag built by CI.
+# Select staging images built by CI.
 images:
   - name: owomide/gateway
     newTag: staging
@@ -14,9 +14,51 @@ images:
     newTag: staging
   - name: owomide/margin
     newTag: staging
+  # CI replaces these placeholder SHA tags with the immutable commit image
+  # before applying the staging overlay.
+  - name: owomide/marketing
+    newName: ghcr.io/owomide-engineering/owomide-marketing
+    newTag: sha-000000000000
+  - name: owomide/workspace
+    newName: ghcr.io/owomide-engineering/owomide-workspace
+    newTag: sha-000000000000
 
 # Staging-sized resource requests and larger storage.
 patches:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      labelSelector: app.kubernetes.io/part-of=owomide-frontend
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: IfNotPresent
+      - op: add
+        path: /spec/template/spec/imagePullSecrets
+        value:
+          - name: ghcr-pull
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: Ingress
+      name: owomide-web
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging.owomide.com
+      - op: replace
+        path: /spec/rules/1/host
+        value: app-staging.owomide.com
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging.owomide.com
+      - op: replace
+        path: /spec/tls/0/hosts/1
+        value: app-staging.owomide.com
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: owomide-staging-tls
   - patch: |-
       apiVersion: v1
       kind: ConfigMap

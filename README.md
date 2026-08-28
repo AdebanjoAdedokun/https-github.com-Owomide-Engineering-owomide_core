@@ -12,7 +12,7 @@ The canonical object is the **Pricing Proposal**. Three product themes orbit it:
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React + Vite (TypeScript) |
+| Frontend | React + Vite |
 | Backend | Node.js (TypeScript) primary; Python for data-heavy services; Go for hot paths (Margin) |
 | Build | Bazel 7 (bzlmod) |
 | Database | PostgreSQL via Supabase — schema-per-service |
@@ -26,6 +26,10 @@ The canonical object is the **Pricing Proposal**. Three product themes orbit it:
 
 ```
 owomide_core/
+├── apps/                       # Browser applications
+│   ├── marketing/              # Public owomide.com site
+│   └── workspace/              # Authenticated pricing workspace
+├── packages/                   # Shared browser packages when reuse is real
 ├── src/                        # All runtime code
 │   ├── catalog/                # Canonical pricing data (Node.js)
 │   ├── proposal/               # Pricing Proposal + bulk repricing (Node.js)
@@ -66,7 +70,7 @@ We use [OrbStack](https://orbstack.dev/) as our container runtime and local Kube
 | Node.js | 24 | Backend services + gateway |
 | Python | 3.12 | Data Pipeline service |
 | Go | 1.23.1 | Bus library and hot-path services |
-| pnpm | 9 | Node package manager |
+| pnpm | 8.15.9 | Node package manager (pinned by mise) |
 | OrbStack | latest | Container runtime + built-in Kubernetes |
 | kubectl | latest | Kubernetes CLI |
 | Skaffold | latest | Dev loop — build, deploy, hot-reload |
@@ -103,6 +107,8 @@ This builds the gateway image locally, deploys all backing services (Postgres, R
 
 | Service | Local port |
 |---------|-----------|
+| Marketing site | `localhost:4173` |
+| Workspace | `localhost:4174` |
 | Gateway (REST API) | `localhost:5000` |
 | Catalog (Connect/gRPC) | `localhost:50052` |
 | Catalog health/readiness | `localhost:58052` |
@@ -113,7 +119,18 @@ This builds the gateway image locally, deploys all backing services (Postgres, R
 | Kafka | `localhost:9092` |
 | Bus smoke subscriber | `localhost:5100` |
 
-> Port 3000 is **not** forwarded — it is reserved for the frontend SPA.
+The two browser applications are separate deployable artifacts from this same
+repository. The workspace reaches backend capabilities through the Gateway;
+internal services are never exposed to the browser.
+
+For the fastest frontend-only loop, install once at the repository root and
+run either application directly:
+
+```bash
+pnpm install --frozen-lockfile
+make marketing-dev   # http://localhost:4173
+make workspace-dev   # http://localhost:4174
+```
 
 Verify the F0.9 bus smoke path after `make dev` is running:
 
@@ -224,7 +241,14 @@ make migrate-down svc=catalog steps=3      # roll back the last 3
 
 ### CI/CD (staging / prod)
 
-Migrations run automatically in GitHub Actions on every push to `main` (wired in F0.7). The pipeline reads the same env vars from GitHub Actions secrets — one set per environment (staging, production). GitHub-hosted runners are IPv4-only, so use the Supabase **Session pooler** connection string on port `5432` unless the project has the IPv4 add-on. Copy the full connection string from the Supabase dashboard; the pooler username includes the project reference.
+Pull requests validate backend tests, both frontend applications, production
+frontend builds, container builds and all Kustomize overlays. After CI succeeds
+on `main`, the staging workflow publishes immutable frontend images to GHCR and
+deploys them when the repository variable `ENABLE_STAGING_DEPLOY=true` and the
+staging Kubernetes secret are configured. Production promotes an already-built
+commit SHA through a manually approved GitHub Environment; it does not rebuild
+mutable release artifacts. See `docs/frontend-deployment.md` for the DNS, TLS,
+registry and secret checklist.
 
 ## Make commands
 
@@ -233,6 +257,10 @@ Migrations run automatically in GitHub Actions on every push to `main` (wired in
 | `make help` | Ready | Show all available targets |
 | `make build` | Ready | `bazel build //...` |
 | `make test` | Ready | `bazel test //...` |
+| `make frontends-build` | Ready | Build marketing and workspace |
+| `make frontends-test` | Ready | Run both frontend test suites |
+| `make marketing-dev` | Ready | Run the public site on port 4173 |
+| `make workspace-dev` | Ready | Run the workspace on port 4174 |
 | `make lint` | F0.7 | Run ESLint, ruff, golangci-lint |
 | `make fmt` | F0.7 | Auto-format (prettier, ruff, gofmt) |
 | `make dev` | F0.2 | Start OrbStack + Skaffold dev stack |
@@ -250,6 +278,8 @@ Stubbed targets print a message and exit cleanly. They'll be wired up as Phase 0
 
 | Service | Language | Role |
 |---------|----------|------|
+| Marketing | React | Public product narrative and conversion entry |
+| Workspace | React | Authenticated pricing, Proposal and governance journey |
 | Proposal | Node.js | Pricing Proposal lifecycle + bulk repricing — state machine, approvals, scope builder, preview, scheduled rollouts |
 | Margin | Go | Margin rules, batch validation, breach detection |
 | Governance | Node.js | Org-scoped append-only audit log, version snapshots, restore (event subscriber only) |
