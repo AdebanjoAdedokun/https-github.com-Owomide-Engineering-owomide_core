@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
 
-# Pin gateway to a prod image tag built by CI.
+# Select production images promoted by the release workflow.
 images:
   - name: owomide/gateway
     newTag: prod
@@ -14,14 +14,60 @@ images:
     newTag: prod
   - name: owomide/margin
     newTag: prod
+  # Release promotion replaces these placeholders with the exact image digests
+  # already verified in staging; production never rebuilds the frontend.
+  - name: owomide/marketing
+    newName: ghcr.io/owomide-engineering/owomide-marketing
+    newTag: sha-000000000000
+  - name: owomide/workspace
+    newName: ghcr.io/owomide-engineering/owomide-workspace
+    newTag: sha-000000000000
 
-# Run 2 gateway replicas in production for availability.
+# Run two public-edge replicas in production for rolling availability.
 replicas:
   - name: gateway
+    count: 2
+  - name: marketing
+    count: 2
+  - name: workspace
     count: 2
 
 # Production-grade resource requests and storage.
 patches:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      labelSelector: app.kubernetes.io/part-of=owomide-frontend
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: IfNotPresent
+      - op: add
+        path: /spec/template/spec/imagePullSecrets
+        value:
+          - name: ghcr-pull
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: Ingress
+      name: owomide-web
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: owomide.com
+      - op: replace
+        path: /spec/rules/1/host
+        value: app.owomide.com
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: owomide.com
+      - op: replace
+        path: /spec/tls/0/hosts/1
+        value: app.owomide.com
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: owomide-production-tls
   - patch: |-
       apiVersion: v1
       kind: ConfigMap

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketing
+  labels:
+    app.kubernetes.io/name: marketing
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: owomide-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: marketing
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

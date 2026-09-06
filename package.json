@@ -1,0 +1,16 @@
+{
+  "name": "@owomide/core",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@8.15.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build:frontends": "pnpm --filter @owomide/marketing build && pnpm --filter @owomide/workspace build",
+    "dev:marketing": "pnpm --filter @owomide/marketing dev",
+    "dev:workspace": "pnpm --filter @owomide/workspace dev",
+    "test:frontends": "pnpm --filter @owomide/marketing test && pnpm --filter @owomide/workspace test:all",
+    "check:frontends": "pnpm test:frontends && pnpm build:frontends"
+  }
+}

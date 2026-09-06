@@ -1,0 +1,11 @@
+{
+  "sourceFixtureId": "owomide-synthetic-design-v0",
+  "sourceFixtureVersion": "0.0.0-design.1",
+  "scenarioId": "FX-010",
+  "projection": "auditEvents",
+  "algorithm": "sha256-stable-json-v1",
+  "sha256": "f0c25e41b674fe3f4f6cad702acb4a30ecd70e7023da5945c4021e1252b24701",
+  "eventCount": 25,
+  "firstEventId": "fcd3ec3f-cba7-5060-bea1-07ec84549448",
+  "lastEventId": "5f7c9ba9-1e24-5e67-a0b7-4369cfdb0a25"
+}

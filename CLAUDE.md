@@ -8,7 +8,9 @@ The canonical object is the **Pricing Proposal**. Three product themes — **Mar
 
 ## Repository layout
 
-The principle: **everything that runs or is consumed by code lives under `src/`**. Outside `src/` is configuration and operational tooling.
+The principle: deployable browser applications live under `apps/`, backend
+services live under `src/`, and genuinely shared browser code lives under
+`packages/`. Outside those surfaces is configuration and operational tooling.
 
 A simple rule for placement: *does this thing have an entrypoint that listens or renders?* If yes, it's a service (`src/<name>/`). If it's consumed by other code (`import`-ed, linked, codegen'd into), it's a library (`src/lib/<name>/`).
 
@@ -27,7 +29,11 @@ owomide/
 │   ├── agents/                ← subagent definitions (architect, schema, etc.)
 │   └── commands/              ← repeatable slash commands
 │
-├── src/                       ← EVERYTHING RUNTIME — services + shared libraries
+├── apps/                      ← BROWSER APPLICATIONS
+│   ├── marketing/             ← public Owómídé site
+│   └── workspace/             ← authenticated pricing workspace
+├── packages/                  ← shared browser libraries with real consumers
+├── src/                       ← BACKEND RUNTIME — services + shared libraries
 │   ├── proposal/              ← Proposal + bulk repricing service (Node.js)
 │   ├── margin/                ← Margin service (Go)
 │   ├── governance/            ← Governance service (Node.js)
@@ -63,6 +69,11 @@ owomide/
 ```
 
 Each `src/<service>/` carries its own `CLAUDE.md` — loaded on-demand by Claude Code when working inside that folder. Migrations live in `src/<service>/migrations/`. Each service has its own `BUILD.bazel`.
+
+Each `apps/<app>/` is independently buildable and deployable. Keeping both
+frontends here does not combine them with backend processes: the public site,
+workspace and Gateway remain separate containers built from one source graph.
+Browser code calls only the Gateway through same-origin `/api` routes.
 
 The Excalidraw canvas (architecture + flows + import boundary) is the visual companion to `ARCHITECTURE.md`. Both must stay in sync; if you change a contract here, update both.
 
@@ -123,7 +134,9 @@ bazel test //...
 bazel run //src/proposal:server
 
 # Local k8s dev stack (OrbStack k8s + Skaffold; hot reload on change)
-# Gateway listens on port 5000. Port 3000 is reserved for the frontend SPA.
+# Gateway listens on port 5000. Marketing and workspace use 4173 and 4174.
+make marketing-dev
+make workspace-dev
 make dev                                  # equivalent to: kubectl config use-context orbstack && skaffold dev
 make dev-infra                            # only Postgres / Redis / MinIO / Kafka — useful when running a service bare-metal for debugging
 make dev-down                             # tear down deployed resources (OrbStack cluster stays up)

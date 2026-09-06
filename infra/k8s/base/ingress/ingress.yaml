@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: owomide-web
+  labels:
+    app.kubernetes.io/name: owomide-web
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: owomide
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - marketing.owomide.invalid
+        - workspace.owomide.invalid
+      secretName: replace-me-tls
+  rules:
+    - host: marketing.owomide.invalid
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: marketing
+                port:
+                  number: 80
+    - host: workspace.owomide.invalid
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway
+                port:
+                  number: 5000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: workspace
+                port:
+                  number: 80

@@ -1,0 +1,59 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Frontend promotion never reapplies backend deployments, development Secrets,
+# databases or storage. Those remain a separate platform release boundary.
+resources:
+  - ../../../base/marketing
+  - ../../../base/workspace
+  - ../../../base/ingress
+
+images:
+  - name: owomide/marketing
+    newName: ghcr.io/owomide-engineering/owomide-marketing
+    newTag: sha-000000000000
+  - name: owomide/workspace
+    newName: ghcr.io/owomide-engineering/owomide-workspace
+    newTag: sha-000000000000
+
+replicas:
+  - name: marketing
+    count: 2
+  - name: workspace
+    count: 2
+
+patches:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      labelSelector: app.kubernetes.io/part-of=owomide-frontend
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: IfNotPresent
+      - op: add
+        path: /spec/template/spec/imagePullSecrets
+        value:
+          - name: ghcr-pull
+  - target:
+      group: networking.k8s.io
+      version: v1
+      kind: Ingress
+      name: owomide-web
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: owomide.com
+      - op: replace
+        path: /spec/rules/1/host
+        value: app.owomide.com
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: owomide.com
+      - op: replace
+        path: /spec/tls/0/hosts/1
+        value: app.owomide.com
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: owomide-production-tls
