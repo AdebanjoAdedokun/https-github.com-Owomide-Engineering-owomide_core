@@ -109,6 +109,7 @@ The skeleton everything sits on. Build this first, ship nothing user-visible, ge
 | F0.7 | CI pipeline | GitHub Actions: `bazel test //...`, lint (TS / Python), container image build per service, **k8s manifest validation** (`kubeval` / `kustomize build`), **DB migration step** (`make migrate` via `.github/workflows/migrate.yml` on push to `main`; reads `DATABASE_URL` + `*_SVC_PASSWORD` from GitHub Actions secrets per environment; idempotent so safe to run on every merge), no deploy yet |
 | F0.8 | Auth scaffolding | JWT issue + verify, single hardcoded user for dev |
 | F0.9 | **Bus smoke test across services** | A test service publishes `test.ping`; another consumes it; integration test asserts end-to-end delivery via `src/lib/bus`. Proves the abstraction works before Phase 1 leans on it. |
+| F0.10 | RBAC enforcement scaffold | Role table + `@requires_role()` handler decorator wired to `docs/rbac/RBAC.md` + `role_permissions.csv`. Prerequisite for every phase's "role check" note (F3.5, F4.6, F4.7, F6.4, etc.) to mean something concrete rather than a placeholder. |
 
 **Phase 0 exit criteria:** `make dev` brings up the full stack on OrbStack (including Kafka). `bazel test //...` passes (on empty services). CI green on `main`. **A test event published via `src/lib/bus` is received by a subscriber in another service** — proves the abstraction works end-to-end before any real feature depends on it.
 
@@ -156,6 +157,8 @@ The hub everything else attaches to. State machine first; pretty UI later. Repri
 | F3.6 | Publish endpoint | Requires `approved`; calls Catalog `ApplyPriceChanges`; emits `proposal.published`; moves to `published` |
 | F3.7 | Comments + activity feed | `POST /proposals/:id/comments`, append-only |
 | F3.8 | Web UI: list + detail | Minimal — list with status filter, detail with state actions |
+| F3.9 | Price-change request intake | For Pricing Contributor role. New object distinct from `proposal`/`proposal_comment` — items, direction, reason, supporting signal. Contributor writes without proposal-read access (the reverse of every other role's access pattern). **In this period's build queue** — not yet contracted; see `docs/rbac/RBAC.md` §3. |
+| F3.10 | Draft-only Pricing Analyst tier | Per-org toggle gating submit; role can create/edit drafts but F3.4's submit is Deny unless the org opts in (open decision D3 in the source spec). Net-new permission granularity on top of the existing submit endpoint. **In this period's build queue.** |
 
 **Phase 3 exit criteria:** A user can create a proposal, submit it, have it approved by a different user, publish it, and see comments. Events fire, including `proposal.published`. Governance receives them (logged only — Phase 6 builds the audit UI).
 
@@ -173,6 +176,7 @@ Now Proposal grows teeth. Below-cost prevents bad submissions; override is the e
 | F4.6 | Override request endpoint | `POST /override-requests`; cannot be approved by same actor (server-side check) |
 | F4.7 | Override approval flow | Approver path; emit `override.requested` + `override.approved`; proposal re-evaluates with override token |
 | F4.8 | Margin runtime hardening | Authenticated service boundaries, deployable runtime, health probes, CI coverage, and service-stack acceptance |
+| F4.9 (later) | Automated commercial guardrail engine | MAP/parity/channel/regional policy engine, parallel to F4.1/F4.2's margin floor engine. **Not needed for Commercial Approver to work** — that role ships now by reusing F3.5's existing approve endpoint with manual human review; this row is only the future automation that auto-flags violations the way Margin already does. Reserved ID, not scheduled. |
 
 **Phase 4 exit criteria:** Submitting a below-cost proposal blocks it. Requesting an override and having a different user approve it lets the proposal proceed. All steps appear in Governance's audit table.
 
