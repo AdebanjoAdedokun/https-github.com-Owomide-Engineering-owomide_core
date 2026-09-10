@@ -1,0 +1,9 @@
+# gazelle:proto disable
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "rbac_proto",
+    srcs = ["rbac.proto"],
+    strip_import_prefix = "/src/lib/proto",
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package owomide.services.rbac.v1;
+
+option go_package = "github.com/owomide/proto/services/rbac/v1";
+
+// RbacService is the sole owner of role/permission data. Every other service
+// checks a permission by calling CheckPermission — nothing reads rbac's
+// tables directly (schema-per-service, no shared database access).
+service RbacService {
+  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+}
+
+message CheckPermissionRequest {
+  // Roles the caller holds, as forwarded by the gateway (x-user-roles).
+  repeated string roles = 1;
+  // A permission code from the catalog, e.g. "proposal.submit".
+  string permission = 2;
+}
+
+message CheckPermissionResponse {
+  bool allowed = 1;
+}

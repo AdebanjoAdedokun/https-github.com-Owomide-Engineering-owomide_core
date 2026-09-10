@@ -44,3 +44,8 @@ services:
     role: data_pipeline_svc
     schema: data_pipeline
     migrations_dir: src/data-pipeline/migrations
+
+  - name: rbac
+    role: rbac_svc
+    schema: rbac
+    migrations_dir: src/rbac/migrations

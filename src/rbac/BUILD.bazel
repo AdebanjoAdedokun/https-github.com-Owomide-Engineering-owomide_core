@@ -1,0 +1,153 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages(name = "node_modules")
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = ["//:tsconfig_base_json"],
+)
+
+ts_config(
+    name = "tsconfig_test",
+    src = "tsconfig.test.json",
+    deps = [
+        ":tsconfig",
+        "//:tsconfig_base_json",
+    ],
+)
+
+ts_config(
+    name = "tsconfig_integration",
+    src = "tsconfig.integration.json",
+    deps = [
+        ":tsconfig",
+        "//:tsconfig_base_json",
+    ],
+)
+
+ts_project(
+    name = "rbac_ts",
+    srcs = glob(
+        ["src/**/*.ts"],
+        exclude = ["src/tests/**"],
+    ),
+    data = ["package.json"],
+    declaration = True,
+    declaration_map = True,
+    out_dir = "dist",
+    resolve_json_module = True,
+    root_dir = "src",
+    source_map = True,
+    tsconfig = ":tsconfig",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
+        ":node_modules/@connectrpc/connect-node",
+        ":node_modules/@types/node",
+        ":node_modules/@types/pg",
+        ":node_modules/jose",
+        ":node_modules/pg",
+        ":node_modules/pino",
+        ":node_modules/zod",
+        "//src/lib/proto:pkg",
+        ":node_modules/@owomide/proto",
+    ],
+)
+
+js_binary(
+    name = "server",
+    data = [":rbac_ts"],
+    entry_point = "dist/server.js",
+    visibility = ["//visibility:public"],
+)
+
+ts_project(
+    name = "unit_tests_ts",
+    srcs = glob(["src/**/*.ts"], exclude = ["src/tests/integration/**"]),
+    declaration = True,
+    declaration_map = True,
+    out_dir = "dist_unit",
+    resolve_json_module = True,
+    root_dir = "src",
+    source_map = True,
+    tsconfig = ":tsconfig_test",
+    deps = [
+        ":rbac_ts",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
+        ":node_modules/@types/node",
+        ":node_modules/vitest",
+        ":node_modules/jose",
+        "//src/lib/proto:pkg",
+        ":node_modules/@owomide/proto",
+    ],
+)
+
+js_test(
+    name = "unit_tests",
+    data = [
+        ":unit_tests_ts",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
+        ":node_modules/vitest",
+    ],
+    env = {"NODE_OPTIONS": "--experimental-global-webcrypto"},
+    entry_point = "src/tests/unit/run.js",
+    visibility = ["//visibility:public"],
+)
+
+ts_project(
+    name = "integration_tests_ts",
+    srcs = glob(["src/**/*.ts"], exclude = ["src/tests/unit/**"]),
+    declaration = True,
+    declaration_map = True,
+    out_dir = "dist_integration",
+    resolve_json_module = True,
+    root_dir = "src",
+    source_map = True,
+    tsconfig = ":tsconfig_integration",
+    deps = [
+        ":rbac_ts",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
+        ":node_modules/@testcontainers/postgresql",
+        ":node_modules/@types/node",
+        ":node_modules/jose",
+        ":node_modules/pg",
+        ":node_modules/vitest",
+        "//src/lib/proto:pkg",
+        ":node_modules/@owomide/proto",
+    ],
+)
+
+js_test(
+    name = "integration_tests",
+    args = [],
+    chdir = package_name(),
+    data = [
+        ":integration_tests_ts",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@connectrpc/connect",
+        ":node_modules/@testcontainers/postgresql",
+        ":node_modules/jose",
+        ":node_modules/pg",
+        ":node_modules/vitest",
+        "migrations/0001_create_schema.up.sql",
+        "migrations/0001_create_schema.down.sql",
+        "migrations/0002_rbac_foundation.up.sql",
+        "migrations/0002_rbac_foundation.down.sql",
+        "migrations/0003_seed_system_roles.up.sql",
+        "migrations/0003_seed_system_roles.down.sql",
+    ],
+    env = {"NODE_OPTIONS": "--experimental-global-webcrypto"},
+    entry_point = "src/tests/integration/run.js",
+    tags = [
+        "manual",
+        "requires-docker",
+    ],
+    visibility = ["//visibility:public"],
+)
