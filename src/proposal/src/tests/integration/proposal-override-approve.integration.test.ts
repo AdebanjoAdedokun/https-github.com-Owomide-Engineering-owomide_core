@@ -19,6 +19,7 @@ import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
 import { ServiceAuthenticator } from "../../context.js";
+import { StubRbacClient } from "./stub-rbac.js";
 import type { CatalogClient } from "../../clients/catalog.js";
 import { type MarginClient } from "../../clients/margin.js";
 
@@ -87,7 +88,7 @@ function makeApproverContext(orgId: string, userId: string): HandlerContext {
   const headers = new Headers();
   headers.set("x-org-id", orgId);
   headers.set("x-user-id", userId);
-  headers.set("x-user-roles", "approver");
+  headers.set("x-user-roles", "finance_approver");
   return {
     requestHeader: headers,
     responseHeader: new Headers(),
@@ -146,7 +147,9 @@ describe("ApproveOverride", () => {
       authenticator,
       repo,
       new NoOpCatalogClient(),
-      new StubMarginClient()
+      new StubMarginClient(),
+      { serviceJwtIssuer: "owomide-internal", catalogServiceSecret: "", marginServiceSecret: "" },
+      new StubRbacClient()
     );
   }, 120_000);
 

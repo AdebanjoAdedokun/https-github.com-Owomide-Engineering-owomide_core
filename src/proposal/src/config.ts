@@ -15,6 +15,8 @@ const ConfigSchema = z.object({
   catalogServiceSecret: z.string().default(""),
   marginUrl: z.string().url().default("http://localhost:50051"),
   marginServiceSecret: z.string().default(""),
+  rbacUrl: z.string().url().default("http://localhost:50056"),
+  rbacServiceSecret: z.string().default(""),
 });
 
 export interface ProposalConfig extends z.infer<typeof ConfigSchema> {
@@ -58,6 +60,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ProposalConfig
     catalogServiceSecret: env["CATALOG_SERVICE_SECRET"],
     marginUrl: env["MARGIN_URL"],
     marginServiceSecret: env["MARGIN_SERVICE_SECRET"],
+    rbacUrl: env["RBAC_URL"],
+    rbacServiceSecret: env["RBAC_SERVICE_SECRET"],
   });
   return {
     ...base,
