@@ -14,6 +14,8 @@ const ConfigSchema = z.object({
   catalogGatewayServiceSecret: z.string().min(32),
   dataPipelineGatewayServiceSecret: z.string().min(32),
   marginGatewayServiceSecret: z.string().min(32),
+  proposalGatewayServiceSecret: z.string().min(32),
+  governanceGatewayServiceSecret: z.string().min(32),
   dataPipelineUploadMaxBytes: z.coerce
     .number()
     .int()
@@ -56,6 +58,12 @@ export function loadConfig(): Config {
   const marginGatewayServiceSecret =
     process.env["MARGIN_GATEWAY_SERVICE_SECRET"] ??
     (nodeEnv === "production" ? undefined : "dev-only-margin-gateway-secret-change-me");
+  const proposalGatewayServiceSecret =
+    process.env["PROPOSAL_GATEWAY_SERVICE_SECRET"] ??
+    (nodeEnv === "production" ? undefined : "dev-only-proposal-gateway-secret-change-me");
+  const governanceGatewayServiceSecret =
+    process.env["GOVERNANCE_GATEWAY_SERVICE_SECRET"] ??
+    (nodeEnv === "production" ? undefined : "dev-only-governance-gateway-secret-change-me");
   return ConfigSchema.parse({
     nodeEnv,
     port: process.env["PORT"],
@@ -70,6 +78,8 @@ export function loadConfig(): Config {
     catalogGatewayServiceSecret,
     dataPipelineGatewayServiceSecret,
     marginGatewayServiceSecret,
+    proposalGatewayServiceSecret,
+    governanceGatewayServiceSecret,
     dataPipelineUploadMaxBytes: process.env["DATA_PIPELINE_UPLOAD_MAX_BYTES"],
 
     jwtSecret: process.env["JWT_SECRET"],

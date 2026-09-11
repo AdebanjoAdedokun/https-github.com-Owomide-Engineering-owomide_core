@@ -33,3 +33,25 @@ export async function marginServiceToken(config: Config): Promise<string> {
     .setExpirationTime("2m")
     .sign(new TextEncoder().encode(config.marginGatewayServiceSecret));
 }
+
+export async function proposalServiceToken(config: Config): Promise<string> {
+  return new SignJWT({})
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(config.serviceJwtIssuer)
+    .setSubject("gateway_svc")
+    .setAudience("proposal")
+    .setIssuedAt()
+    .setExpirationTime("2m")
+    .sign(new TextEncoder().encode(config.proposalGatewayServiceSecret));
+}
+
+export async function governanceServiceToken(config: Config): Promise<string> {
+  return new SignJWT({})
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(config.serviceJwtIssuer)
+    .setSubject("gateway_svc")
+    .setAudience("governance")
+    .setIssuedAt()
+    .setExpirationTime("2m")
+    .sign(new TextEncoder().encode(config.governanceGatewayServiceSecret));
+}
