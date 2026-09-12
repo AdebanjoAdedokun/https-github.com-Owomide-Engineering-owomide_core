@@ -104,8 +104,23 @@ func run(logger *slog.Logger) error {
 		return fmt.Errorf("configure intelligence client: %w", err)
 	}
 
+	rbacConn, err := grpc.NewClient(cfg.RbacAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return fmt.Errorf("connect rbac: %w", err)
+	}
+	defer func() { _ = rbacConn.Close() }()
+	rbacClient, err := client.NewRbacClient(
+		rbacConn,
+		cfg.RbacSecret,
+		cfg.ServiceJWTIssuer,
+		time.Duration(cfg.RbacTimeoutSec)*time.Second,
+	)
+	if err != nil {
+		return fmt.Errorf("configure rbac client: %w", err)
+	}
+
 	r := repo.New()
-	svc := handler.NewRulesServer(database, r, logger, catalogClient, intelligenceClient)
+	svc := handler.NewRulesServer(database, r, logger, catalogClient, intelligenceClient, rbacClient)
 	if cfg.BreachMonitorEnabled {
 		bus, err := buspkg.New(buspkg.Config{
 			Provider: "kafka",

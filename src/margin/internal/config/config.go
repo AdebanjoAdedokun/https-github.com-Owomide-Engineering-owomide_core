@@ -17,6 +17,7 @@ const (
 	devProposalSecret     = "dev-only-margin-proposal-secret-change-me"
 	devCatalogSecret      = "dev-only-catalog-margin-secret-change-me"
 	devIntelligenceSecret = "dev-only-data-pipeline-margin-secret-change-me"
+	devRbacSecret         = "dev-only-rbac-margin-secret-change-me"
 )
 
 type Config struct {
@@ -32,6 +33,9 @@ type Config struct {
 	IntelligenceAddr         string
 	IntelligenceSecret       string
 	IntelligenceTimeoutSec   int
+	RbacAddr                 string
+	RbacSecret               string
+	RbacTimeoutSec           int
 	ServiceJWTIssuer         string
 	ServiceSecrets           map[string]string
 	KafkaBrokers             []string
@@ -46,6 +50,7 @@ func Load() (Config, error) {
 	serviceSecretsRaw := os.Getenv("MARGIN_SERVICE_SECRETS_JSON")
 	catalogSecret := os.Getenv("MARGIN_CATALOG_SERVICE_SECRET")
 	intelligenceSecret := os.Getenv("MARGIN_INTELLIGENCE_SERVICE_SECRET")
+	rbacSecret := os.Getenv("MARGIN_RBAC_SERVICE_SECRET")
 	if environment == "development" || environment == "test" {
 		if serviceSecretsRaw == "" {
 			serviceSecretsRaw = fmt.Sprintf(
@@ -60,6 +65,9 @@ func Load() (Config, error) {
 		if intelligenceSecret == "" {
 			intelligenceSecret = devIntelligenceSecret
 		}
+		if rbacSecret == "" {
+			rbacSecret = devRbacSecret
+		}
 	}
 
 	serviceSecrets, err := parseServiceSecrets(serviceSecretsRaw)
@@ -71,6 +79,10 @@ func Load() (Config, error) {
 		return Config{}, err
 	}
 	intelligenceTimeoutSec, err := integerEnv("INTELLIGENCE_TIMEOUT_SEC", 5, 1, 30)
+	if err != nil {
+		return Config{}, err
+	}
+	rbacTimeoutSec, err := integerEnv("RBAC_TIMEOUT_SEC", 5, 1, 30)
 	if err != nil {
 		return Config{}, err
 	}
@@ -103,6 +115,9 @@ func Load() (Config, error) {
 		IntelligenceAddr:         envOr("INTELLIGENCE_ADDR", "data-pipeline:50055"),
 		IntelligenceSecret:       intelligenceSecret,
 		IntelligenceTimeoutSec:   intelligenceTimeoutSec,
+		RbacAddr:                 envOr("RBAC_ADDR", "rbac:50056"),
+		RbacSecret:               rbacSecret,
+		RbacTimeoutSec:           rbacTimeoutSec,
 		ServiceJWTIssuer:         firstNonEmpty(os.Getenv("MARGIN_SERVICE_JWT_ISSUER"), envOr("SERVICE_JWT_ISSUER", "owomide-internal")),
 		ServiceSecrets:           serviceSecrets,
 		KafkaBrokers:             brokers,
@@ -134,6 +149,7 @@ func (c Config) Validate() error {
 		"HEALTH_PORT":       c.HealthPort,
 		"CATALOG_ADDR":      c.CatalogAddr,
 		"INTELLIGENCE_ADDR": c.IntelligenceAddr,
+		"RBAC_ADDR":         c.RbacAddr,
 	} {
 		if strings.TrimSpace(value) == "" {
 			return fmt.Errorf("%s is required", name)
@@ -151,6 +167,9 @@ func (c Config) Validate() error {
 	if _, _, err := net.SplitHostPort(c.IntelligenceAddr); err != nil {
 		return fmt.Errorf("INTELLIGENCE_ADDR must be host:port: %w", err)
 	}
+	if _, _, err := net.SplitHostPort(c.RbacAddr); err != nil {
+		return fmt.Errorf("RBAC_ADDR must be host:port: %w", err)
+	}
 	if strings.TrimSpace(c.ServiceJWTIssuer) == "" {
 		return errors.New("MARGIN_SERVICE_JWT_ISSUER is required")
 	}
@@ -159,6 +178,9 @@ func (c Config) Validate() error {
 	}
 	if len(c.IntelligenceSecret) < 32 {
 		return errors.New("MARGIN_INTELLIGENCE_SERVICE_SECRET must be at least 32 characters")
+	}
+	if len(c.RbacSecret) < 32 {
+		return errors.New("MARGIN_RBAC_SERVICE_SECRET must be at least 32 characters")
 	}
 	for _, caller := range []string{"gateway_svc", "proposal_svc"} {
 		if len(c.ServiceSecrets[caller]) < 32 {
@@ -171,6 +193,7 @@ func (c Config) Validate() error {
 			"proposal_svc": c.ServiceSecrets["proposal_svc"],
 			"catalog":      c.CatalogSecret,
 			"intelligence": c.IntelligenceSecret,
+			"rbac":         c.RbacSecret,
 		} {
 			if strings.HasPrefix(secret, "dev-only-") {
 				return fmt.Errorf("%s cannot use the development secret for %s", c.Environment, name)

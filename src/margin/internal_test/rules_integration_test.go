@@ -97,6 +97,7 @@ func TestMain(m *testing.M) {
 		slog.Default(),
 		&stubCostFetcher{},
 		&stubMarginEvaluator{},
+		nil,
 	)
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
