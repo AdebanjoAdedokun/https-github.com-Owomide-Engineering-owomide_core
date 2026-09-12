@@ -18,6 +18,16 @@ test("uses fixture mode and same-origin Gateway routing as safe runtime defaults
   assert.equal(config.fixtureLatencyMs, 120);
 });
 
+test("maps Cloudflare Workers workspace preview hosts back to marketing", () => {
+  const config = resolveWorkspaceRuntimeConfig({
+    env: {},
+    location: new URL("https://owomide-workspace.data-83e.workers.dev/#/work"),
+  });
+
+  assert.equal(config.marketingUrl, "https://owomide-marketing.data-83e.workers.dev/#top");
+  assert.equal(config.logoutUrl, "https://owomide-marketing.data-83e.workers.dev/#top");
+});
+
 test("derives staging navigation without rebuilding the promoted image", () => {
   const config = resolveWorkspaceRuntimeConfig({
     env: {},

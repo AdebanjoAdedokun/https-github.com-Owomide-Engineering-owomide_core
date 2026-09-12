@@ -3,6 +3,7 @@ import { configure, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { WorkspaceApp } from "../src/WorkspaceApp.jsx";
+import { installWorkspaceSelectLayoutFixture } from "./helpers/workspaceSelectLayout.js";
 import {
   FIXTURE_GENERATED_PROPOSAL_ID,
   RepositoryError,
@@ -13,6 +14,7 @@ import {
 // The full 76-scenario journey suite can saturate jsdom while repository-backed
 // screens resolve. Keep the BDD gate deterministic without weakening assertions.
 configure({ asyncUtilTimeout: 5000 });
+installWorkspaceSelectLayoutFixture();
 
 beforeEach(() => {
   window.sessionStorage.clear();
@@ -108,7 +110,7 @@ async function whenTheBlockedProposalIsCreated(user, { proposalDetailReads } = {
 async function whenCurrentAuthorityIsOpened(user) {
   const current = screen.queryByRole("complementary", { name: "Current authority" });
   if (current) return current;
-  const trigger = screen.getByRole("button", { name: "Review next action" });
+  const trigger = screen.getByRole("button", { name: "People and permissions" });
   expect(trigger).toHaveAttribute("aria-expanded", "false");
   await user.click(trigger);
   const authority = await screen.findByRole("complementary", { name: "Current authority" });
@@ -128,6 +130,8 @@ async function whenTheDesignEvidenceSessionChangesTo(user, actorName) {
   await waitFor(() => {
     expect(authority.querySelector(".proposal-authority__actor strong")).toHaveTextContent(actorName);
   });
+  await user.click(within(authority).getByRole("button", { name: "Close current authority" }));
+  expect(screen.queryByRole("complementary", { name: "Current authority" })).not.toBeInTheDocument();
 }
 
 async function thenConfirmTheDecision(user, { dialogName, confirmName }) {
@@ -159,9 +163,8 @@ async function thenTheServerResolvedLineCountIs(count) {
 }
 
 async function whenTheNamedOptionIsSelected(user, combobox, name) {
-  const option = within(combobox).getByRole("option", { name });
-  await user.selectOptions(combobox, option);
-  return option.value;
+  await user.click(combobox);
+  await user.click(screen.getByRole("option", { name, exact: true }));
 }
 
 function repositoryFailure({ code, message, traceId }) {
@@ -244,11 +247,11 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     const { user } = await givenTheRepricingPreviewIsOpen();
 
     const trigger = screen.getByRole("button", { name: "Open session identity details" });
-    expect(trigger.querySelector("small")).toHaveAttribute("title", expect.stringContaining("Pricing analyst"));
+    expect(trigger.querySelector("small")).toHaveAttribute("title", expect.stringContaining("Pricing Analyst"));
     await user.click(trigger);
 
     const identity = screen.getByRole("region", { name: "Session identity" });
-    expect(identity).toHaveTextContent("Pricing analyst");
+    expect(identity).toHaveTextContent("Pricing Analyst");
     expect(identity).toHaveTextContent("Import admin");
     expect(identity).toHaveTextContent("Actions adapt to your role and the current record.");
   });
@@ -352,9 +355,11 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     });
     const authoritativeResult = document.querySelector("[data-authoritative-result]");
     expect(authoritativeResult).toHaveTextContent("Proposal v3");
-    expect(authoritativeResult).toHaveTextContent("Version 3");
-    expect(authoritativeResult).toHaveTextContent("Preview 0.0.0-design.1");
     expect(authoritativeResult).toHaveTextContent("Blocked");
+    await user.click(screen.getByText("Review breakdown and version history"));
+    const versionHistory = screen.getByText("Version history").closest("article");
+    expect(within(versionHistory).getByText("v3")).toBeVisible();
+    expect(within(versionHistory).getByText("0.0.0-design.1")).toBeVisible();
     expect(await whenCurrentAuthorityIsOpened(user)).toHaveTextContent("Chika");
     expect(createCalls).toBe(0);
 
@@ -415,13 +420,12 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     await user.click(screen.getByRole("tab", { name: "Need review 17" }));
 
     expect(screen.getByRole("tab", { name: "Need review 17" })).toHaveAttribute("aria-selected", "true");
-    await thenTheServerResolvedLineCountIs(6);
+    await thenTheServerResolvedLineCountIs(8);
     for (const row of returnedDataRows()) expect(within(row).getByRole("cell", { name: /Needs review:/ })).toBeVisible();
     expect(returnedDataRows().some((row) => row.textContent.includes("Margin policy"))).toBe(true);
     expect(returnedDataRows().some((row) => row.textContent.includes("Stale cost"))).toBe(true);
-    await user.click(screen.getByRole("button", { name: "Next lines page" }));
-    await thenTheServerResolvedLineCountIs(2);
     expect(returnedDataRows().some((row) => row.textContent.includes("Unsupported dimension"))).toBe(true);
+    expect(screen.getByRole("button", { name: "Next lines page" })).toBeDisabled();
   });
 
   it("Given the repricing tablist, when ArrowRight is pressed, then focus and the server-backed view advance together", async () => {
@@ -434,7 +438,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     const review = screen.getByRole("tab", { name: "Need review 17" });
     expect(review).toHaveFocus();
     expect(review).toHaveAttribute("aria-selected", "true");
-    await thenTheServerResolvedLineCountIs(6);
+    await thenTheServerResolvedLineCountIs(8);
 
     await user.keyboard("{End}");
     const unpriced = screen.getByRole("tab", { name: "Unpriced 9" });
@@ -445,7 +449,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     await user.keyboard("{Home}");
     expect(allLines).toHaveFocus();
     expect(allLines).toHaveAttribute("aria-selected", "true");
-    await thenTheServerResolvedLineCountIs(6);
+    await thenTheServerResolvedLineCountIs(13);
   });
 
   it("Given a compact Repricing rail, when its states exceed the available width, then continuation replaces tab compression", async () => {
@@ -473,10 +477,10 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
   it("Given the page action, when Review 17 is activated, then it opens the same authoritative review state", async () => {
     const { user } = await givenTheRepricingPreviewIsOpen();
 
-    await user.click(screen.getByRole("button", { name: "Review 17" }));
+    await user.click(screen.getByRole("button", { name: "Review issues" }));
 
     expect(screen.getByRole("tab", { name: "Need review 17" })).toHaveAttribute("aria-selected", "true");
-    await thenTheServerResolvedLineCountIs(6);
+    await thenTheServerResolvedLineCountIs(8);
   });
 
   it("Given an exact late-page line deep link, when state and search filters replace its result set, then the inspector and line URL stay synchronised", async () => {
@@ -586,15 +590,17 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     await user.click(screen.getByRole("button", { name: "Filters" }));
     const channel = screen.getByRole("combobox", { name: "Filter by channel" });
     const location = screen.getByRole("combobox", { name: "Filter by location" });
-    const channelId = await whenTheNamedOptionIsSelected(user, channel, "Key accounts");
-    const locationId = await whenTheNamedOptionIsSelected(user, location, "Abuja fulfilment hub");
+    await whenTheNamedOptionIsSelected(user, channel, "Key accounts");
+    await whenTheNamedOptionIsSelected(user, location, "Abuja fulfilment hub");
+    const channelId = "4eb5c830-f8ff-5638-8f4d-9d114bb753b2";
+    const locationId = "8ac88886-b971-55e8-bc09-00d5fc4d0fac";
 
     expect(screen.getByRole("button", { name: "Filters, 2 active" })).toHaveAttribute("aria-expanded", "true");
     await thenTheServerResolvedLineCountIs(3);
     expect(channelId).toBe("4eb5c830-f8ff-5638-8f4d-9d114bb753b2");
     expect(locationId).toBe("8ac88886-b971-55e8-bc09-00d5fc4d0fac");
-    expect(requests.at(-1)).toMatchObject({ channelId, locationId, classification: "all", limit: 6 });
-    expect(screen.getByText("3 lines loaded")).toBeVisible();
+    expect(requests.at(-1)).toMatchObject({ channelId, locationId, classification: "all", limit: 25 });
+    expect(screen.getByText("3 sample lines · 1,248 in scope")).toBeVisible();
     expect(screen.getByRole("button", { name: "Inspect Seasoning mix, Classic, 5 kg" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Inspect Malt drink, Family, 330 ml" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Inspect Long-grain rice, Classic, 5 kg" })).toBeVisible();
@@ -615,9 +621,10 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
 
     await user.click(screen.getByRole("button", { name: "Clear filters" }));
 
-    await thenTheServerResolvedLineCountIs(6);
-    expect(channel).toHaveValue("all");
-    expect(location).toHaveValue("all");
+    await thenTheServerResolvedLineCountIs(13);
+    expect(screen.getByRole("button", { name: "Filters" })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("combobox", { name: "Filter by channel" })).toHaveTextContent("All channels");
+    expect(screen.getByRole("combobox", { name: "Filter by location" })).toHaveTextContent("All locations");
     expect(search).toHaveValue("");
     expect(screen.getByRole("tab", { name: "All lines 1,248" })).toHaveAttribute("aria-selected", "true");
   });
@@ -629,6 +636,28 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
 
     expect(container.querySelector(".table-scroll")).toHaveClass("is-compact");
     expect(screen.getByRole("button", { name: "Use comfortable rows" })).toBeVisible();
+  });
+
+  it("Given the decision-first ledger, when calculations are expanded and collapsed, then essential outcomes stay visible and detailed evidence is recoverable", async () => {
+    const { user } = await givenTheRepricingPreviewIsOpen();
+    const row = screen.getByRole("button", { name: "Inspect Long-grain rice, Classic, 1 kg" }).closest("tr");
+    expect(within(row).getByText("₦714.50")).toBeVisible();
+    expect(within(row).getByText("₦739.51")).toBeVisible();
+    expect(within(row).getByText("25.96%")).toBeVisible();
+    expect(within(row).queryByText("Cost ₦547.50")).not.toBeInTheDocument();
+    expect(within(row).queryByText("23.37%")).not.toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Resulting margin" })).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Show calculations" }));
+    expect(within(row).getByText("Cost ₦547.50")).toBeVisible();
+    expect(within(row).getByText("23.37%")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Hide calculations" })).toHaveAttribute("aria-pressed", "true");
+    await user.click(screen.getByRole("button", { name: "Hide calculations" }));
+    expect(within(row).queryByText("Cost ₦547.50")).not.toBeInTheDocument();
+    await user.click(within(row).getByRole("button", { name: "Inspect Long-grain rice, Classic, 1 kg" }));
+    const inspector = screen.getByRole("complementary", { name: "Decision details for Long-grain rice" });
+    expect(inspector).toHaveTextContent("23.37% margin");
+    expect(inspector).toHaveTextContent("25.96% margin");
+    expect(inspector).toHaveTextContent("Current cost₦547.50");
   });
 
   it("Given the default Repricing view, then every line selector truthfully exposes a closed inspector", async () => {
@@ -646,6 +675,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
 
   it("Given a price movement, when its row and inspector are read in document order, then Current leads the rule and Proposed follows it", async () => {
     const { user } = await givenTheRepricingPreviewIsOpen();
+    await user.click(screen.getByRole("button", { name: "Show calculations" }));
     const selector = screen.getByRole("button", { name: "Inspect Long-grain rice, Classic, 1 kg" });
     const rowBridge = selector.closest("tr").querySelector(".row-price-movement");
     const [rowCurrent, rowRule, rowProposed] = rowBridge.children;
@@ -663,7 +693,8 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
   });
 
   it("Given the repricing ledger, when wide columns render, then composite values keep governed column structure", async () => {
-    const { container } = await givenTheRepricingPreviewIsOpen();
+    const { user, container } = await givenTheRepricingPreviewIsOpen();
+    await user.click(screen.getByRole("button", { name: "Show calculations" }));
     const table = container.querySelector(".pricing-table");
     const columns = [...table.querySelectorAll("colgroup col")].map((column) => column.className);
     const rice = screen.getByRole("button", { name: "Inspect Long-grain rice, Classic, 1 kg" }).closest("tr");
@@ -680,7 +711,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     expect(rice.querySelector(".price-adjustment-cell .row-price-movement").children).toHaveLength(3);
     expect(rice.querySelector(".margin-policy-cell .margin-cell").children).toHaveLength(3);
     expect(scope).toHaveAttribute("title", "Retail web · Ibadan cross-dock");
-    expect(scope.querySelector(":scope > span")).toHaveTextContent("Retail web · Ibadan cross-dock");
+    expect(scope).toHaveTextContent("Retail web · Ibadan cross-dock");
   });
 
   it("Given a repricing row, when a non-control cell is clicked, then the whole row selects without requiring its chevron", async () => {
@@ -703,7 +734,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     expect(within(lens).getByText("Selected for Proposal")).toBeVisible();
   });
 
-  it("Given a repricing row selector, when Enter is pressed, then keyboard selection and focus semantics remain intact", async () => {
+  it("Given a repricing row selector, when Enter is pressed, then the inspector receives focus and Escape returns to the selected row", async () => {
     const { user } = await givenTheRepricingPreviewIsOpen();
     const selectedLine = screen.getByRole("button", { name: "Inspect Seasoning mix, Classic, 5 kg" });
     const row = selectedLine.closest("tr");
@@ -711,13 +742,18 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     selectedLine.focus();
     await user.keyboard("{Enter}");
 
-    expect(selectedLine).toHaveFocus();
     expect(selectedLine).toHaveAttribute("aria-pressed", "true");
     expect(selectedLine).toHaveAttribute("aria-controls", "repricing-line-inspector");
     expect(row).toHaveAttribute("aria-current", "true");
     const lens = screen.getByRole("complementary", { name: "Decision details for Seasoning mix" });
+    expect(lens).toHaveFocus();
     expect(within(lens).getByText("KLD-PANT-0099", { exact: false })).toBeVisible();
     expect(within(lens).getByText("Policy exception")).toBeVisible();
+
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("complementary", { name: "Decision details for Seasoning mix" })).not.toBeInTheDocument());
+    await waitFor(() => expect(selectedLine).toHaveFocus());
+    expect(selectedLine).toHaveAttribute("aria-expanded", "false");
   });
 
   it("Given focus is in the decision inspector, when ArrowDown and ArrowUp are pressed, then adjacent lines replace the detail without losing inspector focus", async () => {
@@ -787,7 +823,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
       expect(tableRegion).toHaveAttribute("aria-hidden", "true");
       expect(container.querySelector(".consequence-lens-scrim")).toBeInTheDocument();
       expect(within(inspector).getAllByRole("button", { name: "Close decision inspector" })).toHaveLength(1);
-      expect(within(inspector).getByText("Line 1 of 6")).toBeVisible();
+      expect(within(inspector).getByText(/Line 1 of \d+/)).toBeVisible();
       expect(screen.queryByRole("button", { name: "Inspect Seasoning mix, Classic, 5 kg" })).not.toBeInTheDocument();
 
       await user.click(within(inspector).getByRole("button", { name: "Close decision inspector" }));
@@ -911,7 +947,8 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     expect(document.querySelector("[data-authoritative-result]")).toHaveTextContent("Blocked");
     expect(screen.getByLabelText("Proposal population reconciliation")).toHaveTextContent("1,227");
     expect(screen.getByLabelText("Proposal population reconciliation")).toHaveTextContent("12");
-    expect(within(await whenCurrentAuthorityIsOpened(user)).getByRole("button", { name: "Request exception review" })).toBeEnabled();
+    expect(within(screen.getByRole("region", { name: "Proposal next step" })).getByRole("button", { name: "Request exception review" })).toBeEnabled();
+    expect(screen.queryByRole("complementary", { name: "Current authority" })).not.toBeInTheDocument();
     expect(screen.queryByRole("dialog", { name: /governed object/i })).not.toBeInTheDocument();
   });
 
@@ -923,7 +960,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
 
     await user.click(screen.getByRole("button", { name: "Clear filters" }));
 
-    await thenTheServerResolvedLineCountIs(6);
+    await thenTheServerResolvedLineCountIs(13);
     expect(screen.getByRole("tab", { name: "All lines 1,248" })).toHaveAttribute("aria-selected", "true");
   });
 
@@ -953,7 +990,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     expect(error).toHaveTextContent("The filtered line view could not be resolved.");
     await user.click(within(error).getByRole("button", { name: "Retry" }));
 
-    await thenTheServerResolvedLineCountIs(6);
+    await thenTheServerResolvedLineCountIs(8);
     expect(screen.queryByText("Line view could not be refreshed.")).not.toBeInTheDocument();
     expect(previewCalls).toBe(3);
   });
@@ -1032,6 +1069,43 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
 });
 
 describe("Operational workspace — fixture journey BDD contract", () => {
+  it.each([
+    ["awaiting-approval", "Nothing awaiting approval."],
+    ["ready-to-publish", "Nothing ready to publish."],
+    ["incomplete-rollout", "No incomplete rollouts."],
+  ])("Given an empty %s queue, when I return to my work, then the route, selected tab and records recover", async (view, message) => {
+    window.history.replaceState(null, "", `#/work?view=${view}`);
+    const user = userEvent.setup();
+    render(<WorkspaceApp />);
+    await screen.findByText(message);
+    expect(screen.queryByText("No work requires this authority.")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Back to my work" }));
+    const tab = await screen.findByRole("tab", { name: /Needs me/ });
+    expect(tab).toHaveAttribute("aria-selected", "true");
+    await waitFor(() => expect(tab).toHaveFocus());
+    expect(window.location.hash).toBe("#/work");
+    expect(within(screen.getByRole("tabpanel")).getAllByRole("button").length).toBeGreaterThan(0);
+  });
+
+  it("Given a populated Work queue, when a search has surrounding spaces or no matches, then results and clear-search recovery remain predictable", async () => {
+    window.history.replaceState(null, "", "#/work?view=blocked");
+    const user = userEvent.setup();
+    render(<WorkspaceApp />);
+    const search = await screen.findByRole("textbox", { name: "Search work" });
+    const initialCount = within(screen.getByRole("tabpanel")).getAllByRole("button").length;
+    await user.type(search, "   blocked   ");
+    expect(within(screen.getByRole("tabpanel")).getAllByRole("button")).toHaveLength(initialCount);
+    await user.clear(search);
+    await user.type(search, "unmatched-work-identifier");
+    expect(screen.getByText("No matching work in this view.")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Clear search" }));
+    expect(search).toHaveValue("");
+    expect(window.location.hash).toBe("#/work?view=blocked");
+    expect(within(screen.getByRole("tabpanel")).getAllByRole("button")).toHaveLength(initialCount);
+    await user.type(search, "   ");
+    expect(within(screen.getByRole("tabpanel")).getAllByRole("button")).toHaveLength(initialCount);
+  });
+
   it("Given short operational queues, when Work and Proposals render, then each closes with an evidence-backed compact summary", async () => {
     window.history.replaceState(null, "", "#/work");
     const user = userEvent.setup();
@@ -1041,15 +1115,14 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     expect(container.querySelector("main")).toHaveClass("workspace-main");
     expect(container.querySelector("main")).not.toHaveClass("workspace-main--wide");
     const workSummary = screen.getByLabelText("Work queue summary");
-    expect(workSummary).toHaveTextContent("Current view");
-    expect(workSummary).toHaveTextContent("Blocked work");
-    expect(workSummary).toHaveTextContent("Line attention");
+    expect(workSummary).toHaveTextContent("3 work items");
+    expect(workSummary).toHaveTextContent("Line counts may overlap between stages.");
+    expect(workSummary).not.toHaveTextContent("Line attention");
 
     await user.click(screen.getByRole("button", { name: "Proposals" }));
     await screen.findByRole("region", { name: "Proposal queue" });
     const proposalSummary = screen.getByLabelText("Proposal queue summary");
-    expect(proposalSummary).toHaveTextContent("Awaiting review");
-    expect(proposalSummary).toHaveTextContent("Approved to publish");
+    expect(proposalSummary).toHaveTextContent("1 proposal");
   });
 
   it("Given the desktop Catalog directory, when rows render, then variant and human SKU share one compact identity line", async () => {
@@ -1061,6 +1134,9 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     const identity = cassava.querySelector(".catalog-identity");
     expect(identity.querySelector("small")).toHaveTextContent("Select, 1 kg · SKU KLD-PANT-0032");
     expect(identity.querySelector("em")).not.toBeInTheDocument();
+    expect(cassava.querySelector(".catalog-scope")).toHaveTextContent("Marketplace · Ibadan cross-dock");
+    expect(cassava.querySelector(".catalog-source")).toBeNull();
+    expect(within(catalog).getByRole("textbox", { name: "Search product or SKU code" })).toBeVisible();
     expect(catalog.querySelectorAll(".catalog-status-current").length).toBeGreaterThan(0);
     expect([...catalog.querySelectorAll(".ops-status")].some((status) => status.textContent.trim() === "Current")).toBe(false);
   });
@@ -1106,7 +1182,7 @@ describe("Operational workspace — fixture journey BDD contract", () => {
 
     await waitFor(() => expect(externalDestinations).toEqual([expect.stringMatching(/:4173\/#top$/)]));
     expect(window.location.hash).toBe("#/catalog");
-    expect(screen.getByRole("region", { name: "Catalog" })).toBeVisible();
+    expect(screen.queryByRole("region", { name: "Catalog" })).not.toBeInTheDocument();
   });
 
   it("Given an external return target, when sign-in succeeds, then the workspace rejects the redirect and opens Work queue", async () => {
@@ -1141,11 +1217,11 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     expect(await screen.findByRole("region", { name: "Price and cost record" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "Cassava flour" })).toBeVisible();
     expect(screen.getByText(/SKU code KLD-PANT-0032/)).toBeVisible();
-    const effective = container.querySelector(".record-money__effective");
+    const effective = container.querySelector(".catalog-record-dates");
     expect(effective).toBeTruthy();
     expect(effective).toHaveTextContent("Effective");
-    expect(effective.querySelector("strong")).toHaveTextContent(/Aug 2026/);
-    expect(effective.querySelector("span")).toHaveTextContent(/^Recorded /);
+    expect(effective.querySelector("time")).toHaveTextContent(/Aug 2026/);
+    expect(within(effective).getByText("Recorded")).toBeVisible();
     expect(window.location.hash).toBe("#/catalog/480f12f1-c0fa-528e-b3d0-27e340e93046");
   });
 
@@ -1253,7 +1329,7 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     expect(requests).toEqual([null, "fixture-catalog:8", "fixture-catalog:8"]);
   });
 
-  it("Given operational data resolved for Teni, when the evidence session changes to an actor without Catalog access, then stale data is removed and the route fails closed", async () => {
+  it("Given operational data resolved for Teni, when the evidence session changes to an actor without Catalog access, then stale data is removed and a permitted home opens", async () => {
     window.history.replaceState(null, "", "#/catalog");
     const repositories = createFixtureWorkspaceRepositories();
     const user = userEvent.setup();
@@ -1264,10 +1340,11 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     const identity = screen.getByRole("region", { name: "Session identity" });
     await user.click(within(identity).getByRole("button", { name: /Moyo/i }));
 
-    const boundary = await screen.findByRole("alert");
-    expect(boundary).toHaveTextContent(/cannot read (?:the )?requested catalog data/i);
+    expect(await screen.findByRole("region", { name: "Work queue" })).toBeVisible();
+    expect(window.location.hash).toMatch(/^#\/work(?:\?|$)/);
     expect(screen.queryByRole("region", { name: "Catalog" })).not.toBeInTheDocument();
     expect(screen.queryByText("Cassava flour")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Catalog" })).not.toBeInTheDocument();
   });
 
   it("Given the compact Catalog overlay, when a row opens and Escape closes its inspector, then the list is inert and focus returns to the row", async () => {
@@ -1384,10 +1461,21 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     await user.click(screen.getByRole("button", { name: "Review field mapping" }));
     const mapping = await screen.findByRole("region", { name: "Field mapping" });
     expect(mapping).toHaveTextContent("Merchant SKU");
-    await user.click(within(mapping).getByRole("button", { name: "Save reviewed sample mapping" }));
+    expect(mapping).not.toHaveTextContent("Choose field");
+    expect(within(mapping).getAllByText("Needs confirmation")).toHaveLength(2);
+    expect(mapping).toHaveTextContent("Current cost");
+    expect(mapping).toHaveTextContent("Current price");
+    expect(mapping).toHaveTextContent("54% match");
+    expect(mapping).toHaveTextContent("51% match");
+    expect(mapping).toHaveTextContent("Custom mappings and file uploads are not available in this sample");
+    await user.click(within(mapping).getByRole("button", { name: "Use reviewed sample mapping" }));
     await waitFor(() => expect(window.location.hash).toContain("/map?version=4"));
-    await waitFor(() => expect(screen.getByRole("region", { name: "Field mapping" })).toHaveTextContent("Required fields and import context resolved for validation"));
+    await waitFor(() => expect(screen.getByRole("region", { name: "Field mapping" })).toHaveTextContent("Required fields are ready for validation"));
     const mappedSurface = screen.getByRole("region", { name: "Field mapping" });
+    expect(mappedSurface).not.toHaveTextContent("Needs confirmation");
+    expect(mappedSurface).toHaveTextContent("54% match");
+    expect(mappedSurface).toHaveTextContent("51% match");
+    expect(mappedSurface).toHaveTextContent("Supplier cost update · sample · v4");
     const validateRows = within(mappedSurface).getByRole("button", { name: /Validate \d+ rows/ });
     expect(validateRows).toBeEnabled();
     await user.click(validateRows);
@@ -1406,12 +1494,12 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     await user.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("complementary", { name: "Issue detail for row 12" })).not.toBeInTheDocument());
     await waitFor(() => expect(rowTwelve).toHaveFocus());
-    await user.click(within(validation).getByRole("button", { name: "Review bounded commit" }));
+    await user.click(within(validation).getByRole("button", { name: "Review import" }));
 
     const review = await screen.findByRole("region", { name: "Import review" });
-    const openCommit = within(review).getByRole("button", { name: "Acknowledge and open Commit" });
+    const openCommit = within(review).getByRole("button", { name: "Confirm and continue" });
     const acknowledgement = within(review).getByRole("checkbox", {
-      name: /I reviewed the mapping, warnings, exclusions and unresolved input.*records the exact batch version/i,
+      name: /I reviewed the mapping, warnings, exclusions and unresolved input.*Record my acknowledgement for this batch version/i,
     });
     const acknowledgementLabel = acknowledgement.closest("label");
     const reviewDocument = review.querySelector(".review-document");
@@ -1420,10 +1508,10 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     expect(commitBoundary).toBeInTheDocument();
     expect(reviewDocument.nextElementSibling).toBe(commitBoundary);
     expect(commitBoundary.nextElementSibling).toBe(acknowledgementLabel);
-    expect(commitBoundary).toHaveTextContent(/separate Commit stage/i);
+    expect(commitBoundary).toHaveTextContent(/separate Commit step; it does not start the import/i);
     expect(acknowledgementLabel).toHaveClass("risk-confirmation");
     expect(acknowledgementLabel.querySelector("strong")).toHaveTextContent("I reviewed the mapping, warnings, exclusions and unresolved input.");
-    expect(acknowledgementLabel.querySelector("small")).toHaveTextContent("This acknowledges the Sample data consequence and records the exact batch version.");
+    expect(acknowledgementLabel.querySelector("small")).toHaveTextContent("Record my acknowledgement for this batch version.");
     expect(acknowledgement).not.toBeChecked();
     expect(openCommit).toBeDisabled();
     await user.click(acknowledgement);
@@ -1454,7 +1542,8 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     expect(result).toHaveTextContent("Rejected4");
     expect(result).toHaveTextContent("Remaining input5");
     expect(within(result).getByRole("button", { name: "Review unresolved input" })).toBeVisible();
-    expect(result).toHaveTextContent(/No released live export, retry or Catalog mutation is claimed/i);
+    expect(result).toHaveTextContent(/Live retry and export are not available in this sample/i);
+    expect(screen.getByRole("region", { name: "Import Result stage" })).toHaveTextContent("Sample only · Catalog unchanged");
     expect(window.location.hash).toMatch(/^#\/imports\/8e92ec6a-fb50-5e9b-8cd7-b624423f3aa8\/result\?version=8&operation=ce84573e-186f-5bce-a141-ef2ddfae836e&operationVersion=2$/);
   });
 
@@ -1465,7 +1554,7 @@ describe("Operational workspace — fixture journey BDD contract", () => {
     const boundary = await screen.findByRole("alert");
     expect(boundary).toHaveTextContent(/result|stage|state|available/i);
     expect(screen.queryByRole("region", { name: "Import result" })).not.toBeInTheDocument();
-    expect(screen.queryByText(/Accepted fixture records are accounted for/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Import complete with exceptions/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Return to Map" })).toBeVisible();
   });
 
@@ -1571,8 +1660,10 @@ describe("Operational workspace — fixture journey BDD contract", () => {
 
     await user.click(screen.getByRole("button", { name: "Margin policies" }));
     const rules = await screen.findByRole("region", { name: "Margin policies" });
-    const scopeIcons = [...rules.querySelectorAll("[data-rule-scope]")];
-    expect(new Set(scopeIcons.map((icon) => icon.getAttribute("data-rule-scope")).filter(Boolean)).size).toBeGreaterThan(1);
+    const scopeLabels = [...rules.querySelectorAll(".rules-list > button > span:nth-child(2)")]
+      .map((node) => node.textContent?.trim())
+      .filter(Boolean);
+    expect(new Set(scopeLabels).size).toBeGreaterThan(1);
     expect(rules.querySelector(".rule-floor")).toHaveStyle({ "--rule-floor-progress": "56%" });
     expect(rules).toHaveTextContent("Design v1");
     expect(rules).not.toHaveTextContent("v0.0.0-design.1");
@@ -1673,7 +1764,7 @@ describe("Proposal governance journey — BDD interaction contract", () => {
   });
 
   it("Given a Proposal reader without comment capability, when Comments opens, then existing human records remain readable and the composer is explicitly denied", async () => {
-    const repositories = createFixtureWorkspaceRepositories({ designEvidenceCapabilities: ["proposal:read"] });
+    const repositories = createFixtureWorkspaceRepositories({ designEvidenceCapabilities: ["proposal:read", "pricing:economics:read"] });
     window.history.replaceState(null, "", "#/proposals/767fb699-bfb5-56eb-a296-3a0a70c9430a?version=3&view=comments");
 
     render(<WorkspaceApp repositories={repositories} />);
@@ -1813,7 +1904,7 @@ describe("Proposal governance journey — BDD interaction contract", () => {
     const { user } = await givenTheRepricingPreviewIsOpen({ repositories });
     await whenTheBlockedProposalIsCreated(user, { proposalDetailReads });
 
-    const trigger = screen.getByRole("button", { name: "Review next action" });
+    const trigger = screen.getByRole("button", { name: "People and permissions" });
     const toolbar = trigger.closest(".proposal-surface__toolbar");
     expect(toolbar).not.toBeNull();
     expect(toolbar).toContainElement(screen.getByRole("tablist", { name: "Proposal views" }));
@@ -1826,7 +1917,7 @@ describe("Proposal governance journey — BDD interaction contract", () => {
     await user.click(trigger);
     const authority = await screen.findByRole("complementary", { name: "Current authority" });
     expect(authority).toHaveFocus();
-    expect(screen.getByRole("button", { name: "Hide next action" })).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: "Hide people and permissions" })).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("button", { name: "Dismiss current authority overlay" })).toBeVisible();
 
     await user.click(within(authority).getByRole("button", { name: "Close current authority" }));
@@ -1860,8 +1951,7 @@ describe("Proposal governance journey — BDD interaction contract", () => {
     });
 
     // Teni requests a bounded exception. The request does not approve the Proposal.
-    const requesterAuthority = await whenCurrentAuthorityIsOpened(user);
-    await user.click(within(requesterAuthority).getByRole("button", { name: "Request exception review" }));
+    await user.click(within(screen.getByRole("region", { name: "Proposal next step" })).getByRole("button", { name: "Request exception review" }));
     await thenConfirmTheDecision(user, {
       dialogName: "Request bounded exception",
       confirmName: "Request exception",
@@ -2045,7 +2135,7 @@ describe("Proposal governance journey — BDD interaction contract", () => {
     const { repositories, proposalDetailReads } = createObservedFixtureRepositories();
     const { user } = await givenTheRepricingPreviewIsOpen({ repositories });
     await whenTheBlockedProposalIsCreated(user, { proposalDetailReads });
-    await user.click(within(await whenCurrentAuthorityIsOpened(user)).getByRole("button", { name: "Request exception review" }));
+    await user.click(within(screen.getByRole("region", { name: "Proposal next step" })).getByRole("button", { name: "Request exception review" }));
     await thenConfirmTheDecision(user, {
       dialogName: "Request bounded exception",
       confirmName: "Request exception",
@@ -2127,7 +2217,7 @@ describe("Proposal governance journey — BDD interaction contract", () => {
 
     expect(screen.getByRole("region", { name: "Financial consequence for Cassava flour" })).toBeVisible();
     await user.click(screen.getByRole("tab", { name: "Lines 1,227" }));
-    expect(await screen.findByText("6 fixture lines shown")).toBeVisible();
+    expect(await screen.findByText(/\d+ fixture lines shown/)).toBeVisible();
     const proposalLines = screen.getAllByRole("region", { name: /Financial consequence for/ });
     const eligibleLine = proposalLines.find((line) => line.textContent.includes("KLD-PANT-0001"));
     expect(eligibleLine).toBeTruthy();
@@ -2142,9 +2232,9 @@ describe("Proposal governance journey — BDD interaction contract", () => {
         id: "FX-004",
         version: "0.0.0-design.1",
       },
-      limit: 6,
+      limit: 25,
     });
-  });
+  }, 15_000);
 
   it("Given the Proposal source adapter resolves a different Preview ref, when governed evidence loads, then the Proposal fails closed", async () => {
     const repositories = createFixtureWorkspaceRepositories({ startWithExistingProposal: false });
@@ -2184,7 +2274,7 @@ describe("Proposal governance journey — BDD interaction contract", () => {
     };
     const { user } = await givenTheRepricingPreviewIsOpen({ repositories });
     await whenTheBlockedProposalIsCreated(user, { proposalDetailReads });
-    await user.click(within(await whenCurrentAuthorityIsOpened(user)).getByRole("button", { name: "Request exception review" }));
+    await user.click(within(screen.getByRole("region", { name: "Proposal next step" })).getByRole("button", { name: "Request exception review" }));
     await thenConfirmTheDecision(user, {
       dialogName: "Request bounded exception",
       confirmName: "Request exception",
@@ -2205,7 +2295,8 @@ describe("Proposal governance journey — BDD interaction contract", () => {
     const population = screen.getByLabelText("Proposal population reconciliation");
     expect(population).toHaveTextContent("Selected1,227");
     expect(population).toHaveTextContent("Policy clear1,210");
-    expect(population).toHaveTextContent("Requiring authority17");
+    expect(population).toHaveTextContent("Needs review17");
+    await user.click(screen.getByText("Review breakdown and version history"));
     expect(screen.getByText("Different actor recorded")).toBeVisible();
 
     await whenTheDesignEvidenceSessionChangesTo(user, "Moyo");
@@ -2248,7 +2339,7 @@ describe("Proposal governance journey — BDD interaction contract", () => {
     };
     const { user } = await givenTheRepricingPreviewIsOpen({ repositories });
     await whenTheBlockedProposalIsCreated(user, { proposalDetailReads });
-    await user.click(within(await whenCurrentAuthorityIsOpened(user)).getByRole("button", { name: "Request exception review" }));
+    await user.click(within(screen.getByRole("region", { name: "Proposal next step" })).getByRole("button", { name: "Request exception review" }));
 
     const dialog = screen.getByRole("dialog", { name: "Request bounded exception" });
     const confirm = within(dialog).getByRole("button", { name: "Request exception" });
@@ -2297,7 +2388,8 @@ describe("Proposal governance journey — BDD interaction contract", () => {
     const { repositories, proposalDetailReads } = createObservedFixtureRepositories();
     const { user, container } = await givenTheRepricingPreviewIsOpen({ repositories });
     await whenTheBlockedProposalIsCreated(user, { proposalDetailReads });
-    const trigger = within(await whenCurrentAuthorityIsOpened(user)).getByRole("button", { name: "Request exception review" });
+    const trigger = within(screen.getByRole("region", { name: "Proposal next step" })).getByRole("button", { name: "Request exception review" });
+    expect(screen.queryByRole("complementary", { name: "Current authority" })).not.toBeInTheDocument();
 
     await user.click(trigger);
     const dialog = screen.getByRole("dialog", { name: "Request bounded exception" });

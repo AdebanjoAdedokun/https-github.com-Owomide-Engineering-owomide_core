@@ -7,6 +7,7 @@ import {
   assertRepricingScope,
 } from "./contracts.js";
 import { throwRepositoryError } from "./domainError.js";
+import { ECONOMICS_READ, projectCatalogEconomics } from "./fixtureEconomicsVisibility.js";
 import {
   FIXTURE_BASELINE_IMPORT_ID,
   FIXTURE_CATALOG_SAMPLE,
@@ -308,6 +309,7 @@ export class FixtureWorkQueueRepository {
   /** @param {{query?: string, type?: string, status?: string, cursor?: string | null, limit?: number}} [request] */
   async list(request = {}) {
     const session = this.getSession();
+    requireAnyCapability(session, ["proposal:read", "import:prepare", "repricing:prepare", "audit:read"], "work");
     const proposal = this.getProposal();
     const query = normaliseQuery(request.query);
     const capabilities = {
@@ -320,6 +322,17 @@ export class FixtureWorkQueueRepository {
         item.ref = clone(proposal.ref);
         item.status = proposal.state;
         item.counts = { attention: proposal.counts.blocked, total: proposal.counts.selected };
+        const reviewerNext = proposal.state === "submitted" || proposal.override?.state === "pending";
+        const nextOwner = proposal.state === "approved" ? proposal.assignedPublisher : reviewerNext ? proposal.assignedApprover : proposal.submissionOwner ?? proposal.author;
+        item.nextActor = nextOwner?.displayName ?? "Unassigned";
+        item.nextActorId = nextOwner?.id ?? null;
+        item.needsCurrentActor = nextOwner?.id === session.actor.id;
+        item.updatedAt = proposal.updatedAt ?? proposal.returnDecision?.decidedAt ?? proposal.submission?.submittedAt ?? proposal.handoffHistory?.at(-1)?.occurredAt ?? item.updatedAt;
+        item.title = proposal.returnDecision && ["draft", "blocked"].includes(proposal.state) ? "Revise returned Proposal" : proposal.state === "submitted" ? "Review submitted Proposal" : proposal.state === "approved" ? "Publish approved Proposal" : proposal.state === "draft" ? "Submit prepared Proposal" : "Resolve Proposal blockers";
+        item.reason = proposal.state === "submitted" ? `${proposal.title} · awaiting the assigned independent review.` : proposal.state === "approved" ? `${proposal.title} · approved; publication remains separate.` : proposal.returnDecision && ["draft", "blocked"].includes(proposal.state) ? `${proposal.title} · changes requested before a fresh review.` : proposal.state === "draft" ? `${proposal.title} · ready for submission.` : `${proposal.title} · resolve blockers before submission.`;
+      } else {
+        item.needsCurrentActor = item.type === "import" ? capabilities.import : capabilities.repricing;
+        if (item.type === "repricing") item.reason = "Review calculated prices and line selection.";
       }
       const enabled = capabilities[item.type] === true;
       item.allowedActions = [action(
@@ -327,7 +340,9 @@ export class FixtureWorkQueueRepository {
         enabled,
         item.ref.version,
         enabled ? null : denial("MISSING_PERMISSION", "This item requires a capability that is not part of the resolved session."),
-        enabled ? item.ref : null,
+        // Queue identity is the change-set; opening it must target the Preview
+        // it actually represents, including that Preview's own version.
+        enabled ? item.type === "repricing" ? FIXTURE_PREVIEW_REF : item.ref : null,
       )];
       item.provenance = clone(FIXTURE_PROVENANCE);
       return item;
@@ -377,7 +392,7 @@ export class FixtureCatalogRepository {
     }).map((item) => {
       item.allowedActions = [action("catalog.sku.read", true, item.ref.version, null, item.ref)];
       assertCatalogSkuSummary(item);
-      return item;
+      return projectCatalogEconomics(item, session);
     });
     const hasFilters = Boolean(query || request.priceState || request.status || request.channelId || request.locationId);
     const response = paginate({
@@ -425,7 +440,7 @@ export class FixtureCatalogRepository {
     if (!item) {
       throwRepositoryError({ code: "CATALOG_SKU_NOT_FOUND", message: "That Catalog SKU is not in the bounded fixture page.", details: { skuId: request.skuId }, retryable: false, domain: "catalog", traceId: "fixture-catalog-not-found" });
     }
-    const summary = clone(item);
+    const summary = projectCatalogEconomics(clone(item), session);
     summary.allowedActions = [action("catalog.sku.read", true, summary.ref.version, null, summary.ref)];
     assertCatalogSkuSummary(summary);
     const detail = {
@@ -558,6 +573,7 @@ export class FixtureImportRepository {
       ref: clone(journey.ref),
       title: journey.title,
       sourceFile: clone(journey.sourceFile),
+      owner: clone(journey.owner ?? existing?.owner ?? null),
       stage: journey.stage,
       state: journey.state,
       counts: {
@@ -683,7 +699,7 @@ export class FixtureImportRepository {
 
   /** @param {{intent: string, idempotencyKey: string}} request */
   async create(request) {
-    this._requirePrepare();
+    const session = this._requirePrepare();
     const intent = typeof request?.intent === "string" ? request.intent.trim() : "";
     if (!intent) throwRepositoryError({ code: "IMPORT_INTENT_REQUIRED", message: "Choose an import intent before creating the Sample data batch.", details: {}, retryable: false, domain: "import-create", traceId: "fixture-import-create-intent-required" });
     const fingerprint = JSON.stringify({ intent });
@@ -696,6 +712,7 @@ export class FixtureImportRepository {
         ...template,
         ref: { kind: "resource", id: FIXTURE_SAMPLE_IMPORT_ID, version: "1" },
         title: `${humaniseImportIntent(intent)} · sample`,
+        owner: clone(session.actor),
         stage: "upload",
         state: "draft",
         stages: importStagesFor("upload", "draft"),
@@ -756,9 +773,15 @@ export class FixtureImportRepository {
       if (!request?.mapping?.effectiveAt || !request.mapping.tradeCostTarget || !request.mapping.priceTarget) {
         throwRepositoryError({ code: "IMPORT_MAPPING_REQUIRED", message: "Resolve Trade Cost, Price and effective time before saving the Sample data mapping.", details: {}, retryable: false, domain: "import-mapping", traceId: "fixture-import-mapping-required" });
       }
+      if (request.mapping.tradeCostTarget !== "cost.amountMinor" || request.mapping.priceTarget !== "price.amountMinor") {
+        throwRepositoryError({ code: "IMPORT_MAPPING_UNSUPPORTED", message: "This sample supports Trade Cost as current cost and Price as current price only.", details: { supportedTradeCostTarget: "cost.amountMinor", supportedPriceTarget: "price.amountMinor" }, retryable: false, domain: "import-mapping", traceId: "fixture-import-mapping-unsupported" });
+      }
+      if (request.mapping.effectiveAt !== "2026-08-15T00:00:00+01:00") {
+        throwRepositoryError({ code: "IMPORT_EFFECTIVE_TIME_UNSUPPORTED", message: "Use the supplied sample effective time: 15 Aug 2026, 00:00 GMT+1.", details: { supportedEffectiveAt: "2026-08-15T00:00:00+01:00" }, retryable: false, domain: "import-mapping", traceId: "fixture-import-effective-time-unsupported" });
+      }
       const mappedRows = clone(journey.mapping.rows).map((row) => {
-        if (row.source === "Trade Cost") return { ...row, target: request.mapping.tradeCostTarget, targetLabel: "Current cost", state: "mapped", confidenceBasisPoints: 9800 };
-        if (row.source === "Price?") return { ...row, target: request.mapping.priceTarget, targetLabel: "Current price", state: "mapped", confidenceBasisPoints: 9600 };
+        if (row.source === "Trade Cost") return { ...row, target: request.mapping.tradeCostTarget, targetLabel: "Current cost", state: "mapped" };
+        if (row.source === "Price?") return { ...row, target: request.mapping.priceTarget, targetLabel: "Current price", state: "mapped" };
         return row;
       });
       const next = this._advanceJourney(journey, {
@@ -963,12 +986,28 @@ export class FixtureProposalDirectoryRepository {
     requireAnyCapability(session, ["proposal:read"], "proposal");
     const current = this.getProposal();
     const query = normaliseQuery(request.query);
+    const submissionOwner = current.submissionOwner ?? current.author;
+    const nextActor = current.state === "approved" ? current.assignedPublisher
+      : current.state === "submitted" || current.override?.state === "pending" ? current.assignedApprover : submissionOwner;
+    const workflowActions = new Set(["proposal.draft.edit", "proposal.handoff", "proposal.submit", "override.request", "override.approve", "override.deny", "proposal.approve", "proposal.reject", "publication.start"]);
+    // Read permission is not an assignment. The exact current-version action
+    // projection must grant a workflow command as well as identify this actor.
+    const needsCurrentActor = nextActor?.id === session.actor.id
+      && current.allowedActions.some((item) => item.enabled && workflowActions.has(item.code));
     const items = clone(FIXTURE_PROPOSAL_DIRECTORY).filter((item) => item.ref.kind === "resource").map((item, index) => index === 0 ? {
       ...item,
       ref: clone(current.ref),
       title: current.title,
       state: current.state,
       readiness: current.readiness,
+      author: clone(current.author),
+      owner: clone(submissionOwner),
+      submissionOwner: clone(submissionOwner),
+      assignedApprover: clone(current.assignedApprover),
+      assignedPublisher: clone(current.assignedPublisher),
+      nextActor: clone(nextActor),
+      needsCurrentActor,
+      updatedAt: current.updatedAt ?? current.activity?.at(-1)?.occurredAt ?? current.returnDecision?.decidedAt ?? current.approval?.decidedAt ?? current.submission?.submittedAt ?? current.handoffHistory?.at(-1)?.occurredAt ?? item.updatedAt,
       counts: { lines: current.counts.selected, blocked: current.counts.blocked },
     } : item).filter((item) => (!request.state || item.state === request.state)
       && (!query || `${item.title} ${item.state} ${item.readiness}`.toLocaleLowerCase("en-NG").includes(query)))
@@ -1008,6 +1047,7 @@ export class FixtureRuleRepository {
   async list(request = {}) {
     const session = this.getSession();
     requireAnyCapability(session, ["rules:read", "repricing:prepare"], "rules");
+    requireAnyCapability(session, [ECONOMICS_READ], "rules");
     const query = normaliseQuery(request.query);
     const items = clone(FIXTURE_RULES).filter((item) => (!request.scope || item.scope === request.scope)
       && (!query || `${item.code} ${item.name} ${item.scope}`.toLocaleLowerCase("en-NG").includes(query)))
@@ -1034,6 +1074,7 @@ export class FixtureRuleRepository {
   async getDetail(request) {
     const session = this.getSession();
     requireAnyCapability(session, ["rules:read", "repricing:prepare"], "rules");
+    requireAnyCapability(session, [ECONOMICS_READ], "rules");
     const rule = FIXTURE_RULES.find((candidate) => candidate.id === request?.ruleId);
     if (!rule) throwRepositoryError({ code: "RULE_NOT_FOUND", message: "That pricing rule is not available in the fixture.", details: { ruleId: request?.ruleId ?? null }, retryable: false, domain: "rules", traceId: "fixture-rule-not-found" });
     const response = clone(rule);
@@ -1060,6 +1101,7 @@ export class FixtureAuditDirectoryRepository {
   async list(request = {}) {
     const session = this.getSession();
     requireAnyCapability(session, ["audit:read", "proposal:read"], "audit");
+    requireAnyCapability(session, [ECONOMICS_READ], "audit");
     const fullyAuthorised = hasCapability(session, "audit:read");
     const items = clone(this.getEvents()).reverse().filter((event) => {
       const insideParticipantScope = fullyAuthorised || event.object.id === FIXTURE_PROPOSAL_DIRECTORY[0].ref.id || event.actorId === session.actor.id;
@@ -1102,6 +1144,7 @@ export class FixtureAuditDirectoryRepository {
     }
     const session = this.getSession();
     requireAnyCapability(session, ["audit:read", "proposal:read"], "audit");
+    requireAnyCapability(session, [ECONOMICS_READ], "audit");
     const fullyAuthorised = hasCapability(session, "audit:read");
     const events = clone(this.getEvents()).filter((event) => event.object.type === request.entityType && event.object.id === request.entityId).reverse();
     const authoredEntityEvent = events.some((event) => event.actorId === session.actor.id);

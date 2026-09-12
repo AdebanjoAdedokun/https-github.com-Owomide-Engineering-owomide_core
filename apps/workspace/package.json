@@ -9,7 +9,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "pnpm run test:all",
     "test:data": "node --test tests/data/*.test.mjs",
-    "test:bdd": "vitest run tests/workspace-bdd.test.jsx --reporter=verbose",
+    "test:bdd": "vitest run tests/workspace*-bdd.test.jsx --reporter=verbose",
     "test:hosting": "node --test tests/hosting.test.mjs",
     "test:all": "pnpm run test:data && pnpm run test:bdd && pnpm run test:hosting"
   },

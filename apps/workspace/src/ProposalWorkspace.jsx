@@ -22,6 +22,8 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { findAllowedAction } from "./data/contracts.js";
+import { ProposalHandoff } from "./RoleWorkspace.jsx";
+import { ProposalNextStep } from "./WorkflowGuidance.jsx";
 import { toDomainErrorEnvelope } from "./data/domainError.js";
 import {
   formatBasisPoints,
@@ -107,7 +109,8 @@ function DecisionDialog({ action, onClose, onConfirm, busy, error }) {
   const [reason, setReason] = useState("");
   const [evidence, setEvidence] = useState("");
   const capturesException = action.code === "override.request";
-  const requestValid = !capturesException || (reason.trim().length >= 20 && evidence.trim().length >= 3);
+  const capturesRejection = action.code === "proposal.reject";
+  const requestValid = capturesException ? reason.trim().length >= 20 && evidence.trim().length >= 3 : !capturesRejection || reason.trim().length >= 20;
 
   useEffect(() => {
     setReason("");
@@ -171,18 +174,24 @@ function DecisionDialog({ action, onClose, onConfirm, busy, error }) {
         <label htmlFor="exception-evidence"><span>Evidence reference</span><input id="exception-evidence" value={evidence} onChange={(event) => setEvidence(event.target.value)} maxLength="160" disabled={busy} placeholder="Document, ticket or source reference" /></label>
         <small>{reason.trim().length < 20 ? "Add a specific reason of at least 20 characters." : "The reason and evidence remain bound to this Proposal version."}</small>
       </div> : null}
+      {capturesRejection ? <div className="decision-dialog__fields"><label htmlFor="rejection-reason"><span>Changes required</span><textarea id="rejection-reason" value={reason} onChange={(event) => setReason(event.target.value)} maxLength="1000" disabled={busy} placeholder="Explain what needs to change before a fresh review." /></label><small>Use at least 20 characters. This reason remains in the decision history.</small></div> : null}
       {error ? <div className="decision-dialog__error" role="alert"><ShieldWarning aria-hidden="true" />{error}</div> : null}
       <footer>
         <button type="button" className="secondary-action" onClick={onClose} disabled={busy}>{action.cancelLabel ?? "Return to review"}</button>
-        <button type="button" className="primary-action" onClick={() => onConfirm(capturesException ? { reason: reason.trim(), evidence: evidence.trim() } : undefined)} disabled={busy || !requestValid}><span>{busy ? action.busyLabel : action.confirmLabel}</span><ArrowRight aria-hidden="true" /></button>
+        <button type="button" className="primary-action" onClick={() => onConfirm(capturesException ? { reason: reason.trim(), evidence: evidence.trim() } : capturesRejection ? { reason: reason.trim() } : undefined)} disabled={busy || !requestValid}><span>{busy ? action.busyLabel : action.confirmLabel}</span><ArrowRight aria-hidden="true" /></button>
       </footer>
     </section>
   </div>;
   return createPortal(dialog, document.body);
 }
 
-function ProposalAnchor({ line, timezone, ruleLabel, compact = false }) {
+function ProposalAnchor({ line, timezone, ruleLabel, compact = false, economicsRestricted = false }) {
   if (!line) return null;
+  if (economicsRestricted || line.fieldVisibility?.economics === "restricted") return <section className={`proposal-anchor proposal-anchor--price-only${compact ? " is-compact" : ""}`} aria-label={`Price change for ${line.product?.name ?? line.sku}`}>
+    <header><span><small>Price change</small><strong>{line.product?.name ?? "Unresolved product"}</strong><em>{line.product?.variant ?? "Variant unavailable"} · {line.sku}</em></span></header>
+    <dl className="proposal-price-only"><div><dt>Current price</dt><dd>{formatMoney(line.currentPrice)}</dd></div><div><dt>Proposed price</dt><dd>{formatMoney(line.proposedPrice)}</dd></div></dl>
+    <footer><span><strong>{ruleLabel} · {formatSignedMoney(line.absoluteDelta)}</strong><small>Effective {formatEffectiveAt(line.effectiveAt, timezone)}</small></span></footer>
+  </section>;
   const floorBasisPoints = line.policy?.floorBasisPoints;
   const hasMargin = Number.isFinite(line.proposedMarginBasisPoints) && Number.isFinite(floorBasisPoints);
   const gapBasisPoints = hasMargin ? floorBasisPoints - line.proposedMarginBasisPoints : null;
@@ -201,7 +210,7 @@ function ProposalAnchor({ line, timezone, ruleLabel, compact = false }) {
     : (line.policy?.evaluation?.explanation ?? "No applied margin policy");
   return <section className={`proposal-anchor${compact ? " is-compact" : ""}${policyClear ? " is-policy-clear" : " is-policy-blocked"}`} aria-label={`Financial consequence for ${line.product?.name ?? line.sku}`}>
     <header>
-      <span><small>Anchor decision</small><strong>{line.product?.name ?? "Unresolved product"}</strong><em>{line.product?.variant ?? "Variant unavailable"} · {line.sku}</em></span>
+      <span><small>Price change</small><strong>{line.product?.name ?? "Unresolved product"}</strong><em>{line.product?.variant ?? "Variant unavailable"} · {line.sku}</em></span>
       <span className="proposal-anchor__status">{policyClear ? <ShieldCheck aria-hidden="true" /> : <ShieldWarning aria-hidden="true" />} {statusLabel}</span>
     </header>
     <div className="proposal-anchor__prices">
@@ -210,7 +219,7 @@ function ProposalAnchor({ line, timezone, ruleLabel, compact = false }) {
       <span><small>Proposed price</small><strong>{formatMoney(line.proposedPrice)}</strong><em>{formatBasisPoints(line.proposedMarginBasisPoints)} margin</em></span>
       <span className="proposal-anchor__floor"><small>Applied floor</small><strong>{formatBasisPoints(floorBasisPoints)}</strong><em>{line.policy?.floorPrice ? `${formatMoney(line.policy.floorPrice)} required` : "Not evaluated"}</em></span>
     </div>
-    <footer>{policyClear ? <ShieldCheck aria-hidden="true" /> : <ShieldWarning aria-hidden="true" />}<span><strong>{policyPosition}</strong><small>{evidenceLabel} · source row {line.provenance?.rowNumber ?? "unavailable"} · Catalog v{line.provenance?.catalogVersion ?? "unavailable"} · effective {formatEffectiveAt(line.effectiveAt, timezone)}</small></span></footer>
+    <footer>{policyClear ? <ShieldCheck aria-hidden="true" /> : <ShieldWarning aria-hidden="true" />}<span><strong>{policyPosition}</strong><details><summary>Policy and source details</summary><small>{evidenceLabel} · source row {line.provenance?.rowNumber ?? "unavailable"} · Catalog v{line.provenance?.catalogVersion ?? "unavailable"} · effective {formatEffectiveAt(line.effectiveAt, timezone)}</small></details></span></footer>
   </section>;
 }
 
@@ -221,7 +230,7 @@ function ReconciliationStrip({ proposal }) {
     <i aria-hidden="true">=</i>
     <span><small>{clearedLabel}</small><strong>{proposal.counts.eligible.toLocaleString("en-NG")}</strong></span>
     <i aria-hidden="true">+</i>
-    <span className={proposal.counts.blocked ? "is-blocked" : "is-clear"}><small>{proposal.counts.blocked ? "Requiring authority" : "Unresolved"}</small><strong>{proposal.counts.blocked.toLocaleString("en-NG")}</strong></span>
+    <span className={proposal.counts.blocked ? "is-blocked" : "is-clear"}><small>{proposal.counts.blocked ? "Needs review" : "Unresolved"}</small><strong>{proposal.counts.blocked.toLocaleString("en-NG")}</strong></span>
   </div>;
 }
 
@@ -249,10 +258,10 @@ function actionCopy(proposal, publication, action) {
   if (publication?.state === "incomplete") return { title: `${remaining} Catalog writes remain`, detail: "Only the unresolved rows can be retried with the original operation lineage.", label: `Retry ${remaining} unresolved lines` };
   if (publication?.state === "reconciling") return { title: `${remaining}-line retry is reconciling`, detail: "Check the existing operation for the durable Catalog result.", label: "Check reconciled result" };
   if (publication?.state === "published") return { title: "Catalog evidence reconciled", detail: "The authorised Proposal and the applied outcome now match.", label: "View audit trail" };
-  if (proposal.override?.state === "pending") return { title: "Review exception", detail: `${shortActorName(proposal.assignedApprover.displayName)} is assigned to decide.`, label: "Review exception" };
-  if (proposal.state === "blocked") return { title: `${proposal.counts.blocked} decisions need authority`, detail: "Resolve all exceptions to continue.", label: "Request exception review" };
+  if (proposal.override?.state === "pending") return { title: action?.enabled ? "Review exception" : "Waiting for exception review", detail: `${shortActorName(proposal.assignedApprover.displayName)} is assigned to decide.`, label: "Review exception" };
+  if (proposal.state === "blocked") return { title: `${proposal.counts.blocked} lines need review`, detail: `${proposal.blockers.margin} margin exceptions can be reviewed. Source and scope issues must be corrected in Preview.`, label: "Request exception review" };
   if (proposal.state === "draft") return { title: "Current version is ready", detail: "Submission locks this version for an independent Proposal decision.", label: "Submit for independent review" };
-  if (proposal.state === "submitted") return { title: "Independent Proposal decision", detail: `${shortActorName(proposal.assignedApprover.displayName)} can decide the current submitted version.`, label: "Review current version" };
+  if (proposal.state === "submitted") return { title: action?.enabled ? "Review the submitted version" : "Waiting for independent review", detail: `${shortActorName(proposal.assignedApprover.displayName)} can decide the current submitted version.`, label: "Review current version" };
   if (proposal.state === "approved") return { title: "Approved, not published", detail: `${shortActorName(proposal.assignedPublisher.displayName)} must separately authorise the Catalog write.`, label: "Review publication" };
   return { title: "No mutation available", detail: action?.reason?.message ?? "The current object state has no permitted action.", label: "Unavailable" };
 }
@@ -281,7 +290,7 @@ function AuthorityRail({ proposal, publication, session, onAction, panelRef, onC
       <span className="avatar">{initials(session.actor.displayName)}</span>
       <span><small>Current session</small><strong>{shortActorName(session.actor.displayName)}</strong><em>{session.roleCodes.join(" · ").replaceAll("_", " ")}</em></span>
     </div>
-    {action?.enabled ? <button type="button" className="primary-action proposal-authority__action" onClick={() => onAction(action.code)}><span>{copy.label}</span><ArrowRight aria-hidden="true" /></button> : <div className="proposal-authority__denial"><LockKey aria-hidden="true" /><span><strong>{action?.reason?.message ?? copy.title}</strong><small>Your review position and object context remain preserved.</small></span></div>}
+    {!action?.enabled ? <div className="proposal-authority__denial"><LockKey aria-hidden="true" /><span><strong>{action?.reason?.message ?? copy.title}</strong></span></div> : null}
     <div className="proposal-authority__boundary"><ShieldCheck aria-hidden="true" /><span><strong>Authority stays separated</strong><small>Exception, approval and publication remain distinct server decisions.</small></span></div>
     <dl>
       <div><dt>Author</dt><dd>{shortActorName(proposal.author.displayName)}</dd></div>
@@ -292,21 +301,21 @@ function AuthorityRail({ proposal, publication, session, onAction, panelRef, onC
   </aside>;
 }
 
-function OverviewView({ proposal, anchorLine, timezone, ruleLabel }) {
+function OverviewView({ proposal, anchorLine, timezone, ruleLabel, economicsRestricted }) {
   return <div className="proposal-overview">
     <ReconciliationStrip proposal={proposal} />
-    <ProposalAnchor line={anchorLine} timezone={timezone} ruleLabel={ruleLabel} />
-    <section className="proposal-evidence-grid">
-      <article>
+    <ProposalAnchor line={anchorLine} timezone={timezone} ruleLabel={ruleLabel} economicsRestricted={economicsRestricted} />
+    <details className="proposal-evidence-details"><summary>Review breakdown and version history</summary><section className={`proposal-evidence-grid${economicsRestricted ? " proposal-evidence-grid--restricted" : ""}`}>
+      {!economicsRestricted ? <article>
         <header><ShieldWarning aria-hidden="true" /><span><small>Policy reconciliation</small><strong>{proposal.blockers.total ? "Open decisions" : "Reconciled"}</strong></span></header>
         <dl>
           <div><dt>Margin floor</dt><dd>{proposal.blockers.margin}</dd></div>
           <div><dt>Stale cost</dt><dd>{proposal.blockers.staleCost}</dd></div>
           <div><dt>Dimension scope</dt><dd>{proposal.blockers.dimension}</dd></div>
         </dl>
-      </article>
+      </article> : null}
       <article>
-        <header><GitBranch aria-hidden="true" /><span><small>Version lineage</small><strong>Evidence locked to v{proposal.ref.version}</strong></span></header>
+        <header><GitBranch aria-hidden="true" /><span><small>Version history</small><strong>Evidence for v{proposal.ref.version}</strong></span></header>
         <dl>
           <div><dt>Preview</dt><dd>{proposal.sourcePreviewRef.version}</dd></div>
           <div><dt>Proposal</dt><dd>v{proposal.ref.version}</dd></div>
@@ -318,14 +327,14 @@ function OverviewView({ proposal, anchorLine, timezone, ruleLabel }) {
         <p>{proposal.override.reason}</p>
         <footer><span>{proposal.override.lineCount} lines</span><span>Expires {formatEffectiveAt(proposal.override.expiresAt, timezone)}</span></footer>
       </article> : null}
-    </section>
+    </section></details>
   </div>;
 }
 
-function LinesView({ proposal, lines, timezone, ruleLabel }) {
+function LinesView({ proposal, lines, timezone, ruleLabel, economicsRestricted }) {
   return <div className="proposal-lines-view">
     <div className="proposal-lines-view__note"><Info aria-hidden="true" /><span><strong>{lines.length} fixture lines shown</strong><small>The authoritative Proposal retains all {proposal.counts.selected.toLocaleString("en-NG")} selected line identities.</small></span></div>
-    {lines.map((line) => <ProposalAnchor key={line.id} line={line} timezone={timezone} ruleLabel={ruleLabel} compact />)}
+    {lines.map((line) => <ProposalAnchor key={line.id} line={line} timezone={timezone} ruleLabel={ruleLabel} compact economicsRestricted={economicsRestricted} />)}
   </div>;
 }
 
@@ -417,7 +426,8 @@ function ActivityView({ audit, timezone, permitted }) {
 
 function ReviewDocument({ proposal, anchorLine, session, timezone, ruleLabel, mode, actions, onConfirm }) {
   const isOverride = mode === "override";
-  const differentActor = proposal.author.id !== session.actor.id;
+  const assignedReviewer = proposal.assignedApprover;
+  const independentReviewer = Boolean(assignedReviewer?.id) && proposal.author.id !== assignedReviewer.id && proposal.submission?.actor?.id !== assignedReviewer.id;
   const title = isOverride ? "Review protected exception" : "Review the current version";
   const approveAction = actions?.approve ?? null;
   const denyAction = actions?.deny ?? null;
@@ -433,7 +443,8 @@ function ReviewDocument({ proposal, anchorLine, session, timezone, ruleLabel, mo
       <section>
         <span className="review-section-number">01</span>
         <div><small>People and authority</small><h2>Different actors, explicit responsibility.</h2>
-          <dl className="review-people"><div><dt>Author</dt><dd>{shortActorName(proposal.author.displayName)}</dd></div><div><dt>Reviewer</dt><dd>{shortActorName(session.actor.displayName)}</dd></div><div><dt>Separation</dt><dd className={differentActor ? "is-valid" : "is-invalid"}>{differentActor ? "Confirmed" : "Required"}</dd></div></dl>
+          <dl className="review-people" aria-label="Assigned review responsibility"><div><dt>Author</dt><dd>{shortActorName(proposal.author.displayName)}</dd></div><div><dt>Assigned reviewer</dt><dd>{shortActorName(assignedReviewer?.displayName ?? "Unassigned")}</dd></div><div><dt>Reviewer separation</dt><dd className={independentReviewer ? "is-valid" : "is-invalid"}>{independentReviewer ? "Confirmed" : "Required"}</dd></div></dl>
+          <p className="review-access-note" aria-label="Current review access">Viewing as {shortActorName(session.actor.displayName)}. {approveAction?.enabled || denyAction?.enabled ? "A decision is enabled for this session." : denialAction?.reason?.message ?? "This session cannot record the decision."}</p>
         </div>
       </section>
       <section>
@@ -450,10 +461,10 @@ function ReviewDocument({ proposal, anchorLine, session, timezone, ruleLabel, mo
       </section>
     </div>
     <footer className="review-document__actions">
-      {isOverride && (approveAction?.enabled || denyAction?.enabled) ? <div className="proposal-decision-actions">
+      {(approveAction?.enabled || denyAction?.enabled) ? <div className="proposal-decision-actions">
         {denyAction?.enabled ? <button type="button" className="secondary-action is-denial" onClick={() => onConfirm(denyAction.code)}><span>{denyAction.confirmation?.confirmLabel ?? "Deny exception"}</span></button> : null}
         {approveAction?.enabled ? <button type="button" className="primary-action" onClick={() => onConfirm(approveAction.code)}><span>{approveAction.confirmation?.confirmLabel ?? "Approve exception"}</span><ArrowRight aria-hidden="true" /></button> : null}
-      </div> : !isOverride && approveAction?.enabled ? <button type="button" className="primary-action" onClick={() => onConfirm(approveAction.code)}><span>{approveAction.confirmation?.confirmLabel ?? "Approve current version"}</span><ArrowRight aria-hidden="true" /></button> : <div className="proposal-authority__denial"><LockKey aria-hidden="true" /><span><strong>{denialAction?.reason?.message ?? "This review cannot be recorded in the current session."}</strong><small>Work and review position remain preserved.</small></span></div>}
+      </div> : <div className="proposal-authority__denial"><LockKey aria-hidden="true" /><span><strong>{denialAction?.reason?.message ?? "This review cannot be recorded in the current session."}</strong><small>Work and review position remain preserved.</small></span></div>}
     </footer>
   </section>;
 }
@@ -532,6 +543,7 @@ function proposalConfirmation(code, proposal, publication) {
   if (code === "override.deny") return withServerCopy({ eyebrow: "Independent review", title: "Deny the protected exception?", boundaryTitle: "The Proposal remains blocked", body: "This records a different actor’s denial. No price is approved or published, and the evidenced lines remain blocked.", confirmLabel: "Deny exception", busyLabel: "Recording denial…", tone: "denial" });
   if (code === "proposal.submit") return withServerCopy({ eyebrow: "Submit Proposal", title: "Lock and submit the current version?", boundaryTitle: "Independent review becomes required", body: `Proposal v${proposal.ref.version} will be locked for the assigned Approver. Catalog remains unchanged.`, confirmLabel: "Submit current version", busyLabel: "Submitting…" });
   if (code === "proposal.approve") return withServerCopy({ eyebrow: "Independent review", title: "Approve current version?", boundaryTitle: "Approval does not publish", body: "This records independent authority for the reviewed version. Catalog prices remain unchanged.", confirmLabel: "Approve current version", busyLabel: "Recording approval…" });
+  if (code === "proposal.reject") return withServerCopy({ eyebrow: "Independent review", title: "Return this version for changes?", boundaryTitle: "A fresh draft requires fresh review", body: "The rejection and reason are recorded. The submission owner receives a new draft version; no prices are published.", confirmLabel: "Return for changes", busyLabel: "Recording decision…", tone: "denial" });
   if (code === "publication.start") return withServerCopy({ eyebrow: "Publication authority", title: "Start publication?", boundaryTitle: "This action changes Catalog prices", body: `This requests ${proposal.counts.selected.toLocaleString("en-NG")} Catalog writes for the approved current version.`, confirmLabel: "Start publication", busyLabel: "Starting operation…", tone: "write" });
   if (code === "publication.retry") return withServerCopy({ eyebrow: "Bounded recovery", title: `Retry ${publication.counts.remaining} unresolved lines?`, boundaryTitle: "Only unresolved writes will be retried", body: "The original operation and idempotency lineage remain authoritative. Successful writes are not repeated.", confirmLabel: `Retry ${publication.counts.remaining} lines`, busyLabel: "Retrying unresolved lines…", tone: "write" });
   return null;
@@ -550,6 +562,8 @@ export function ProposalWorkspace({
   error,
   onNavigate,
   onPerformAction,
+  onProposalHandoff,
+  onRevisionStarted,
 }) {
   const [dialogAction, setDialogAction] = useState(null);
   const [authorityOpen, setAuthorityOpen] = useState(false);
@@ -572,7 +586,14 @@ export function ProposalWorkspace({
   const anchorLine = previewLines.find((line) => line.sku === "KLD-PANT-0032") ?? previewLines[0] ?? null;
   const timezone = session.organisation.timezone;
   const state = statePresentation(proposal);
-  const view = PROPOSAL_VIEWS.includes(route.view) ? route.view : "overview";
+  const economicsRestricted = proposal.fieldVisibility?.economics === "restricted";
+  const availableViews = economicsRestricted ? PROPOSAL_VIEWS.filter((id) => id !== "margin" && id !== "comments") : PROPOSAL_VIEWS;
+  const view = availableViews.includes(route.view) ? route.view : "overview";
+  const editableDraft = proposal.state === "draft" || proposal.state === "blocked";
+  const handoffRequired = proposal.submissionPolicy?.analystCanSubmit === false && findAllowedAction(proposal.allowedActions, "proposal.handoff")?.enabled;
+  const showDraftTools = editableDraft && !economicsRestricted;
+  const nextAction = nextActionFor(proposal, publication);
+  const nextCopy = actionCopy(proposal, publication, nextAction);
 
   useEffect(() => {
     let current = true;
@@ -654,13 +675,13 @@ export function ProposalWorkspace({
   const onViewTabKeyDown = (event) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
-    const current = PROPOSAL_VIEWS.indexOf(view);
+    const current = availableViews.indexOf(view);
     let next = current;
     if (event.key === "Home") next = 0;
-    if (event.key === "End") next = PROPOSAL_VIEWS.length - 1;
-    if (event.key === "ArrowRight") next = (current + 1) % PROPOSAL_VIEWS.length;
-    if (event.key === "ArrowLeft") next = (current - 1 + PROPOSAL_VIEWS.length) % PROPOSAL_VIEWS.length;
-    const nextView = PROPOSAL_VIEWS[next];
+    if (event.key === "End") next = availableViews.length - 1;
+    if (event.key === "ArrowRight") next = (current + 1) % availableViews.length;
+    if (event.key === "ArrowLeft") next = (current - 1 + availableViews.length) % availableViews.length;
+    const nextView = availableViews[next];
     onNavigate({ surface: "proposal", resourceId: proposal.ref.id, resourceVersion: proposal.ref.version, view: nextView });
     window.requestAnimationFrame(() => document.getElementById(`proposal-tab-${nextView}`)?.focus());
   };
@@ -791,7 +812,7 @@ export function ProposalWorkspace({
           approve: findAllowedAction(decisionActions, "override.approve"),
           deny: findAllowedAction(decisionActions, "override.deny"),
         }
-      : { approve: findAllowedAction(proposal.allowedActions, "proposal.approve"), deny: null };
+      : { approve: findAllowedAction(proposal.allowedActions, "proposal.approve"), deny: findAllowedAction(proposal.allowedActions, "proposal.reject") };
     return <div className="proposal-page proposal-review-page">
       <button className="proposal-back" type="button" onClick={() => onNavigate({ surface: "proposal", resourceId: proposal.ref.id, resourceVersion: proposal.ref.version, view: "overview" })}><ArrowLeft aria-hidden="true" /> Back to Proposal</button>
       <ReviewDocument proposal={proposal} anchorLine={anchorLine} session={session} timezone={timezone} ruleLabel={ruleLabel} mode={overrideMode ? "override" : "proposal"} actions={actions} onConfirm={setDialogAction} />
@@ -826,34 +847,40 @@ export function ProposalWorkspace({
   return <div className="proposal-page">
     <header className="proposal-page-head" data-authoritative-result tabIndex="-1">
       <div>
-        <div className="breadcrumbs"><button type="button" onClick={() => onNavigate({ surface: "proposal", resourceId: proposal.ref.id, resourceVersion: proposal.ref.version, view: "overview" })}>Proposals</button><ArrowRight aria-hidden="true" /><span>Proposal v{proposal.ref.version}</span></div>
-        <div className="proposal-page-head__title"><span><small>Proposal v{proposal.ref.version}</small><h1>{proposal.title}</h1></span><span className={`proposal-state is-${state.tone}`}>{state.tone === "blocked" ? <ShieldWarning aria-hidden="true" /> : <SealCheck aria-hidden="true" />}{state.label}</span></div>
-        <p><span><GitBranch aria-hidden="true" />Version {proposal.ref.version}</span><span><Database aria-hidden="true" />Preview {proposal.sourcePreviewRef.version}</span><span>Effective {formatEffectiveAt(proposal.effectiveAt, timezone)}</span></p>
+        <div className="breadcrumbs"><button type="button" onClick={() => onNavigate({ surface: "proposals", view: "needs-me" })}>Proposals</button><ArrowRight aria-hidden="true" /><span>Proposal v{proposal.ref.version}</span></div>
+        <div className="proposal-page-head__title"><span><h1>{proposal.title}</h1></span><span className={`proposal-state is-${state.tone}`}>{state.tone === "blocked" ? <ShieldWarning aria-hidden="true" /> : <SealCheck aria-hidden="true" />}{state.label}</span></div>
+        <p><span>Effective {formatEffectiveAt(proposal.effectiveAt, timezone)}</span></p>
       </div>
     </header>
     <AuthorityJourney proposal={proposal} publication={publication} />
+    <ProposalNextStep proposal={proposal} action={nextAction} copy={nextCopy} canPrepare={session.effectiveCapabilities.includes("repricing:prepare")} restricted={economicsRestricted} handoffRequired={handoffRequired} busy={busy} onAction={handleAction} onNavigate={onNavigate} />
+    {showDraftTools ? handoffRequired || proposal.returnDecision ? <ProposalHandoff proposal={proposal} proposals={proposalRepository} onHandoff={onProposalHandoff} onRevisionStarted={onRevisionStarted} /> : <details className="proposal-draft-tools"><summary>Draft actions</summary><ProposalHandoff proposal={proposal} proposals={proposalRepository} onHandoff={onProposalHandoff} onRevisionStarted={onRevisionStarted} /></details> : null}
+    {error ? <div className="surface-risk" role="alert">
+      <ShieldWarning aria-hidden="true" />
+      <span><strong>Governed action did not complete</strong><small>{error}</small></span>
+    </div> : null}
     <section className="proposal-surface">
       <div className="proposal-surface__toolbar">
         <header ref={tabsRef} className="proposal-tabs" role="tablist" aria-label="Proposal views">
-          {PROPOSAL_VIEWS.map((id) => <button id={`proposal-tab-${id}`} key={id} type="button" role="tab" aria-controls="proposal-view-panel" aria-selected={view === id} tabIndex={view === id ? 0 : -1} className={view === id ? "is-active" : ""} onKeyDown={onViewTabKeyDown} onClick={() => onNavigate({ surface: "proposal", resourceId: proposal.ref.id, resourceVersion: proposal.ref.version, view: id })}>{id[0].toUpperCase() + id.slice(1)}{id === "lines" ? <span>{proposal.counts.selected.toLocaleString("en-NG")}</span> : id === "margin" ? <span>{proposal.blockers.margin.toLocaleString("en-NG")}</span> : id === "comments" && commentsState.status === "ready" ? <span>{commentsState.data.page.totalCount.toLocaleString("en-NG")}</span> : id === "activity" ? <span>{audit?.events.length ?? 0}</span> : null}</button>)}
+          {availableViews.map((id) => <button id={`proposal-tab-${id}`} key={id} type="button" role="tab" aria-controls="proposal-view-panel" aria-selected={view === id} tabIndex={view === id ? 0 : -1} className={view === id ? "is-active" : ""} onKeyDown={onViewTabKeyDown} onClick={() => onNavigate({ surface: "proposal", resourceId: proposal.ref.id, resourceVersion: proposal.ref.version, view: id })}>{id[0].toUpperCase() + id.slice(1)}{id === "lines" ? <span>{proposal.counts.selected.toLocaleString("en-NG")}</span> : id === "margin" ? <span>{proposal.blockers.margin.toLocaleString("en-NG")}</span> : id === "comments" && commentsState.status === "ready" ? <span>{commentsState.data.page.totalCount.toLocaleString("en-NG")}</span> : id === "activity" ? <span>{audit?.events.length ?? 0}</span> : null}</button>)}
         </header>
         <button
           ref={authorityTriggerRef}
           type="button"
           className="proposal-authority-trigger"
-          aria-label={authorityOpen ? "Hide next action" : "Review next action"}
+          aria-label={authorityOpen ? "Hide people and permissions" : "People and permissions"}
           aria-expanded={authorityOpen}
           aria-controls="proposal-authority-panel"
           onClick={() => setAuthorityOpen((open) => !open)}
         >
           <ShieldCheck aria-hidden="true" />
-          <span>{authorityOpen ? "Hide next action" : "Review next action"}</span>
+          <span>{authorityOpen ? "Hide people & permissions" : "People & permissions"}</span>
         </button>
       </div>
       <div className={`proposal-surface__body${authorityOpen ? " has-authority" : ""}`}>
         <div className="proposal-view" id="proposal-view-panel" role="tabpanel" aria-labelledby={`proposal-tab-${view}`}>
-          {view === "overview" ? <OverviewView proposal={proposal} anchorLine={anchorLine} timezone={timezone} ruleLabel={ruleLabel} /> : null}
-          {view === "lines" ? <LinesView proposal={proposal} lines={previewLines} timezone={timezone} ruleLabel={ruleLabel} /> : null}
+          {view === "overview" ? <OverviewView proposal={proposal} anchorLine={anchorLine} timezone={timezone} ruleLabel={ruleLabel} economicsRestricted={economicsRestricted} /> : null}
+          {view === "lines" ? <LinesView proposal={proposal} lines={previewLines} timezone={timezone} ruleLabel={ruleLabel} economicsRestricted={economicsRestricted} /> : null}
           {view === "margin" && marginState.status === "loading" ? <ProposalViewState state="loading" title="Loading the retained margin snapshot." detail="The exact Proposal reference is being resolved before any policy evidence is shown." /> : null}
           {view === "margin" && marginState.status === "error" ? <ProposalViewState state="error" title="Margin evidence could not be loaded." detail={marginState.error} onRetry={() => setMarginRetry((value) => value + 1)} /> : null}
           {view === "margin" && marginState.status === "ready" ? <MarginView evidence={marginState.data} proposal={proposal} timezone={timezone} ruleLabel={ruleLabel} onAction={handleAction} /> : null}

@@ -19,6 +19,13 @@ export const FIXTURE_ACTOR_IDS = Object.freeze({
   chika: "821221ff-d046-5c08-88b9-bac9e2bd378a",
   farida: "d8a10389-4be7-561f-9e25-e8f3677ad7c2",
   moyo: "90100976-76f8-531a-b40e-65bde5dce717",
+  manager: "1886df5c-f831-5b55-879f-aabf4888c647",
+  owner: "3b9b9141-dd70-5a54-b97d-a65dcdb85635",
+  contributor: "4ba27895-621f-59bc-8a91-648cf13b6aa6",
+  contributorPeer: "57e5958a-9628-5e69-94c5-b1cbb2ec362d",
+  commercial: "6c1b4fe1-feb1-55a9-aad0-a05459f5cbe1",
+  executive: "7c01a562-f686-5a74-a71e-542aeb170095",
+  viewer: "8fb803b8-82fa-51e1-ab8e-e49b6b6f637e",
 });
 
 const ACTORS = Object.freeze({
@@ -26,6 +33,22 @@ const ACTORS = Object.freeze({
   chika: Object.freeze({ id: FIXTURE_ACTOR_IDS.chika, displayName: "Chika · Sample Approver" }),
   farida: Object.freeze({ id: FIXTURE_ACTOR_IDS.farida, displayName: "Farida · Sample Publisher" }),
   moyo: Object.freeze({ id: FIXTURE_ACTOR_IDS.moyo, displayName: "Moyo · Sample Administrator" }),
+  manager: Object.freeze({ id: FIXTURE_ACTOR_IDS.manager, displayName: "Ada · Sample Pricing Manager" }),
+  owner: Object.freeze({ id: FIXTURE_ACTOR_IDS.owner, displayName: "Bola · Sample Account Owner" }),
+  contributor: Object.freeze({ id: FIXTURE_ACTOR_IDS.contributor, displayName: "Seyi · Sample Contributor" }),
+  contributorPeer: Object.freeze({ id: FIXTURE_ACTOR_IDS.contributorPeer, displayName: "Dele · Sample Contributor" }),
+  commercial: Object.freeze({ id: FIXTURE_ACTOR_IDS.commercial, displayName: "Zainab · Sample Commercial Approver" }),
+  executive: Object.freeze({ id: FIXTURE_ACTOR_IDS.executive, displayName: "Kunle · Sample Executive Approver" }),
+  viewer: Object.freeze({ id: FIXTURE_ACTOR_IDS.viewer, displayName: "Fola · Sample Viewer" }),
+});
+
+// Explicit fixture capability scenarios, not a migration of production roles.
+export const FIXTURE_ROLE_LABELS = Object.freeze({
+  pricing_analyst: "Pricing Analyst", import_admin: "Import preparation (sample)",
+  approver: "Finance Approver", publisher: "Executor", governance_auditor: "Auditor",
+  pricing_manager: "Pricing Manager", account_owner: "Account Owner",
+  pricing_contributor: "Pricing Contributor", commercial_approver: "Commercial Approver",
+  executive_approver: "Executive Approver", viewer: "Viewer",
 });
 
 /**
@@ -44,7 +67,8 @@ function evidenceSession(key, roleCodes, capabilities) {
     actor: ACTORS[key],
     organisation: FIXTURE_SESSION.organisation,
     roleCodes: Object.freeze(roleCodes),
-    effectiveCapabilities: Object.freeze(capabilities),
+    roleLabels: Object.freeze(roleCodes.map((code) => FIXTURE_ROLE_LABELS[code] ?? code)),
+    effectiveCapabilities: Object.freeze([...capabilities, ...(["teni", "chika", "farida", "moyo", "manager", "commercial", "executive"].includes(key) ? ["pricing:economics:read"] : [])]),
     capabilityVersion: "fixture:0.0.0-design.1",
     dataLabel: "Sample data",
     provenance: FIXTURE_PROVENANCE,
@@ -53,7 +77,7 @@ function evidenceSession(key, roleCodes, capabilities) {
 
 export const FIXTURE_EVIDENCE_SESSIONS = Object.freeze({
   [FIXTURE_ACTOR_IDS.teni]: evidenceSession("teni", ["pricing_analyst", "import_admin"], [
-    "catalog:read", "import:prepare", "repricing:prepare", "proposal:create", "proposal:read", "proposal:comment", "proposal:submit", "override:request", "rules:read",
+    "catalog:read", "import:prepare", "repricing:prepare", "proposal:create", "proposal:read", "proposal:comment", "proposal:submit", "proposal:draft:edit", "proposal:handoff", "override:request", "rules:read", "company:read",
   ]),
   [FIXTURE_ACTOR_IDS.chika]: evidenceSession("chika", ["approver"], [
     "catalog:read", "proposal:read", "proposal:comment", "proposal:review", "proposal:approve", "override:decide",
@@ -63,6 +87,27 @@ export const FIXTURE_EVIDENCE_SESSIONS = Object.freeze({
   ]),
   [FIXTURE_ACTOR_IDS.moyo]: evidenceSession("moyo", ["governance_auditor"], [
     "proposal:read", "audit:read",
+  ]),
+  [FIXTURE_ACTOR_IDS.manager]: evidenceSession("manager", ["pricing_manager"], [
+    "catalog:read", "import:prepare", "repricing:prepare", "proposal:create", "proposal:read", "proposal:comment", "proposal:submit", "proposal:draft:edit", "proposal:handoff", "proposal:handoff:receive", "override:request", "rules:read", "company:read", "request:triage",
+  ]),
+  [FIXTURE_ACTOR_IDS.owner]: evidenceSession("owner", ["account_owner"], [
+    "company:read", "company:policy:update",
+  ]),
+  [FIXTURE_ACTOR_IDS.contributor]: evidenceSession("contributor", ["pricing_contributor"], [
+    "request:create", "request:read:own",
+  ]),
+  [FIXTURE_ACTOR_IDS.contributorPeer]: evidenceSession("contributorPeer", ["pricing_contributor"], [
+    "request:create", "request:read:own",
+  ]),
+  [FIXTURE_ACTOR_IDS.commercial]: evidenceSession("commercial", ["commercial_approver"], [
+    "proposal:read", "proposal:comment", "proposal:review", "proposal:approve", "override:decide",
+  ]),
+  [FIXTURE_ACTOR_IDS.executive]: evidenceSession("executive", ["executive_approver"], [
+    "proposal:read", "proposal:comment", "proposal:review", "proposal:approve", "override:decide",
+  ]),
+  [FIXTURE_ACTOR_IDS.viewer]: evidenceSession("viewer", ["viewer"], [
+    "catalog:read", "proposal:read",
   ]),
 });
 

@@ -6,26 +6,6 @@
  * spacing and consequence geometry coherent across those surfaces.
  */
 
-:root {
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --control-size: 44px;
-  --touch-size: 48px;
-  --entity-box: 44px;
-  --step-node: 36px;
-  --radius-control: 8px;
-  --panel-shadow: 0 24px 64px rgba(6, 51, 44, .14);
-  --panel-motion: cubic-bezier(.22, 1, .36, 1);
-  --text-page-title: clamp(28px, 2.2vw, 32px);
-  --text-page-title-line: 1.05;
-  --text-page-title-tracking: -.025em;
-  --content-max: 1200px;
-}
-
 html,
 body,
 #root {
@@ -115,19 +95,14 @@ body,
   .side-nav__collapse { width: var(--control-size); }
 }
 
-/* Entity glyphs are visual anchors, not incidental decoration. */
+/* Entity boxes remain for status/action glyphs only; row identity is text-first. */
 .product-cell {
   min-height: var(--control-size);
-  grid-template-columns: var(--entity-box) minmax(0, 1fr);
-  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
 }
 
-.product-glyph,
-.catalog-identity > i,
-.import-file > svg,
-.profile-file > svg,
-.audit-event-icon,
-.rules-list > button > span:first-child > svg {
+.audit-event-icon {
   width: var(--entity-box);
   height: var(--entity-box);
   flex: 0 0 var(--entity-box);
@@ -136,17 +111,8 @@ body,
   background: var(--green-soft);
 }
 
-.product-glyph {
-  font-size: 13px;
-}
-
 .table-scroll.is-compact .product-cell {
-  grid-template-columns: 36px minmax(0, 1fr);
-}
-
-.table-scroll.is-compact .product-glyph {
-  width: 36px;
-  height: 36px;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .ops-section-head > span:first-child:not(.ops-status),
@@ -239,7 +205,7 @@ body,
   border: 1px solid color-mix(in srgb, var(--gold) 48%, var(--line));
   border-radius: 9px;
   color: var(--green);
-  background: linear-gradient(110deg, color-mix(in srgb, var(--gold-soft) 68%, var(--paper)), color-mix(in srgb, var(--green-soft) 46%, var(--paper)));
+  background: var(--gold-soft);
 }
 
 .review-consequence > svg {
@@ -360,11 +326,9 @@ body,
 /* List and detail planes land on the same 4px rhythm. */
 .queue-row,
 .catalog-list > button,
-.import-ledger > button,
 .proposal-list > button,
-.rules-list > button,
 .audit-ledger > article {
-  column-gap: var(--space-4);
+  column-gap: var(--table-cell-gap);
 }
 
 .catalog-list > button,
@@ -372,11 +336,11 @@ body,
 .rules-list > button,
 .audit-ledger > article {
   padding-block: var(--space-3);
-  padding-inline: var(--space-5);
+  padding-inline: var(--table-inset);
 }
 
 .proposal-list > button {
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-3) var(--table-inset);
 }
 
 .catalog-identity,
@@ -441,8 +405,8 @@ body,
 .mapping-table strong,
 .issue-list strong,
 .mapping-boundary strong {
-  font-size: 14px;
-  line-height: 20px;
+  font-size: var(--table-text-primary);
+  line-height: var(--table-line-primary);
 }
 
 .intent-grid small,
@@ -464,8 +428,8 @@ body,
 .issue-list small,
 .issue-toolbar > span {
   min-width: 0;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: var(--table-text-secondary);
+  line-height: var(--table-line-secondary);
 }
 
 .profile-layout {
@@ -488,7 +452,12 @@ body,
 }
 
 .mapping-table > div:not(.mapping-head) {
-  padding: var(--space-4) var(--space-6);
+  padding: var(--space-3) var(--table-inset);
+}
+
+.mapping-table .ops-status.is-success {
+  padding-inline: 0;
+  background: transparent;
 }
 
 .import-journey .mapping-boundary {
@@ -806,7 +775,7 @@ body,
   border-radius: 0;
   color: var(--green);
   background: transparent;
-  font-size: 11px;
+  font-size: var(--text-body-small);
   line-height: 16px;
   font-weight: 650;
   cursor: pointer;
@@ -872,7 +841,8 @@ body,
   border: 0;
   color: var(--green);
   background: transparent;
-  font-size: 11px;
+  font-size: var(--text-body-small);
+  line-height: var(--text-body-small-line);
   font-weight: 650;
   cursor: pointer;
 }
@@ -899,7 +869,6 @@ body,
   padding: 0;
   border: 0;
   background: rgba(6, 33, 28, .16);
-  backdrop-filter: blur(1.5px);
   cursor: default;
   animation: premium-scrim-in 220ms ease both;
 }
@@ -1368,10 +1337,22 @@ body,
   padding-block: var(--space-4);
 }
 
-.queue-row strong,
-.queue-row__main small {
-  font-size: 14px;
-  line-height: 20px;
+.queue-row strong {
+  font-size: var(--table-text-primary);
+  line-height: var(--table-line-primary);
+}
+
+.queue-row small,
+.queue-row__main small,
+.queue-row__updated {
+  font-size: var(--table-text-secondary);
+  line-height: var(--table-line-secondary);
+}
+
+.queue-row__actor strong,
+.queue-row__source strong {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .catalog-list > button {
@@ -1379,17 +1360,17 @@ body,
 }
 
 .catalog-identity strong,
-.catalog-identity small,
-.catalog-money strong,
-.catalog-list > button > span:not(.catalog-identity, .catalog-money, .ops-status) {
-  font-size: 14px;
-  line-height: 20px;
+.catalog-money strong {
+  font-size: var(--table-text-primary);
+  line-height: var(--table-line-primary);
 }
 
+.catalog-identity small,
 .catalog-money small,
-.catalog-identity em {
-  font-size: 12px;
-  line-height: 16px;
+.catalog-identity em,
+.catalog-list > button > span:not(.catalog-identity, .catalog-money, .ops-status) {
+  font-size: var(--table-text-secondary);
+  line-height: var(--table-line-secondary);
 }
 
 .catalog-list > button:focus-visible {
@@ -1693,11 +1674,6 @@ body,
 }
 
 @media (max-width: 767px) {
-  .import-journey .ops-page-head h1 {
-    font-size: clamp(32px, 9vw, 42px);
-    line-height: 1.03;
-  }
-
   .import-journey .ops-page-meta {
     gap: var(--space-2) var(--space-3);
   }

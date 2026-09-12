@@ -14,6 +14,8 @@ import {
 } from "./contracts.js";
 import { throwRepositoryError } from "./domainError.js";
 import { createFixtureOperationalRepositories } from "./fixtureOperationalRepositories.js";
+import { createFixtureCompanyState, createFixtureCompanyRequests, fixtureHandoffCandidates } from "./fixtureCompanyRequests.js";
+import { ECONOMICS_READ, projectPreviewEconomics, projectProposalEconomics, projectMarginEconomics, projectRevisionEconomics } from "./fixtureEconomicsVisibility.js";
 import { WORKSPACE_LIVE_BACKEND_ISSUES } from "./liveBackendGate.js";
 import {
   FIXTURE_COUNTS,
@@ -71,8 +73,8 @@ const COMMENT_CURSOR_PREFIX = "fixture-proposal-comment:";
  * @param {string[] | null} [designEvidenceCapabilities]
  * @param {boolean} [startWithExistingProposal]
  */
-function createJourneyRuntime(designEvidenceCapabilities = null, startWithExistingProposal = true) {
-  return {
+function createJourneyRuntime(designEvidenceCapabilities = null, startWithExistingProposal = true, designEvidence = {}) {
+  const runtime = {
     actorId: FIXTURE_ACTOR_IDS.teni,
     authenticated: true,
     designEvidenceCapabilities,
@@ -84,6 +86,10 @@ function createJourneyRuntime(designEvidenceCapabilities = null, startWithExisti
       counts: clone(FIXTURE_COUNTS),
       blockers: clone(FIXTURE_PROPOSAL_DETAIL.blockers),
       lines: clone(FIXTURE_REPRICING_LINES),
+      rule: clone(FIXTURE_REPRICING_RULE.rule),
+      scopeRef: clone(FIXTURE_REPRICING_SCOPE.ref),
+      ruleRef: clone(FIXTURE_REPRICING_RULE.ref),
+      scopeSnapshot: clone(FIXTURE_REPRICING_SCOPE),
     } : null,
     override: null,
     publication: null,
@@ -91,6 +97,10 @@ function createJourneyRuntime(designEvidenceCapabilities = null, startWithExisti
     overrideDecisionAuditEvent: null,
     publishIdempotencyKey: null,
     comments: startWithExistingProposal ? clone(FIXTURE_PROPOSAL_COMMENTS) : [],
+    company: createFixtureCompanyState(designEvidence.organisation ?? FIXTURE_SESSION.organisation),
+    roleJourneyEvents: [],
+    proposalSnapshots: new Map(),
+    proposalSourceSnapshots: new Map(),
     repricing: {
       scope: clone(FIXTURE_REPRICING_SCOPE),
       rule: clone(FIXTURE_REPRICING_RULE),
@@ -100,9 +110,23 @@ function createJourneyRuntime(designEvidenceCapabilities = null, startWithExisti
       previewRuleRef: clone(FIXTURE_REPRICING_RULE.ref),
       remediationRevision: 0,
       remediatedPreviews: [],
+      proposalPreviews: new Map(),
       currentRemediatedPreviewRef: null,
     },
   };
+  const stage = designEvidence.approvalStage ?? "finance";
+  const stageActors = { finance: "chika", commercial: "commercial", executive: "executive" };
+  if (!Object.hasOwn(stageActors, stage)) throw new TypeError("Unsupported design-evidence approval stage.");
+  runtime.approvalStage = { code: stage, label: `${stage[0].toUpperCase()}${stage.slice(1)} review`, mode: "single-assigned-stage" };
+  runtime.assignedApprover = clone(FIXTURE_JOURNEY_ACTORS[stageActors[stage]]);
+  if (runtime.proposal) {
+    runtime.proposal.submissionOwner = clone(runtime.proposal.author);
+    runtime.proposal.assignedApprover = clone(runtime.assignedApprover);
+    runtime.proposal.approvalStage = clone(runtime.approvalStage);
+    runtime.proposal.handoffHistory = [];
+    runtime.proposal.submission = null;
+  }
+  return runtime;
 }
 
 /** @template T @param {T} value @returns {T} */
@@ -146,10 +170,17 @@ function currentSession(runtime) {
     });
   }
   const session = FIXTURE_EVIDENCE_SESSIONS[runtime.actorId];
-  if (!Array.isArray(runtime.designEvidenceCapabilities)) return session;
+  let capabilities = Array.isArray(runtime.designEvidenceCapabilities)
+    ? [...runtime.designEvidenceCapabilities] : [...session.effectiveCapabilities];
+  if (session.roleCodes.includes("pricing_analyst") && !runtime.company.analystCanSubmit) {
+    capabilities = capabilities.filter((capability) => capability !== "proposal:submit");
+  }
   return {
     ...session,
-    effectiveCapabilities: Object.freeze([...runtime.designEvidenceCapabilities]),
+    organisation: clone(runtime.company.organisation),
+    effectiveCapabilities: capabilities,
+    companyPolicyRef: clone(runtime.company.ref),
+    capabilityVersion: runtime.company.ref.version === "1" ? session.capabilityVersion : `${session.capabilityVersion}:company-policy:${runtime.company.ref.version}`,
   };
 }
 
@@ -204,7 +235,7 @@ function assertIdempotencyKey(value, domain) {
  * @param {string} domain
  */
 function assertCurrentRef(ref, current, resource, domain) {
-  if (!ref || ref.id !== current.id) {
+  if (!ref || !current || ref.kind !== current.kind || ref.id !== current.id) {
     throwRepositoryError({
       code: `${resource}_NOT_FOUND`,
       message: `The requested ${resource.toLocaleLowerCase()} is not available.`,
@@ -286,10 +317,11 @@ function readIdempotentRetry(requests, idempotencyKey, fingerprint, domain) {
 function repricingPreviewAllowedActions(runtime, previewRef = FIXTURE_PREVIEW_REF) {
   const actions = clone(FIXTURE_PREVIEW_ACTIONS);
   const retainedRemediation = runtime.repricing.remediatedPreviews.find((preview) => sameRef(preview.ref, previewRef));
+  const retainedProposalPreview = runtime.repricing.proposalPreviews.get(`${previewRef.id}:${previewRef.version}`);
   const previewCounts = retainedRemediation?.counts
-    ?? (sameRef(runtime.repricing.generatedPreview?.ref, previewRef) ? runtime.repricing.generatedPreview.counts : FIXTURE_COUNTS);
+    ?? (sameRef(runtime.repricing.generatedPreview?.ref, previewRef) ? runtime.repricing.generatedPreview.counts : retainedProposalPreview?.counts ?? FIXTURE_COUNTS);
   const previewBlockers = retainedRemediation?.blockers
-    ?? (sameRef(runtime.repricing.generatedPreview?.ref, previewRef) ? runtime.repricing.generatedPreview.blockers : FIXTURE_PREVIEW_BLOCKERS);
+    ?? (sameRef(runtime.repricing.generatedPreview?.ref, previewRef) ? runtime.repricing.generatedPreview.blockers : retainedProposalPreview?.blockers ?? FIXTURE_PREVIEW_BLOCKERS);
   const readPreview = actions.find((action) => action.code === "repricing.preview.read");
   const createProposal = actions.find((action) => action.code === "proposal.create");
   const readProposal = actions.find((action) => action.code === "proposal.read");
@@ -301,7 +333,13 @@ function repricingPreviewAllowedActions(runtime, previewRef = FIXTURE_PREVIEW_RE
     ? runtime.proposal
     : null;
   const remediableBlockers = previewBlockers.staleCost + previewBlockers.dimension;
-  const canCreateProposal = hasCreateCapability && !existingProposal && remediableBlockers === 0;
+  const source = retainedRemediation ?? (sameRef(runtime.repricing.generatedPreview?.ref, previewRef) ? runtime.repricing.generatedPreview : retainedProposalPreview);
+  const revisionRequired = Boolean(runtime.proposal?.returnDecision || source?.revisionOrigin);
+  const canReplaceReturned = !revisionRequired || (sameRef(source?.revisionOrigin?.sourceProposalRef, runtime.proposal?.ref)
+    && sameRef(source?.ruleRef, runtime.repricing.rule.ref)
+    && sameRef(previewRef, runtime.repricing.currentRemediatedPreviewRef ?? runtime.repricing.generatedPreview?.ref)
+    && proposalAllowedActions(runtime).some((item) => item.code === "proposal.revision.start" && item.enabled));
+  const canCreateProposal = hasCreateCapability && !existingProposal && remediableBlockers === 0 && canReplaceReturned;
   const canReadProposal = hasReadCapability && Boolean(existingProposal);
   readPreview.requiredVersion = previewRef.version;
   createProposal.enabled = canCreateProposal;
@@ -311,6 +349,8 @@ function repricingPreviewAllowedActions(runtime, previewRef = FIXTURE_PREVIEW_RE
       ? denial("ALREADY_EXISTS", "This exact Preview already has a governed Proposal. Open its current version instead.")
       : !hasCreateCapability
         ? denial("MISSING_PERMISSION", "Proposal creation permission is required for this resolved session.")
+        : !canReplaceReturned
+          ? denial("WRONG_STATE", "Only the current returned draft owner can create a replacement from its exact current pricing revision. Reopen the returned Proposal if it changed.")
         : denial("WRONG_STATE", `Resolve ${remediableBlockers.toLocaleString("en-GB")} stale-cost or dimension blocker${remediableBlockers === 1 ? "" : "s"} before governance.`);
   createProposal.requiredVersion = previewRef.version;
   createProposal.confirmation = canCreateProposal
@@ -338,10 +378,11 @@ function overrideDecisionActions(runtime) {
   const marginLineCount = override?.lineCount ?? runtime.proposal.blockers.margin;
   const marginLineNoun = marginLineCount === 1 ? "line" : "lines";
   const isRequester = Boolean(override && runtime.actorId === override.requester.id);
+  const isMaker = isProposalMaker(runtime);
   const isAssignedApprover = runtime.actorId === runtime.proposal.assignedApprover.id;
   const hasDecisionCapability = hasCapability(runtime, "override:decide");
   const isPending = override?.state === "pending";
-  const canDecide = Boolean(isPending && isAssignedApprover && !isRequester && hasDecisionCapability);
+  const canDecide = Boolean(isPending && isAssignedApprover && !isRequester && !isMaker && hasDecisionCapability);
   const reason = canDecide ? null : denial(
     isRequester || !isAssignedApprover ? "WRONG_ACTOR" : !hasDecisionCapability ? "MISSING_PERMISSION" : "WRONG_STATE",
     isRequester
@@ -376,13 +417,19 @@ function proposalAllowedActions(runtime) {
   const marginLineCount = proposal.blockers.margin;
   const marginLineNoun = marginLineCount === 1 ? "line" : "lines";
   const actorId = runtime.actorId;
-  const isAuthor = actorId === proposal.author.id;
+  const isAuthor = actorId === proposal.author.id || actorId === proposal.revisionOrigin?.startedBy?.id;
   const isAssignedApprover = actorId === proposal.assignedApprover.id;
   const isAssignedPublisher = actorId === proposal.assignedPublisher.id;
   const overridePending = runtime.override?.state === "pending";
-  const canRequestOverride = proposal.state === "blocked" && marginLineCount > 0 && !runtime.override && isAuthor && hasCapability(runtime, "override:request");
-  const canSubmit = proposal.state === "draft" && proposal.readiness === "ready_to_submit" && isAuthor && hasCapability(runtime, "proposal:submit");
-  const canApprove = proposal.state === "submitted" && isAssignedApprover && !isAuthor && hasCapability(runtime, "proposal:approve");
+  const isSubmissionOwner = actorId === (proposal.submissionOwner ?? proposal.author).id;
+  const canRequestOverride = proposal.state === "blocked" && marginLineCount > 0 && !runtime.override && isSubmissionOwner && hasCapability(runtime, "override:request");
+  const isSubmitter = actorId === proposal.submission?.actor.id;
+  const editable = ["draft", "blocked"].includes(proposal.state) && !overridePending;
+  const canHandoff = editable && isSubmissionOwner && hasCapability(runtime, "proposal:handoff") && fixtureHandoffCandidates().some((candidate) => candidate.id !== actorId);
+  const canEditDraft = editable && isSubmissionOwner && hasCapability(runtime, "proposal:draft:edit");
+  const canReviseEvidence = canEditDraft && Boolean(proposal.returnDecision) && !proposal.returnDecision.addressedAt && hasCapability(runtime, "repricing:prepare") && hasCapability(runtime, "proposal:create");
+  const canSubmit = proposal.state === "draft" && proposal.readiness === "ready_to_submit" && isSubmissionOwner && hasCapability(runtime, "proposal:submit");
+  const canApprove = proposal.state === "submitted" && isAssignedApprover && !isAuthor && !isSubmitter && hasCapability(runtime, "proposal:approve");
   const canPublish = proposal.state === "approved" && !runtime.publication && isAssignedPublisher && hasCapability(runtime, "publish:execute");
   const canComment = hasCapability(runtime, "proposal:comment");
   return [
@@ -397,12 +444,12 @@ function proposalAllowedActions(runtime) {
       consequenceCode: "COMMENT_ATTACHED_TO_PROPOSAL_VERSION",
     } : null),
     allowedAction("override.request", canRequestOverride, version, canRequestOverride ? null : denial(
-      !hasCapability(runtime, "override:request") ? "MISSING_PERMISSION" : !isAuthor ? "WRONG_ACTOR" : "WRONG_STATE",
+      !hasCapability(runtime, "override:request") ? "MISSING_PERMISSION" : !isSubmissionOwner ? "WRONG_ACTOR" : "WRONG_STATE",
       overridePending
         ? "An exception request is already awaiting an independent decision."
         : marginLineCount < 1
           ? "Exceptions apply only to margin blockers; repair stale-cost or dimension issues in a new Preview."
-          : "Only the author can request an exception while the Proposal is blocked.",
+          : "Only the current draft owner can request an exception while the Proposal is blocked.",
     ), canRequestOverride ? {
       title: "Request bounded exception",
       body: `Keep ${marginLineCount.toLocaleString("en-GB")} margin ${marginLineNoun} blocked until a different authorised actor decides the evidence.`,
@@ -410,23 +457,40 @@ function proposalAllowedActions(runtime) {
       consequenceCode: "OVERRIDE_REQUIRES_DIFFERENT_ACTOR",
     } : null),
     ...overrideDecisionActions(runtime),
+    allowedAction("proposal.draft.edit", canEditDraft, version, canEditDraft ? null : denial(!hasCapability(runtime, "proposal:draft:edit") ? "MISSING_PERMISSION" : !isSubmissionOwner ? "WRONG_ACTOR" : "WRONG_STATE", "Only the draft's current owner can edit an unlocked draft.")),
+    ...(proposal.returnDecision ? [allowedAction("proposal.revision.start", canReviseEvidence, version, canReviseEvidence ? null : denial(
+      !hasCapability(runtime, "proposal:draft:edit") || !hasCapability(runtime, "repricing:prepare") || !hasCapability(runtime, "proposal:create") ? "MISSING_PERMISSION" : !isSubmissionOwner ? "WRONG_ACTOR" : "WRONG_STATE",
+      "Only the current returned draft owner with pricing preparation access can revise pricing evidence. Reviewed and approved evidence remains unchanged.",
+    ))] : []),
+    allowedAction("proposal.handoff", canHandoff, version, canHandoff ? null : denial(!hasCapability(runtime, "proposal:handoff") ? "MISSING_PERMISSION" : !isSubmissionOwner ? "WRONG_ACTOR" : "WRONG_STATE", "Only the draft's current owner can hand it to an eligible pricing manager."), canHandoff ? {
+      title: "Hand off this draft", body: "Change the submission owner. Keep the original author, pricing evidence and all blockers unchanged.", confirmLabel: "Hand off draft", consequenceCode: "DRAFT_HANDOFF_NOT_SUBMISSION",
+    } : null),
     allowedAction("proposal.submit", canSubmit, version, canSubmit ? null : denial(
-      !hasCapability(runtime, "proposal:submit") ? "MISSING_PERMISSION" : !isAuthor ? "WRONG_ACTOR" : "WRONG_STATE",
-      proposal.state === "blocked" ? "Resolve all blockers before submission." : "Only the current ready draft can be submitted by its author.",
+      !hasCapability(runtime, "proposal:submit") ? "MISSING_PERMISSION" : !isSubmissionOwner ? "WRONG_ACTOR" : "WRONG_STATE",
+      !hasCapability(runtime, "proposal:submit") && currentSession(runtime).roleCodes.includes("pricing_analyst") && !runtime.company.analystCanSubmit
+        ? "Your company requires a Pricing Manager to submit. Hand off this draft."
+        : proposal.state === "blocked" ? "Resolve all blockers before submission." : "Only the ready draft's current owner can submit it.",
     ), canSubmit ? {
       title: "Submit current version",
-      body: "Lock the current version for independent review by Chika.",
+      body: `Lock the current version for independent review by ${proposal.assignedApprover.displayName}.`,
       confirmLabel: "Submit for approval",
       consequenceCode: "PROPOSAL_SUBMITTED_NOT_APPROVED",
     } : null),
     allowedAction("proposal.approve", canApprove, version, canApprove ? null : denial(
-      isAuthor ? "WRONG_ACTOR" : !hasCapability(runtime, "proposal:approve") ? "MISSING_PERMISSION" : "WRONG_STATE",
-      isAuthor ? "The Proposal author cannot approve this protected decision." : "Only the current submitted version can be approved by the assigned approver.",
+      isAuthor || isSubmitter ? "WRONG_ACTOR" : !hasCapability(runtime, "proposal:approve") ? "MISSING_PERMISSION" : !isAssignedApprover ? "WRONG_ACTOR" : "WRONG_STATE",
+      isAuthor || isSubmitter ? "The author and submitter cannot approve this protected decision." : "Only the current submitted version can be approved by the assigned approver.",
     ), canApprove ? {
       title: "Approve current version",
       body: "Approve the reviewed version for a separate Publisher. No prices are released by this action.",
       confirmLabel: "Approve Proposal",
       consequenceCode: "PROPOSAL_APPROVED_NOT_PUBLISHED",
+    } : null),
+    allowedAction("proposal.reject", canApprove, version, canApprove ? null : denial(
+      isAuthor || isSubmitter ? "WRONG_ACTOR" : !hasCapability(runtime, "proposal:approve") ? "MISSING_PERMISSION" : !isAssignedApprover ? "WRONG_ACTOR" : "WRONG_STATE",
+      isAuthor || isSubmitter ? "The author and submitter cannot decide their own protected work." : "Only the assigned reviewer can return this submitted version.",
+    ), canApprove ? {
+      title: "Return for changes", body: "Record your reason and return a new draft to its submission owner. This does not approve or publish any prices.",
+      confirmLabel: "Return for changes", consequenceCode: "PROPOSAL_RETURNED_REQUIRES_FRESH_REVIEW",
     } : null),
     allowedAction("publication.start", canPublish, version, canPublish ? null : denial(
       !hasCapability(runtime, "publish:execute") ? "MISSING_PERMISSION" : !isAssignedPublisher ? "WRONG_ACTOR" : "WRONG_STATE",
@@ -446,8 +510,60 @@ function materialiseProposal(runtime) {
   detail.override = runtime.override ? materialiseOverride(runtime) : null;
   detail.publicationRef = runtime.publication ? clone(runtime.publication.ref) : null;
   detail.allowedActions = proposalAllowedActions(runtime);
+  detail.submissionPolicy = { analystCanSubmit: runtime.company.analystCanSubmit, companyPolicyVersion: runtime.company.ref.version };
+  detail.handoffCandidates = detail.allowedActions.some((item) => item.code === "proposal.handoff" && item.enabled)
+    ? fixtureHandoffCandidates().filter((candidate) => candidate.id !== runtime.actorId) : [];
+  detail.activity = clone(runtime.roleJourneyEvents);
+  if (sameRef(runtime.repricing.rule?.revisionOrigin?.sourceProposalRef, detail.ref)) detail.pricingRevision = revisionHandoff(runtime);
   assertProposalDetail(detail);
   return detail;
+}
+
+function nextProposalVersion(runtime, canonicalMinimum = 0) {
+  const snapshotKey = `${runtime.proposal.ref.id}:${runtime.proposal.ref.version}`;
+  if (!runtime.proposalSnapshots.has(snapshotKey)) runtime.proposalSnapshots.set(snapshotKey, materialiseProposal(runtime));
+  if (!runtime.proposalSourceSnapshots.has(snapshotKey)) runtime.proposalSourceSnapshots.set(snapshotKey, clone(runtime.proposalSourceSnapshot));
+  runtime.proposal.ref.version = String(Math.max(Number(runtime.proposal.ref.version) + 1, canonicalMinimum));
+}
+
+function revisionHandoff(runtime) {
+  return {
+    kind: "proposal-revision",
+    ...clone(runtime.repricing.rule.revisionOrigin),
+    scopeRef: clone(runtime.repricing.scope.ref),
+    ruleRef: clone(runtime.repricing.rule.ref),
+    previewRef: clone(runtime.repricing.currentRemediatedPreviewRef ?? runtime.repricing.generatedPreview?.ref ?? null),
+    provenance: clone(FIXTURE_PROVENANCE),
+  };
+}
+
+function isProposalMaker(runtime) {
+  return runtime.actorId === runtime.proposal.author.id
+    || runtime.actorId === runtime.proposal.submission?.actor.id
+    || runtime.actorId === runtime.proposal.revisionOrigin?.startedBy?.id;
+}
+
+function attachRelatedRevisionProposal(runtime, response) {
+  const origin = response.revisionOrigin;
+  // This is navigation within a known revision lineage, not permission to
+  // create a Proposal from another Preview or broaden its read action.
+  delete response.relatedProposalRef;
+  if (origin && hasCapability(runtime, "proposal:read")
+    && (sameRef(origin.sourceProposalRef, runtime.proposal?.ref)
+      || sameRef(origin.sourceProposalRef, runtime.proposal?.revisionOrigin?.sourceProposalRef))) response.relatedProposalRef = clone(runtime.proposal.ref);
+}
+
+function recordRoleJourneyEvent(runtime, eventType, before, reason) {
+  if (runtime.roleJourneyBaseSequence == null) runtime.roleJourneyBaseSequence = runtime.auditLastSequence;
+  const session = currentSession(runtime);
+  runtime.roleJourneyEvents.push({
+    id: crypto.randomUUID(), sequence: runtime.roleJourneyBaseSequence + runtime.roleJourneyEvents.length + 1,
+    occurredAt: new Date().toISOString(), eventType,
+    object: { id: runtime.proposal.ref.id, type: "proposal", version: runtime.proposal.ref.version },
+    actorId: session.actor.id, actorRole: session.roleLabels?.[0] ?? "Sample member",
+    sourceType: "human", before, after: { state: runtime.proposal.state, submissionOwnerId: runtime.proposal.submissionOwner.id, version: runtime.proposal.ref.version },
+    reason, isSynthetic: true,
+  });
 }
 
 /** @param {ReturnType<typeof createJourneyRuntime>} runtime */
@@ -531,6 +647,7 @@ function materialiseOverride(runtime) {
 function materialisePublication(runtime) {
   if (!runtime.publication) return null;
   const publication = clone(runtime.publication);
+  publication.proposalRef = clone(runtime.proposal.ref);
   const isPublisher = runtime.actorId === publication.publisher.id;
   const mayReconcile = isPublisher && hasCapability(runtime, "publish:reconcile") && ["unknown-outcome", "reconciling"].includes(publication.state);
   const mayRetry = isPublisher && hasCapability(runtime, "publish:execute") && publication.state === "incomplete";
@@ -625,6 +742,7 @@ function assertPreviewRef(ref, runtime = null) {
   if (!ref) return;
   const retainedRemediation = runtime?.repricing.remediatedPreviews.find((preview) => sameRef(preview.ref, ref));
   const current = retainedRemediation?.ref
+    ?? runtime?.repricing.proposalPreviews.get(`${ref.id}:${ref.version}`)?.ref
     ?? (ref.kind === FIXTURE_PREVIEW_REF.kind && ref.id === FIXTURE_PREVIEW_REF.id
     ? FIXTURE_PREVIEW_REF
     : runtime?.repricing.generatedPreview?.ref?.kind === ref.kind
@@ -741,6 +859,10 @@ function hasCanonicalFx010AuditLineage(runtime) {
 
 /** @param {ReturnType<typeof createJourneyRuntime>} runtime */
 function canonicalAuditEvents(runtime) {
+  if (runtime.roleJourneyEvents.length) {
+    const baseline = hasCanonicalFx010AuditLineage(runtime) ? FIXTURE_AUDIT_EVENTS.filter((event) => event.sequence <= runtime.roleJourneyBaseSequence) : [];
+    return [...baseline, ...runtime.roleJourneyEvents].map(clone);
+  }
   if (!hasCanonicalFx010AuditLineage(runtime)) return [];
   const complete = runtime.publication?.state === "published";
   const last = complete ? 25 : runtime.auditLastSequence;
@@ -849,12 +971,13 @@ function materialiseScope(runtime, scope = runtime.repricing.scope) {
     ), ruleTarget),
   ];
   assertRepricingScope(response);
-  return response;
+  return projectRevisionEconomics(response, currentSession(runtime));
 }
 
 /** @param {ReturnType<typeof createJourneyRuntime>} runtime @param {Record<string, any>} rule */
 function materialiseRule(runtime, rule = runtime.repricing.rule) {
   const response = clone(rule);
+  attachRelatedRevisionProposal(runtime, response);
   response.preparedRules = Object.values(FIXTURE_PREPARED_REPRICING_OUTCOMES).map(({ label, rule: preparedRule }) => ({ label, rule: clone(preparedRule) }));
   const canPrepare = hasCapability(runtime, "repricing:prepare");
   const previewTarget = sameRef(runtime.repricing.previewRuleRef, response.ref)
@@ -877,7 +1000,7 @@ function materialiseRule(runtime, rule = runtime.repricing.rule) {
     ), previewTarget),
   ];
   assertRepricingRule(response);
-  return response;
+  return projectRevisionEconomics(response, currentSession(runtime));
 }
 
 /** @param {unknown} value */
@@ -1154,6 +1277,7 @@ export class FixtureRepricingRepository {
         scopeRef: clone(this.runtime.repricing.scope.ref),
         state: "valid",
         rule: persistedRule,
+        ...(this.runtime.repricing.rule.revisionOrigin ? { revisionOrigin: clone(this.runtime.repricing.rule.revisionOrigin) } : {}),
         supportedTypes: ["percentage-change", "absolute-change"],
         explanation: explainRule(persistedRule),
         effectiveAt: request.effectiveAt,
@@ -1215,6 +1339,8 @@ export class FixtureRepricingRepository {
         rule: clone(this.runtime.repricing.rule.rule),
         scopeRef: clone(this.runtime.repricing.scope.ref),
         ruleRef: clone(this.runtime.repricing.rule.ref),
+        scopeSnapshot: clone(this.runtime.repricing.scope),
+        ...(this.runtime.repricing.rule.revisionOrigin ? { revisionOrigin: clone(this.runtime.repricing.rule.revisionOrigin) } : {}),
         counts: clone(preparedOutcome.counts),
         blockers: {
           total: preparedOutcome.counts.blocked,
@@ -1243,6 +1369,8 @@ export class FixtureRepricingRepository {
     const remediated = this.runtime.repricing.remediatedPreviews.find((preview) => sameRef(preview.ref, ref));
     if (remediated) return remediated;
     if (sameRef(this.runtime.repricing.generatedPreview?.ref, ref)) return this.runtime.repricing.generatedPreview;
+    const retained = this.runtime.repricing.proposalPreviews.get(`${ref.id}:${ref.version}`);
+    if (retained) return retained;
     if (sameRef(FIXTURE_PREVIEW_REF, ref)) return canonicalPreviewSource();
     return null;
   }
@@ -1375,7 +1503,9 @@ export class FixtureRepricingRepository {
     requireAnyCapability(this.runtime, ["repricing:prepare", "proposal:read", "proposal:review"], "repricing");
     const preview = this.materialisePreview(request);
     await wait(this.latencyMs);
-    return preview;
+    const projected = projectPreviewEconomics(preview, currentSession(this.runtime));
+    assertRepricingPreview(projected);
+    return projected;
   }
 
   /** @param {GetRepricingPreviewRequest} request @returns {RepricingPreview} */
@@ -1384,10 +1514,12 @@ export class FixtureRepricingRepository {
     const remediated = request.ref
       ? this.runtime.repricing.remediatedPreviews.find((preview) => sameRef(preview.ref, request.ref))
       : null;
-    const generated = !remediated && request.ref && request.ref.id !== FIXTURE_PREVIEW_REF.id
+    const generated = !remediated && sameRef(request.ref, this.runtime.repricing.generatedPreview?.ref)
       ? this.runtime.repricing.generatedPreview
       : null;
-    const source = remediated ?? generated ?? canonicalPreviewSource();
+    const retained = !remediated && !generated && request.ref
+      ? this.runtime.repricing.proposalPreviews.get(`${request.ref.id}:${request.ref.version}`) : null;
+    const source = remediated ?? generated ?? retained ?? canonicalPreviewSource();
     const classification = request.classification ?? "all";
     if (classification !== "all" && !REPRICING_CLASSIFICATIONS.includes(classification)) {
       throwRepositoryError({
@@ -1464,6 +1596,17 @@ export class FixtureRepricingRepository {
       },
       allowedActions: repricingPreviewAllowedActions(this.runtime, source.ref),
     };
+    // This internal source snapshot supports a future revision. Only its
+    // explicit refs and safe public lineage belong in the Preview response.
+    delete preview.scopeSnapshot;
+    attachRelatedRevisionProposal(this.runtime, preview);
+    if (retained) {
+      preview.readOnlyEvidence = true;
+      preview.lines = preview.lines.map((line) => ({ ...line, allowedRemediations: [] }));
+      preview.allowedActions = preview.allowedActions.map((item) => item.code === "proposal.create"
+        ? { ...item, enabled: false, confirmation: null, reason: denial("STALE_VERSION", "This is retained pricing evidence. Open the current returned Proposal to revise it.") }
+        : item);
+    }
     assertRepricingPreview(preview);
     return preview;
   }
@@ -1484,6 +1627,61 @@ export class FixtureProposalRepository {
     this.journeyRequests = new Map();
     /** @type {Map<string, any>} */
     this.commentRequests = new Map();
+  }
+
+  /**
+   * Fork retained pricing inputs for a returned draft. The returned Proposal,
+   * its review, and its retained evidence are not edited by this operation.
+   * Only prepared fixture outcomes can subsequently be saved and generated.
+   * @param {{proposalRef: ResourceRef, idempotencyKey: string}} request
+   */
+  async startRevision(request) {
+    requireCapability(this.runtime, "proposal:read", "proposal");
+    requireCapability(this.runtime, "proposal:draft:edit", "proposal");
+    requireCapability(this.runtime, "repricing:prepare", "proposal");
+    requireCapability(this.runtime, "proposal:create", "proposal");
+    const fingerprint = JSON.stringify({ operation: "pricing-revision", actorId: this.runtime.actorId, proposalRef: request?.proposalRef });
+    const retry = readIdempotentRetry(this.journeyRequests, request?.idempotencyKey, fingerprint, "proposal");
+    if (retry) { await wait(this.latencyMs); return retry; }
+    assertCurrentRef(request?.proposalRef, this.runtime.proposal?.ref, "PROPOSAL", "proposal");
+    const permission = proposalAllowedActions(this.runtime).find((item) => item.code === "proposal.revision.start");
+    if (!permission?.enabled) throwRepositoryError({ code: permission?.reason?.code ?? "PROPOSAL_WRONG_STATE", message: permission?.reason?.message ?? "Only a returned draft can start a pricing revision.", details: {}, retryable: false, domain: "proposal" });
+    const source = this.runtime.proposalSourceSnapshot;
+    if (!sameRef(source?.ref, this.runtime.proposal.sourcePreviewRef) || !source?.scopeSnapshot || !preparedFixtureRepricingOutcome(source.rule)) {
+      throwRepositoryError({ code: "PROPOSAL_REVISION_SOURCE_UNAVAILABLE", message: "The exact retained pricing inputs are unavailable. A revision cannot substitute another scope or rule.", details: { sourcePreviewRef: clone(this.runtime.proposal.sourcePreviewRef) }, retryable: false, domain: "proposal" });
+    }
+    const result = applyIdempotent(this.journeyRequests, request.idempotencyKey, fingerprint, "proposal", () => {
+      // Reopening the same returned version resumes its current working copy;
+      // another click or retry must not create a second branch.
+      const resuming = sameRef(this.runtime.repricing.rule.revisionOrigin?.sourceProposalRef, request.proposalRef);
+      if (!resuming) {
+        const revisionOrigin = {
+          sourceProposalRef: clone(request.proposalRef),
+          sourcePreviewRef: clone(source.ref),
+          returnDecision: clone(this.runtime.proposal.returnDecision),
+          startedBy: clone(currentSession(this.runtime).actor),
+          startedAt: new Date().toISOString(),
+        };
+        const ref = { kind: "resource", id: FIXTURE_VERSIONED_REPRICING_ID, version: nextRepricingVersion(this.runtime) };
+        this.runtime.repricing.scope = { ...clone(source.scopeSnapshot), ref: clone(ref), revisionOrigin: clone(revisionOrigin) };
+        this.runtime.repricing.rule = {
+          ...clone(FIXTURE_REPRICING_RULE), ref, scopeRef: clone(ref),
+          rule: clone(source.rule), explanation: explainRule(source.rule), effectiveAt: source.effectiveAt,
+          revisionOrigin,
+        };
+        this.runtime.repricing.lastGeneratedPreviewRef = clone(this.runtime.repricing.generatedPreview?.ref ?? this.runtime.repricing.lastGeneratedPreviewRef);
+        this.runtime.repricing.generatedPreview = null;
+        this.runtime.repricing.previewRuleRef = null;
+        this.runtime.repricing.remediatedPreviews = [];
+        this.runtime.repricing.currentRemediatedPreviewRef = null;
+      }
+      return {
+        data: projectRevisionEconomics(revisionHandoff(this.runtime), currentSession(this.runtime)),
+        mutation: { idempotencyKey: request.idempotencyKey, applied: !resuming, deduplicated: false, authoritative: false },
+      };
+    });
+    await wait(this.latencyMs);
+    return result;
   }
 
   /**
@@ -1519,7 +1717,8 @@ export class FixtureProposalRepository {
       && generatedSource.ref.id === request.sourcePreviewRef.id
       && generatedSource.ref.version === request.sourcePreviewRef.version));
     const sourcePreview = remediatedSource
-      ?? (isGeneratedSource ? generatedSource : canonicalPreviewSource());
+      ?? (isGeneratedSource ? generatedSource : this.runtime.repricing.proposalPreviews.get(`${request.sourcePreviewRef.id}:${request.sourcePreviewRef.version}`) ?? canonicalPreviewSource());
+    const revisionOrigin = sourcePreview.revisionOrigin;
     const remediableBlockers = sourcePreview.blockers.staleCost + sourcePreview.blockers.dimension;
     if (typeof request.idempotencyKey !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/.test(request.idempotencyKey)) {
       throwRepositoryError({
@@ -1542,8 +1741,9 @@ export class FixtureProposalRepository {
       });
     }
 
-    const title = request.title?.trim() || sourcePreview.title || FIXTURE_PROPOSAL_HANDOFF.title;
+    const title = request.title?.trim() || (revisionOrigin ? this.runtime.proposal?.title : null) || sourcePreview.title || FIXTURE_PROPOSAL_HANDOFF.title;
     const fingerprint = JSON.stringify({
+      actorId: this.runtime.actorId,
       previewKind: request.sourcePreviewRef.kind,
       previewId: request.sourcePreviewRef.id,
       previewVersion: request.sourcePreviewRef.version,
@@ -1568,6 +1768,23 @@ export class FixtureProposalRepository {
       };
     }
 
+    if (!remediatedSource && !isGeneratedSource && !sameRef(sourcePreview.ref, FIXTURE_PREVIEW_REF)) {
+      throwRepositoryError({ code: "REPRICING_PREVIEW_STALE_VERSION", message: "This is retained pricing evidence. Start a revision from the current returned Proposal instead of reusing an earlier Preview.", details: { sourcePreviewRef: clone(sourcePreview.ref) }, retryable: false, domain: "proposal" });
+    }
+
+    if (revisionOrigin) {
+      // An independent change to the returned draft (including submission,
+      // handoff or approval) invalidates this replacement, even if its Preview
+      // remains available. Only the current revision branch may replace it.
+      assertCurrentRef(revisionOrigin.sourceProposalRef, this.runtime.proposal?.ref, "PROPOSAL", "proposal");
+      const revisionAction = proposalAllowedActions(this.runtime).find((item) => item.code === "proposal.revision.start");
+      if (!revisionAction?.enabled) throwRepositoryError({ code: revisionAction?.reason?.code ?? "PROPOSAL_WRONG_STATE", message: revisionAction?.reason?.message ?? "Only the current returned draft owner can create its replacement.", details: {}, retryable: false, domain: "proposal" });
+      assertCurrentRemediationRef(this.runtime, request.sourcePreviewRef);
+      assertExactRepricingRef(sourcePreview.ruleRef, this.runtime.repricing.rule.ref, "rule");
+    } else if (this.runtime.proposal?.returnDecision) {
+      throwRepositoryError({ code: "PROPOSAL_REVISION_REQUIRED", message: "Start a pricing revision from the returned Proposal so its exact review and pricing lineage are retained.", details: { proposalRef: clone(this.runtime.proposal.ref) }, retryable: false, domain: "proposal" });
+    }
+
     if (this.runtime.proposal?.sourcePreviewRef?.id === request.sourcePreviewRef.id
       && this.runtime.proposal?.sourcePreviewRef?.version === request.sourcePreviewRef.version) {
       throwRepositoryError({
@@ -1590,8 +1807,11 @@ export class FixtureProposalRepository {
       });
     }
 
+    const replacedProposal = revisionOrigin ? clone(this.runtime.proposal) : null;
+    this.runtime.repricing.proposalPreviews.set(`${sourcePreview.ref.id}:${sourcePreview.ref.version}`, clone(sourcePreview));
+    if (replacedProposal) nextProposalVersion(this.runtime);
     const proposal = clone(FIXTURE_PROPOSAL_HANDOFF);
-    proposal.ref.id = isGeneratedSource ? FIXTURE_GENERATED_PROPOSAL_ID : FIXTURE_PROPOSAL_ID;
+    proposal.ref = replacedProposal ? clone(this.runtime.proposal.ref) : { ...proposal.ref, id: isGeneratedSource ? FIXTURE_GENERATED_PROPOSAL_ID : FIXTURE_PROPOSAL_ID };
     proposal.title = title;
     proposal.sourcePreviewRef = clone(sourcePreview.ref);
     proposal.effectiveAt = sourcePreview.effectiveAt;
@@ -1608,13 +1828,38 @@ export class FixtureProposalRepository {
     // have been remediated; margin blockers may enter governance for a
     // separately authorised exception decision.
     const sourceBlockers = clone(sourcePreview.blockers);
-    this.runtime.proposal = clone(FIXTURE_PROPOSAL_DETAIL);
-    this.runtime.proposal.ref.id = proposal.ref.id;
+    this.runtime.proposal = clone(replacedProposal ?? FIXTURE_PROPOSAL_DETAIL);
+    this.runtime.proposal.author = clone(replacedProposal?.author ?? currentSession(this.runtime).actor);
+    this.runtime.proposal.submissionOwner = clone(replacedProposal?.submissionOwner ?? this.runtime.proposal.author);
+    this.runtime.proposal.assignedApprover = clone(replacedProposal?.assignedApprover ?? this.runtime.assignedApprover);
+    this.runtime.proposal.approvalStage = clone(replacedProposal?.approvalStage ?? this.runtime.approvalStage);
+    this.runtime.proposal.handoffHistory = clone(replacedProposal?.handoffHistory ?? []);
+    this.runtime.proposal.submission = null;
+    this.runtime.proposal.ref = clone(proposal.ref);
+    this.runtime.proposal.approval = null;
+    this.runtime.proposal.publicationRef = null;
+    this.runtime.proposal.operationalReconciliation = null;
+    if (revisionOrigin) {
+      this.runtime.proposal.revisionOrigin = clone(revisionOrigin);
+      this.runtime.proposal.returnDecision = { ...clone(replacedProposal.returnDecision), addressedAt: new Date().toISOString(), replacementProposalRef: clone(proposal.ref) };
+      this.runtime.proposal.revisionHistory = [...clone(replacedProposal.revisionHistory ?? []), {
+        ...clone(revisionOrigin), replacementProposalRef: clone(proposal.ref), replacementPreviewRef: clone(sourcePreview.ref),
+        revisedBy: clone(currentSession(this.runtime).actor), revisedAt: new Date().toISOString(),
+      }];
+      proposal.returnDecision = clone(this.runtime.proposal.returnDecision);
+      proposal.revisionOrigin = clone(revisionOrigin);
+    }
     this.runtime.proposal.title = title;
     this.runtime.proposal.sourcePreviewRef = clone(sourcePreview.ref);
     this.runtime.proposal.effectiveAt = sourcePreview.effectiveAt;
     this.runtime.proposal.counts = clone(proposal.counts);
     this.runtime.proposal.blockers = clone(sourceBlockers);
+    this.runtime.proposal.state = sourceBlockers.total ? "blocked" : "draft";
+    this.runtime.proposal.readiness = sourceBlockers.total ? "blocked" : "ready_to_submit";
+    proposal.state = this.runtime.proposal.state;
+    proposal.readiness = this.runtime.proposal.readiness;
+    proposal.author = clone(this.runtime.proposal.author);
+    proposal.allowedActions = [...proposalAllowedActions(this.runtime), ...proposal.allowedActions.filter((item) => item.code === "proposal.publish")];
     this.runtime.proposalSourceSnapshot = {
       ref: clone(sourcePreview.ref),
       title: sourcePreview.title,
@@ -1622,17 +1867,27 @@ export class FixtureProposalRepository {
       counts: clone(sourcePreview.counts),
       blockers: clone(sourceBlockers),
       lines: clone(sourcePreview.lines),
+      rule: clone(sourcePreview.rule),
+      scopeRef: clone(sourcePreview.scopeRef),
+      ruleRef: clone(sourcePreview.ruleRef),
+      scopeSnapshot: clone(sourcePreview.scopeSnapshot ?? (sameRef(sourcePreview.scopeRef, this.runtime.repricing.scope.ref) ? this.runtime.repricing.scope : sameRef(sourcePreview.scopeRef, FIXTURE_REPRICING_SCOPE.ref) ? FIXTURE_REPRICING_SCOPE : null)),
     };
     this.runtime.override = null;
     this.runtime.publication = null;
-    this.runtime.auditLastSequence = 12;
+    if (!replacedProposal) this.runtime.auditLastSequence = 12;
     this.runtime.overrideDecisionAuditEvent = null;
     this.runtime.publishIdempotencyKey = null;
-    this.runtime.comments = [];
+    if (!replacedProposal) {
+      this.runtime.comments = [];
+      this.runtime.roleJourneyEvents = [];
+      this.runtime.roleJourneyBaseSequence = null;
+    } else {
+      recordRoleJourneyEvent(this.runtime, "proposal.pricing_revised", { version: replacedProposal.ref.version, sourcePreviewRef: clone(replacedProposal.sourcePreviewRef) }, "Created a replacement draft from a newly evaluated prepared Preview. Prior review, exception and publication authority do not apply to these prices.");
+    }
     assertProposalHandoff(proposal);
     /** @type {MutationResult<ProposalHandoff>} */
     const result = {
-      data: proposal,
+      data: projectRevisionEconomics(proposal, currentSession(this.runtime)),
       mutation: {
         idempotencyKey: request.idempotencyKey,
         applied: true,
@@ -1650,10 +1905,27 @@ export class FixtureProposalRepository {
   /** @param {{ref?: import("./contracts.js").ResourceRef}} [request] */
   async getDetail(request = {}) {
     requireCapability(this.runtime, "proposal:read", "proposal");
+    if (!this.runtime.proposal) throwRepositoryError({ code: "PROPOSAL_NOT_FOUND", message: "No Proposal is available.", domain: "proposal", details: {}, retryable: false });
+    if (request.allowHistorical === true && request.ref?.kind === "resource" && request.ref.version !== this.runtime.proposal.ref.version) {
+      const snapshot = this.runtime.proposalSnapshots.get(`${request.ref.id}:${request.ref.version}`);
+      if (snapshot) {
+        const historical = clone(snapshot);
+        historical.readOnlyEvidence = true;
+        historical.handoffCandidates = [];
+        historical.allowedActions = historical.allowedActions.map((item) => item.code === "proposal.read" ? item : { ...item, enabled: false, confirmation: null, reason: denial("STALE_VERSION", "This is retained history. Open the current version to act.") });
+        await wait(this.latencyMs);
+        return projectProposalEconomics(historical, currentSession(this.runtime));
+      }
+    }
     if (request.ref) assertCurrentRef(request.ref, this.runtime.proposal.ref, "PROPOSAL", "proposal");
     const detail = materialiseProposal(this.runtime);
     await wait(this.latencyMs);
-    return detail;
+    return projectProposalEconomics(detail, currentSession(this.runtime));
+  }
+
+  /** Explicit history read; ordinary stale deep links keep their fail-closed behavior. */
+  async getVersion({ proposalRef } = {}) {
+    return this.getDetail({ ref: proposalRef, allowHistorical: true });
   }
 
   /** @param {{proposalRef: import("./contracts.js").ResourceRef}} request */
@@ -1686,12 +1958,15 @@ export class FixtureProposalRepository {
     ].filter(Boolean);
     assertProposalMarginEvidence(evidence);
     await wait(this.latencyMs);
-    return evidence;
+    const projected = projectMarginEconomics(evidence, currentSession(this.runtime));
+    assertProposalMarginEvidence(projected);
+    return projected;
   }
 
   /** @param {{proposalRef: import("./contracts.js").ResourceRef, cursor?: string | null, limit?: number}} request */
   async listComments(request) {
     requireCapability(this.runtime, "proposal:read", "proposal-comment");
+    requireCapability(this.runtime, ECONOMICS_READ, "proposal-comment");
     assertCurrentRef(request?.proposalRef, this.runtime.proposal.ref, "PROPOSAL", "proposal-comment");
     const ordered = clone(this.runtime.comments)
       .filter((comment) => comment.proposalRef.id === this.runtime.proposal.ref.id
@@ -1726,6 +2001,7 @@ export class FixtureProposalRepository {
 
   /** @param {{proposalRef: import("./contracts.js").ResourceRef, idempotencyKey: string, body: string}} request */
   async addComment(request) {
+    requireCapability(this.runtime, "proposal:read", "proposal-comment");
     requireCapability(this.runtime, "proposal:comment", "proposal-comment");
     const body = typeof request?.body === "string" ? request.body.trim() : "";
     if (!body || body.length > 2000) {
@@ -1738,7 +2014,7 @@ export class FixtureProposalRepository {
         traceId: "fixture-proposal-comment-invalid-body",
       });
     }
-    const fingerprint = JSON.stringify({ proposalRef: request?.proposalRef, body });
+    const fingerprint = JSON.stringify({ actorId: this.runtime.actorId, proposalRef: request?.proposalRef, body });
     const retry = readIdempotentRetry(this.commentRequests, request?.idempotencyKey, fingerprint, "proposal-comment");
     if (retry) {
       await wait(this.latencyMs);
@@ -1782,12 +2058,13 @@ export class FixtureProposalRepository {
 
   /** @param {{proposalRef: import("./contracts.js").ResourceRef, idempotencyKey: string, reason?: string, evidence?: string}} request */
   async requestOverride(request) {
+    requireCapability(this.runtime, "proposal:read", "override");
     if (!request || typeof request !== "object") {
       throwRepositoryError({ code: "OVERRIDE_REQUEST_INVALID", message: "An exception request is required.", details: {}, retryable: false, domain: "override", traceId: "fixture-override-invalid-request" });
     }
     const reason = request.reason?.trim() || FIXTURE_OVERRIDE_REQUEST.reason;
     const evidence = request.evidence?.trim() || FIXTURE_OVERRIDE_REQUEST.evidence;
-    const fingerprint = JSON.stringify({ proposalRef: request.proposalRef, reason, evidence });
+    const fingerprint = JSON.stringify({ operation: "override-request", actorId: this.runtime.actorId, proposalRef: request.proposalRef, reason, evidence });
     const retry = readIdempotentRetry(this.journeyRequests, request.idempotencyKey, fingerprint, "override");
     if (retry) {
       await wait(this.latencyMs);
@@ -1795,8 +2072,8 @@ export class FixtureProposalRepository {
     }
     assertCurrentRef(request.proposalRef, this.runtime.proposal.ref, "PROPOSAL", "proposal");
     requireCapability(this.runtime, "override:request", "override");
-    if (this.runtime.actorId !== this.runtime.proposal.author.id) {
-      throwRepositoryError({ code: "WRONG_ACTOR", message: "Only the Proposal author can request this exception.", details: {}, retryable: false, domain: "override", traceId: "fixture-override-wrong-requester" });
+    if (this.runtime.actorId !== (this.runtime.proposal.submissionOwner ?? this.runtime.proposal.author).id) {
+      throwRepositoryError({ code: "WRONG_ACTOR", message: "Only the current draft owner can request this exception.", details: {}, retryable: false, domain: "override", traceId: "fixture-override-wrong-requester" });
     }
     if (this.runtime.proposal.state !== "blocked" || this.runtime.override) {
       throwRepositoryError({ code: "OVERRIDE_WRONG_STATE", message: "The Proposal must be blocked without a current exception request.", details: { currentState: this.runtime.proposal.state }, retryable: false, domain: "override", traceId: "fixture-override-wrong-state" });
@@ -1806,6 +2083,7 @@ export class FixtureProposalRepository {
     }
     const result = applyIdempotent(this.journeyRequests, request.idempotencyKey, fingerprint, "override", () => {
       this.runtime.override = clone(FIXTURE_OVERRIDE_REQUEST);
+      this.runtime.override.requester = clone(currentSession(this.runtime).actor);
       this.runtime.override.proposalRef = clone(this.runtime.proposal.ref);
       this.runtime.override.lineCount = this.runtime.proposal.blockers.margin;
       this.runtime.override.reason = reason;
@@ -1813,6 +2091,7 @@ export class FixtureProposalRepository {
       this.runtime.proposal.readiness = "pending_override";
       this.runtime.auditLastSequence = 14;
       this.runtime.overrideDecisionAuditEvent = null;
+      if (this.runtime.roleJourneyEvents.length || this.runtime.approvalStage.code !== "finance") recordRoleJourneyEvent(this.runtime, "override.requested", { state: "blocked" }, "Current draft owner requested a bounded margin exception; no blockers were waived.");
       return {
         data: { proposal: materialiseProposal(this.runtime), override: materialiseOverride(this.runtime) },
         mutation: { idempotencyKey: request.idempotencyKey, applied: true, deduplicated: false, authoritative: false },
@@ -1824,7 +2103,8 @@ export class FixtureProposalRepository {
 
   /** @param {{overrideRef: import("./contracts.js").ResourceRef, decision: "approve" | "deny", idempotencyKey: string}} request */
   async decideOverride(request) {
-    const fingerprint = JSON.stringify({ overrideRef: request?.overrideRef, decision: request?.decision });
+    requireCapability(this.runtime, "proposal:read", "override");
+    const fingerprint = JSON.stringify({ operation: "override-decision", actorId: this.runtime.actorId, overrideRef: request?.overrideRef, decision: request?.decision });
     const retry = readIdempotentRetry(this.journeyRequests, request?.idempotencyKey, fingerprint, "override");
     if (retry) {
       await wait(this.latencyMs);
@@ -1834,7 +2114,7 @@ export class FixtureProposalRepository {
       throwRepositoryError({ code: "OVERRIDE_NOT_FOUND", message: "No exception request is available.", details: {}, retryable: false, domain: "override", traceId: "fixture-override-not-found" });
     }
     assertCurrentRef(request?.overrideRef, this.runtime.override.ref, "OVERRIDE", "override");
-    if (this.runtime.actorId === this.runtime.override.requester.id) {
+    if (this.runtime.actorId === this.runtime.override.requester.id || isProposalMaker(this.runtime)) {
       throwRepositoryError({ code: "MAKER_CHECKER_REQUIRED", message: "The requester cannot decide their own exception.", details: { workPreserved: true }, retryable: false, domain: "override", traceId: "fixture-override-maker-checker" });
     }
     requireCapability(this.runtime, "override:decide", "override");
@@ -1850,11 +2130,11 @@ export class FixtureProposalRepository {
     const result = applyIdempotent(this.journeyRequests, request.idempotencyKey, fingerprint, "override", () => {
       this.runtime.override.ref.version = "2";
       this.runtime.override.state = request.decision === "approve" ? "approved" : "denied";
-      this.runtime.override.decider = clone(FIXTURE_JOURNEY_ACTORS.chika);
+      this.runtime.override.decider = clone(currentSession(this.runtime).actor);
       this.runtime.override.decidedAt = "2026-08-10T09:00:00Z";
       if (request.decision === "approve") {
         this.runtime.overrideDecisionAuditEvent = null;
-        this.runtime.proposal.ref.version = "7";
+        nextProposalVersion(this.runtime, 7);
         const authorisedMarginLines = this.runtime.proposal.blockers.margin;
         const legacyFx010Reconciliation = hasCanonicalFx010AuditLineage(this.runtime)
           ? {
@@ -1889,6 +2169,7 @@ export class FixtureProposalRepository {
         this.runtime.auditLastSequence = 15;
         this.runtime.overrideDecisionAuditEvent = clone(FIXTURE_OVERRIDE_DENIED_EVENT);
       }
+      if (this.runtime.roleJourneyEvents.length || this.runtime.approvalStage.code !== "finance") recordRoleJourneyEvent(this.runtime, request.decision === "approve" ? "override.approved" : "override.denied", { overrideVersion: request.overrideRef.version }, request.decision === "approve" ? "Assigned reviewer decided the sample margin exception; canonical fixture prerequisite reconciliation remains explicit." : "Assigned reviewer denied the exception; blockers remain.");
       return {
         data: { proposal: materialiseProposal(this.runtime), override: materialiseOverride(this.runtime) },
         mutation: { idempotencyKey: request.idempotencyKey, applied: true, deduplicated: false, authoritative: false },
@@ -1900,7 +2181,9 @@ export class FixtureProposalRepository {
 
   /** @param {{proposalRef: import("./contracts.js").ResourceRef, idempotencyKey: string}} request */
   async submit(request) {
-    const fingerprint = JSON.stringify({ proposalRef: request?.proposalRef });
+    requireCapability(this.runtime, "proposal:read", "proposal");
+    requireCapability(this.runtime, "proposal:submit", "proposal");
+    const fingerprint = JSON.stringify({ operation: "submit", actorId: this.runtime.actorId, proposalRef: request?.proposalRef });
     const retry = readIdempotentRetry(this.journeyRequests, request?.idempotencyKey, fingerprint, "proposal");
     if (retry) {
       await wait(this.latencyMs);
@@ -1908,17 +2191,97 @@ export class FixtureProposalRepository {
     }
     assertCurrentRef(request?.proposalRef, this.runtime.proposal.ref, "PROPOSAL", "proposal");
     requireCapability(this.runtime, "proposal:submit", "proposal");
-    if (this.runtime.actorId !== this.runtime.proposal.author.id) {
-      throwRepositoryError({ code: "WRONG_ACTOR", message: "Only the Proposal author can submit this version.", details: {}, retryable: false, domain: "proposal", traceId: "fixture-proposal-submit-wrong-actor" });
+    if (this.runtime.actorId !== (this.runtime.proposal.submissionOwner ?? this.runtime.proposal.author).id) {
+      throwRepositoryError({ code: "WRONG_ACTOR", message: "Only the draft's current submission owner can submit this version.", details: {}, retryable: false, domain: "proposal", traceId: "fixture-proposal-submit-wrong-actor" });
     }
     if (this.runtime.proposal.state !== "draft" || this.runtime.proposal.readiness !== "ready_to_submit") {
       throwRepositoryError({ code: "PROPOSAL_WRONG_STATE", message: "Only a ready current draft can be submitted.", details: { currentState: this.runtime.proposal.state, readiness: this.runtime.proposal.readiness }, retryable: false, domain: "proposal", traceId: "fixture-proposal-submit-wrong-state" });
     }
     const result = applyIdempotent(this.journeyRequests, request.idempotencyKey, fingerprint, "proposal", () => {
-      this.runtime.proposal.ref.version = "8";
+      nextProposalVersion(this.runtime, 8);
       this.runtime.proposal.state = "submitted";
       this.runtime.proposal.readiness = "awaiting_approval";
+      this.runtime.proposal.submission = { actor: clone(currentSession(this.runtime).actor), sourceProposalRef: clone(request.proposalRef), submittedAt: new Date().toISOString(), companyPolicyRef: clone(this.runtime.company.ref) };
+      if (this.runtime.roleJourneyEvents.length || this.runtime.approvalStage.code !== "finance") recordRoleJourneyEvent(this.runtime, "proposal.submitted", { state: "draft", version: request.proposalRef.version }, "Current draft submitted to its assigned independent reviewer.");
       this.runtime.auditLastSequence = 19;
+      return { data: materialiseProposal(this.runtime), mutation: { idempotencyKey: request.idempotencyKey, applied: true, deduplicated: false, authoritative: false } };
+    });
+    await wait(this.latencyMs);
+    return result;
+  }
+
+  /** Versioned ownership transfer; never submission or approval. */
+  async handoff(request) {
+    requireCapability(this.runtime, "proposal:read", "proposal");
+    requireCapability(this.runtime, "proposal:handoff", "proposal");
+    const fingerprint = JSON.stringify({ operation: "handoff", actorId: this.runtime.actorId, proposalRef: request?.proposalRef, assigneeId: request?.assigneeId });
+    const retry = readIdempotentRetry(this.journeyRequests, request?.idempotencyKey, fingerprint, "proposal");
+    if (retry) return retry;
+    assertCurrentRef(request?.proposalRef, this.runtime.proposal.ref, "PROPOSAL", "proposal");
+    const permission = proposalAllowedActions(this.runtime).find((item) => item.code === "proposal.handoff");
+    if (!permission?.enabled) throwRepositoryError({ code: permission?.reason?.code ?? "MISSING_PERMISSION", message: permission?.reason?.message ?? "This draft cannot be handed off.", details: {}, retryable: false, domain: "proposal" });
+    const candidate = fixtureHandoffCandidates().find((actor) => actor.id === request.assigneeId && actor.id !== this.runtime.actorId);
+    if (!candidate) throwRepositoryError({ code: "HANDOFF_ASSIGNEE_INVALID", message: "Choose an eligible pricing manager.", details: {}, retryable: false, domain: "proposal" });
+    const result = applyIdempotent(this.journeyRequests, request.idempotencyKey, fingerprint, "proposal", () => {
+      const fromOwner = clone(this.runtime.proposal.submissionOwner ?? this.runtime.proposal.author);
+      nextProposalVersion(this.runtime);
+      this.runtime.proposal.submissionOwner = clone(candidate);
+      this.runtime.proposal.handoffHistory ??= [];
+      this.runtime.proposal.handoffHistory.push({ fromOwner, toOwner: clone(candidate), actor: clone(currentSession(this.runtime).actor), sourceProposalRef: clone(request.proposalRef), proposalRef: clone(this.runtime.proposal.ref), occurredAt: new Date().toISOString(), companyPolicyRef: clone(this.runtime.company.ref) });
+      recordRoleJourneyEvent(this.runtime, "proposal.handed_off", { submissionOwnerId: fromOwner.id, version: request.proposalRef.version }, "Draft handed to an eligible Pricing Manager without changing the author, scope or blockers.");
+      return { data: materialiseProposal(this.runtime), mutation: { idempotencyKey: request.idempotencyKey, applied: true, deduplicated: false, authoritative: false } };
+    });
+    await wait(this.latencyMs);
+    return result;
+  }
+
+  /** The sample supports title edits only; money/scope changes use a new Preview. */
+  async updateDraft(request) {
+    requireCapability(this.runtime, "proposal:read", "proposal");
+    requireCapability(this.runtime, "proposal:draft:edit", "proposal");
+    if (typeof request?.title !== "string" || !request.title.trim() || request.title.length > 120) throwRepositoryError({ code: "PROPOSAL_TITLE_INVALID", message: "Use a title from 1 to 120 characters.", details: {}, retryable: false, domain: "proposal" });
+    const fingerprint = JSON.stringify({ operation: "draft-edit", actorId: this.runtime.actorId, proposalRef: request.proposalRef, title: request.title.trim() });
+    const retry = readIdempotentRetry(this.journeyRequests, request.idempotencyKey, fingerprint, "proposal");
+    if (retry) return retry;
+    assertCurrentRef(request.proposalRef, this.runtime.proposal.ref, "PROPOSAL", "proposal");
+    const permission = proposalAllowedActions(this.runtime).find((item) => item.code === "proposal.draft.edit");
+    if (!permission?.enabled) throwRepositoryError({ code: permission?.reason?.code ?? "MISSING_PERMISSION", message: permission?.reason?.message ?? "This draft cannot be edited.", details: {}, retryable: false, domain: "proposal" });
+    const result = applyIdempotent(this.journeyRequests, request.idempotencyKey, fingerprint, "proposal", () => {
+      const before = { title: this.runtime.proposal.title, version: request.proposalRef.version };
+      nextProposalVersion(this.runtime);
+      this.runtime.proposal.title = request.title.trim();
+      recordRoleJourneyEvent(this.runtime, "proposal.draft_edited", before, "Draft title updated; pricing evidence unchanged.");
+      return { data: materialiseProposal(this.runtime), mutation: { idempotencyKey: request.idempotencyKey, applied: true, deduplicated: false, authoritative: false } };
+    });
+    await wait(this.latencyMs);
+    return result;
+  }
+
+  /** Reusable assigned-stage decision; rejection creates a new draft, not a live backend state claim. */
+  async decide(request) {
+    requireCapability(this.runtime, "proposal:read", "proposal");
+    if (request?.decision === "approve") return this.approve(request);
+    if (request?.decision !== "reject") throwRepositoryError({ code: "PROPOSAL_DECISION_INVALID", message: "Choose approve or return for changes.", details: {}, retryable: false, domain: "proposal" });
+    if (typeof request.reason !== "string" || !request.reason.trim() || request.reason.length > 2000) throwRepositoryError({ code: "DECISION_REASON_REQUIRED", message: "Give a reason from 1 to 2,000 characters.", details: {}, retryable: false, domain: "proposal" });
+    const fingerprint = JSON.stringify({ operation: "reject", actorId: this.runtime.actorId, proposalRef: request.proposalRef, reason: request.reason.trim() });
+    const retry = readIdempotentRetry(this.journeyRequests, request.idempotencyKey, fingerprint, "proposal");
+    if (retry) return retry;
+    assertCurrentRef(request.proposalRef, this.runtime.proposal.ref, "PROPOSAL", "proposal");
+    if (isProposalMaker(this.runtime)) throwRepositoryError({ code: "MAKER_CHECKER_REQUIRED", message: "The author, pricing reviser and submitter cannot decide their own protected work.", details: {}, retryable: false, domain: "proposal" });
+    requireCapability(this.runtime, "proposal:approve", "proposal");
+    if (this.runtime.actorId !== this.runtime.proposal.assignedApprover.id) throwRepositoryError({ code: "WRONG_ACTOR", message: "This decision belongs to the assigned reviewer.", details: {}, retryable: false, domain: "proposal" });
+    const permission = proposalAllowedActions(this.runtime).find((item) => item.code === "proposal.reject");
+    if (!permission?.enabled) throwRepositoryError({ code: "PROPOSAL_WRONG_STATE", message: "Only the current submitted version can be returned for changes.", details: {}, retryable: false, domain: "proposal" });
+    const result = applyIdempotent(this.journeyRequests, request.idempotencyKey, fingerprint, "proposal", () => {
+      nextProposalVersion(this.runtime);
+      this.runtime.proposal.returnDecision = { actor: clone(currentSession(this.runtime).actor), decision: "reject", reason: request.reason.trim(), reviewedProposalRef: clone(request.proposalRef), authority: clone(this.runtime.proposal.approvalStage), decidedAt: new Date().toISOString() };
+      this.runtime.proposal.state = this.runtime.proposal.blockers.total ? "blocked" : "draft";
+      this.runtime.proposal.readiness = this.runtime.proposal.blockers.total ? "blocked" : "ready_to_submit";
+      this.runtime.proposal.approval = null;
+      this.runtime.proposal.publicationRef = null;
+      this.runtime.proposal.submission = null;
+      this.runtime.publication = null;
+      recordRoleJourneyEvent(this.runtime, "proposal.returned_for_changes", { state: "submitted", version: request.proposalRef.version }, request.reason.trim());
       return { data: materialiseProposal(this.runtime), mutation: { idempotencyKey: request.idempotencyKey, applied: true, deduplicated: false, authoritative: false } };
     });
     await wait(this.latencyMs);
@@ -1927,15 +2290,16 @@ export class FixtureProposalRepository {
 
   /** @param {{proposalRef: import("./contracts.js").ResourceRef, idempotencyKey: string}} request */
   async approve(request) {
-    const fingerprint = JSON.stringify({ proposalRef: request?.proposalRef });
+    requireCapability(this.runtime, "proposal:read", "proposal");
+    const fingerprint = JSON.stringify({ operation: "approve", actorId: this.runtime.actorId, proposalRef: request?.proposalRef });
     const retry = readIdempotentRetry(this.journeyRequests, request?.idempotencyKey, fingerprint, "proposal");
     if (retry) {
       await wait(this.latencyMs);
       return retry;
     }
     assertCurrentRef(request?.proposalRef, this.runtime.proposal.ref, "PROPOSAL", "proposal");
-    if (this.runtime.actorId === this.runtime.proposal.author.id) {
-      throwRepositoryError({ code: "MAKER_CHECKER_REQUIRED", message: "The Proposal author cannot approve their own protected decision.", details: { workPreserved: true }, retryable: false, domain: "proposal", traceId: "fixture-proposal-approval-maker-checker" });
+    if (isProposalMaker(this.runtime)) {
+      throwRepositoryError({ code: "MAKER_CHECKER_REQUIRED", message: "The author and submitter cannot approve their own protected decision.", details: { workPreserved: true }, retryable: false, domain: "proposal", traceId: "fixture-proposal-approval-maker-checker" });
     }
     requireCapability(this.runtime, "proposal:approve", "proposal");
     if (this.runtime.actorId !== this.runtime.proposal.assignedApprover.id) {
@@ -1945,15 +2309,18 @@ export class FixtureProposalRepository {
       throwRepositoryError({ code: "PROPOSAL_WRONG_STATE", message: "Only the current submitted version can be approved.", details: { currentState: this.runtime.proposal.state }, retryable: false, domain: "proposal", traceId: "fixture-proposal-approval-wrong-state" });
     }
     const result = applyIdempotent(this.journeyRequests, request.idempotencyKey, fingerprint, "proposal", () => {
-      this.runtime.proposal.ref.version = "9";
+      nextProposalVersion(this.runtime, 9);
       this.runtime.proposal.state = "approved";
       this.runtime.proposal.readiness = "approved_to_publish";
       this.runtime.proposal.approval = {
         state: "approved",
-        actor: clone(FIXTURE_JOURNEY_ACTORS.chika),
+        actor: clone(currentSession(this.runtime).actor),
         decidedAt: "2026-08-10T09:20:00Z",
-        proposalVersion: "9",
+        proposalVersion: this.runtime.proposal.ref.version,
+        reviewedProposalRef: clone(request.proposalRef),
+        authority: clone(this.runtime.proposal.approvalStage),
       };
+      if (this.runtime.roleJourneyEvents.length || this.runtime.approvalStage.code !== "finance") recordRoleJourneyEvent(this.runtime, "proposal.approved", { state: "submitted", version: request.proposalRef.version }, "Assigned reviewer approved this exact version; execution remains separate.");
       this.runtime.auditLastSequence = 20;
       return { data: materialiseProposal(this.runtime), mutation: { idempotencyKey: request.idempotencyKey, applied: true, deduplicated: false, authoritative: false } };
     });
@@ -1976,6 +2343,7 @@ export class FixturePublicationRepository {
 
   /** @param {{operationRef?: import("./contracts.js").ResourceRef}} [request] */
   async get(request = {}) {
+    requireAnyCapability(this.runtime, ["publish:execute", "audit:read"], "publication");
     if (!this.runtime.publication) {
       throwRepositoryError({ code: "PUBLICATION_NOT_FOUND", message: "No publication operation is available.", details: {}, retryable: false, domain: "publication", traceId: "fixture-publication-not-found" });
     }
@@ -1990,7 +2358,8 @@ export class FixturePublicationRepository {
 
   /** @param {{proposalRef: import("./contracts.js").ResourceRef, idempotencyKey: string}} request */
   async start(request) {
-    const fingerprint = JSON.stringify({ proposalRef: request?.proposalRef });
+    requireCapability(this.runtime, "publish:execute", "publication");
+    const fingerprint = JSON.stringify({ actorId: this.runtime.actorId, proposalRef: request?.proposalRef });
     const retry = readIdempotentRetry(this.startRequests, request?.idempotencyKey, fingerprint, "publication");
     if (retry) {
       await wait(this.latencyMs);
@@ -2018,6 +2387,7 @@ export class FixturePublicationRepository {
 
   /** @param {{operationRef: import("./contracts.js").ResourceRef}} request */
   async reconcile(request) {
+    requireCapability(this.runtime, "publish:reconcile", "publication");
     if (!this.runtime.publication) {
       throwRepositoryError({ code: "PUBLICATION_NOT_FOUND", message: "No publication operation is available.", details: {}, retryable: false, domain: "publication", traceId: "fixture-publication-reconcile-not-found" });
     }
@@ -2044,7 +2414,8 @@ export class FixturePublicationRepository {
 
   /** @param {{operationRef: import("./contracts.js").ResourceRef, idempotencyKey: string}} request */
   async retry(request) {
-    const fingerprint = JSON.stringify({ operationRef: request?.operationRef, unresolved: 4 });
+    requireCapability(this.runtime, "publish:execute", "publication");
+    const fingerprint = JSON.stringify({ actorId: this.runtime.actorId, operationRef: request?.operationRef, unresolved: 4 });
     const deduplicated = readIdempotentRetry(this.retryRequests, request?.idempotencyKey, fingerprint, "publication");
     if (deduplicated) {
       await wait(this.latencyMs);
@@ -2092,11 +2463,12 @@ export class FixtureAuditRepository {
 
   /** @param {{proposalId: string}} request */
   async getProposalHistory(request) {
+    requireCapability(this.runtime, "audit:read", "audit");
     if (request?.proposalId !== FIXTURE_PROPOSAL_ID || !hasCanonicalFx010AuditLineage(this.runtime)) {
       throwRepositoryError({ code: "AUDIT_HISTORY_NOT_FOUND", message: "No audit reconstruction is available for that Proposal.", details: { proposalId: request?.proposalId ?? null }, retryable: false, domain: "audit", traceId: "fixture-audit-not-found" });
     }
     requireCapability(this.runtime, "audit:read", "audit");
-    const complete = this.runtime.publication?.state === "published";
+    const complete = this.runtime.publication?.state === "published" && this.runtime.roleJourneyEvents.length === 0;
     const events = canonicalAuditEvents(this.runtime);
     const last = events.at(-1).sequence;
     const history = {
@@ -2128,13 +2500,14 @@ export class FixtureAuditRepository {
  * @param {{latencyMs?: number, designEvidenceCapabilities?: string[] | null, startWithExistingProposal?: boolean}} [options]
  * @returns {import("./contracts.js").FixtureWorkspaceRepositories}
  */
-export function createFixtureWorkspaceRepositories({ latencyMs = 0, designEvidenceCapabilities = null, startWithExistingProposal = true } = {}) {
-  const runtime = createJourneyRuntime(designEvidenceCapabilities, startWithExistingProposal);
+export function createFixtureWorkspaceRepositories({ latencyMs = 0, designEvidenceCapabilities = null, startWithExistingProposal = true, designEvidenceOrganisation, designEvidenceApprovalStage } = {}) {
+  const runtime = createJourneyRuntime(designEvidenceCapabilities, startWithExistingProposal, { organisation: designEvidenceOrganisation, approvalStage: designEvidenceApprovalStage });
   const identity = new FixtureIdentityRepository({ latencyMs, runtime });
   const repricing = new FixtureRepricingRepository({ latencyMs, runtime });
   const proposals = new FixtureProposalRepository({ latencyMs, runtime });
   const publishing = new FixturePublicationRepository({ latencyMs, runtime });
   const audit = new FixtureAuditRepository({ latencyMs, runtime });
+  const roleWork = createFixtureCompanyRequests({ state: runtime.company, getSession: () => currentSession(runtime), latencyMs });
   const operational = createFixtureOperationalRepositories({
     latencyMs,
     getSession: () => currentSession(runtime),
@@ -2150,6 +2523,8 @@ export function createFixtureWorkspaceRepositories({ latencyMs = 0, designEviden
   });
   return Object.freeze({
     identity,
+    company: roleWork.company,
+    requests: roleWork.requests,
     workQueue: operational.workQueue,
     catalog: operational.catalog,
     imports: operational.imports,

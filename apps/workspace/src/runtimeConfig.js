@@ -17,6 +17,11 @@ function defaultMarketingUrl(location) {
   if (location?.hostname === "app.owomide.com") {
     return "https://owomide.com/#top";
   }
+  // Cloudflare Workers preview hosts keep marketing ↔ workspace navigation honest
+  // when VITE_MARKETING_URL was not injected at build time.
+  if (location?.hostname?.endsWith(".workers.dev") && location.hostname.includes("workspace")) {
+    return `${location.protocol}//${location.hostname.replace("workspace", "marketing")}/#top`;
+  }
   return "/#top";
 }
 

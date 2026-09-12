@@ -1,12 +1,22 @@
 const ROLE_LABELS = Object.freeze({
-  pricing_analyst: "Pricing analyst",
+  pricing_analyst: "Pricing Analyst",
   import_admin: "Import admin",
-  approver: "Approver",
-  publisher: "Publisher",
+  approver: "Finance Approver",
+  publisher: "Executor",
   org_admin: "Organisation administrator",
+  account_owner: "Account Owner",
+  pricing_manager: "Pricing Manager",
+  pricing_contributor: "Pricing Contributor",
+  finance_approver: "Finance Approver",
+  commercial_approver: "Commercial Approver",
+  executive_approver: "Executive Approver",
+  executor: "Executor",
+  viewer: "Viewer",
+  governance_auditor: "Auditor",
 });
 
 const MONEY_FORMATTERS = new Map();
+const MONEY_FRACTION_FORMATTERS = new Map();
 
 function moneyFormatter(currency, locale) {
   const key = `${locale}:${currency}`;
@@ -23,16 +33,35 @@ function moneyFormatter(currency, locale) {
 }
 
 export function formatMoney(money, locale = "en-NG") {
-  if (!money || money.amountMinor == null || !money.currency) return "Unavailable";
-  const major = Number(money.amountMinor) / 100;
-  if (!Number.isFinite(major)) return "Unavailable";
-  return moneyFormatter(money.currency, locale).format(major).replace(/\s/g, "");
+  const minor = exactMinorUnits(money?.amountMinor);
+  if (minor == null || !money?.currency) return "Unavailable";
+  try {
+    const absolute = minor < 0n ? -minor : minor;
+    const whole = absolute / 100n;
+    // Only the bounded 0–99 remainder becomes a Number. Intl groups the
+    // arbitrary-size integer directly, without a lossy major-unit conversion.
+    if (!MONEY_FRACTION_FORMATTERS.has(locale)) MONEY_FRACTION_FORMATTERS.set(locale, new Intl.NumberFormat(locale, { useGrouping: false, minimumIntegerDigits: 2, maximumFractionDigits: 0 }));
+    const fraction = MONEY_FRACTION_FORMATTERS.get(locale).format(Number(absolute % 100n));
+    const signedWhole = minor < 0n ? (whole === 0n ? -0 : -whole) : whole;
+    return moneyFormatter(money.currency, locale).formatToParts(signedWhole)
+      .map((part) => part.type === "fraction" ? fraction : part.type === "literal" ? part.value.replace(/\s/g, "") : part.value).join("");
+  } catch {
+    return "Unavailable";
+  }
 }
 
 export function formatSignedMoney(money, locale = "en-NG") {
-  if (!money || money.amountMinor == null || !money.currency || !Number.isFinite(Number(money.amountMinor))) return "Unavailable";
-  const rendered = formatMoney({ ...money, amountMinor: String(Math.abs(Number(money.amountMinor))) }, locale);
-  return `${Number(money.amountMinor) >= 0 ? "+" : "−"}${rendered}`;
+  const minor = exactMinorUnits(money?.amountMinor);
+  if (minor == null) return "Unavailable";
+  const rendered = formatMoney({ ...money, amountMinor: minor < 0n ? -minor : minor }, locale);
+  return rendered === "Unavailable" ? rendered : `${minor >= 0n ? "+" : "−"}${rendered}`;
+}
+
+function exactMinorUnits(value) {
+  if (typeof value === "bigint") return value;
+  if (typeof value === "number") return Number.isSafeInteger(value) ? BigInt(value) : null;
+  if (typeof value !== "string" || !/^[+-]?\d+$/.test(value)) return null;
+  return BigInt(value);
 }
 
 export function formatBasisPoints(basisPoints) {
