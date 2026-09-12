@@ -1,0 +1,5471 @@
+[
+  {
+    "requirementId": "ORG-001",
+    "physicalPages": [
+      76
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-002",
+    "physicalPages": [
+      76,
+      77
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-003",
+    "physicalPages": [
+      77
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-004",
+    "physicalPages": [
+      77
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-005",
+    "physicalPages": [
+      77,
+      78
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-006",
+    "physicalPages": [
+      78
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-007",
+    "physicalPages": [
+      78
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-008",
+    "physicalPages": [
+      78,
+      79
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-009",
+    "physicalPages": [
+      79
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-010",
+    "physicalPages": [
+      79
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-011",
+    "physicalPages": [
+      79,
+      80
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-012",
+    "physicalPages": [
+      80
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-013",
+    "physicalPages": [
+      80,
+      81
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ORG-014",
+    "physicalPages": [
+      81
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-001",
+    "physicalPages": [
+      83,
+      84
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-002",
+    "physicalPages": [
+      84
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-003",
+    "physicalPages": [
+      84,
+      85,
+      86
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-004",
+    "physicalPages": [
+      86,
+      87,
+      88
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-005",
+    "physicalPages": [
+      88
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-006",
+    "physicalPages": [
+      88,
+      89
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-007",
+    "physicalPages": [
+      89,
+      90
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-008",
+    "physicalPages": [
+      90
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-009",
+    "physicalPages": [
+      90
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-010",
+    "physicalPages": [
+      91
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-011",
+    "physicalPages": [
+      91
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-012",
+    "physicalPages": [
+      92
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-013",
+    "physicalPages": [
+      92,
+      93
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-014",
+    "physicalPages": [
+      93,
+      94
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-015",
+    "physicalPages": [
+      94
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-016",
+    "physicalPages": [
+      94,
+      95
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-017",
+    "physicalPages": [
+      95
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-018",
+    "physicalPages": [
+      95
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-019",
+    "physicalPages": [
+      95,
+      96
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-020",
+    "physicalPages": [
+      96
+    ],
+    "frontendOwner": "FE-02",
+    "backendOwner": "BE-02",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "DATA-021",
+    "physicalPages": [
+      96,
+      97,
+      98
+    ],
+    "frontendOwner": "IN-03",
+    "backendOwner": "IN-03",
+    "integrationOwner": "IN-03",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-001",
+    "physicalPages": [
+      100
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-002",
+    "physicalPages": [
+      100,
+      101
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-003",
+    "physicalPages": [
+      101
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-004",
+    "physicalPages": [
+      101,
+      102
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-005",
+    "physicalPages": [
+      102
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-006",
+    "physicalPages": [
+      102
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-007",
+    "physicalPages": [
+      103
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-008",
+    "physicalPages": [
+      103
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-009",
+    "physicalPages": [
+      104
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-010",
+    "physicalPages": [
+      104,
+      105
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-011",
+    "physicalPages": [
+      105
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-012",
+    "physicalPages": [
+      105,
+      106
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-013",
+    "physicalPages": [
+      106,
+      107
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-014",
+    "physicalPages": [
+      107
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-015",
+    "physicalPages": [
+      107,
+      108
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-016",
+    "physicalPages": [
+      108
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-017",
+    "physicalPages": [
+      108,
+      109
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-018",
+    "physicalPages": [
+      109
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-019",
+    "physicalPages": [
+      109,
+      110
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-020",
+    "physicalPages": [
+      110
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "INIT-021",
+    "physicalPages": [
+      110
+    ],
+    "frontendOwner": "FE-03",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-001",
+    "physicalPages": [
+      112
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-002",
+    "physicalPages": [
+      112,
+      113
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-003",
+    "physicalPages": [
+      113
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-004",
+    "physicalPages": [
+      113,
+      114
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-005",
+    "physicalPages": [
+      114,
+      115
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-006",
+    "physicalPages": [
+      115
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-007",
+    "physicalPages": [
+      115,
+      116
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-008",
+    "physicalPages": [
+      116
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-009",
+    "physicalPages": [
+      117
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-010",
+    "physicalPages": [
+      117,
+      118
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-011",
+    "physicalPages": [
+      118,
+      119
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-012",
+    "physicalPages": [
+      119
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-013",
+    "physicalPages": [
+      119,
+      120
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-014",
+    "physicalPages": [
+      120,
+      121
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-015",
+    "physicalPages": [
+      121
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-016",
+    "physicalPages": [
+      121
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-017",
+    "physicalPages": [
+      121,
+      122
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-018",
+    "physicalPages": [
+      122
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-019",
+    "physicalPages": [
+      122,
+      123
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-020",
+    "physicalPages": [
+      123
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-021",
+    "physicalPages": [
+      123,
+      124
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-022",
+    "physicalPages": [
+      124,
+      125
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-023",
+    "physicalPages": [
+      125
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "BUILD-024",
+    "physicalPages": [
+      125,
+      126
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-001",
+    "physicalPages": [
+      128
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-002",
+    "physicalPages": [
+      128,
+      129
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-003",
+    "physicalPages": [
+      129,
+      130
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-004",
+    "physicalPages": [
+      130,
+      131
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-005",
+    "physicalPages": [
+      131,
+      132
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-006",
+    "physicalPages": [
+      132,
+      133,
+      134
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-007",
+    "physicalPages": [
+      134,
+      135
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-008",
+    "physicalPages": [
+      135
+    ],
+    "frontendOwner": "FE-05",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-009",
+    "physicalPages": [
+      135
+    ],
+    "frontendOwner": "FE-05",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-010",
+    "physicalPages": [
+      135,
+      136
+    ],
+    "frontendOwner": "FE-05",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-011",
+    "physicalPages": [
+      136
+    ],
+    "frontendOwner": "FE-05",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-012",
+    "physicalPages": [
+      136,
+      137
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-013",
+    "physicalPages": [
+      137
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-014",
+    "physicalPages": [
+      137,
+      138,
+      139
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-015",
+    "physicalPages": [
+      139
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-016",
+    "physicalPages": [
+      139,
+      140
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-017",
+    "physicalPages": [
+      140
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-018",
+    "physicalPages": [
+      140
+    ],
+    "frontendOwner": "FE-05",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-019",
+    "physicalPages": [
+      140,
+      141
+    ],
+    "frontendOwner": "FE-05",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-020",
+    "physicalPages": [
+      141,
+      142
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-021",
+    "physicalPages": [
+      142
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-022",
+    "physicalPages": [
+      142,
+      143
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-023",
+    "physicalPages": [
+      143
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-024",
+    "physicalPages": [
+      143,
+      144
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-025",
+    "physicalPages": [
+      144
+    ],
+    "frontendOwner": "FE-05",
+    "backendOwner": "BE-04",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-026",
+    "physicalPages": [
+      144,
+      145
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-027",
+    "physicalPages": [
+      145,
+      146
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-028",
+    "physicalPages": [
+      146
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-029",
+    "physicalPages": [
+      146
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "ANALYSIS-030",
+    "physicalPages": [
+      146,
+      147
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-01",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-001",
+    "physicalPages": [
+      149
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-002",
+    "physicalPages": [
+      149,
+      150
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-003",
+    "physicalPages": [
+      150,
+      151
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-004",
+    "physicalPages": [
+      151
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-005",
+    "physicalPages": [
+      151,
+      152
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-006",
+    "physicalPages": [
+      152
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-007",
+    "physicalPages": [
+      152,
+      153
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-008",
+    "physicalPages": [
+      153
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-009",
+    "physicalPages": [
+      153,
+      154
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-010",
+    "physicalPages": [
+      154,
+      155
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-011",
+    "physicalPages": [
+      155,
+      156
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-012",
+    "physicalPages": [
+      156,
+      157
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-013",
+    "physicalPages": [
+      157,
+      158
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-014",
+    "physicalPages": [
+      158
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-015",
+    "physicalPages": [
+      158,
+      159
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-016",
+    "physicalPages": [
+      159
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-017",
+    "physicalPages": [
+      159,
+      160
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-018",
+    "physicalPages": [
+      160,
+      161
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-019",
+    "physicalPages": [
+      161
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-020",
+    "physicalPages": [
+      161
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-021",
+    "physicalPages": [
+      161,
+      162
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "PROP-022",
+    "physicalPages": [
+      162,
+      163
+    ],
+    "frontendOwner": "FE-06",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-001",
+    "physicalPages": [
+      165
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-002",
+    "physicalPages": [
+      165
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-003",
+    "physicalPages": [
+      166
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-004",
+    "physicalPages": [
+      166
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-005",
+    "physicalPages": [
+      166,
+      167
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-006",
+    "physicalPages": [
+      167
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-007",
+    "physicalPages": [
+      167,
+      168
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-008",
+    "physicalPages": [
+      168
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-009",
+    "physicalPages": [
+      169
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-010",
+    "physicalPages": [
+      169
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-011",
+    "physicalPages": [
+      169,
+      170
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-012",
+    "physicalPages": [
+      170
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-013",
+    "physicalPages": [
+      170,
+      171
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-014",
+    "physicalPages": [
+      171
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-015",
+    "physicalPages": [
+      171
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-016",
+    "physicalPages": [
+      171
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-017",
+    "physicalPages": [
+      171,
+      172
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-018",
+    "physicalPages": [
+      172
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-019",
+    "physicalPages": [
+      172
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-020",
+    "physicalPages": [
+      172,
+      173
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "COLLAB-021",
+    "physicalPages": [
+      173
+    ],
+    "frontendOwner": "FE-07",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-001",
+    "physicalPages": [
+      175,
+      176
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-002",
+    "physicalPages": [
+      176,
+      177
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-003",
+    "physicalPages": [
+      177
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-004",
+    "physicalPages": [
+      177,
+      178
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-005",
+    "physicalPages": [
+      178,
+      179
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-006",
+    "physicalPages": [
+      179
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-007",
+    "physicalPages": [
+      179,
+      180
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-008",
+    "physicalPages": [
+      180,
+      181
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-009",
+    "physicalPages": [
+      181
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-010",
+    "physicalPages": [
+      181,
+      182
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-011",
+    "physicalPages": [
+      182
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-012",
+    "physicalPages": [
+      182
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-013",
+    "physicalPages": [
+      182,
+      183
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-014",
+    "physicalPages": [
+      183
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-015",
+    "physicalPages": [
+      183
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-016",
+    "physicalPages": [
+      183,
+      184
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-017",
+    "physicalPages": [
+      184
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-018",
+    "physicalPages": [
+      185
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-019",
+    "physicalPages": [
+      185,
+      186
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-020",
+    "physicalPages": [
+      186
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-021",
+    "physicalPages": [
+      186,
+      187
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-022",
+    "physicalPages": [
+      187,
+      188
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-023",
+    "physicalPages": [
+      188,
+      189
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-024",
+    "physicalPages": [
+      189
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-025",
+    "physicalPages": [
+      189,
+      190
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-026",
+    "physicalPages": [
+      190
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-027",
+    "physicalPages": [
+      190
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-028",
+    "physicalPages": [
+      190,
+      191
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-029",
+    "physicalPages": [
+      191
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-030",
+    "physicalPages": [
+      192,
+      193
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-031",
+    "physicalPages": [
+      193
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-032",
+    "physicalPages": [
+      193
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-033",
+    "physicalPages": [
+      193,
+      194
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-034",
+    "physicalPages": [
+      194
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-035",
+    "physicalPages": [
+      194,
+      195
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "FLOW-036",
+    "physicalPages": [
+      196
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-001",
+    "physicalPages": [
+      198
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-002",
+    "physicalPages": [
+      198
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-003",
+    "physicalPages": [
+      199
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-004",
+    "physicalPages": [
+      199
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-005",
+    "physicalPages": [
+      199,
+      200
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-006",
+    "physicalPages": [
+      200
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-007",
+    "physicalPages": [
+      200
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-008",
+    "physicalPages": [
+      200,
+      201
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-009",
+    "physicalPages": [
+      201
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-010",
+    "physicalPages": [
+      201
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-011",
+    "physicalPages": [
+      201,
+      202
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-012",
+    "physicalPages": [
+      202
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-013",
+    "physicalPages": [
+      202
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-014",
+    "physicalPages": [
+      202
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-015",
+    "physicalPages": [
+      202,
+      203
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-016",
+    "physicalPages": [
+      203,
+      204
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-017",
+    "physicalPages": [
+      204
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-018",
+    "physicalPages": [
+      204
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-019",
+    "physicalPages": [
+      204,
+      205
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-020",
+    "physicalPages": [
+      205
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-021",
+    "physicalPages": [
+      205
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-022",
+    "physicalPages": [
+      205,
+      206
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-023",
+    "physicalPages": [
+      206,
+      207
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-024",
+    "physicalPages": [
+      207,
+      208
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-025",
+    "physicalPages": [
+      208,
+      209
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-026",
+    "physicalPages": [
+      209,
+      210
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-027",
+    "physicalPages": [
+      210,
+      211
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-028",
+    "physicalPages": [
+      211,
+      212
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-029",
+    "physicalPages": [
+      212
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-030",
+    "physicalPages": [
+      212,
+      213
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-031",
+    "physicalPages": [
+      213
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-032",
+    "physicalPages": [
+      213
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-033",
+    "physicalPages": [
+      213,
+      214
+    ],
+    "frontendOwner": "FE-01",
+    "backendOwner": "BE-01",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-034",
+    "physicalPages": [
+      214,
+      215
+    ],
+    "frontendOwner": "FE-04",
+    "backendOwner": "BE-03",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-035",
+    "physicalPages": [
+      215
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-036",
+    "physicalPages": [
+      215,
+      216
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "GOV-037",
+    "physicalPages": [
+      216
+    ],
+    "frontendOwner": "FE-08",
+    "backendOwner": "BE-05",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-001",
+    "physicalPages": [
+      218
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-002",
+    "physicalPages": [
+      218,
+      219
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-003",
+    "physicalPages": [
+      219
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-004",
+    "physicalPages": [
+      219
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-005",
+    "physicalPages": [
+      219,
+      220
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-006",
+    "physicalPages": [
+      220
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-007",
+    "physicalPages": [
+      220,
+      221
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-008",
+    "physicalPages": [
+      221
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-009",
+    "physicalPages": [
+      221,
+      222
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-010",
+    "physicalPages": [
+      222
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-011",
+    "physicalPages": [
+      222
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-012",
+    "physicalPages": [
+      223
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-013",
+    "physicalPages": [
+      223
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-014",
+    "physicalPages": [
+      223
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-015",
+    "physicalPages": [
+      223,
+      224
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-016",
+    "physicalPages": [
+      224
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-017",
+    "physicalPages": [
+      224,
+      225
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-018",
+    "physicalPages": [
+      225
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-019",
+    "physicalPages": [
+      225
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-020",
+    "physicalPages": [
+      225
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-021",
+    "physicalPages": [
+      225,
+      226
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-022",
+    "physicalPages": [
+      226
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-023",
+    "physicalPages": [
+      226
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-024",
+    "physicalPages": [
+      226,
+      227
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-025",
+    "physicalPages": [
+      227
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-026",
+    "physicalPages": [
+      227
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-027",
+    "physicalPages": [
+      227,
+      228
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-028",
+    "physicalPages": [
+      228,
+      229
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-029",
+    "physicalPages": [
+      229
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-030",
+    "physicalPages": [
+      229
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-031",
+    "physicalPages": [
+      229,
+      230
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-032",
+    "physicalPages": [
+      230
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-033",
+    "physicalPages": [
+      230
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-034",
+    "physicalPages": [
+      230
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "AI-035",
+    "physicalPages": [
+      231
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-001",
+    "physicalPages": [
+      233,
+      234
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-002",
+    "physicalPages": [
+      234
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-003",
+    "physicalPages": [
+      234,
+      235
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-004",
+    "physicalPages": [
+      235
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-005",
+    "physicalPages": [
+      235,
+      236
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-006",
+    "physicalPages": [
+      236
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-007",
+    "physicalPages": [
+      236,
+      237
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-008",
+    "physicalPages": [
+      237
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-009",
+    "physicalPages": [
+      237,
+      238
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-010",
+    "physicalPages": [
+      238,
+      239
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-011",
+    "physicalPages": [
+      239
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-012",
+    "physicalPages": [
+      239,
+      240
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-013",
+    "physicalPages": [
+      240
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-014",
+    "physicalPages": [
+      240,
+      241,
+      242
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-015",
+    "physicalPages": [
+      242
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-016",
+    "physicalPages": [
+      242
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-017",
+    "physicalPages": [
+      242,
+      243
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-018",
+    "physicalPages": [
+      243
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-019",
+    "physicalPages": [
+      243
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-020",
+    "physicalPages": [
+      243
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-021",
+    "physicalPages": [
+      243,
+      244
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-022",
+    "physicalPages": [
+      244
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-023",
+    "physicalPages": [
+      244
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-024",
+    "physicalPages": [
+      244,
+      245
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-025",
+    "physicalPages": [
+      245
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-026",
+    "physicalPages": [
+      245
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-027",
+    "physicalPages": [
+      246
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-028",
+    "physicalPages": [
+      246
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-029",
+    "physicalPages": [
+      246
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXEC-030",
+    "physicalPages": [
+      246,
+      247
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-001",
+    "physicalPages": [
+      249
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-002",
+    "physicalPages": [
+      249,
+      250
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-003",
+    "physicalPages": [
+      250
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-004",
+    "physicalPages": [
+      250,
+      251
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-005",
+    "physicalPages": [
+      251
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-006",
+    "physicalPages": [
+      251,
+      252
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-007",
+    "physicalPages": [
+      252
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-008",
+    "physicalPages": [
+      252,
+      253
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-009",
+    "physicalPages": [
+      253,
+      254
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-010",
+    "physicalPages": [
+      254
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-011",
+    "physicalPages": [
+      254
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-012",
+    "physicalPages": [
+      254,
+      255
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-013",
+    "physicalPages": [
+      255
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-014",
+    "physicalPages": [
+      255
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-015",
+    "physicalPages": [
+      255
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-016",
+    "physicalPages": [
+      255,
+      256
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-017",
+    "physicalPages": [
+      256
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-018",
+    "physicalPages": [
+      256
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-019",
+    "physicalPages": [
+      256,
+      257
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-020",
+    "physicalPages": [
+      257
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-021",
+    "physicalPages": [
+      257
+    ],
+    "frontendOwner": "FE-11",
+    "backendOwner": "BE-09",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-022",
+    "physicalPages": [
+      257,
+      258
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-023",
+    "physicalPages": [
+      258
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-024",
+    "physicalPages": [
+      258
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-025",
+    "physicalPages": [
+      258
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-026",
+    "physicalPages": [
+      258,
+      259
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-027",
+    "physicalPages": [
+      259
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-028",
+    "physicalPages": [
+      259,
+      260
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "HIST-029",
+    "physicalPages": [
+      260
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-06",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-001",
+    "physicalPages": [
+      262
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-002",
+    "physicalPages": [
+      262
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-003",
+    "physicalPages": [
+      263
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-004",
+    "physicalPages": [
+      263
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-005",
+    "physicalPages": [
+      263,
+      264
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-006",
+    "physicalPages": [
+      264
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-007",
+    "physicalPages": [
+      264,
+      265
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-008",
+    "physicalPages": [
+      265
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-009",
+    "physicalPages": [
+      265
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-010",
+    "physicalPages": [
+      265
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-011",
+    "physicalPages": [
+      265,
+      266
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-012",
+    "physicalPages": [
+      266
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-013",
+    "physicalPages": [
+      266
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-014",
+    "physicalPages": [
+      266,
+      267
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-015",
+    "physicalPages": [
+      267
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-016",
+    "physicalPages": [
+      267
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-017",
+    "physicalPages": [
+      267
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-018",
+    "physicalPages": [
+      267,
+      268
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-019",
+    "physicalPages": [
+      268
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-020",
+    "physicalPages": [
+      268
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-021",
+    "physicalPages": [
+      268
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-022",
+    "physicalPages": [
+      268
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-023",
+    "physicalPages": [
+      268,
+      269
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-024",
+    "physicalPages": [
+      269
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-025",
+    "physicalPages": [
+      269
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-026",
+    "physicalPages": [
+      269,
+      270
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-027",
+    "physicalPages": [
+      270
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-028",
+    "physicalPages": [
+      270
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "NOTIF-029",
+    "physicalPages": [
+      270,
+      271
+    ],
+    "frontendOwner": "FE-10",
+    "backendOwner": "BE-08",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-001",
+    "physicalPages": [
+      273
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-002",
+    "physicalPages": [
+      273,
+      274
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-003",
+    "physicalPages": [
+      274
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-004",
+    "physicalPages": [
+      274,
+      275
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-005",
+    "physicalPages": [
+      275
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-006",
+    "physicalPages": [
+      275
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-007",
+    "physicalPages": [
+      275
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-008",
+    "physicalPages": [
+      275,
+      276
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-009",
+    "physicalPages": [
+      276,
+      277
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-010",
+    "physicalPages": [
+      277
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-011",
+    "physicalPages": [
+      278
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-012",
+    "physicalPages": [
+      278
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-013",
+    "physicalPages": [
+      278
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-014",
+    "physicalPages": [
+      278
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-015",
+    "physicalPages": [
+      278
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-016",
+    "physicalPages": [
+      279
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-017",
+    "physicalPages": [
+      279
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-018",
+    "physicalPages": [
+      279
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-019",
+    "physicalPages": [
+      279
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-020",
+    "physicalPages": [
+      280
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-021",
+    "physicalPages": [
+      280
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-022",
+    "physicalPages": [
+      280
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-023",
+    "physicalPages": [
+      280
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-024",
+    "physicalPages": [
+      280,
+      281
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-025",
+    "physicalPages": [
+      281
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-026",
+    "physicalPages": [
+      281
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-027",
+    "physicalPages": [
+      281,
+      282
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-028",
+    "physicalPages": [
+      282
+    ],
+    "frontendOwner": "IN-03",
+    "backendOwner": "IN-03",
+    "integrationOwner": "IN-03",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-029",
+    "physicalPages": [
+      282
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  },
+  {
+    "requirementId": "EXPORT-030",
+    "physicalPages": [
+      282,
+      283
+    ],
+    "frontendOwner": "FE-09",
+    "backendOwner": "BE-07",
+    "integrationOwner": "IN-02",
+    "finalDispositionOwner": "IN-04",
+    "sourceStrength": "Read the full requirement body: Must/Should/May/exclusions apply; ownership is not a blanket obligation to implement optional examples.",
+    "frontendEvidence": "not-yet-closed",
+    "backendEvidence": "not-yet-closed",
+    "integrationEvidence": "not-yet-closed"
+  }
+]

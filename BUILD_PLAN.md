@@ -2,6 +2,8 @@
 
 How we get from architecture diagrams to a shipped product, using Claude Code agents.
 
+> September2026 update: the phase plan below records the original service-foundation programme. New product work must reference the [accepted PRD benchmark and dependency-linked delivery plan](docs/product/mvp-2026-09/README.md). Legacy F0–F7 completion does not establish replacement-PRD completion. Keep the service conventions and Definition of Done; resolve changed model/contracts through the new contract work package before implementation.
+
 This file is a working document. Update it as features ship.
 
 ---

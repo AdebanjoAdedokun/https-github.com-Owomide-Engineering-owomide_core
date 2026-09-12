@@ -1,0 +1,353 @@
+/* Workflow composition: operational evidence, not document-sized ornaments.
+   This layer is deliberately scoped; Import and Proposal share historical
+   class names but must not inherit each other's document grids. */
+
+@media (max-width: 520px) {
+  /* Keep destinations in one readable strip, like the preview table tabs. */
+  .proposal-page .proposal-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 20px;
+    padding-inline: 16px;
+    scrollbar-width: thin;
+  }
+
+  .proposal-page .proposal-tabs button {
+    flex: 0 0 auto;
+    min-width: max-content;
+    min-height: 50px;
+    padding-inline: 0;
+    border-right: 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+
+  .proposal-page .proposal-tabs button.is-active {
+    border-bottom-color: var(--green);
+    box-shadow: none;
+  }
+}
+
+.import-journey .ops-section-head {
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.import-journey .ops-section-head--wide {
+  min-height: 0;
+  padding: 20px;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+}
+
+.import-journey .ops-section-head > span:first-child:not(.ops-status),
+.review-section-number {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 24px;
+}
+
+.import-journey .ops-section-head h2 {
+  margin-top: 3px;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -.018em;
+}
+
+.import-journey .ops-section-head p {
+  max-width: 68ch;
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.import-journey .import-stage-rail {
+  min-height: 56px;
+}
+
+.import-journey .import-stage-rail button {
+  min-height: 56px;
+  gap: 8px;
+  padding-inline: 12px;
+}
+
+.import-journey .import-stage-rail button > span {
+  width: 22px;
+  height: 22px;
+  flex-basis: 22px;
+  font-size: 11px;
+}
+
+.import-journey .review-document {
+  padding: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 0;
+  border-radius: 0;
+}
+
+.import-journey .review-document > section {
+  padding: 0 20px 0 0;
+}
+
+.import-journey .review-document > section + section {
+  padding: 0 0 0 20px;
+}
+
+.import-journey .review-document h3 {
+  margin-top: 8px;
+  font-size: 17px;
+  line-height: 24px;
+  letter-spacing: -.014em;
+}
+
+.import-journey .review-document dl {
+  margin-top: 16px;
+}
+
+.import-journey .review-document dl > div {
+  min-height: 44px;
+  padding-block: 10px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 16px;
+}
+
+.import-journey .review-document dt,
+.import-journey .review-document dd {
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.import-journey .review-consequence,
+.import-journey .risk-confirmation {
+  min-height: 0;
+  margin: 0 20px 16px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.import-journey .review-consequence {
+  margin-top: 4px;
+}
+
+.import-journey .review-consequence > svg {
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.import-journey .risk-confirmation input {
+  margin-top: 1px;
+  justify-self: start;
+}
+
+.import-journey .review-consequence strong,
+.import-journey .risk-confirmation strong {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.import-journey .review-consequence small,
+.import-journey .risk-confirmation small {
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.import-journey .result-hero {
+  max-width: none;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 6px 12px;
+  text-align: left;
+  align-items: start;
+}
+
+.import-journey .result-hero > span:first-child {
+  grid-column: 1;
+  grid-row: 1 / 4;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  border-radius: 8px;
+}
+
+.import-journey .result-hero > span svg { width: 18px; height: 18px; }
+.import-journey .result-hero > :not(span) { grid-column: 2; }
+
+.import-journey .result-hero h2 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 29px;
+  letter-spacing: -.02em;
+}
+
+.import-journey .result-hero > p:not(.ops-eyebrow) { margin: 0; overflow-wrap: anywhere; }
+.import-journey .result-counts > div { min-width: 0; min-height: 84px; padding: 16px; }
+.import-journey .result-counts strong { font-size: 24px; line-height: 30px; }
+.import-journey .result-counts .is-pending strong { font-size: 13px; line-height: 19px; }
+.import-journey .persistent-recovery { margin: 20px; align-items: start; }
+.import-journey .ops-sticky-actions { min-height: 68px; }
+
+/* Keep the sequence, ownership, and active step; reduce repeated icon chrome. */
+.proposal-journey li {
+  min-height: 72px;
+  padding: 12px 16px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.proposal-journey__node { display: none; }
+.proposal-journey li > span:last-child { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 2px 8px; align-items: baseline; }
+.proposal-journey small { grid-column: 1; grid-row: 1; font-size: 11px; line-height: 18px; }
+.proposal-journey strong { grid-column: 2; margin: 0; }
+.proposal-journey em { grid-column: 2; margin: 0; }
+.proposal-journey li.is-future { opacity: 1; }
+.proposal-journey li.is-future strong { color: var(--muted); }
+
+.proposal-overview { gap: 20px; }
+.proposal-authority > header h2 { font-size: 20px; line-height: 26px; }
+.proposal-authority dl { margin-top: 20px; }
+.proposal-authority dt, .proposal-authority dd { font-size: 12px; line-height: 18px; }
+.proposal-authority dd { white-space: normal; overflow-wrap: anywhere; }
+.proposal-evidence-grid article { padding: 16px 20px; }
+.proposal-evidence-grid article dl div { min-height: 40px; gap: 16px; padding-block: 8px; align-items: baseline; }
+.proposal-evidence-grid dt, .proposal-evidence-grid dd { min-width: 0; font-size: 12px; line-height: 18px; }
+.proposal-evidence-grid dd { text-align: right; overflow-wrap: anywhere; }
+
+/* Price geometry follows the actual card width, including a docked inspector.
+   No fixed-width track may push an exact amount outside its own column. */
+.proposal-anchor { container: proposal-anchor / inline-size; }
+.proposal-anchor__prices { grid-template-columns: minmax(0, 1fr) minmax(72px, .45fr) minmax(0, 1fr) minmax(0, .8fr); gap: 20px; padding: 24px 20px; }
+.proposal-anchor__prices strong { font-size: clamp(18px, 2cqi, 24px); line-height: 1.2; white-space: nowrap; }
+.proposal-anchor__prices > span { min-width: 0; }
+.proposal-anchor__delta { min-width: 0; grid-template-rows: auto 10px auto; }
+.proposal-anchor__delta b, .proposal-anchor__delta em { white-space: nowrap; }
+.proposal-anchor > footer { align-items: start; }
+.proposal-anchor > footer > svg { margin-top: 2px; }
+.proposal-anchor > footer small { font-size: 12px; line-height: 18px; overflow-wrap: anywhere; }
+
+@container proposal-anchor (max-width: 760px) {
+  .proposal-anchor__prices { grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); gap: 16px; }
+  .proposal-anchor__floor { grid-column: 1 / -1; padding: 16px 0 0; border-left: 0; border-top: 1px solid var(--line); display: flex !important; flex-direction: row !important; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+  .proposal-anchor__floor strong, .proposal-anchor__floor em { margin: 0; }
+}
+
+@container proposal-anchor (max-width: 560px) {
+  .proposal-anchor__prices { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; padding: 16px; gap: 12px; }
+  .proposal-anchor__prices > span:first-child, .proposal-anchor__prices > span:nth-child(3) { grid-column: 1; grid-row: auto; align-items: flex-start; text-align: left; }
+  .proposal-anchor__prices > span:first-child { grid-row: 1; }
+  .proposal-anchor__prices > span:nth-child(3) { grid-row: 3; }
+  .proposal-anchor__prices strong { font-size: 22px; }
+  .proposal-anchor__delta { grid-column: 1; grid-row: 2; min-height: 32px; display: grid; grid-template-columns: max-content minmax(24px, 1fr) max-content; grid-template-rows: auto; align-items: center; gap: 12px; }
+  .proposal-anchor__delta i { grid-column: 2; grid-row: 1; }
+  .proposal-anchor__delta b { grid-column: 1; grid-row: 1; }
+  .proposal-anchor__delta em { grid-column: 3; grid-row: 1; }
+  .proposal-anchor__floor { grid-row: 4; }
+}
+
+/* Proposal review must be a document, not Import's two-column facts grid. */
+.proposal-page > .review-document { display: block; padding: 0; }
+.proposal-page .review-document__head { padding: 24px; }
+.proposal-page .review-document__head p { margin-top: 8px; line-height: 20px; }
+.proposal-page .review-document__boundary { min-height: 0; padding: 16px 24px; grid-template-columns: 22px minmax(0, 1fr); align-items: start; border-radius: 0; }
+.proposal-page .review-document__boundary > svg { margin-top: 1px; }
+.proposal-page .review-document__grid { padding-inline: 24px; }
+.proposal-page .review-document__grid > section { grid-template-columns: 24px minmax(0, 1fr); padding-block: 20px; gap: 12px; }
+.proposal-page .review-document__grid > section > div { min-width: 0; }
+.proposal-page .review-document__grid h2 { margin-top: 4px; font-size: 16px; line-height: 23px; }
+.proposal-page .review-document :is(.review-people, .review-version) { margin-top: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.proposal-page .review-document :is(.review-people, .review-version) > div,
+.proposal-page .publication-manifest > dl > div { min-width: 0; min-height: 68px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; border-bottom: 0; }
+.proposal-page .review-document dt { font-size: 11px; line-height: 16px; }
+.proposal-page .review-document dd { margin: 0; font-size: 13px; line-height: 19px; text-align: left; overflow-wrap: anywhere; }
+.proposal-page .review-evidence p { font-size: 13px; line-height: 20px; }
+.proposal-page .review-evidence span { min-width: 0; align-items: start; overflow-wrap: anywhere; line-height: 18px; }
+.proposal-page .review-evidence svg { flex: 0 0 14px; margin-top: 2px; }
+.proposal-page .review-document__actions { padding: 16px 24px; min-height: 76px; }
+.proposal-page .publication-manifest { padding: 24px; }
+.proposal-page .publication-manifest > dl { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.publication-operation > header { min-height: 0; padding: 24px; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; }
+.publication-operation__mark { width: 32px; height: 32px; border-radius: 8px; }
+.publication-operation__mark svg { width: 18px; height: 18px; }
+.publication-operation > header p { margin-top: 8px; }
+.publication-counts { min-height: 88px; }
+.publication-counts span { min-width: 0; padding: 16px; }
+.publication-counts strong { font-size: 24px; line-height: 30px; }
+.publication-proof { padding: 0; border-bottom: 1px solid var(--line); }
+.publication-proof > div { padding: 16px 20px; }
+.publication-proof strong { white-space: normal; overflow-wrap: anywhere; font-size: 13px; line-height: 19px; }
+
+/* Policy is a rule definition; Audit is an evidence ledger. */
+.rule-detail-value { min-height: 160px; padding: 24px; align-items: flex-start; text-align: left; }
+.rule-detail-value strong { margin-block: 8px; font-size: 36px; line-height: 42px; }
+.rule-usage { margin-top: 16px; }
+.rule-usage > div { grid-template-columns: 20px minmax(0, 1fr); min-height: 64px; align-items: start; }
+.rule-usage svg { width: 18px; height: 18px; margin-top: 1px; }
+.rule-usage strong { font-size: 13px; line-height: 19px; }
+.rule-floor::after { display: none; }
+.audit-ledger > article { min-height: var(--table-row-workflow); }
+.audit-ledger > article > span:nth-child(2) strong { font-size: var(--table-text-primary); line-height: var(--table-line-primary); }
+.audit-ledger small { margin-top: var(--table-text-gap); font-size: var(--table-text-secondary); line-height: var(--table-line-secondary); }
+.audit-event-icon { width: 28px; height: 28px; border-radius: 6px; }
+.audit-event-icon svg { width: 16px; height: 16px; }
+.audit-timeline { max-width: none; padding: 24px; }
+.audit-timeline li { min-height: 116px; grid-template-columns: 28px minmax(0, 1fr); gap: 16px; }
+.audit-timeline li > span { width: 28px; height: 28px; }
+.audit-timeline li > span svg { width: 15px; height: 15px; }
+.audit-timeline li::before { top: 28px; left: 13px; }
+.audit-timeline strong { margin-top: 4px; font-size: 15px; line-height: 21px; }
+.audit-timeline small { color: var(--muted); font-weight: 500; }
+.audit-timeline footer { margin-top: 8px; gap: 4px 12px; }
+.audit-timeline em { min-height: 20px; padding: 0; border-radius: 0; background: none; font-size: 12px; line-height: 18px; }
+
+@media (max-width: 767px) {
+  .import-journey .ops-section-head--wide { grid-template-columns: 24px minmax(0, 1fr); padding: 16px; }
+  .import-journey .ops-section-head--wide > .ops-status { grid-column: 2; justify-self: start; }
+  .import-journey .review-document { padding: 16px; grid-template-columns: minmax(0, 1fr); }
+  .import-journey .review-document > section { padding: 0; }
+  .import-journey .review-document > section + section { margin-top: 20px; padding: 20px 0 0; border-left: 0; border-top: 1px solid var(--line); }
+  .import-journey .review-consequence, .import-journey .risk-confirmation { margin-inline: 16px; padding: 12px; gap: 10px; }
+  .import-journey .persistent-recovery { margin: 16px; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; }
+  .import-journey .persistent-recovery button { grid-column: 2; min-width: 0; white-space: normal; }
+  .import-journey .result-hero { padding: 20px 16px; }
+  .import-journey .result-hero h2 { font-size: 20px; line-height: 27px; }
+  .proposal-journey li { padding: 12px; }
+  .proposal-page .review-document__head, .proposal-page .publication-manifest { padding: 20px 16px; }
+  .proposal-page .review-document__boundary, .proposal-page .review-document__actions { padding: 16px; }
+  .proposal-page .review-document__grid { padding-inline: 16px; }
+  .proposal-page .review-document__grid > section { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .proposal-page .review-document :is(.review-people, .review-version), .proposal-page .publication-manifest > dl { grid-template-columns: minmax(0, 1fr); }
+  .proposal-page .review-document :is(.review-people, .review-version) > div, .proposal-page .publication-manifest > dl > div { min-height: 52px; display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 12px; border-right: 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .proposal-page .review-document :is(.review-people, .review-version) > div:last-child, .proposal-page .publication-manifest > dl > div:last-child { border-bottom: 0; }
+  .publication-operation > header { padding: 20px 16px; }
+  .publication-recovery { margin-inline: 16px; }
+  .publication-operation > footer { padding: 16px; }
+  .audit-timeline { padding: 20px 16px; }
+}
+
+@media (max-width: 479px) {
+  .import-journey .review-document dl > div { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 12px; }
+  .import-journey .ops-sticky-actions { padding: 16px; }
+  .proposal-anchor > header { flex-wrap: wrap; padding: 16px; }
+  .proposal-reconciliation { gap: 0; padding: 8px 16px; }
+  .proposal-reconciliation > span, .proposal-reconciliation > span:nth-of-type(2), .proposal-reconciliation > span:last-child { min-height: 48px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; text-align: left; }
+  .proposal-reconciliation small { max-width: 65%; }
+  .proposal-reconciliation strong { margin: 0; font-size: 22px; }
+  .proposal-evidence-grid article { padding: 16px; }
+  .publication-counts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .publication-counts .is-unconfirmed strong { font-size: 12px; }
+  .audit-timeline li { gap: 12px; }
+}

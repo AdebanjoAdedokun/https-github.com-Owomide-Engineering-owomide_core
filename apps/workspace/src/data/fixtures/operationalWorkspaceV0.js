@@ -271,6 +271,7 @@ function importJourney(batch) {
     kind: "import-journey",
     ref: batch.ref,
     title: batch.title,
+    owner: batch.owner,
     stage: batch.stage,
     state: batch.state,
     stages: stagesFor(batch.stage, batch.state),

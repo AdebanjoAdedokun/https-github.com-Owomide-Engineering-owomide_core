@@ -9,10 +9,8 @@ import {
   CheckCircle,
   ClockCounterClockwise,
   Database,
-  FileCsv,
   FunnelSimple,
   Function as FunctionIcon,
-  GitBranch,
   GridFour,
   House,
   Info,
@@ -27,9 +25,9 @@ import {
   ShieldWarning,
   SignOut,
   SlidersHorizontal,
-  Storefront,
   Tag,
   UploadSimple,
+  Users,
   X,
 } from "@phosphor-icons/react";
 import { findAllowedAction } from "./data/contracts.js";
@@ -39,7 +37,12 @@ import { WORKSPACE_RUNTIME_CONFIG } from "./runtimeConfig.js";
 import { parseWorkspaceHash, routeFromReturnTo, routeNavigationKey, workspaceHash } from "./workspaceRouting.js";
 import { ProposalWorkspace } from "./ProposalWorkspace.jsx";
 import { LoginScreen, OperationalWorkspace } from "./OperationalWorkspace.jsx";
+import { RoleWorkspace } from "./RoleWorkspace.jsx";
+import { WorkspaceSelect } from "./WorkspaceSelect.jsx";
+import { RevisionContext } from "./WorkflowGuidance.jsx";
+import { ROLE_SURFACES, canOpenWorkspaceRoute, workspaceHome } from "./workspaceAccess.js";
 import { CursorPager, INSPECTOR_DOCK_MIN_SURFACE } from "./workspaceTablePatterns.jsx";
+import { inspectorScrollFrame } from "./workspaceInspectorFrame.js";
 import {
   initials,
   formatBasisPoints,
@@ -54,7 +57,10 @@ import {
 } from "./workspacePresenter.js";
 
 const NAV_GROUPS = [
-  { label: "Work", items: [{ label: "Work queue", icon: House }] },
+  { label: "Work", items: [
+    { label: "Work queue", icon: House, requiredAny: ["proposal:read", "import:prepare", "repricing:prepare", "audit:read"] },
+    { label: "Pricing requests", icon: ListChecks, requiredAny: ["request:read:own", "request:triage"] },
+  ] },
   { label: "Data", items: [
     { label: "Catalog", icon: Database, requiredAny: ["catalog:read"] },
     { label: "Imports", icon: UploadSimple, requiredAny: ["import:prepare"] },
@@ -65,7 +71,8 @@ const NAV_GROUPS = [
   ] },
   { label: "Control", items: [
     { label: "Margin policies", icon: SlidersHorizontal, requiredAny: ["rules:read"] },
-    { label: "Audit", icon: ClockCounterClockwise, requiredAny: ["audit:read", "proposal:read"] },
+    { label: "Audit", icon: ClockCounterClockwise, requiredAny: ["audit:read", "proposal:create", "proposal:review", "publish:execute"] },
+    { label: "Team & access", icon: Users, requiredAny: ["company:read"] },
   ] },
 ];
 
@@ -78,6 +85,8 @@ function visibleNavigationGroups(session) {
 }
 
 function activeNavigationLabel(surface) {
+  if (surface.startsWith("pricing-request")) return "Pricing requests";
+  if (surface === "company-access") return "Team & access";
   if (surface === "work") return "Work queue";
   if (surface === "catalog" || surface === "catalog-detail") return "Catalog";
   if (surface === "imports" || surface.startsWith("import-")) return "Imports";
@@ -88,17 +97,15 @@ function activeNavigationLabel(surface) {
   return "Work queue";
 }
 
+/* Consequence-first strip: keep the decision signal, drop dashboard chip noise. */
 const SUMMARY_FIELDS = [
-  ["In scope", "total", Database, "neutral"],
-  ["Selected", "selected", CheckCircle, "green"],
-  ["Eligible", "eligible", SealCheck, "green"],
-  ["Need review", "blocked", ShieldWarning, "red"],
-  ["Excluded", "excluded", MinusCircle, "neutral"],
-  ["Unpriced", "unpriced", Tag, "gold"],
+  ["Selected", "selected", "green"],
+  ["Need review", "blocked", "red"],
+  ["Eligible", "eligible", "green"],
 ];
 
 const REPRICING_VIEWS = ["all", "review", "eligible", "excluded", "unpriced"];
-const REPRICING_PAGE_LIMIT = 6;
+const REPRICING_PAGE_LIMIT = 25;
 const OPERATIONAL_SURFACES = new Set([
   "work", "catalog", "catalog-detail", "imports", "import-new", "import-upload", "import-profile", "import-map", "import-validate", "import-review", "import-commit", "import-result",
   "repricing-scope", "repricing-rule", "proposals", "rules", "rule-detail", "audit", "audit-detail",
@@ -492,13 +499,11 @@ function MobileNavigation({ onClose, onNavigate, onSignOut, marketingHref, sessi
 
 function ScopeSummary({ counts }) {
   return (
-    <div className="scope-summary" aria-label="Complete repricing population">
-      {SUMMARY_FIELDS.map(([label, field, Icon, tone]) => (
-        <div className={`scope-stat is-${tone}`} key={label}>
-          <Icon aria-hidden="true" />
-          <span><small>{label}</small><strong>{counts[field].toLocaleString("en-NG")}</strong></span>
-        </div>
-      ))}
+    <div className="repricing-overview" aria-label="Complete repricing population">
+      <p><strong>{counts.selected.toLocaleString("en-NG")} selected</strong> · {counts.total.toLocaleString("en-NG")} in scope</p>
+      <details><summary>Selection breakdown</summary><dl>
+        {[...SUMMARY_FIELDS, ["Excluded", "excluded"], ["Unpriced", "unpriced"]].map(([label, field]) => <div key={field} style={{ display: "contents" }}><dt>{label}</dt><dd>{counts[field].toLocaleString("en-NG")}</dd></div>)}
+      </dl></details>
     </div>
   );
 }
@@ -514,10 +519,10 @@ function Status({ row }) {
   </span>;
 }
 
-function ProductTable({ rows, selectedLineId, onSelect, compact, ruleLabel }) {
+function ProductTable({ rows, selectedLineId, onSelect, compact, ruleLabel, showCalculations }) {
   return (
     <div className={`table-scroll${compact ? " is-compact" : ""}`}>
-      <table className="pricing-table">
+      <table className={`pricing-table${showCalculations ? " shows-calculations" : " is-decision-view"}`} id="repricing-table">
         <caption className="sr-only">Repricing lines. Select any row to inspect its governed consequence.</caption>
         <colgroup>
           <col className="pricing-col pricing-col--product" />
@@ -531,13 +536,14 @@ function ProductTable({ rows, selectedLineId, onSelect, compact, ruleLabel }) {
             <th className="pricing-head pricing-head--product" scope="col">Product</th>
             <th className="pricing-head pricing-head--scope" scope="col">Scope</th>
             <th className="pricing-head pricing-head--price" scope="col">Price adjustment</th>
-            <th className="pricing-head pricing-head--margin" scope="col">Margin and policy</th>
+            <th className="pricing-head pricing-head--margin" scope="col">{showCalculations ? "Margin and policy" : "Resulting margin"}</th>
             <th className="pricing-head pricing-head--decision" scope="col">Decision</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => {
             const active = selectedLineId === row.id;
+            const economicsRestricted = row.raw?.fieldVisibility?.economics === "restricted";
             const decision = decisionFor(row);
             const noProposedPrice = row.proposed === "—";
             const noMarginEvaluation = row.proposedMargin === "—";
@@ -563,24 +569,28 @@ function ProductTable({ rows, selectedLineId, onSelect, compact, ruleLabel }) {
                     aria-expanded={active}
                     aria-controls={active ? "repricing-line-inspector" : undefined}
                   >
-                    <span className="product-glyph" aria-hidden="true">{row.product.slice(0, 1)}</span>
                     <span><strong>{row.product}</strong><small>{row.variant} · {row.sku}</small></span>
                   </button>
                 </td>
                 <td className="scope-table-cell" data-label="Scope">
-                  <span className="scope-cell" title={row.scope}><Storefront aria-hidden="true" /><span>{row.scope}</span></span>
+                  <span className="scope-cell" title={row.scope}>{row.scope}</span>
                 </td>
                 <td className="price-adjustment-cell" data-label="Price adjustment">
                   <span className={`row-price-movement${noProposedPrice ? " is-unavailable" : ""}`}>
-                    <span><strong>{row.current}</strong><small>{row.costState === "stale" ? `Stale cost ${row.cost}` : row.cost === "—" ? "Cost unavailable" : `Cost ${row.cost}`}</small></span>
-                    <i><ArrowRight aria-hidden="true" /><small>{noProposedPrice ? "No output" : ruleLabel}</small></i>
-                    <span><strong>{row.proposed}</strong><small>{noProposedPrice ? "Not priced" : row.delta}</small></span>
+                    <span><span className="sr-only">Current price </span><strong>{row.current}</strong>{showCalculations ? <small>{row.costState === "stale" ? `Stale cost ${row.cost}` : row.cost === "—" ? "Cost unavailable" : `Cost ${row.cost}`}</small> : null}</span>
+                    <i><ArrowRight aria-hidden="true" />{showCalculations ? <small>{noProposedPrice ? "No output" : ruleLabel}</small> : null}</i>
+                    <span><span className="sr-only">Proposed price </span><strong>{row.proposed}</strong><small>{noProposedPrice ? "No output" : row.delta}</small></span>
                   </span>
                 </td>
-                <td className="margin-policy-cell" data-label="Margin and policy">
+                <td className="margin-policy-cell" data-label={showCalculations ? "Margin and policy" : "Resulting margin"}>
                   <span className={`row-margin-policy${decision.tone === "review" ? " is-below" : ""}${noMarginEvaluation ? " is-unavailable" : ""}`}>
-                    <span className="margin-cell"><strong>{row.margin}</strong><ArrowRight aria-hidden="true" /><strong>{row.proposedMargin}</strong></span>
-                    <small><span>{row.floor === "—" ? "Floor not resolved" : `Floor ${row.floor}`}</span><em>{decision.tone === "review" && marginGap != null && marginGap > 0 ? `${(marginGap / 100).toFixed(2)} pp short` : decision.label}</em></small>
+                    {economicsRestricted ? <span className="resulting-margin"><span>Restricted by access</span></span> : showCalculations ? <>
+                      <span className="margin-cell"><strong>{row.margin}</strong><ArrowRight aria-hidden="true" /><strong>{row.proposedMargin}</strong></span>
+                      <small><span>{row.floor === "—" ? "Floor not resolved" : `Floor ${row.floor}`}</span><em>{noMarginEvaluation ? "Not evaluated" : decision.tone === "review" && marginGap != null && marginGap > 0 ? `${(marginGap / 100).toFixed(2)} pp short` : decision.label}</em></small>
+                    </> : <span className="resulting-margin">
+                      <strong>{row.proposedMargin}</strong>
+                      <small>{decision.tone === "review" && marginGap != null && marginGap > 0 ? `${(marginGap / 100).toFixed(2)} pp below floor` : noMarginEvaluation ? "Not evaluated" : row.floor === "—" ? "Floor not resolved" : `Floor ${row.floor}`}</small>
+                    </span>}
                   </span>
                 </td>
                 <td className="decision-table-cell" data-label="Decision"><span className="row-decision"><Status row={row} /><span className="row-open" aria-hidden="true"><CaretRight className="row-caret" /></span></span></td>
@@ -594,6 +604,7 @@ function ProductTable({ rows, selectedLineId, onSelect, compact, ruleLabel }) {
 }
 
 function ConsequenceLens({ row, ruleLabel, proposalAuthority, onClose, onMove, onRemediate, remediationBusy, remediationError, position, total, lensRef }) {
+  const economicsRestricted = row.raw?.fieldVisibility?.economics === "restricted";
   const decision = decisionFor(row);
   const DecisionIcon = decision.Icon;
   const issueKind = issueKindFor(row);
@@ -619,7 +630,7 @@ function ConsequenceLens({ row, ruleLabel, proposalAuthority, onClose, onMove, o
   const atFloor = row.classification === "eligible" && marginGap === 0;
   const remediationActions = (row.allowedRemediations ?? []).map(remediationDescriptor).filter(Boolean);
   const issueMessage = row.issue?.message ?? row.raw?.issue?.message ?? row.raw?.policy?.violation?.message ?? null;
-  const result = issueKind === "margin-policy"
+  const result = economicsRestricted ? { title: "Financial detail is restricted", detail: "Selling prices and decision status are visible. Cost, margin and policy inputs are not included in your access." } : issueKind === "margin-policy"
     ? {
         title: marginGap != null ? `${Math.abs(marginGap / 100).toFixed(2)} pp below floor` : "Margin is below policy",
         detail: row.floorPrice === "—" ? (issueMessage ?? "A compliant price could not be calculated.") : `${row.floorPrice} is the minimum compliant price.`,
@@ -637,7 +648,7 @@ function ConsequenceLens({ row, ruleLabel, proposalAuthority, onClose, onMove, o
             : atFloor
               ? { title: `Meets the ${row.floor} floor exactly`, detail: "Equality satisfies this margin policy." }
               : { title: row.floor === "—" ? "Policy clear" : `Above the ${row.floor} floor`, detail: "This line can move into the Proposal." };
-  const resultTone = row.classification === "eligible"
+  const resultTone = economicsRestricted ? "neutral" : row.classification === "eligible"
     ? "clear"
     : issueKind === "margin-policy" || issueKind === "review"
       ? "blocked"
@@ -673,9 +684,9 @@ function ConsequenceLens({ row, ruleLabel, proposalAuthority, onClose, onMove, o
       </div>
 
       <div className={`lens-price${row.proposed === "—" ? " is-unavailable" : ""}`}>
-        <div><span>Current</span><strong>{row.current}</strong><small>{row.margin === "—" ? "Margin unavailable" : `${row.margin} margin`}</small></div>
+        <div><span>Current</span><strong>{row.current}</strong>{!economicsRestricted ? <small>{row.margin === "—" ? "Margin unavailable" : `${row.margin} margin`}</small> : null}</div>
         <div className="lens-change"><b>{row.proposed === "—" ? "No output" : ruleLabel}</b><i aria-hidden="true" /><small>{row.proposed === "—" ? "Not priced" : row.delta}</small></div>
-        <div><span>Proposed</span><strong>{row.proposed}</strong><small>{row.proposedMargin === "—" ? "Margin not evaluated" : `${row.proposedMargin} margin`}</small></div>
+        <div><span>Proposed</span><strong>{row.proposed}</strong>{!economicsRestricted ? <small>{row.proposedMargin === "—" ? "Margin not evaluated" : `${row.proposedMargin} margin`}</small> : null}</div>
       </div>
 
       <div className={`policy-result is-${resultTone}`}>
@@ -726,10 +737,11 @@ function ConsequenceLens({ row, ruleLabel, proposalAuthority, onClose, onMove, o
       </div>
 
       <div className="lens-evidence">
-        <div><Database aria-hidden="true" /><span><small>Source</small><strong>Supplier baseline · row {row.sourceRow}</strong></span></div>
-        <div><FunctionIcon aria-hidden="true" /><span><small>Price adjustment</small><strong>{ruleLabel}</strong></span></div>
-        <div><GitBranch aria-hidden="true" /><span><small>Record</small><strong>Catalog version {row.catalogVersion}</strong></span></div>
-        <div><Storefront aria-hidden="true" /><span><small>Scope</small><strong>{row.scope}</strong></span></div>
+        <div><span><small>{row.costState === "stale" ? "Stale cost" : "Current cost"}</small><strong>{row.cost === "—" ? "Unavailable" : row.cost}</strong></span></div>
+        <div><span><small>Source</small><strong>Supplier baseline · row {row.sourceRow}</strong></span></div>
+        <div><span><small>Price adjustment</small><strong>{ruleLabel}</strong></span></div>
+        <div><span><small>Record</small><strong>Catalog version {row.catalogVersion}</strong></span></div>
+        <div><span><small>Scope</small><strong>{row.scope}</strong></span></div>
       </div>
     </aside>
   );
@@ -814,14 +826,13 @@ function ProposalDialog({ onClose, onSubmit, created = null, preview, session, a
         </div>
         <form onSubmit={submit}>
           <div className="proposal-transfer">
-            <div><Database aria-hidden="true" /><span><small>Population</small><strong>All {selectedCount} selected lines transfer</strong><em>No row is silently removed</em></span></div>
-            <div><ShieldWarning aria-hidden="true" /><span><small>Open decisions</small><strong>{blockedCount} issues keep the Proposal blocked</strong><em>Policy, source and dimension evidence remains attached</em></span></div>
-            <div><ClockCounterClockwise aria-hidden="true" /><span><small>Effective</small><strong>{formatEffectiveAt(effectiveAt, session?.organisation.timezone)}</strong><em>Approval and publish remain separate</em></span></div>
+            <div><span><small>Population</small><strong>All {selectedCount} selected lines transfer</strong><em>No row is silently removed</em></span></div>
+            <div><span><small>Open decisions</small><strong>{blockedCount} issues keep the Proposal blocked</strong><em>Policy, source and dimension evidence remains attached</em></span></div>
+            <div><span><small>Effective</small><strong>{formatEffectiveAt(effectiveAt, session?.organisation.timezone)}</strong><em>Approval and publish remain separate</em></span></div>
           </div>
           <div className="reviewer-record">
             <span className="avatar">{initials(actorName)}</span>
             <span><small>Proposal author</small><strong>{actorName}</strong><em>{actorRoles.join(" · ")} · current session identity</em></span>
-            <GitBranch aria-hidden="true" />
           </div>
           <div className="dialog-boundary" id="proposal-dialog-boundary"><Info aria-hidden="true" /><span>{confirmation?.body ?? "Creating the Proposal does not approve an exception or publish a price."}</span></div>
           {submitError ? <div className="dialog-error" role="alert"><ShieldWarning aria-hidden="true" /><span>{submitError}</span></div> : null}
@@ -863,6 +874,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedLineId, setSelectedLineId] = useState("480f12f1-c0fa-528e-b3d0-27e340e93046");
   const [compact, setCompact] = useState(false);
+  const [showCalculations, setShowCalculations] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [proposalCreated, setProposalCreated] = useState(false);
   const [proposal, setProposal] = useState(null);
@@ -875,6 +887,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
   const [governedError, setGovernedError] = useState(null);
   const [evidenceActors, setEvidenceActors] = useState([]);
   const [notice, setNotice] = useState(null);
+  const [surfaceRisk, setSurfaceRisk] = useState(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [channelFilter, setChannelFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
@@ -895,6 +908,8 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
   const linePageRetryRef = useRef(null);
   const activeLineFiltersRef = useRef({ status: "all", query: "", channelId: "all", locationId: "all" });
   const governedRequestSequenceRef = useRef(0);
+  const identityEpochRef = useRef(0);
+  const workspaceRequestSequenceRef = useRef(0);
   const previewRouteId = route.surface === "repricing" ? route.resourceId ?? "FX-004" : null;
   const previewRouteVersion = route.surface === "repricing" ? route.resourceVersion ?? null : null;
   activeLineFiltersRef.current = { status: statusFilter, query: debouncedQuery, channelId: channelFilter, locationId: locationFilter };
@@ -906,7 +921,19 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
   }, []);
 
   const signOut = useCallback(async () => {
+    identityEpochRef.current += 1;
+    workspaceRequestSequenceRef.current += 1;
+    governedRequestSequenceRef.current += 1;
+    linePageRequestRef.current += 1;
     setOpenPanel(null);
+    setPreview(null);
+    setProposal(null);
+    setGovernedPreview(null);
+    setPublication(null);
+    setAudit(null);
+    setProposalCreated(null);
+    setSession(null);
+    setLoadState("loading");
     try {
       await repositories.identity.signOut?.();
     } finally {
@@ -942,6 +969,8 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
   }, [goToRoute]);
 
   const loadWorkspace = useCallback(async () => {
+    const epoch = identityEpochRef.current;
+    const sequence = ++workspaceRequestSequenceRef.current;
     setLoadState("loading");
     setLoadError(null);
     try {
@@ -968,6 +997,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
           ? repositories.identity.listDesignEvidenceActors().catch(() => [])
           : Promise.resolve([]),
       ]);
+      if (epoch !== identityEpochRef.current || sequence !== workspaceRequestSequenceRef.current) return;
       setSession(resolvedSession);
       setPreview(resolvedPreview);
       setEvidenceActors(resolvedEvidenceActors);
@@ -988,6 +1018,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
       setSelectedLineId((current) => resolvedPreview?.lines.some((line) => line.id === current) ? current : resolvedPreview?.lines[0]?.id ?? "");
       setLoadState("ready");
     } catch (error) {
+      if (epoch !== identityEpochRef.current || sequence !== workspaceRequestSequenceRef.current) return;
       setLoadError(toDomainErrorEnvelope(error, "workspace-preview-load"));
       setLoadState("error");
     }
@@ -1089,7 +1120,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
       setSession(nextSession);
       setProposal(nextProposal);
       setGovernedPreview(nextGovernedPreview);
-      setProposalCreated((current) => current || { ref: nextProposal.ref, title: nextProposal.title, counts: nextProposal.counts, author: nextProposal.author, effectiveAt: nextProposal.effectiveAt });
+      setProposalCreated({ ref: nextProposal.ref, sourcePreviewRef: nextProposal.sourcePreviewRef, title: nextProposal.title, counts: nextProposal.counts, author: nextProposal.author, effectiveAt: nextProposal.effectiveAt });
       setPublication(nextPublication);
       setAudit(nextAudit);
       setGovernedLoadState("ready");
@@ -1143,6 +1174,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
     if (currentFilterKeyRef.current === requestKey && lineRetryToken === 0 && !needsExactRouteLine) return undefined;
 
     let current = true;
+    const epoch = identityEpochRef.current;
     if (currentFilterKeyRef.current !== requestKey) {
       linePageRequestRef.current += 1;
       setLinePageBusy(false);
@@ -1153,14 +1185,14 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
     setLineLoadState("loading");
     setLineLoadError(null);
     repositories.repricing.getPreview(request).then((nextPreview) => {
-      if (!current) return;
+      if (!current || epoch !== identityEpochRef.current) return;
       currentFilterKeyRef.current = requestKey;
       setPreview(nextPreview);
       setSelectedLineId((selected) => nextPreview.lines.some((line) => line.id === selected) ? selected : nextPreview.lines[0]?.id ?? "");
       setLineLoadState("ready");
       setLineLoadError(null);
     }).catch((error) => {
-      if (!current) return;
+      if (!current || epoch !== identityEpochRef.current) return;
       setLineLoadError(toDomainErrorEnvelope(error, "repricing-lines-filter"));
       setLineLoadState("error");
     });
@@ -1180,8 +1212,10 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
   const serverProposalTarget = readProposalAction?.enabled && readProposalAction.targetRef?.id && readProposalAction.targetRef?.version
     ? readProposalAction.targetRef
     : null;
-  const existingProposalRef = proposalCreated?.ref
-    ?? (createProposalAction?.enabled === false ? serverProposalTarget : null);
+  const createdForThisPreview = proposalCreated?.sourcePreviewRef?.id === preview?.ref.id
+    && proposalCreated?.sourcePreviewRef?.version === preview?.ref.version;
+  const existingProposalRef = createProposalAction?.enabled === true ? null
+    : serverProposalTarget ?? (createdForThisPreview && readProposalAction?.enabled ? proposalCreated.ref : null);
   const currentProposalAction = existingProposalRef ? readProposalAction : createProposalAction;
   const proposalActionReason = typeof currentProposalAction?.reason === "string"
     ? currentProposalAction.reason
@@ -1212,9 +1246,9 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
           };
   const proposalActionHelper = currentProposalAction?.enabled === false
     ? (proposalActionReason ?? "This Proposal action is unavailable for the current Preview.")
-    : existingProposalRef
-      ? `Existing Proposal retains ${preview?.counts.blocked.toLocaleString("en-NG")} lines for review.`
-      : `Creates a governed Proposal with ${preview?.counts.blocked.toLocaleString("en-NG")} lines held for review.`;
+    : preview?.revisionOrigin
+      ? "Replacement draft · fresh approval required."
+      : "Draft only · approval and publication are separate.";
   const ruleLabel = preview ? repricingRuleLabel(preview.rule, session?.organisation.locale ?? "en-NG") : "Rule resolving";
 
   useEffect(() => {
@@ -1239,7 +1273,11 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
   }, [preview?.ref?.version, selectedLineId]);
 
   useEffect(() => {
-    if (!notice) return undefined;
+    setSurfaceRisk(null);
+  }, [preview?.ref?.version]);
+
+  useEffect(() => {
+    if (!notice || notice.kind === "risk") return undefined;
     const id = window.setTimeout(() => setNotice(null), 3600);
     return () => window.clearTimeout(id);
   }, [notice]);
@@ -1300,6 +1338,50 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
     };
   }, [loadState, preview?.ref?.id, route.surface, sidebarCollapsed]);
 
+  useLayoutEffect(() => {
+    if (route.surface !== "repricing" || !inspectorOpen || !selectedRow) return undefined;
+    const lens = inspectorRef.current;
+    const surface = lens?.parentElement;
+    if (!lens || !surface) return undefined;
+    const reset = () => {
+      lens.style.removeProperty("--inspector-scroll-top");
+      lens.style.removeProperty("--inspector-scroll-height");
+    };
+    const update = () => {
+      // Mobile and wide docked panels use document flow, not a nested scrollport.
+      if (window.getComputedStyle(lens).position !== "absolute") { reset(); return; }
+      const bounds = surface.getBoundingClientRect();
+      if (bounds.height <= 0) return;
+      const viewport = window.visualViewport;
+      const viewportTop = viewport?.offsetTop ?? 0;
+      const frame = inspectorScrollFrame({
+        surfaceTop: bounds.top,
+        surfaceBottom: bounds.bottom,
+        viewportTop,
+        viewportBottom: viewportTop + (viewport?.height ?? window.innerHeight),
+        headerBottom: document.querySelector(".topbar")?.getBoundingClientRect().bottom ?? viewportTop,
+      });
+      lens.style.setProperty("--inspector-scroll-top", `${frame.top}px`);
+      lens.style.setProperty("--inspector-scroll-height", `${frame.height}px`);
+    };
+    update();
+    const observer = globalThis.ResizeObserver ? new globalThis.ResizeObserver(update) : null;
+    observer?.observe(surface);
+    if (workSurfaceRef.current) observer?.observe(workSurfaceRef.current);
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("scroll", update);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("scroll", update);
+      reset();
+    };
+  }, [inspectorOpen, inspectorOwnsSurface, route.surface, selectedRow?.id]);
+
   useEffect(() => {
     if (route.surface !== "repricing" || loadState !== "ready") return undefined;
     const rail = viewTabsRef.current;
@@ -1313,15 +1395,29 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
       setViewTabOverflow((current) => current.before === before && current.after === after ? current : { before, after });
     };
 
+    const revealActive = (behavior = "auto") => {
+      if (rail.scrollWidth <= rail.clientWidth) return;
+      const railBox = rail.getBoundingClientRect();
+      const activeBox = active.getBoundingClientRect();
+      const inset = 8;
+      const delta = activeBox.left < railBox.left + inset ? activeBox.left - railBox.left - inset
+        : activeBox.right > railBox.right - inset ? activeBox.right - railBox.right + inset : 0;
+      if (!delta) return;
+      const left = Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, rail.scrollLeft + delta));
+      // Reveal this tab horizontally, without scrolling any page ancestor.
+      if (typeof rail.scrollTo === "function") rail.scrollTo({ left, behavior });
+      else rail.scrollLeft = left;
+    };
+    const handleResize = () => { revealActive(); updateOverflow(); };
     rail.addEventListener("scroll", updateOverflow, { passive: true });
-    globalThis.window?.addEventListener?.("resize", updateOverflow);
-    const observer = globalThis.ResizeObserver ? new globalThis.ResizeObserver(updateOverflow) : null;
+    globalThis.window?.addEventListener?.("resize", handleResize);
+    const observer = globalThis.ResizeObserver ? new globalThis.ResizeObserver(handleResize) : null;
     observer?.observe(rail);
     updateOverflow();
 
     if (rail.scrollWidth > rail.clientWidth) {
       const reduced = globalThis.window?.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-      active.scrollIntoView({ block: "nearest", inline: "center", behavior: reduced ? "auto" : "smooth" });
+      revealActive(reduced ? "auto" : "smooth");
       frame = globalThis.window?.requestAnimationFrame?.(updateOverflow) ?? null;
     }
 
@@ -1329,7 +1425,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
       if (frame != null) globalThis.window?.cancelAnimationFrame?.(frame);
       observer?.disconnect();
       rail.removeEventListener("scroll", updateOverflow);
-      globalThis.window?.removeEventListener?.("resize", updateOverflow);
+      globalThis.window?.removeEventListener?.("resize", handleResize);
     };
   }, [loadState, preview?.counts?.blocked, preview?.counts?.eligible, preview?.counts?.excluded, preview?.counts?.total, preview?.counts?.unpriced, route.surface, statusFilter]);
 
@@ -1348,7 +1444,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
 
   useEffect(() => {
     if (route.surface !== "repricing" || !inspectorOpen || !selectedRow) return undefined;
-    const compactHandoff = window.matchMedia("(max-width: 1279px)").matches;
+    const compactHandoff = window.matchMedia("(max-width: 1023px)").matches;
     if (!compactHandoff && !inspectorMoveFocusRef.current) return undefined;
 
     const handoff = ++inspectorHandoffRef.current;
@@ -1378,10 +1474,35 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
 
   const selectEvidenceActor = useCallback(async (actorId) => {
     if (!repositories.identity.selectDesignEvidenceActor) return;
+    const epoch = ++identityEpochRef.current;
+    workspaceRequestSequenceRef.current += 1;
+    governedRequestSequenceRef.current += 1;
+    linePageRequestRef.current += 1;
     setOpenPanel(null);
+    setPreview(null);
+    setProposal(null);
+    setGovernedPreview(null);
+    setPublication(null);
+    setAudit(null);
+    setProposalCreated(null);
+    setLoadState("loading");
     setGovernedError(null);
     try {
       const nextSession = await repositories.identity.selectDesignEvidenceActor(actorId);
+      if (epoch !== identityEpochRef.current) return;
+      setSession(nextSession);
+      setLoadState("ready");
+      setPreview(null);
+      setProposal(null);
+      setGovernedPreview(null);
+      setPublication(null);
+      setAudit(null);
+      setNotice(null);
+      setSurfaceRisk(null);
+      if (!canOpenWorkspaceRoute(nextSession, route)) {
+        goToRoute(workspaceHome(nextSession));
+        return;
+      }
       if (route.surface === "repricing") {
         const visibleLimit = Math.max(preview?.lines?.length ?? 0, preview?.page?.limit ?? REPRICING_PAGE_LIMIT);
         const nextPreview = await repositories.repricing.getPreview({
@@ -1392,12 +1513,13 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
           locationId: locationFilter === "all" ? undefined : locationFilter,
           limit: visibleLimit,
         });
+        if (epoch !== identityEpochRef.current) return;
         setSession(nextSession);
         setPreview(nextPreview);
         setLinePageIndex(0);
         setLineCursorHistory([null]);
         setSelectedLineId((selected) => nextPreview.lines.some((line) => line.id === selected) ? selected : nextPreview.lines[0]?.id ?? "");
-      } else if (OPERATIONAL_SURFACES.has(route.surface)) {
+      } else if (OPERATIONAL_SURFACES.has(route.surface) || ROLE_SURFACES.has(route.surface)) {
         // OperationalWorkspace is keyed by the resolved actor below, so the
         // current route remounts and refetches through the new capability set.
         setSession(nextSession);
@@ -1421,15 +1543,31 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
         });
       }
     } catch (error) {
+      if (epoch !== identityEpochRef.current) return;
+      setLoadState("error");
+      setLoadError(toDomainErrorEnvelope(error, "fixture-evidence-session"));
       const envelope = toDomainErrorEnvelope(error, "fixture-evidence-session");
-      setNotice({ title: "Session evidence could not resolve", detail: envelope.error.message, kind: "info" });
+      setNotice({ title: "Session evidence could not resolve", detail: envelope.error.message, kind: "risk" });
+      setSurfaceRisk({
+        title: "Session evidence could not resolve",
+        detail: envelope.error.message,
+        actionLabel: null,
+      });
     }
   }, [channelFilter, debouncedQuery, goToRoute, loadGovernedContext, locationFilter, preview, proposal?.ref.id, repositories, route.operationId, route.operationVersion, route.overrideId, route.overrideVersion, route.resourceId, route.resourceVersion, route.surface, statusFilter]);
 
   const navigate = async (label) => {
     setOpenPanel(null);
     if (label === "Work queue") {
-      goToRoute({ surface: "work", view: "needs-me" });
+      goToRoute(workspaceHome(session));
+      return;
+    }
+    if (label === "Pricing requests") {
+      goToRoute({ surface: "pricing-requests", view: "list" });
+      return;
+    }
+    if (label === "Team & access") {
+      goToRoute({ surface: "company-access", view: "access" });
       return;
     }
     if (label === "Catalog") {
@@ -1482,12 +1620,19 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
       setAudit(null);
       setGovernedLoadState("ready");
       setDialogOpen(false);
+      setSurfaceRisk(null);
       setNotice({ title: "Proposal created", detail: `The exact preview snapshot transferred with all ${result.data.counts.blocked.toLocaleString("en-NG")} unresolved issues preserved.`, kind: "success" });
       goToRoute({ surface: "proposal", resourceId: detail.ref.id, resourceVersion: detail.ref.version, view: "overview" });
       return result;
     } catch (error) {
       const envelope = toDomainErrorEnvelope(error, "proposal-create");
-      setNotice({ title: "Proposal was not created", detail: envelope.error.message, kind: "info" });
+      setSurfaceRisk({
+        title: "Proposal was not created",
+        detail: envelope.error.message,
+        actionLabel: "Retry create Proposal",
+        action: "retry-create-proposal",
+      });
+      setNotice({ title: "Proposal was not created", detail: envelope.error.message, kind: "risk" });
       throw error;
     }
   }, [createProposalAction, goToRoute, preview, repositories]);
@@ -1531,6 +1676,7 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
       currentFilterKeyRef.current = null;
       setLineLoadState("ready");
       setLineLoadError(null);
+      setSurfaceRisk(null);
       setNotice({
         title: "Preview updated",
         detail: `${action === "apply-floor" ? "Floor price applied" : action === "exclude" ? "Line excluded" : action === "refresh-cost" ? "Cost refreshed" : "Dimension repaired"}. Preview ${nextPreview.ref.version} is now current; no approval or publication occurred.${updatedLine ? "" : " The updated line is outside this returned page."}`,
@@ -1585,6 +1731,10 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
         goToRoute({ surface: "proposal", resourceId: result.data.ref.id, resourceVersion: result.data.ref.version, view: "overview" });
       } else if (code === "proposal.approve") {
         const result = await repositories.proposals.approve({ proposalRef: proposal.ref, idempotencyKey: `approve:${proposal.ref.id}:v${proposal.ref.version}` });
+        setProposal(result.data);
+        goToRoute({ surface: "proposal", resourceId: result.data.ref.id, resourceVersion: result.data.ref.version, view: "overview" });
+      } else if (code === "proposal.reject") {
+        const result = await repositories.proposals.decide({ proposalRef: proposal.ref, decision: "reject", reason: input.reason, idempotencyKey: `reject:${proposal.ref.id}:v${proposal.ref.version}` });
         setProposal(result.data);
         goToRoute({ surface: "proposal", resourceId: result.data.ref.id, resourceVersion: result.data.ref.version, view: "overview" });
       } else if (code === "publication.start") {
@@ -1665,11 +1815,12 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
     if (event.key === 'ArrowLeft') next = (current - 1 + REPRICING_VIEWS.length) % REPRICING_VIEWS.length;
     const nextView = REPRICING_VIEWS[next];
     setStatusFilter(nextView);
-    document.getElementById(`repricing-tab-${nextView}`)?.focus();
+    document.getElementById(`repricing-tab-${nextView}`)?.focus({ preventScroll: true });
   };
 
   const selectLine = (lineId) => {
     inspectorOriginRef.current = document.querySelector(`[data-line-id="${lineId}"] .product-cell`);
+    inspectorMoveFocusRef.current = true;
     setSelectedLineId(lineId);
     setInspectorOpen(true);
     if (route.lineId || window.matchMedia("(max-width: 1023px)").matches) {
@@ -1724,7 +1875,8 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
 
   if (route.surface === "login") {
     return <LoginScreen repositories={repositories} session={session} marketingHref={siteHref} onSignedIn={async (resolvedSession) => {
-      const destination = routeFromReturnTo(route.returnTo);
+      const requested = routeFromReturnTo(route.returnTo);
+      const destination = canOpenWorkspaceRoute(resolvedSession, requested) ? requested : workspaceHome(resolvedSession);
       setSession(resolvedSession);
       if (loadState !== "ready") await loadWorkspace();
       goToRoute(destination, { replace: true });
@@ -1753,23 +1905,32 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
           onSelectEvidenceActor={selectEvidenceActor}
         />
         <main className={`workspace-main${route.surface === "repricing" ? " workspace-main--wide" : ""}`}>
-          {loadState !== "ready" ? <WorkspaceLoadState state={loadState} error={loadError} onRetry={loadWorkspace} /> : OPERATIONAL_SURFACES.has(route.surface) ? <OperationalWorkspace key={`${routeNavigationKey(route)}:${session.actor.id}:${session.capabilityVersion}`} route={route} repositories={repositories} session={session} onNavigate={goToRoute} /> : route.surface === "repricing" && preview ? <>
+          {loadState !== "ready" ? <WorkspaceLoadState state={loadState} error={loadError} onRetry={loadWorkspace} /> : ROLE_SURFACES.has(route.surface) ? <RoleWorkspace key={`${routeNavigationKey(route)}:${session.actor.id}`} route={route} repositories={repositories} session={session} onSessionChange={setSession} onNavigate={goToRoute} /> : OPERATIONAL_SURFACES.has(route.surface) ? <OperationalWorkspace key={`${routeNavigationKey(route)}:${session.actor.id}:${session.capabilityVersion}`} route={route} repositories={repositories} session={session} onNavigate={goToRoute} /> : route.surface === "repricing" && preview ? <>
           <header className="page-head">
             <div>
               <div className="breadcrumbs"><span>Scope</span><CaretRight aria-hidden="true" /><span>Price adjustment</span><CaretRight aria-hidden="true" /><span>Preview</span></div>
               <h1>{preview.title}</h1>
               <p className="page-meta">
-                <span><FileCsv aria-hidden="true" />Supplier baseline</span>
+                <span>Supplier baseline</span>
                 <strong>Price adjustment · {ruleLabel}</strong>
                 <span>Effective {formatEffectiveAt(preview.effectiveAt, session.organisation.timezone)}</span>
               </p>
             </div>
             <div className="page-actions">
-              <button type="button" className="review-action" onClick={() => setStatusFilter("review")}><ShieldWarning aria-hidden="true" /><span>Review {preview.counts.blocked.toLocaleString("en-NG")}</span></button>
+              {preview.counts.blocked > 0 ? <button type="button" className="review-action" onClick={() => setStatusFilter("review")}><ShieldWarning aria-hidden="true" /><span>Review issues</span></button> : null}
               <button type="button" className="create-action" onClick={() => existingProposalRef ? goToRoute({ surface: "proposal", resourceId: existingProposalRef.id, resourceVersion: existingProposalRef.version, view: "overview" }) : setDialogOpen(true)} disabled={!currentProposalAction?.enabled} title={currentProposalAction?.enabled ? undefined : currentProposalAction?.reason?.message}><span>{existingProposalRef ? "Open Proposal" : "Create Proposal"}</span><ArrowRight aria-hidden="true" /></button>
               <small role={currentProposalAction?.enabled === false ? "status" : undefined}><ShieldWarning aria-hidden="true" />{proposalActionHelper}</small>
             </div>
           </header>
+
+          <RevisionContext origin={preview.revisionOrigin} currentProposalRef={preview.relatedProposalRef ?? existingProposalRef} onNavigate={goToRoute} />
+
+          {surfaceRisk ? <div className="surface-risk" role="alert">
+            <ShieldWarning aria-hidden="true" />
+            <span><strong>{surfaceRisk.title}</strong><small>{surfaceRisk.detail}</small></span>
+            {surfaceRisk.action === "retry-create-proposal" && createProposalAction?.enabled ? <button type="button" onClick={() => { setSurfaceRisk(null); setDialogOpen(true); }}>{surfaceRisk.actionLabel}</button> : null}
+            <button type="button" className="surface-risk__dismiss" onClick={() => setSurfaceRisk(null)} aria-label="Dismiss risk notice"><X aria-hidden="true" /></button>
+          </div> : null}
 
           <ScopeSummary counts={preview.counts} />
 
@@ -1790,10 +1951,8 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
             </header>
 
             {filtersOpen ? <div className="filter-strip" aria-label="Repricing filters">
-              <span>Scope</span>
-              <label><span className="sr-only">Filter by channel</span><select value={channelFilter} onChange={(event) => setChannelFilter(event.target.value)}><option value="all">All channels</option>{channelOptions.map((option) => <option value={option.id} key={option.id}>{option.name}</option>)}</select></label>
-              <label><span className="sr-only">Filter by location</span><select value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)}><option value="all">All locations</option>{locationOptions.map((option) => <option value={option.id} key={option.id}>{option.name}</option>)}</select></label>
-              <button type="button" onClick={() => setStatusFilter("review")}>Policy issues <strong>{preview.counts.blocked.toLocaleString("en-NG")}</strong></button>
+              <WorkspaceSelect label="Filter by channel" value={channelFilter} onChange={setChannelFilter} options={[{ value: "all", label: "All channels" }, ...channelOptions.map((option) => ({ value: option.id, label: option.name }))]} />
+              <WorkspaceSelect label="Filter by location" value={locationFilter} onChange={setLocationFilter} options={[{ value: "all", label: "All locations" }, ...locationOptions.map((option) => ({ value: option.id, label: option.name }))]} />
               <button className="filter-strip__clear" type="button" onClick={() => { setStatusFilter("all"); setChannelFilter("all"); setLocationFilter("all"); setFiltersOpen(false); }}>Clear</button>
             </div> : null}
 
@@ -1803,9 +1962,12 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
                 aria-hidden={inspectorOpen && selectedRow && inspectorOwnsSurface ? "true" : undefined}
                 inert={inspectorOpen && selectedRow && inspectorOwnsSurface ? true : undefined}
               >
-                <div className={`population-note${lineLoadState === "loading" ? " is-loading" : ""}`} role="status" aria-live="polite"><Info aria-hidden="true" /><span>{lineLoadState === "loading" ? "Updating this line view from the repricing source…" : `Scope reconciled across ${preview.counts.total.toLocaleString("en-NG")} lines.`}</span><strong>{filteredRows.length} lines loaded</strong></div>
+                <div className={`population-note${lineLoadState === "loading" ? " is-loading" : ""}`}>
+                  <span role="status" aria-live="polite">{lineLoadState === "loading" ? "Updating this line view…" : `${filteredRows.length} sample lines · ${preview.counts.total.toLocaleString("en-NG")} in scope`}</span>
+                  {filteredRows.length > 0 && preview.fieldVisibility?.economics !== "restricted" ? <button className="calculation-toggle" type="button" aria-pressed={showCalculations} aria-controls="repricing-table" onClick={() => setShowCalculations((value) => !value)}>{showCalculations ? "Hide calculations" : "Show calculations"}</button> : null}
+                </div>
                 {lineLoadError ? <div className="line-load-error" role="alert"><ShieldWarning aria-hidden="true" /><span><strong>Line view could not be refreshed.</strong><small>{lineLoadError.error.message}</small></span><button type="button" onClick={() => linePageRetryRef.current ? loadLinePage(linePageRetryRef.current) : setLineRetryToken((value) => value + 1)}>Retry</button></div> : null}
-                {filteredRows.length ? <ProductTable rows={filteredRows} selectedLineId={inspectorOpen ? selectedLineId : null} onSelect={selectLine} compact={compact} ruleLabel={ruleLabel} /> : <div className="empty-state"><MagnifyingGlass aria-hidden="true" /><strong>No lines match this view.</strong><button type="button" onClick={() => { setQuery(""); setStatusFilter("all"); setChannelFilter("all"); setLocationFilter("all"); }}>Clear filters</button></div>}
+                {filteredRows.length ? <ProductTable rows={filteredRows} selectedLineId={inspectorOpen ? selectedLineId : null} onSelect={selectLine} compact={compact} ruleLabel={ruleLabel} showCalculations={showCalculations} /> : <div className="empty-state"><MagnifyingGlass aria-hidden="true" /><strong>No lines match this view.</strong><button type="button" onClick={() => { setQuery(""); setStatusFilter("all"); setChannelFilter("all"); setLocationFilter("all"); }}>Clear filters</button></div>}
                 <CursorPager
                   pageIndex={linePageIndex}
                   pageSize={preview.page.limit ?? REPRICING_PAGE_LIMIT}
@@ -1850,13 +2012,24 @@ function WorkspaceApplication({ repositories, runtimeConfig, navigateExternal })
             error={governedError}
             onNavigate={goToRoute}
             onPerformAction={performProposalAction}
+            onProposalHandoff={(result) => {
+              const next = result.data?.proposal ?? result.data;
+              if (!next?.ref?.id || !next.ref.version) throw new Error("The updated Proposal could not be resolved. Refresh before continuing.");
+              setProposal(next);
+              goToRoute({ surface: "proposal", resourceId: next.ref.id, resourceVersion: next.ref.version, view: "overview" });
+            }}
+            onRevisionStarted={(result) => {
+              const ref = result.data?.ruleRef;
+              if (!ref?.id || !ref.version) throw new Error("The pricing revision could not be opened. Refresh before continuing.");
+              goToRoute({ surface: "repricing-rule", resourceId: ref.id, resourceVersion: ref.version, view: "rule" });
+            }}
           /> : <WorkspaceLoadState state={governedRouteError || governedLoadState === "error" ? "error" : "loading"} error={governedRouteError ?? governedLoadError} onRetry={governedRouteError ? null : () => loadGovernedContext({ protectedSurface: route.surface, protectedView: route.view, expectedProposalId: route.resourceId, expectedProposalVersion: route.resourceVersion, expectedOperationId: route.operationId, expectedOperationVersion: route.operationVersion, expectedOverrideId: route.overrideId, expectedOverrideVersion: route.overrideVersion, resolvedSession: session })} />}
         </main>
       </div>
       {openPanel === "mobile" ? <div className="workspace-scrim" role="presentation" onMouseDown={() => setOpenPanel(null)} /> : null}
       {openPanel === "mobile" ? <MobileNavigation onClose={() => setOpenPanel(null)} onNavigate={navigate} onSignOut={signOut} marketingHref={siteHref} session={session} activeLabel={activeNavigationLabel(route.surface)} /> : null}
       {dialogOpen ? <ProposalDialog onClose={() => setDialogOpen(false)} onSubmit={createProposal} preview={preview} session={session} action={createProposalAction} /> : null}
-      {notice ? <div className={`toast${notice.kind === "info" ? " is-info" : ""}`} role="status">{notice.kind === "info" ? <Info aria-hidden="true" /> : <CheckCircle aria-hidden="true" />}<span><strong>{notice.title}</strong><small>{notice.detail}</small></span><button className="icon-control" type="button" onClick={() => setNotice(null)} aria-label="Dismiss notification"><X aria-hidden="true" /></button></div> : null}
+      {notice ? <div className={`toast${notice.kind === "info" ? " is-info" : ""}${notice.kind === "risk" ? " is-risk" : ""}`} role={notice.kind === "risk" ? "alert" : "status"}>{notice.kind === "risk" ? <ShieldWarning aria-hidden="true" /> : notice.kind === "info" ? <Info aria-hidden="true" /> : <CheckCircle aria-hidden="true" />}<span><strong>{notice.title}</strong><small>{notice.detail}</small></span><button className="icon-control" type="button" onClick={() => setNotice(null)} aria-label="Dismiss notification"><X aria-hidden="true" /></button></div> : null}
     </div>
   );
 }

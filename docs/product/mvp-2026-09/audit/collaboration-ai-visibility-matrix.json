@@ -1,0 +1,2130 @@
+[
+  {
+    "id": "COLLAB-001",
+    "title": "Contextual Collaboration",
+    "pages": [
+      165
+    ],
+    "requirement": "[p165]       7.1.     COLLAB-001 Contextual Collaboration\n[p165] \n[p165] \n[p165] Users must be able to collaborate within a Pricing Initiative.\n[p165] \n[p165] Collaboration may be attached to:\n[p165] \n[p165]    ● the overall initiative;\n[p165]    ● pricing scope;\n[p165]    ● analysis;\n[p165]    ● scenarios;\n[p165]    ● pricing logic;\n[p165]    ● proposals;\n[p165]    ● review activity;\n[p165]    ● execution or monitoring records.\n[p165] \n[p165] Users should be able to understand what object or decision context a contribution refers to.\n[p165] \n[p165]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Proposal-only discussion is narrower than collaboration within a persistent Initiative; no Initiative collaboration container exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given an Initiative, when authorised participants contribute before a Proposal exists, then contributions remain attached to that Initiative and navigable from later decisions."
+  },
+  {
+    "id": "COLLAB-002",
+    "title": "Comments",
+    "pages": [
+      165
+    ],
+    "requirement": "[p165]       7.2.     COLLAB-002 Comments\n[p165] \n[p165] \n[p165] Authorised users must be able to add comments to supported pricing objects.\n[p165] \n[p165] Each comment must preserve:\n[p165] \n[p165]    ● author;\n[p165]    ● timestamp;\n[p165]    ● related pricing object;\n[p165]    ● comment content.\n[p165] \n[p165] Comments must remain part of the historical pricing record.\n[p165]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "implemented-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Sample comments preserve actor/time/version; backend append-only Proposal comments preserve actor/time/body/object but the REST service-auth seam is not connected.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given an authorised participant, when a comment is added and the session reloads, then persisted author, timestamp, object and text are returned; other tenants cannot read it."
+  },
+  {
+    "id": "COLLAB-003",
+    "title": "Threaded Discussion",
+    "pages": [
+      166
+    ],
+    "requirement": "[p166]       7.3.    COLLAB-003 Threaded Discussion\n[p166] \n[p166] \n[p166] Where discussion requires follow-up, the MVP should support replies to an existing\n[p166] comment or discussion thread.\n[p166] \n[p166] Threads must remain associated with the pricing context that initiated them.\n[p166] \n[p166] The MVP does not need to provide unrestricted organisation-wide chat.\n[p166] \n[p166]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "No reply/parent thread model or threaded composer was found. Threading is Should; unrestricted chat is not required.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given an existing discussion, when a permitted reply is added, then its parent and object context remain intact in historical reads."
+  },
+  {
+    "id": "COLLAB-004",
+    "title": "Mentions",
+    "pages": [
+      166
+    ],
+    "requirement": "[p166]       7.4.    COLLAB-004 Mentions\n[p166] \n[p166] \n[p166] Users must be able to mention relevant workspace members in comments or supported\n[p166] collaboration areas.\n[p166] \n[p166] A mention should:\n[p166] \n[p166]    ● identify the mentioned user;\n[p166]    ● generate an appropriate notification;\n[p166]    ● link the user back to the relevant pricing context.\n[p166] \n[p166] Mentioning a user must not grant additional data or workflow permissions.\n[p166] \n[p166]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "No structured member mention, recipient resolution or mention notification exists; typing @ in plain text is not this capability.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given a mentioned user, when the mention is saved, then a contextual notification is created only if accessible; mentioning never grants access."
+  },
+  {
+    "id": "COLLAB-005",
+    "title": "Assignments",
+    "pages": [
+      166,
+      167
+    ],
+    "requirement": "[p166]       7.5.    COLLAB-005 Assignments\n[p166] \n[p166] \n[p166] Authorised users must be able to assign specific actions to relevant participants.\n[p166] \n[p166] Assignments may include tasks such as:\n[p166] \n[p166]    ● provide cost information;\n[p166]    ● review assumptions;\n[p166]    ● validate commercial input;\n[p166]    ● review a scenario;\n[p166]    ● provide supporting evidence;\n[p166]    ● complete review;\n[p166]    ● implement an authorised pricing action;\n[p166]    ● record monitoring information.\n[p166] \n[p166] Each assignment should contain:\n[p166] \n[p166]    ● assigned user;\n[p166]    ● action required;\n[p166] \n[p167]    ● associated initiative or pricing object;\n[p167]    ● status;\n[p167]    ● due date where applicable;\n[p167]    ● creator;\n[p167]    ● creation timestamp.\n[p167]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Sample draft handoff assigns a submission owner, not a general action assignment with related object, status and due date.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given an Initiative action, when assigned by an authorised user, then assignee, task, object, creator, time and relevant deadline persist."
+  },
+  {
+    "id": "COLLAB-006",
+    "title": "Assignment Status",
+    "pages": [
+      167
+    ],
+    "requirement": "[p167]       7.6.     COLLAB-006 Assignment Status\n[p167] \n[p167] \n[p167] Assignments should support at minimum:\n[p167] \n[p167]    ● Open;\n[p167]    ● In Progress;\n[p167]    ● Completed;\n[p167]    ● Cancelled.\n[p167] \n[p167] Completion must remain attributable to the user completing the assignment.\n[p167] \n[p167]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "No Open/In Progress/Completed/Cancelled action-assignment lifecycle exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given an assignment, when its assignee completes it, then completion actor/time persist independently of the Initiative or Proposal state."
+  },
+  {
+    "id": "COLLAB-007",
+    "title": "Supporting Evidence",
+    "pages": [
+      167,
+      168
+    ],
+    "requirement": "[p167]       7.7.     COLLAB-007 Supporting Evidence\n[p167] \n[p167] \n[p167] Users must be able to attach Evidence supporting or challenging pricing work.\n[p167] \n[p167] Evidence is supporting material, observation or externally supplied information used to\n[p167] inform, substantiate or question pricing work. Evidence does not become authoritative\n[p167] structured Pricing Context merely because it is attached to a Pricing Initiative, analysis,\n[p167] Scenario or Pricing Proposal.\n[p167] \n[p167] Supported Evidence may include:\n[p167] \n[p167]    ● uploaded documents;\n[p167]    ● spreadsheets or extracts;\n[p167]    ● images;\n[p167]    ● internal reports;\n[p167]    ● external links;\n[p167]    ● manually entered observations;\n[p167]    ● supplier information;\n[p167]    ● competitor observations;\n[p167]    ● customer or sales feedback;\n[p167]    ● other relevant supporting material.\n[p167] \n[p167] Evidence must remain attached or referenced to the pricing work it supports.\n[p167] \n[p168] Evidence may support:\n[p168] \n[p168]     ● an Assumption;\n[p168]     ● business rationale;\n[p168]     ● analytical interpretation;\n[p168]     ● a proposed pricing action;\n[p168]     ● a review or organisational decision;\n[p168]     ● another supported decision-relevant element.\n[p168] \n[p168] Evidence must remain distinguishable from:\n[p168] \n[p168]     ● structured Pricing Context governed by Section 3.2;\n[p168]     ● explicit Assumptions;\n[p168]     ● deterministic calculations;\n[p168]     ● AI-generated interpretation;\n[p168]     ● comments or discussion.\n[p168] \n[p168] Where information originating from Evidence is intentionally converted into structured\n[p168] Owómidé Pricing Context, the resulting structured record must satisfy the applicable Section",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Request text and exception evidence references exist; no typed supporting Evidence record or attachment permission boundary exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given supplier evidence, when attached to pricing work, then it remains Evidence; creating a Cost Record requires a separate validated authorised action."
+  },
+  {
+    "id": "COLLAB-008",
+    "title": "Evidence Metadata",
+    "pages": [
+      168
+    ],
+    "requirement": "[p168]       7.8.       COLLAB-008 Evidence Metadata\n[p168] \n[p168] \n[p168] Evidence records should preserve, where available:\n[p168] \n[p168]     ● title or description;\n[p168]     ● contributor;\n[p168]     ● submission date;\n[p168]     ● source;\n[p168]     ● related pricing object;\n[p168]     ● observation date or effective date where relevant.\n[p168] \n[p168] Users must be able to distinguish evidence from structured system data and AI-generated\n[p168] interpretation.\n[p168]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Request metadata identifies contributor/time, but free-text evidence has no independent provenance, observation date or typed identity.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given a recorded observation, when opened later, then source, contributor, submission and observation dates are distinguishable from system pricing data."
+  },
+  {
+    "id": "COLLAB-009",
+    "title": "Manual Market Observations",
+    "pages": [
+      169
+    ],
+    "requirement": "[p169]       7.9.     COLLAB-009 Manual Market Observations\n[p169] \n[p169] \n[p169] Because relevant pricing intelligence may originate outside digitised systems, authorised\n[p169] users must be able to record manually gathered market observations.\n[p169] \n[p169] An observation should support fields such as:\n[p169] \n[p169]     ● observation type;\n[p169]     ● subject or competitor;\n[p169]     ● observed value or price where applicable;\n[p169]     ● location;\n[p169]     ● channel;\n[p169]     ● observation date;\n[p169]     ● source or method;\n[p169]     ● notes;\n[p169]     ● submitting user.\n[p169] \n[p169] Such observations must not be represented as automatically verified or real-time\n[p169] intelligence.\n[p169] \n[p169]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Contributor intake can capture a text concern, not structured manually gathered market observations for authorised pricing participants.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given an offline competitor observation, when recorded, then subject/value/context/date/source/observer can be retained and it is never labelled verified live intelligence."
+  },
+  {
+    "id": "COLLAB-010",
+    "title": "Evidence Relevance",
+    "pages": [
+      169
+    ],
+    "requirement": "[p169]      7.10.     COLLAB-010 Evidence Relevance\n[p169] \n[p169] \n[p169] Users should be able to associate evidence with the specific part of pricing work it informs.\n[p169] \n[p169] For example, evidence may support:\n[p169] \n[p169]     ● an assumption;\n[p169]     ● competitor comparison;\n[p169]     ● proposed price;\n[p169]     ● cost change;\n[p169]     ● commercial rationale;\n[p169]     ● scenario;\n[p169]     ● organisational decision.\n[p169] \n[p169] This prevents the initiative from becoming an unstructured attachment repository.\n[p169] \n[p169]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Evidence links only to an intake or exception in the sample; no association to an assumption, scenario or analytical claim.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given one evidence record, when linked to a scenario assumption, then the relation is visible without copying it into an unstructured attachment pile."
+  },
+  {
+    "id": "COLLAB-011",
+    "title": "Review Feedback",
+    "pages": [
+      169,
+      170
+    ],
+    "requirement": "[p169]      7.11.     COLLAB-011 Review Feedback\n[p169] \n[p170] During review, authorised reviewers must be able to provide feedback directly against the\n[p170] pricing work under review.\n[p170] \n[p170] Review feedback may include:\n[p170] \n[p170]    ● comment;\n[p170]    ● clarification request;\n[p170]    ● identified issue;\n[p170]    ● recommended modification;\n[p170]    ● readiness confirmation.\n[p170] \n[p170] Review feedback remains distinct from formal organisational decision authority.\n[p170] \n[p170]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Comments and sample returns provide feedback, but formal pre-decision In Review feedback/readiness is not modelled separately from approval.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given work in In Review, when a reviewer requests clarification, then feedback is recorded without granting or denying execution authority."
+  },
+  {
+    "id": "COLLAB-012",
+    "title": "Discussion Resolution",
+    "pages": [
+      170
+    ],
+    "requirement": "[p170]     7.12.       COLLAB-012 Discussion Resolution\n[p170] \n[p170] \n[p170] Where appropriate, authorised users should be able to mark a discussion or review issue as\n[p170] resolved.\n[p170] \n[p170] Resolution must preserve:\n[p170] \n[p170]    ● original discussion;\n[p170]    ● responses;\n[p170]    ● resolving user;\n[p170]    ● resolution timestamp.\n[p170] \n[p170] Resolved discussion must remain available in historical context.\n[p170] \n[p170]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "No discussion/issue resolution state and resolver metadata exist.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given an unresolved issue, when resolved, then original text, replies, resolver and time remain visible."
+  },
+  {
+    "id": "COLLAB-013",
+    "title": "Collaboration Activity",
+    "pages": [
+      170,
+      171
+    ],
+    "requirement": "[p170]     7.13.       COLLAB-013 Collaboration Activity\n[p170] \n[p170] \n[p170] Relevant collaboration events must appear in the Pricing Initiative activity history.\n[p170] \n[p170] This includes:\n[p170] \n[p170]    ● comments;\n[p170]    ● replies;\n[p170]    ● mentions;\n[p170]    ● assignments;\n[p170]    ● assignment completion;\n[p170]    ● evidence additions;\n[p170]    ● review feedback;\n[p170] \n[p171]    ● issue resolution.\n[p171]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Comments have their own append-only feed; no Initiative activity feed unifies mentions, assignments, evidence and resolution events.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given comments and action events, when Initiative history is opened, then each consequential contribution appears with actor, time and object link."
+  },
+  {
+    "id": "COLLAB-014",
+    "title": "Access Control",
+    "pages": [
+      171
+    ],
+    "requirement": "[p171]     7.14.     COLLAB-014 Access Control\n[p171] \n[p171] \n[p171] Users may collaborate only on pricing work they are authorised to access.\n[p171] \n[p171] Collaboration features must respect:\n[p171] \n[p171]    ● workspace membership;\n[p171]    ● role permissions;\n[p171]    ● pricing scope;\n[p171]    ● restricted cost visibility;\n[p171]    ● sensitive information controls.\n[p171] \n[p171] A notification, mention or assignment must never expose protected information to an\n[p171] unauthorised user.\n[p171] \n[p171]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "conflicting",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Sample reads gate proposal access/economics and Contributor requests are allowlisted. Backend comments require service identity and tenant context, not end-user role/scope/field permission.",
+    "misrepresentation": "Fixture privacy controls must not be mistaken for server-enforced end-user access.",
+    "priority": "P0",
+    "acceptance": "Given a Contributor or revoked participant, when comment/list/deep-link APIs are called directly, then protected Proposal and economic content is denied before response construction."
+  },
+  {
+    "id": "COLLAB-015",
+    "title": "Sensitive Evidence",
+    "pages": [
+      171
+    ],
+    "requirement": "[p171]     7.15.     COLLAB-015 Sensitive Evidence\n[p171] \n[p171] \n[p171] Evidence containing restricted financial or commercial information must be subject to\n[p171] appropriate access restrictions.\n[p171] \n[p171] The system must not assume that every initiative participant is entitled to view every\n[p171] attached piece of evidence.\n[p171] \n[p171]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Sample suppresses sensitive comments for restricted readers, but there is no per-Evidence access model; all participant access cannot be assumed equivalent.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given restricted financial Evidence in a shared Initiative, when a cost-restricted collaborator reads it or receives a mention, then neither raw content nor derived costs leak."
+  },
+  {
+    "id": "COLLAB-016",
+    "title": "Version Context",
+    "pages": [
+      171
+    ],
+    "requirement": "[p171]     7.16.     COLLAB-016 Version Context\n[p171] \n[p171] \n[p171] Where a comment, review note or supporting contribution relates to a controlled proposal or\n[p171] pricing-logic version, the system should preserve the version context.\n[p171] \n[p171] Users reviewing historical discussion must be able to determine which version was being\n[p171] discussed.\n[p171] \n[p171]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "conflicting",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Frontend shows Proposal-version-bound comments; backend comment schema has proposal_id only, with no controlled version.",
+    "misrepresentation": "The UI promises a version attachment the backend cannot represent.",
+    "priority": "P0",
+    "acceptance": "Given comments on Proposal v1 and v2, when v1 history is opened, then comments remain tied to the exact discussed snapshot and never migrate to v2."
+  },
+  {
+    "id": "COLLAB-017",
+    "title": "Editing and Deletion",
+    "pages": [
+      171,
+      172
+    ],
+    "requirement": "[p171]     7.17.     COLLAB-017 Editing and Deletion\n[p171] \n[p171] \n[p171] The MVP should protect historical integrity of consequential collaboration.\n[p171] \n[p171] Where comment editing is allowed:\n[p171] \n[p171]    ● the edited state must remain identifiable;\n[p171]    ● consequential meaning must not be silently altered after formal decision-making.\n[p171] \n[p172] Where deletion is permitted, the system should preserve an appropriate audit record rather\n[p172] than allowing historically significant contributions to disappear without trace.\n[p172] \n[p172]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "implemented-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:319",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83"
+    ],
+    "gap": "Append-only backend grants prevent UPDATE/DELETE; the sample exposes no edit/delete. This is a useful integrity foundation, not proof of all collaboration retention.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given a consequential comment, when application credentials attempt mutation/deletion, then it is denied; any future edit feature preserves original meaning and attribution."
+  },
+  {
+    "id": "COLLAB-018",
+    "title": "AI in Collaboration",
+    "pages": [
+      172
+    ],
+    "requirement": "[p172]     7.18.     COLLAB-018 AI in Collaboration\n[p172] \n[p172] \n[p172] Users may invoke AI to assist with collaborative work.\n[p172] \n[p172] AI may:\n[p172] \n[p172]    ● summarise discussion;\n[p172]    ● identify unresolved questions;\n[p172]    ● synthesise stakeholder input;\n[p172]    ● identify conflicting assumptions;\n[p172]    ● prepare a review summary;\n[p172]    ● retrieve relevant initiative context.\n[p172] \n[p172] AI must not attribute a position or decision to a human stakeholder unless that position exists\n[p172] in the recorded collaboration.\n[p172] \n[p172]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Optional AI collaboration assistance is absent; no false attribution was observed because there is no AI feature to exercise.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "If discussion summarisation is introduced, given conflicting stakeholder comments, then summaries cite recorded statements and do not invent a human decision."
+  },
+  {
+    "id": "COLLAB-019",
+    "title": "Collaboration Summary",
+    "pages": [
+      172
+    ],
+    "requirement": "[p172]     7.19.     COLLAB-019 Collaboration Summary\n[p172] \n[p172] \n[p172] The initiative should provide a concise view of relevant outstanding collaboration.\n[p172] \n[p172] This may include:\n[p172] \n[p172]    ● unresolved discussions;\n[p172]    ● open assignments;\n[p172]    ● outstanding review requests;\n[p172]    ● recently added evidence;\n[p172]    ● participants awaiting action.\n[p172] \n[p172] Users should not need to inspect the full activity history to understand what collaborative\n[p172] work remains incomplete.\n[p172] \n[p172]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Proposal next-step guidance identifies blockers; no Initiative summary of unresolved discussion, tasks, reviews or evidence exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given outstanding collaboration, when the Initiative opens, then required people/actions are clear without reading the entire history."
+  },
+  {
+    "id": "COLLAB-020",
+    "title": "Collaboration Boundary",
+    "pages": [
+      172,
+      173
+    ],
+    "requirement": "[p172]     7.20.     COLLAB-020 Collaboration Boundary\n[p172] \n[p172] \n[p172] The MVP is not required to provide:\n[p172] \n[p172]    ● unrestricted direct messaging;\n[p172]    ● organisation-wide chat channels;\n[p172] \n[p173]    ● voice or video meetings;\n[p173]    ● general document editing;\n[p173]    ● external social collaboration;\n[p173]    ● full project-management functionality.\n[p173] \n[p173] Collaboration exists to help stakeholders complete pricing work inside a shared decision\n[p173] context.\n[p173] \n[p173]",
+    "frontendStatus": "unverified",
+    "backendStatus": "unverified",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Boundary, not a missing mandatory feature: general chat, meetings and project-management tooling are explicitly not required.",
+    "misrepresentation": "",
+    "priority": "P3",
+    "acceptance": "Given the agreed scope, then the pricing collaboration journey completes without building organisation-wide messaging or meetings."
+  },
+  {
+    "id": "COLLAB-021",
+    "title": "Collaboration Completeness Principle",
+    "pages": [
+      173
+    ],
+    "requirement": "[p173]     7.21.     COLLAB-021 Collaboration Completeness Principle\n[p173] \n[p173] \n[p173] For consequential pricing work, Owómidé should preserve enough collaborative context to\n[p173] answer:\n[p173] \n[p173] Who contributed?\n[p173] What information or evidence did they provide?\n[p173] What issues were raised?\n[p173] What actions were assigned?\n[p173] What remained unresolved?\n[p173] What changed because of the collaboration?\n[p173] \n[p173] The pricing record should remain understandable even after the original participants are no\n[p173] longer available.\n[p173]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:380",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1967",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:82"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:540",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:83",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Basic comments and request/decision text survive within sample objects; full contributor/action/issue/change reconstruction is absent.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given completed pricing work, when a new authorised employee inspects it, then they can explain who contributed, evidence, unresolved issues and what changed."
+  },
+  {
+    "id": "AI-001",
+    "title": "Contextual AI Assistance",
+    "pages": [
+      218
+    ],
+    "requirement": "[p218]     10.1.      AI-001 Contextual AI Assistance\n[p218] \n[p218] \n[p218] AI assistance must be available within relevant pricing contexts, including:\n[p218] \n[p218]    ● Pricing Initiatives;\n[p218]    ● Pricing Builder;\n[p218]    ● analysis and scenarios;\n[p218]    ● proposals;\n[p218]    ● review;\n[p218]    ● collaboration;\n[p218]    ● historical pricing work.\n[p218] \n[p218] The AI should inherit the context of the object from which it is invoked.\n[p218] \n[p218]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Contextual assistance is mandatory in the PRD and absent from both runtime surfaces.",
+    "misrepresentation": "Earlier CEO chat defers AI; replacement PRD AI-001/005 explicitly requires it. Resolve scope with CEO rather than silently counting AI as delivered or out of scope.",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then Invoke AI from a permitted Initiative/Builder/analysis/Proposal context and verify the corresponding context is inherited.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-002",
+    "title": "User-Initiated AI",
+    "pages": [
+      218,
+      219
+    ],
+    "requirement": "[p218]     10.2.      AI-002 User-Initiated AI\n[p218] \n[p218] \n[p218] AI assistance in the MVP must be user-invoked for consequential pricing work.\n[p218] \n[p218] AI must not independently:\n[p218] \n[p218]    ● modify pricing logic;\n[p218]    ● change proposals;\n[p218]    ● submit work;\n[p218]    ● approve work;\n[p218]    ● execute pricing actions;\n[p218]    ● alter governance configuration.\n[p218] \n[p219] AI may surface passive warnings or suggestions where supported, but consequential\n[p219] changes require explicit human action.\n[p219] \n[p219]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "There is no AI application boundary to verify; consequential actions must be user-invoked when AI is introduced.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Generating a suggestion leaves authoritative work unchanged; only an explicit permitted application may mutate it.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-003",
+    "title": "Permission Inheritance",
+    "pages": [
+      219
+    ],
+    "requirement": "[p219]      10.3.     AI-003 Permission Inheritance\n[p219] \n[p219] \n[p219] AI must operate within the permissions of the user invoking it.\n[p219] \n[p219] The AI must not access, infer or expose information the user is not authorised to view.\n[p219] \n[p219] This includes restrictions relating to:\n[p219] \n[p219]     ● initiatives;\n[p219]     ● organisational scope;\n[p219]     ● cost information;\n[p219]     ● sensitive financial information;\n[p219]     ● historical pricing records;\n[p219]     ● governance configuration.\n[p219]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No invoking-user-scoped retrieval or tool policy exists for an AI service.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then A user and their AI session receive identical tenant/object/scope limits, including after revocation.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-004",
+    "title": "Cost Visibility Enforcement",
+    "pages": [
+      219
+    ],
+    "requirement": "[p219]      10.4.     AI-004 Cost Visibility Enforcement\n[p219] \n[p219] \n[p219] Where a user does not have permission to view cost information, AI must not disclose:\n[p219] \n[p219]     ● raw costs;\n[p219]     ● restricted unit economics;\n[p219]     ● directly derivable cost values;\n[p219]     ● summaries that reveal protected cost information.\n[p219] \n[p219] AI access must not become a mechanism for circumventing workspace permissions.\n[p219] \n[p219]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No AI cost-redaction or derived-cost disclosure tests exist.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then A cost-restricted actor cannot retrieve costs directly or reconstruct them through margin, markup, summaries or historical comparisons.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-005",
+    "title": "Pricing Context Interpretation",
+    "pages": [
+      219,
+      220
+    ],
+    "requirement": "[p219]      10.5.     AI-005 Pricing Context Interpretation\n[p219] \n[p219] \n[p219] Users must be able to ask AI to help interpret available pricing context.\n[p219] \n[p219] AI may assist with:\n[p219] \n[p219]     ● summarising the pricing situation;\n[p219]     ● explaining relevant historical context;\n[p219]     ● identifying important available inputs;\n[p219]     ● highlighting missing information;\n[p219]     ● identifying conflicting information;\n[p219] \n[p220]    ● explaining the relationship between pricing inputs and the current initiative.\n[p220]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Mandatory pricing-context interpretation is not implemented.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then Ask for pricing context and receive source-grounded facts, missing inputs and relevant history without fabricated data.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-006",
+    "title": "Pricing Work Construction",
+    "pages": [
+      220
+    ],
+    "requirement": "[p220]     10.6.       AI-006 Pricing Work Construction\n[p220] \n[p220] \n[p220] AI may assist users in developing pricing work.\n[p220] \n[p220] This includes:\n[p220] \n[p220]    ● drafting pricing strategies;\n[p220]    ● converting business intent into structured pricing logic;\n[p220]    ● drafting rules and conditions;\n[p220]    ● suggesting parameters;\n[p220]    ● identifying required assumptions;\n[p220]    ● refining rationale;\n[p220]    ● helping structure a Pricing Proposal.\n[p220] \n[p220] AI-created material remains proposed content until explicitly applied by an authorised user.\n[p220] \n[p220]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Optional AI pricing construction is absent.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given the AI capability is enabled, then Generated strategy/rationale remains proposed until a permitted user applies validated structured content.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-007",
+    "title": "Natural Language to Structured Pricing Logic",
+    "pages": [
+      220,
+      221
+    ],
+    "requirement": "[p220]     10.7.       AI-007 Natural Language to Structured Pricing Logic\n[p220] \n[p220] \n[p220] Users should be able to describe pricing intent in natural language and request AI\n[p220] assistance in translating it into supported Pricing Builder structures.\n[p220] \n[p220] For example:\n[p220] \n[p220] \"Increase prices for these products by 5%, but do not allow gross margin to fall below\n[p220] 18%.\"\n[p220] \n[p220] AI may translate this into structured:\n[p220] \n[p220]    ● pricing action;\n[p220]    ● affected scope;\n[p220]    ● percentage adjustment;\n[p220]    ● initiative-specific margin constraint or reference to an applicable organisational\n[p220]         Guardrail;\n[p220]    ● applicable conditions.\n[p220] \n[p220] Natural-language pricing intent must not cause AI to create or modify an organisational\n[p220] Guardrail through ordinary Pricing Builder work.\n[p220] \n[p221] Where the user's instruction describes a pricing boundary that is not already represented by\n[p221] an applicable organisational Guardrail, AI may translate that boundary into an\n[p221] initiative-specific condition or constraint.\n[p221] \n[p221] That condition or constraint must remain distinguishable from an organisational Guardrail.\n[p221] \n[p221] Where an applicable organisational Guardrail already exists, AI may reference it but must\n[p221] not redefine its threshold, scope, configuration version or behavioural treatment.\n[p221] \n[p221] Creation or modification of an organisational Guardrail requires the authorised governance\n[p221] process defined in GOV-023.\n[p221] \n[p221] The user must review and explicitly apply the resulting structure.\n[p221] \n[p221]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Expected natural-language-to-supported-Builder conversion is absent.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then Convert a price change with an 18% constraint; preview supported fields and keep an initiative constraint distinct from an organisational Guardrail.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-008",
+    "title": "Structured Output Validation",
+    "pages": [
+      221
+    ],
+    "requirement": "[p221]      10.8.     AI-008 Structured Output Validation\n[p221] \n[p221] \n[p221] AI-generated structured pricing work must pass the same product validation applied to\n[p221] human-created pricing work.\n[p221] \n[p221] AI output must not bypass:\n[p221] \n[p221]     ● required fields;\n[p221]     ● formula validation;\n[p221]     ● scope validation;\n[p221]     ● guardrail evaluation;\n[p221]     ● permissions;\n[p221]     ● workflow rules.\n[p221]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No AI output schema/normal validation integration exists.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Malformed scope, unsupported formulas and unauthorised edits from AI fail the same validation as human edits.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-009",
+    "title": "Analysis Assistance",
+    "pages": [
+      221,
+      222
+    ],
+    "requirement": "[p221]      10.9.     AI-009 Analysis Assistance\n[p221] \n[p221] \n[p221] AI may assist users in interpreting pricing analysis.\n[p221] \n[p221] It may:\n[p221] \n[p221]     ● compare scenarios;\n[p221]     ● explain financial implications;\n[p221]     ● highlight material differences;\n[p221]     ● identify unusual outcomes;\n[p221]     ● surface trade-offs;\n[p221]     ● identify entities requiring closer inspection;\n[p221] \n[p222]    ● summarise guardrail results.\n[p222]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Optional analysis interpretation is absent.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given the AI capability is enabled, then Explain saved deterministic outputs without replacing them or inventing financial outcomes.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-010",
+    "title": "Deterministic Calculation Boundary",
+    "pages": [
+      222
+    ],
+    "requirement": "[p222]    10.10.     AI-010 Deterministic Calculation Boundary\n[p222] \n[p222] \n[p222] AI must not act as the authoritative calculation or Guardrail-evaluation engine for\n[p222] consequential pricing work.\n[p222] \n[p222] Core financial calculations such as:\n[p222] \n[p222]    ● gross margin;\n[p222]    ● markup;\n[p222]    ● price change;\n[p222]    ● gross profit\n[p222] \n[p222] must be produced by the deterministic analytical calculation layer defined in Section 3.5.\n[p222] \n[p222] Deterministic evaluation of applicable organisational Guardrails must be performed under\n[p222] ANALYSIS-014 using the applicable governance-defined Guardrail configuration.\n[p222] \n[p222] AI may explain or interpret financial calculations and Guardrail evaluation results, but it must\n[p222] not substitute its own arithmetic, infer a competing Guardrail result or replace\n[p222] system-calculated values.\n[p222] \n[p222] Where the required inputs are unavailable or an authoritative calculation or Guardrail\n[p222] evaluation has not been produced, AI must not manufacture one and present it as system\n[p222] output.\n[p222] \n[p222]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1424"
+    ],
+    "evidenceBackend": [
+      "src/margin/internal/domain/floor_calculator.go:24",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Deterministic calculation foundations exist, including integer-based margin/markup floors and frontend money helpers. The AI boundary that must consume, never replace, authoritative calculations is absent and unverified; no active AI violation is claimed.",
+    "misrepresentation": "Deterministic IntelligenceService is not conversational or generative AI.",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Provide only authoritative calculated values/evaluations to AI; missing or invalid calculations remain unavailable, not invented.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-011",
+    "title": "Scenario Assistance",
+    "pages": [
+      222
+    ],
+    "requirement": "[p222]    10.11.     AI-011 Scenario Assistance\n[p222] \n[p222] \n[p222] AI may assist users in constructing alternative pricing scenarios.\n[p222] \n[p222] It may suggest alternatives based on available information, such as:\n[p222] \n[p222]    ● different price movements;\n[p222]    ● different margin targets;\n[p222]    ● different assumptions;\n[p222]    ● different scope selections;\n[p222]    ● alternative rule structures.\n[p222] \n[p222] Suggested scenarios must remain exploratory until explicitly created or selected by a user.\n[p222]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Optional AI scenario suggestions are absent.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given the AI capability is enabled, then Suggested alternatives remain exploratory until a user explicitly creates or selects a Scenario.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-012",
+    "title": "Risk and Inconsistency Detection",
+    "pages": [
+      223
+    ],
+    "requirement": "[p223]    10.12.     AI-012 Risk and Inconsistency Detection\n[p223] \n[p223] \n[p223] AI may identify potential issues including:\n[p223] \n[p223]    ● contradictory assumptions;\n[p223]    ● inconsistent rationale;\n[p223]    ● missing supporting context;\n[p223]    ● unusual pricing changes;\n[p223]    ● incomplete proposal explanations;\n[p223]    ● conflicts between stated objectives and proposed actions.\n[p223] \n[p223] AI-generated risk identification must remain advisory unless the condition is independently\n[p223] enforced by a product guardrail or validation rule.\n[p223] \n[p223]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Optional advisory inconsistency detection is absent.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given the AI capability is enabled, then AI flags inconsistent rationale as advice, not as a new authoritative blocker or Guardrail.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-013",
+    "title": "Missing Information Detection",
+    "pages": [
+      223
+    ],
+    "requirement": "[p223]    10.13.     AI-013 Missing Information Detection\n[p223] \n[p223] \n[p223] AI should help users identify information that may be required to progress pricing work.\n[p223] \n[p223] It must distinguish between:\n[p223] \n[p223]    ● information that is genuinely required by the system;\n[p223]    ● information that may improve decision quality;\n[p223]    ● optional contextual information.\n[p223] \n[p223] AI must not present optional information as a system requirement.\n[p223] \n[p223]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Expected missing-information assistance is absent.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then Explain required, useful and optional inputs distinctly, without promoting optional context into a mandatory blocker.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-014",
+    "title": "Collaboration Assistance",
+    "pages": [
+      223
+    ],
+    "requirement": "[p223]    10.14.     AI-014 Collaboration Assistance\n[p223] \n[p223] \n[p223] AI may assist with collaborative pricing work by:\n[p223] \n[p223]    ● summarising discussion;\n[p223]    ● identifying unresolved questions;\n[p223]    ● synthesising stakeholder input;\n[p223]    ● identifying conflicting positions;\n[p223]    ● summarising requested changes;\n[p223]    ● preparing review summaries.\n[p223] \n[p223] AI must not falsely attribute statements or decisions to users who did not make them.\n[p223] \n[p223]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Optional discussion synthesis is absent.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given the AI capability is enabled, then Summaries distinguish recorded participant statements from inference and link back to accessible contributions.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-015",
+    "title": "Proposal Preparation",
+    "pages": [
+      223,
+      224
+    ],
+    "requirement": "[p223]    10.15.     AI-015 Proposal Preparation\n[p223] \n[p224] AI may assist users in preparing a Pricing Proposal by summarising:\n[p224] \n[p224]    ● objective;\n[p224]    ● proposed action;\n[p224]    ● pricing scope;\n[p224]    ● relevant economics;\n[p224]    ● assumptions;\n[p224]    ● guardrail status;\n[p224]    ● supporting evidence;\n[p224]    ● key risks;\n[p224]    ● material changes.\n[p224] \n[p224] The final submitted proposal must remain explicitly submitted by an authorised human user.\n[p224] \n[p224]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Optional AI Proposal preparation is absent.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given the AI capability is enabled, then AI drafts a decision summary; the authorised human remains responsible for explicit submission.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-016",
+    "title": "Review Assistance",
+    "pages": [
+      224
+    ],
+    "requirement": "[p224]    10.16.     AI-016 Review Assistance\n[p224] \n[p224] \n[p224] During review or approval, AI may help authorised users understand a proposal.\n[p224] \n[p224] This may include:\n[p224] \n[p224]    ● summarising the proposal;\n[p224]    ● comparing it with the current state;\n[p224]    ● explaining material assumptions;\n[p224]    ● identifying changes from a previous version;\n[p224]    ● summarising discussion;\n[p224]    ● explaining applicable calculations.\n[p224] \n[p224] AI must not determine the formal review or approval outcome.\n[p224] \n[p224] \n[p224] \n[p224]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Optional review assistance is absent.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given the AI capability is enabled, then AI can explain a controlled version but cannot produce a formal approve/reject/request-changes decision.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-017",
+    "title": "Historical Knowledge Retrieval",
+    "pages": [
+      224,
+      225
+    ],
+    "requirement": "[p224]    10.17.     AI-017 Historical Knowledge Retrieval\n[p224] \n[p224] \n[p224] AI should be able to help authorised users locate and understand relevant previous pricing\n[p224] work.\n[p224] \n[p224] It may retrieve context from accessible:\n[p224] \n[p224]    ● completed Pricing Initiatives;\n[p224]    ● previous proposals;\n[p224] \n[p225]    ● historical pricing strategies;\n[p225]    ● prior decisions;\n[p225]    ● previous assumptions;\n[p225]    ● recorded outcomes.\n[p225] \n[p225] Retrieval must respect the invoking user's permissions.\n[p225] \n[p225]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Expected permission-scoped historical retrieval is absent.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then An authorised user retrieves relevant previous initiatives and outcomes; restricted history is excluded.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-018",
+    "title": "Historical Context Separation",
+    "pages": [
+      225
+    ],
+    "requirement": "[p225]    10.18.     AI-018 Historical Context Separation\n[p225] \n[p225] \n[p225] AI must distinguish historical information from current pricing information.\n[p225] \n[p225] A previous price, assumption or decision must not be represented as currently valid simply\n[p225] because it appears in historical records.\n[p225] \n[p225]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Historical/current context separation cannot be verified for an absent AI feature.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then A retrieved old price is labelled historical and is never substituted for Current Price.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-019",
+    "title": "Data Freshness Awareness",
+    "pages": [
+      225
+    ],
+    "requirement": "[p225]    10.19.     AI-019 Data Freshness Awareness\n[p225] \n[p225] \n[p225] Where AI relies on pricing context with available timestamps or freshness information, it\n[p225] should preserve that distinction in its response.\n[p225] \n[p225] AI must not represent manually entered, imported or historical information as live or real-time\n[p225] information unless the system actually provides that status.\n[p225] \n[p225]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No AI response model retains freshness distinctions.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then Responses preserve import/observation dates and never call recorded data live without a real live source.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-020",
+    "title": "Evidence Awareness",
+    "pages": [
+      225
+    ],
+    "requirement": "[p225]    10.20.     AI-020 Evidence Awareness\n[p225] \n[p225] \n[p225] Where AI uses workspace evidence to support its response, the user should be able to\n[p225] identify the relevant underlying pricing context or evidence where practical.\n[p225] \n[p225] AI should not obscure the difference between:\n[p225] \n[p225]    ● structured organisational data;\n[p225]    ● manually supplied evidence;\n[p225]    ● explicit assumptions;\n[p225]    ● previous pricing records;\n[p225]    ● AI inference.\n[p225]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No evidence-linked AI explanation surface exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then A response distinguishes structured data, Evidence, assumptions, history and inference with practical source links.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-021",
+    "title": "Uncertainty and Missing Basis",
+    "pages": [
+      225,
+      226
+    ],
+    "requirement": "[p225]    10.21.     AI-021 Uncertainty and Missing Basis\n[p225] \n[p225] \n[p225] Where available information does not support a reliable conclusion, AI must indicate that\n[p225] limitation rather than inventing missing pricing facts.\n[p225] \n[p226] AI must not fabricate:\n[p226] \n[p226]    ● competitor prices;\n[p226]    ● costs;\n[p226]    ● demand figures;\n[p226]    ● margins;\n[p226]    ● exchange rates;\n[p226]    ● customer behaviour;\n[p226]    ● approval authority;\n[p226]    ● organisational policy.\n[p226]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No uncertainty or grounded-answer validation is implemented for AI.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Missing competitor prices, cost or authority produce an explicit limitation rather than invented facts.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-022",
+    "title": "Explicit Application of AI Output",
+    "pages": [
+      226
+    ],
+    "requirement": "[p226]    10.22.      AI-022 Explicit Application of AI Output\n[p226] \n[p226] \n[p226] AI-generated changes to structured pricing work must require an explicit user action such as:\n[p226] \n[p226]    ● Apply;\n[p226]    ● Insert;\n[p226]    ● Create Scenario;\n[p226]    ● Update Draft;\n[p226]    ● Use as Starting Point.\n[p226] \n[p226] Generating an AI response must not itself modify authoritative pricing work.\n[p226] \n[p226]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No explicit Apply/Insert/Create Scenario transaction exists for AI output.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Producing an answer makes no structured change; an authorised Apply action validates and persists it atomically.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-023",
+    "title": "AI Change Preview",
+    "pages": [
+      226
+    ],
+    "requirement": "[p226]    10.23.      AI-023 AI Change Preview\n[p226] \n[p226] \n[p226] Before applying a consequential AI-generated modification, users should be able to\n[p226] understand what will change.\n[p226] \n[p226] Where AI modifies existing structured pricing work, the product should make relevant\n[p226] differences visible.\n[p226] \n[p226]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No before/after preview for consequential AI modifications exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then Before applying an AI edit, the user sees changed values/scope/logic and can cancel without side effects.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-024",
+    "title": "AI Attribution",
+    "pages": [
+      226,
+      227
+    ],
+    "requirement": "[p226]    10.24.      AI-024 AI Attribution\n[p226] \n[p226] \n[p226] Applied AI-assisted content must remain attributable.\n[p226] \n[p226] The system should preserve that:\n[p226] \n[p226]    ● AI generated or suggested the content;\n[p226]    ● a specific human user chose to apply it;\n[p226]    ● the application occurred at a specific time.\n[p226] \n[p227] The human user who applies the output remains responsible for progressing that work\n[p227] through applicable governance.\n[p227] \n[p227]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No AI-assisted content attribution record exists.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Applied content preserves AI origin, human applier and time, with authority retained by that human.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-025",
+    "title": "AI Conversation Context",
+    "pages": [
+      227
+    ],
+    "requirement": "[p227]    10.25.      AI-025 AI Conversation Context\n[p227] \n[p227] \n[p227] AI interactions associated with a Pricing Initiative should retain sufficient conversational\n[p227] context to support continuity during the active work.\n[p227] \n[p227] However, important pricing assumptions, decisions or rules must not exist solely inside an AI\n[p227] conversation.\n[p227] \n[p227] Consequential information must be applied to the appropriate structured pricing object\n[p227] before it becomes part of the formal pricing record.\n[p227] \n[p227]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No Initiative-scoped conversation context or promotion to structured objects exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then A critical assumption in conversation is not part of the decision snapshot until explicitly applied to the correct object.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-026",
+    "title": "AI and Versioning",
+    "pages": [
+      227
+    ],
+    "requirement": "[p227]    10.26.      AI-026 AI and Versioning\n[p227] \n[p227] \n[p227] Applying AI-generated changes that materially alter pricing work must follow the same\n[p227] versioning rules as human changes.\n[p227] \n[p227] AI assistance must not bypass Pricing Proposal versioning or any applicable repeat review,\n[p227] Approval or Policy Authorisation requirements.\n[p227] \n[p227]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No AI material-change path is connected to controlled versioning.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then An AI-applied material edit creates a new controlled version and does not inherit earlier execution authority.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-027",
+    "title": "AI and Guardrails",
+    "pages": [
+      227,
+      228
+    ],
+    "requirement": "[p227]    10.27.      AI-027 AI and Guardrails\n[p227] \n[p227] \n[p227] AI may assist users in understanding applicable organisational Guardrails.\n[p227] \n[p227] Where permitted by the user's access, AI may explain or summarise:\n[p227] \n[p227]    ● the Guardrail definition;\n[p227]    ● applicable scope;\n[p227]    ● configured threshold or condition;\n[p227]    ● applicable configuration version;\n[p227]    ● ANALYSIS-014 evaluation result;\n[p227]    ● GOV-025 behavioural treatment;\n[p227]    ● the effect of the Guardrail on Proposal or workflow progression.\n[p227] \n[p227] AI must consume authoritative Guardrail information from the applicable product records.\n[p227] \n[p227] AI must not independently:\n[p227] \n[p227]    ● create an organisational Guardrail through ordinary pricing work;\n[p227] \n[p228]    ● determine Guardrail applicability where governance has not established it;\n[p228]    ● redefine a Guardrail;\n[p228]    ● modify a Guardrail threshold, operator, scope or behavioural treatment;\n[p228]    ● calculate a competing Guardrail result;\n[p228]    ● replace an ANALYSIS-014 evaluation with AI reasoning;\n[p228]    ● infer Near Threshold where the configured Guardrail does not define the required\n[p228]        proximity rule;\n[p228]    ● represent Unable to Evaluate as Within Guardrail;\n[p228]    ● override a Guardrail;\n[p228]    ● ignore a Blocking treatment;\n[p228]    ● claim that an exception or authorised progression path exists where none has been\n[p228]        configured.\n[p228] \n[p228] AI may identify a possible need for a new or changed Guardrail as an advisory observation,\n[p228] but that observation must not become organisational governance until an authorised user\n[p228] completes the applicable governance action.\n[p228] \n[p228] Where AI converts user pricing intent into structured Builder content, a user-defined pricing\n[p228] boundary must remain an initiative-specific condition or constraint unless it references an\n[p228] existing organisational Guardrail.\n[p228] \n[p228] AI therefore assists with interpretation and explanation while Guardrail definition, evaluation\n[p228] and behavioural consequence remain controlled by GOV-023, ANALYSIS-014 and GOV-025\n[p228] respectively.\n[p228] \n[p228]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No governed AI explanation pathway exists; ordinary pricing intent must not silently modify organisational controls.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then AI consumes authoritative Guardrail definition/result/treatment and cannot invent applicability, near-threshold results or exception authority.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-028",
+    "title": "AI and Approval Authority",
+    "pages": [
+      228,
+      229
+    ],
+    "requirement": "[p228]    10.28.      AI-028 AI and Approval Authority\n[p228] \n[p228] \n[p228] AI has no approval authority.\n[p228] \n[p228] AI cannot:\n[p228] \n[p228]    ● approve;\n[p228]    ● reject;\n[p228]    ● request changes as a formal approver;\n[p228]    ● provide policy authorisation;\n[p228]    ● impersonate an approver.\n[p228] \n[p228] Formal item-level Approval decisions require authorised human action.\n[p228] \n[p229] Policy   Authorisation    may   be   established   only   through   the   configured   non-AI\n[p229] policy-authorisation mechanism defined in FLOW-022 and FLOW-023.\n[p229] \n[p229]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No AI authority is granted today; the constraint still needs enforcement tests if AI tools are introduced.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Tool calls to approve/reject/request changes/policy-authorise are denied to AI; configured non-AI policy evaluation remains distinguishable.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-029",
+    "title": "AI and Execution Authority",
+    "pages": [
+      229
+    ],
+    "requirement": "[p229]    10.29.     AI-029 AI and Execution Authority\n[p229] \n[p229] \n[p229] AI must not independently execute pricing actions in the MVP.\n[p229] \n[p229] AI may assist an authorised user in understanding:\n[p229] \n[p229]    ● what received execution authority;\n[p229]    ● what needs to be implemented;\n[p229]    ● applicable execution instructions.\n[p229] \n[p229] Recording or confirming implementation requires an authorised human action.\n[p229] \n[p229]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No AI execution tools exist; human-only recording must remain explicit in a future implementation.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then An AI suggestion cannot record or confirm implementation; a permitted human must perform that action.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-030",
+    "title": "AI and Governance Administration",
+    "pages": [
+      229
+    ],
+    "requirement": "[p229]    10.30.     AI-030 AI and Governance Administration\n[p229] \n[p229] \n[p229] AI may explain existing workspace governance where the invoking user has access.\n[p229] \n[p229] AI must not autonomously:\n[p229] \n[p229]    ● grant permissions;\n[p229]    ● assign commercial authority;\n[p229]    ● modify approval limits;\n[p229]    ● alter guardrails;\n[p229]    ● activate policy autonomy;\n[p229]    ● change workflow governance.\n[p229]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No AI governance administration exists; future tools must not grant or change authority autonomously.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Prompted permission, Guardrail, delegation or autonomy changes cannot bypass an authorised governance operation.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-031",
+    "title": "Adversarial or Conflicting Content",
+    "pages": [
+      229,
+      230
+    ],
+    "requirement": "[p229]    10.31.     AI-031 Adversarial or Conflicting Content\n[p229] \n[p229] \n[p229] Content supplied through:\n[p229] \n[p229]    ● attachments;\n[p229]    ● comments;\n[p229]    ● imported data;\n[p229]    ● manually entered evidence;\n[p229]    ● external text\n[p229] \n[p229] must be treated as business information, not as authority to override Owómidé's system\n[p229] rules, permissions or AI governance.\n[p229] \n[p230] Instructions contained inside user-provided evidence must not override product-level\n[p230] governance.\n[p230] \n[p230]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No prompt-injection handling or untrusted-content isolation has been implemented for AI.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Given the AI capability is enabled, then Instructions embedded in Evidence, imports or comments are treated as business data and cannot override tools, permissions or governance.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-032",
+    "title": "AI Failure Handling",
+    "pages": [
+      230
+    ],
+    "requirement": "[p230]    10.32.      AI-032 AI Failure Handling\n[p230] \n[p230] \n[p230] Failure of an AI capability must not corrupt or block access to existing authoritative pricing\n[p230] records.\n[p230] \n[p230] Users must remain able to access and continue supported non-AI workflow functions where\n[p230] the underlying task does not inherently require AI.\n[p230] \n[p230] The MVP's system of record must not depend on an AI response being successfully\n[p230] generated.\n[p230] \n[p230]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "The current sample is non-AI, but AI outage/degradation behaviour is untested because AI is absent.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then Simulate AI timeout/error and continue supported non-AI work with existing authoritative records unchanged.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-033",
+    "title": "AI Feedback",
+    "pages": [
+      230
+    ],
+    "requirement": "[p230]    10.33.      AI-033 AI Feedback\n[p230] \n[p230] \n[p230] Users should be able to indicate when AI output is:\n[p230] \n[p230]    ● useful;\n[p230]    ● incorrect;\n[p230]    ● incomplete;\n[p230]    ● inappropriate for the pricing context.\n[p230] \n[p230] Where applicable, users should be able to discard AI output without affecting the underlying\n[p230] pricing work.\n[p230] \n[p230]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "Expected AI feedback/discard controls are absent.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Given the AI capability is enabled, then Users flag incorrect/incomplete output or discard it without altering structured pricing work.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-034",
+    "title": "AI Activity History",
+    "pages": [
+      230
+    ],
+    "requirement": "[p230]    10.34.      AI-034 AI Activity History\n[p230] \n[p230] \n[p230] Consequential AI-assisted actions should contribute to relevant activity history.\n[p230] \n[p230] The history should distinguish between:\n[p230] \n[p230]    ● AI suggestion generated;\n[p230]    ● AI output applied by a user;\n[p230]    ● AI-assisted structured change;\n[p230]    ● subsequent human modification.\n[p230] \n[p230] Routine conversational prompts do not need to overload the formal audit trail unless they\n[p230] materially affect pricing work.\n[p230]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "No consequential AI suggestion/application/change history exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then History distinguishes suggestion, explicit application and subsequent human modification without logging every routine prompt as a formal decision.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "AI-035",
+    "title": "AI Completeness Principle",
+    "pages": [
+      231
+    ],
+    "requirement": "[p231]    10.35.    AI-035 AI Completeness Principle\n[p231] \n[p231] \n[p231] AI in the MVP succeeds when it reduces the cognitive and administrative effort required to\n[p231] perform real pricing work while preserving human control, deterministic financial logic and\n[p231] organisational governance.\n[p231] \n[p231] For any consequential AI-assisted pricing action, Owómidé must be able to answer:\n[p231] \n[p231] What information was available to the AI?\n[p231] What did the AI propose?\n[p231] What did the user choose to apply?\n[p231] What changed in the pricing work?\n[p231] Did normal validation and governance still apply?\n[p231] Who retained authority for the resulting decision?\n[p231] \n[p231] AI must accelerate and improve pricing work without becoming an uncontrolled pricing\n[p231] decision-maker.\n[p231]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/WorkspaceApp.jsx:2032",
+      "apps/workspace/src/data/workspaceRepositories.js:17"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/server.ts:31",
+      "src/data-pipeline/owomide_data_pipeline/intelligence/service.py:112"
+    ],
+    "gap": "The PRD AI completeness principle is not satisfied by the deterministic pricing engine or an unimplemented future promise.",
+    "misrepresentation": "Earlier CEO chat defers AI; replacement PRD AI-001/005 explicitly requires it. Resolve scope with CEO rather than silently counting AI as delivered or out of scope.",
+    "priority": "P1",
+    "acceptance": "Given the AI capability is enabled, then For an applied AI action, reconstruct permitted inputs, suggestion, human application, resulting change, validation and retained authority.",
+    "applicability": "AI feature absent. No observed AI violation is alleged; constraints are mandatory when the capability is introduced. P0 denotes a release gate for that capability, not a request to build each optional AI use case first."
+  },
+  {
+    "id": "NOTIF-001",
+    "title": "Personal Work Queue",
+    "pages": [
+      262
+    ],
+    "requirement": "[p262]      13.1.    NOTIF-001 Personal Work Queue\n[p262] \n[p262] \n[p262] Every active user should have a personal work view containing pricing work that currently\n[p262] requires or may require their attention.\n[p262] \n[p262] This may include initiatives where the user is:\n[p262] \n[p262]    ● owner;\n[p262]    ● collaborator;\n[p262]    ● reviewer;\n[p262]    ● approver;\n[p262]    ● assignee;\n[p262]    ● implementation owner;\n[p262]    ● mentioned;\n[p262]    ● responsible for monitoring activity.\n[p262]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "Needs me derives next Proposal actor but import/repricing attention is capability-based; no complete personal Initiative/task/execution/monitoring queue.",
+    "misrepresentation": "Capability to act is not the same as an assigned unresolved responsibility.",
+    "priority": "P1",
+    "acceptance": "Given personal work relevance through ownership, collaboration or mention, show accessible awareness items; separately label and count actions only where this user has actual responsibility."
+  },
+  {
+    "id": "NOTIF-002",
+    "title": "Action Required Separation",
+    "pages": [
+      262
+    ],
+    "requirement": "[p262]      13.2.    NOTIF-002 Action Required Separation\n[p262] \n[p262] \n[p262] The system must distinguish between information that is merely visible to a user and work\n[p262] that requires an explicit action from that user.\n[p262] \n[p262] Examples of action-required items include:\n[p262] \n[p262]    ● assignment due;\n[p262]    ● review requested;\n[p262]    ● approval requested;\n[p262]    ● requested clarification;\n[p262]    ● execution assigned;\n[p262]    ● monitoring input required.\n[p262]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "Proposal next-actor distinction is modelled; import/repricing treats capability as responsibility. Visibility alone can be counted as work requiring action.",
+    "misrepresentation": "Capability to act is not the same as an assigned unresolved responsibility.",
+    "priority": "P0",
+    "acceptance": "Given visible but unassigned work, it appears in relevant workspace visibility, not the personal action-required count."
+  },
+  {
+    "id": "NOTIF-003",
+    "title": "Workspace-Level Visibility",
+    "pages": [
+      263
+    ],
+    "requirement": "[p263]      13.3.     NOTIF-003 Workspace-Level Visibility\n[p263] \n[p263] \n[p263] Authorised users must be able to view relevant organisation-level pricing activity.\n[p263] \n[p263] The workspace should provide visibility into categories such as:\n[p263] \n[p263]    ● active Pricing Initiatives;\n[p263]    ● initiatives requiring attention;\n[p263]    ● pending reviews;\n[p263]    ● pending approvals;\n[p263]    ● ready-for-execution work;\n[p263]    ● implementation in progress;\n[p263]    ● monitoring activity;\n[p263]    ● recently completed initiatives.\n[p263] \n[p263] Visibility must respect the user's role and scope.\n[p263] \n[p263]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Queue/Proposal directories exist, but the PRD Initiative/review/execution/monitoring views and scoped backend aggregation do not.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given scoped organisation activity, managers see canonical states from authoritative records without expanding access."
+  },
+  {
+    "id": "NOTIF-004",
+    "title": "Pricing Initiative Status Visibility",
+    "pages": [
+      263
+    ],
+    "requirement": "[p263]      13.4.     NOTIF-004 Pricing Initiative Status Visibility\n[p263] \n[p263] \n[p263] Pricing Initiative listings must display enough information for users to understand current\n[p263] state without opening every initiative.\n[p263] \n[p263] Relevant information should include:\n[p263] \n[p263]    ● initiative title;\n[p263]    ● initiative type;\n[p263]    ● owner;\n[p263]    ● pricing scope summary;\n[p263]    ● lifecycle state;\n[p263]    ● urgency;\n[p263]    ● current responsible party;\n[p263]    ● next required action;\n[p263]    ● target or effective date where applicable.\n[p263]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "No Initiative listing with type/lifecycle/urgency/owner/deadline exists; current queue represents import, Preview and Proposal.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "An Initiative list shows current owner, resolved scope, stage, urgency, next action and relevant date without opening every item."
+  },
+  {
+    "id": "NOTIF-005",
+    "title": "Notification Events",
+    "pages": [
+      263,
+      264
+    ],
+    "requirement": "[p263]      13.5.     NOTIF-005 Notification Events\n[p263] \n[p263] \n[p263] The MVP must generate notifications for consequential events where user awareness or\n[p263] action is required.\n[p263] \n[p263] These should include, where relevant:\n[p263] \n[p264]    ● user assignment;\n[p264]    ● mention;\n[p264]    ● review request;\n[p264]    ● approval request;\n[p264]    ● changes requested;\n[p264]    ● proposal rejection;\n[p264]    ● proposal approval;\n[p264]    ● proposal policy authorisation;\n[p264]    ● escalation;\n[p264]    ● upcoming due date;\n[p264]    ● overdue action;\n[p264]    ● execution assignment;\n[p264]    ● implementation issue;\n[p264]    ● monitoring assignment.\n[p264]",
+    "frontendStatus": "absent",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Notify has a contract and placeholder container, not event fan-out. Transient toasts are not durable notifications.",
+    "misrepresentation": "A toast, generated proto or service design note is not a delivered notification system.",
+    "priority": "P1",
+    "acceptance": "An assignment/review/approval/change/execution event creates a durable relevant in-product notification."
+  },
+  {
+    "id": "NOTIF-006",
+    "title": "Notification Recipient",
+    "pages": [
+      264
+    ],
+    "requirement": "[p264]     13.6.     NOTIF-006 Notification Recipient\n[p264] \n[p264] \n[p264] Notifications must be sent only to users relevant to the event.\n[p264] \n[p264] The system must determine recipients based on:\n[p264] \n[p264]    ● assignment;\n[p264]    ● workflow responsibility;\n[p264]    ● role;\n[p264]    ● scope;\n[p264]    ● mention;\n[p264]    ● ownership;\n[p264]    ● organisational configuration.\n[p264] \n[p264] A notification must never provide an unauthorised user access to protected pricing\n[p264] information.\n[p264] \n[p264]",
+    "frontendStatus": "absent",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Notification proto includes org/user but no implemented recipient selection or access revalidation.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Recipients resolve from current workflow responsibility and scope, with inaccessible content redacted before storage/delivery."
+  },
+  {
+    "id": "NOTIF-007",
+    "title": "Notification Context",
+    "pages": [
+      264,
+      265
+    ],
+    "requirement": "[p264]     13.7.     NOTIF-007 Notification Context\n[p264] \n[p264] \n[p264] Every notification must provide enough context for the recipient to understand:\n[p264] \n[p264]    ● what happened;\n[p264]    ● which Pricing Initiative is affected;\n[p264]    ● why the notification was generated;\n[p264] \n[p265]    ● whether action is required.\n[p265] \n[p265] Where applicable, the notification should identify the relevant proposal, assignment or\n[p265] workflow stage.\n[p265] \n[p265]",
+    "frontendStatus": "absent",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Proto title/body/event_type do not establish an implemented Initiative/action/context projection.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Every delivered notification identifies what happened, why, related work and whether action is required."
+  },
+  {
+    "id": "NOTIF-008",
+    "title": "Direct Navigation",
+    "pages": [
+      265
+    ],
+    "requirement": "[p265]     13.8.     NOTIF-008 Direct Navigation\n[p265] \n[p265] \n[p265] A user selecting a notification must be taken to the relevant authorised context inside\n[p265] Owómidé.\n[p265] \n[p265] The user should not need to manually search for the associated Pricing Initiative.\n[p265] \n[p265]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "No notification UI or contextual target routing exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Opening a notification navigates to the exact permitted object/version or a safe revoked/stale destination."
+  },
+  {
+    "id": "NOTIF-009",
+    "title": "In-Product Notifications",
+    "pages": [
+      265
+    ],
+    "requirement": "[p265]     13.9.     NOTIF-009 In-Product Notifications\n[p265] \n[p265] \n[p265] The MVP must support in-product notifications.\n[p265] \n[p265] Notifications must have at least:\n[p265] \n[p265]    ● unread;\n[p265]    ● read\n[p265] \n[p265] states.\n[p265] \n[p265] Users should be able to mark notifications as read.\n[p265] \n[p265]",
+    "frontendStatus": "absent",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Read/unread and MarkRead are declared in proto only; migration is SELECT1 and no service exists.",
+    "misrepresentation": "A toast, generated proto or service design note is not a delivered notification system.",
+    "priority": "P1",
+    "acceptance": "After an event, unread notifications persist across sessions; marking read updates notification state only."
+  },
+  {
+    "id": "NOTIF-010",
+    "title": "External Notification Boundary",
+    "pages": [
+      265
+    ],
+    "requirement": "[p265]    13.10.     NOTIF-010 External Notification Boundary\n[p265] \n[p265] \n[p265] Email notifications may be supported for important workflow events where needed for pilot\n[p265] adoption and timely action.\n[p265] \n[p265] The MVP is not required to support:\n[p265] \n[p265]    ● SMS;\n[p265]    ● WhatsApp;\n[p265]    ● Slack;\n[p265]    ● Microsoft Teams;\n[p265]    ● broad third-party notification integrations.\n[p265] \n[p265] These must not become dependencies for the core pricing workflow.\n[p265] \n[p265]",
+    "frontendStatus": "unverified",
+    "backendStatus": "unverified",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "Boundary: email is optional; SMS/WhatsApp/Slack/Teams are not required and must not block core workflow.",
+    "misrepresentation": "",
+    "priority": "P3",
+    "acceptance": "Users complete the pricing journey using in-product attention mechanisms without external chat/email integrations."
+  },
+  {
+    "id": "NOTIF-011",
+    "title": "Notification and Authority Separation",
+    "pages": [
+      265,
+      266
+    ],
+    "requirement": "[p265]    13.11.     NOTIF-011 Notification and Authority Separation\n[p265] \n[p266] Receiving a notification does not grant authority to act.\n[p266] \n[p266] A user may receive awareness of an event while still lacking permission to:\n[p266] \n[p266]    ● edit;\n[p266]    ● review;\n[p266]    ● approve;\n[p266]    ● execute.\n[p266] \n[p266] Protected actions must continue to enforce normal permissions.\n[p266] \n[p266]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "No notification authority boundary can yet be exercised; sample action checks do not implement notification delivery.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Receiving a notification does not enable edit/approval/execution actions without current server authority."
+  },
+  {
+    "id": "NOTIF-012",
+    "title": "Pending Approval Queue",
+    "pages": [
+      266
+    ],
+    "requirement": "[p266]    13.12.      NOTIF-012 Pending Approval Queue\n[p266] \n[p266] \n[p266] Users with approval authority must have a clear view of proposals currently awaiting their\n[p266] decision.\n[p266] \n[p266] Each approval item should show relevant information such as:\n[p266] \n[p266]    ● Pricing Initiative;\n[p266]    ● proposal version;\n[p266]    ● submitting user;\n[p266]    ● submitted date;\n[p266]    ● urgency;\n[p266]    ● pricing scope;\n[p266]    ● current workflow stage;\n[p266]    ● approval deadline where applicable.\n[p266]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Awaiting approval status filter exists; it is not a full assigned approver queue with sequence, urgency and due dates.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Given multiple approvers, show only decisions currently assigned to this approver, with controlled version and relevant deadline."
+  },
+  {
+    "id": "NOTIF-013",
+    "title": "Review Queue",
+    "pages": [
+      266
+    ],
+    "requirement": "[p266]    13.13.      NOTIF-013 Review Queue\n[p266] \n[p266] \n[p266] Users responsible for reviews must be able to identify:\n[p266] \n[p266]    ● review requests assigned to them;\n[p266]    ● review status;\n[p266]    ● due date where applicable;\n[p266]    ● initiative urgency.\n[p266]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "No separate assigned pre-approval Review queue exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Reviewers see their requested reviews, status, urgency and applicable due date, distinct from formal approval decisions."
+  },
+  {
+    "id": "NOTIF-014",
+    "title": "Execution Queue",
+    "pages": [
+      266,
+      267
+    ],
+    "requirement": "[p266]    13.14.      NOTIF-014 Execution Queue\n[p266] \n[p266] \n[p266] Authorised Executors must be able to identify pricing actions that are:\n[p266] \n[p266]    ● Ready for Execution;\n[p266] \n[p267]    ● assigned to them;\n[p267]    ● partially implemented;\n[p267]    ● blocked;\n[p267]    ● overdue.\n[p267]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "Ready to publish and incomplete rollout tabs model Catalog release, not assigned manual execution/partial implementation/overdue work.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "An Executor sees assigned authorised actions and actual partial/exception/overdue implementation state."
+  },
+  {
+    "id": "NOTIF-015",
+    "title": "Owner Visibility",
+    "pages": [
+      267
+    ],
+    "requirement": "[p267]    13.15.      NOTIF-015 Owner Visibility\n[p267] \n[p267] \n[p267] Pricing Initiative owners must be able to identify where their active initiatives are blocked or\n[p267] awaiting another stakeholder.\n[p267] \n[p267] This should include relevant states such as:\n[p267] \n[p267]    ● awaiting information;\n[p267]    ● awaiting review;\n[p267]    ● awaiting approval;\n[p267]    ● awaiting execution;\n[p267]    ● overdue assignment.\n[p267]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Sample next actor/blockers assist a Proposal owner, but missing Initiative/tasks limit end-to-end owner visibility.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "An owner can identify the next responsible person and reason for every blocked review, approval, execution or monitoring step."
+  },
+  {
+    "id": "NOTIF-016",
+    "title": "Urgency Visibility",
+    "pages": [
+      267
+    ],
+    "requirement": "[p267]    13.16.      NOTIF-016 Urgency Visibility\n[p267] \n[p267] \n[p267] High and Urgent Pricing Initiatives must be visually distinguishable from normal-priority work.\n[p267] \n[p267] Urgency should influence ordering and prominence without changing underlying governance\n[p267] requirements.\n[p267] \n[p267]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "No High/Urgent Initiative priority field or visual/order treatment exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Urgent work is visibly prioritised without bypassing maker-checker or any other control."
+  },
+  {
+    "id": "NOTIF-017",
+    "title": "Due Dates",
+    "pages": [
+      267
+    ],
+    "requirement": "[p267]    13.17.      NOTIF-017 Due Dates\n[p267] \n[p267] \n[p267] Where pricing work has a defined deadline, relevant work views must display that deadline.\n[p267] \n[p267] The system should identify work that is:\n[p267] \n[p267]    ● upcoming;\n[p267]    ● due;\n[p267]    ● overdue.\n[p267]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "Updated/effective timestamps are shown; assignment/review/approval deadlines and due/overdue status are absent.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Display due time and upcoming/due/overdue classification using the applicable timezone, not last-updated time."
+  },
+  {
+    "id": "NOTIF-018",
+    "title": "Escalation Visibility",
+    "pages": [
+      267,
+      268
+    ],
+    "requirement": "[p267]    13.18.      NOTIF-018 Escalation Visibility\n[p267] \n[p267] \n[p267] Where an escalation occurs, relevant users must be able to identify:\n[p267] \n[p267]    ● what was escalated;\n[p267]    ● why escalation occurred;\n[p267] \n[p268]    ● previous responsible party;\n[p268]    ● current responsible party;\n[p268]    ● resulting action required.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "No bounded escalation event or previous/current responsible-person visibility exists.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "After configured escalation, show cause, previous and new responsibility and required action without granting new authority implicitly."
+  },
+  {
+    "id": "NOTIF-019",
+    "title": "Completed Work Visibility",
+    "pages": [
+      268
+    ],
+    "requirement": "[p268]    13.19.     NOTIF-019 Completed Work Visibility\n[p268] \n[p268] \n[p268] Recent completed Pricing Initiatives should remain accessible from the workspace without\n[p268] appearing as outstanding work.\n[p268] \n[p268] Completion must remove resolved tasks from active action queues while preserving\n[p268] historical access.\n[p268] \n[p268]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Proposal directory/history is not a completed Initiative view. No canonical completion removes resolved Initiative tasks from personal work.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Completion removes outstanding action items but retains historical Initiative access and recorded outcomes."
+  },
+  {
+    "id": "NOTIF-020",
+    "title": "Read Versus Resolved State",
+    "pages": [
+      268
+    ],
+    "requirement": "[p268]    13.20.     NOTIF-020 Read Versus Resolved State\n[p268] \n[p268] \n[p268] Reading a notification must not mark the underlying business action as completed.\n[p268] \n[p268] For example:\n[p268] \n[p268]    ● reading an approval notification does not approve the proposal;\n[p268]    ● reading an assignment notification does not complete the assignment;\n[p268]    ● reading an execution notification does not confirm implementation.\n[p268] \n[p268] Notification state and workflow state must remain separate.\n[p268] \n[p268]",
+    "frontendStatus": "absent",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Read bool is defined separately in proto but no implementation proves reading cannot resolve business work.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "Marking an approval notification read leaves Proposal decision, task completion and implementation state unchanged."
+  },
+  {
+    "id": "NOTIF-021",
+    "title": "Duplicate Notification Control",
+    "pages": [
+      268
+    ],
+    "requirement": "[p268]    13.21.     NOTIF-021 Duplicate Notification Control\n[p268] \n[p268] \n[p268] The system should avoid generating excessive duplicate notifications for the same\n[p268] unchanged condition.\n[p268] \n[p268] Repeated reminders may be generated where action remains overdue, but they should be\n[p268] bounded and purposeful.\n[p268] \n[p268]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "No durable event deduplication or bounded notification reminder policy exists.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "Duplicate delivery of the same event creates one attention item; overdue reminders follow bounded configured intervals."
+  },
+  {
+    "id": "NOTIF-022",
+    "title": "Notification Preference Boundary",
+    "pages": [
+      268
+    ],
+    "requirement": "[p268]    13.22.     NOTIF-022 Notification Preference Boundary\n[p268] \n[p268] \n[p268] The MVP may allow users to configure limited notification preferences for non-critical events.\n[p268] \n[p268] Users must not be able to disable system-critical governance or security notifications where\n[p268] organisational policy requires them.\n[p268] \n[p268]",
+    "frontendStatus": "absent",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Preferences proto exists without implementation or critical-notification policy protection. Preferences are optional.",
+    "misrepresentation": "",
+    "priority": "P2",
+    "acceptance": "If preferences are enabled, a user cannot disable mandatory governance/security notifications required by company policy."
+  },
+  {
+    "id": "NOTIF-023",
+    "title": "Access Revocation",
+    "pages": [
+      268,
+      269
+    ],
+    "requirement": "[p268]    13.23.     NOTIF-023 Access Revocation\n[p268] \n[p269] If a user's access to relevant pricing work is removed, future notifications must respect the\n[p269] new access state.\n[p269] \n[p269] Previously generated notifications must not provide a path to restricted content.\n[p269] \n[p269]",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "No notification revocation handling exists.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "After access is removed, new delivery and previously stored deep links cannot disclose restricted content."
+  },
+  {
+    "id": "NOTIF-024",
+    "title": "Workspace Filtering",
+    "pages": [
+      269
+    ],
+    "requirement": "[p269]    13.24.      NOTIF-024 Workspace Filtering\n[p269] \n[p269] \n[p269] Workspace-level work views should support filtering by relevant dimensions such as:\n[p269] \n[p269]    ● status;\n[p269]    ● owner;\n[p269]    ● initiative type;\n[p269]    ● urgency;\n[p269]    ● category;\n[p269]    ● product;\n[p269]    ● location;\n[p269]    ● channel;\n[p269]    ● responsible participant;\n[p269]    ● date range.\n[p269] \n[p269] Filtering must respect user access scope.\n[p269] \n[p269]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Status and local query filtering exist, but not scoped Initiative owner/type/urgency/dimension/date filters.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Filters operate over authorised server results and cursor context; changing filters cannot reveal restricted work."
+  },
+  {
+    "id": "NOTIF-025",
+    "title": "Workspace Search",
+    "pages": [
+      269
+    ],
+    "requirement": "[p269]    13.25.      NOTIF-025 Workspace Search\n[p269] \n[p269] \n[p269] Users must be able to search pricing work they are authorised to access.\n[p269] \n[p269] Search should support relevant identifiers such as:\n[p269] \n[p269]    ● Pricing Initiative title;\n[p269]    ● product or SKU;\n[p269]    ● category;\n[p269]    ● proposal identifier;\n[p269]    ● owner.\n[p269]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Search is limited to fixture rows/Proposal metadata rather than an authorised pricing-work search index/API.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Search by supported Initiative/entity/Proposal/owner identifiers returns permitted work beyond the current loaded page."
+  },
+  {
+    "id": "NOTIF-026",
+    "title": "Action Count Visibility",
+    "pages": [
+      269,
+      270
+    ],
+    "requirement": "[p269]    13.26.      NOTIF-026 Action Count Visibility\n[p269] \n[p269] \n[p269] The workspace should provide a clear count of outstanding items requiring the current user's\n[p269] action.\n[p269] \n[p270] Counts must be based on actual unresolved workflow responsibilities rather than general\n[p270] activity volume.\n[p270] \n[p270]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "Counts distinguish work items from overlapping line counts, but import/repricing action ownership is inferred from capability.",
+    "misrepresentation": "Capability to act is not the same as an assigned unresolved responsibility.",
+    "priority": "P0",
+    "acceptance": "Action badges equal unresolved responsibilities assigned to the current user; visible shared work is not automatically counted."
+  },
+  {
+    "id": "NOTIF-027",
+    "title": "Notification History",
+    "pages": [
+      270
+    ],
+    "requirement": "[p270]    13.27.       NOTIF-027 Notification History\n[p270] \n[p270] \n[p270] Users should be able to access a recent history of their relevant notifications.\n[p270] \n[p270] The notification history is not a substitute for the Pricing Initiative audit trail.\n[p270] \n[p270] Consequential historical events must remain recorded in the underlying pricing record\n[p270] regardless of notification retention.\n[p270] \n[p270]",
+    "frontendStatus": "absent",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31"
+    ],
+    "gap": "Notification history is only a proto contract; it cannot substitute for auditable pricing records.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Recent read/unread history is available while deleting/expiring a notification leaves canonical business history intact."
+  },
+  {
+    "id": "NOTIF-028",
+    "title": "Authoritative Record Principle",
+    "pages": [
+      270
+    ],
+    "requirement": "[p270]    13.28.       NOTIF-028 Authoritative Record Principle\n[p270] \n[p270] \n[p270] Notifications, badges and work queues are navigation, visibility and attention-management\n[p270] mechanisms. They must reflect authoritative pricing records rather than independently define\n[p270] business state.\n[p270] \n[p270] The authoritative source for each type of state must remain its underlying pricing object or\n[p270] record:\n[p270] \n[p270]     ● the Pricing Initiative for Initiative lifecycle state, ownership, scope and overall\n[p270]           progression;\n[p270]     ● the Pricing Proposal for Proposal status, Proposal version validity and the applicable\n[p270]           controlled decision package;\n[p270]     ● workflow, approval and policy-authorisation records for review progress, approval\n[p270]           progress, formal approval actions and policy-authorisation evaluations;\n[p270]     ● the Execution Record for execution status, implementation progress and actual\n[p270]           implemented action;\n[p270]     ● the audit and historical record for consequential event and decision history.\n[p270] \n[p270] Notifications, badges, queues and summary views must derive their displayed state from\n[p270] these authoritative records and must not create, redefine or silently override them.\n[p270] \n[p270] Where different states are displayed together, the interface must preserve their distinction\n[p270] rather than collapse them into a single generic status.\n[p270] \n[p270] A notification must never become the only record that a consequential event occurred.\n[p270] \n[p270]",
+    "frontendStatus": "conflicting",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/notify/v1/notify.proto:10",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/notify/Dockerfile:4",
+      "src/gateway/src/routes/proposals.ts:31",
+      "src/proposal/src/repo/proposal-repository.ts:619"
+    ],
+    "gap": "Frontend Proposal rows project current sample state, but import/repricing rows clone static base data. Backend Proposal listing reads canonical proposal and proposal_line records; full Initiative/execution projections are absent, not evidenced as contradictory.",
+    "misrepresentation": "",
+    "priority": "P0",
+    "acceptance": "After completing an import or changing an Initiative responsibility, all relevant queues/counts update from authoritative records without stale fixture-like rows."
+  },
+  {
+    "id": "NOTIF-029",
+    "title": "Work Visibility Completeness Principle",
+    "pages": [
+      270,
+      271
+    ],
+    "requirement": "[p270]    13.29.       NOTIF-029 Work Visibility Completeness Principle\n[p270] \n[p271] For any active user, Owómidé should make it possible to answer:\n[p271] \n[p271] What pricing work requires my attention?\n[p271] Why does it require my attention?\n[p271] How urgent is it?\n[p271] What action am I expected to take?\n[p271] When is it due?\n[p271] Where do I perform that action?\n[p271] \n[p271] For an authorised manager or initiative owner, the system should also make it possible to\n[p271] answer:\n[p271] \n[p271] What active pricing work is blocked, where is it blocked, and who currently owns the\n[p271] next action?\n[p271]",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:301",
+      "apps/workspace/src/OperationalWorkspace.jsx:301",
+      "apps/workspace/src/WorkspaceApp.jsx:2032"
+    ],
+    "evidenceBackend": [
+      "src/notify/Dockerfile:4",
+      "src/notify/migrations/0001_create_schema.up.sql:4",
+      "src/gateway/src/server.ts:31"
+    ],
+    "gap": "Current next-action guidance helps the sample; no full urgency/deadline/responsibility model supports the complete lifecycle.",
+    "misrepresentation": "",
+    "priority": "P1",
+    "acceptance": "Each user can explain why work needs them, urgency, due time, required action and destination; managers can locate the responsible bottleneck."
+  }
+]

@@ -1,0 +1,48 @@
+name: MVP agent task
+description: A bounded implementation task linked to the accepted PRD delivery plan.
+title: "[MVP child] "
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent package and requirement IDs
+      description: Link the parent issue and exact requirement evidence facet (frontend, backend or integration).
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Outcome and editable scope
+      description: State one bounded outcome, allowed files/services and non-goals.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and decisions
+      description: Link accepted contracts and completed prerequisites; list unresolved product choices explicitly.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: BDD acceptance and failure cases
+      description: Include positive, denied, missing/ambiguous, stale and relevant retry/partial outcomes.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required verification evidence
+      description: Commands, service/persistence proof and browser widths/keyboard/scroll states where applicable. Separate fixtures from live proof.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Execution boundaries
+      options:
+        - label: This task follows docs/product/mvp-2026-09/delivery/AGENT_PLAYBOOK.md.
+          required: true
+        - label: This issue does not authorise production writes, permission grants, deployment or automatic merge.
+          required: true

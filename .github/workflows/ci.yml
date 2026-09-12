@@ -37,7 +37,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: stable
+          go-version-file: src/margin/go.mod
+          cache-dependency-path: src/margin/go.sum
 
       - name: Check for Go services
         id: go-check
@@ -105,6 +106,9 @@ jobs:
 
       - name: Test and build frontends
         run: pnpm check:frontends
+
+      - name: Validate accepted MVP delivery evidence and links
+        run: node tools/scripts/product-plan/validate-plan.mjs
 
   manifests-validate:
     name: Validate k8s Manifests

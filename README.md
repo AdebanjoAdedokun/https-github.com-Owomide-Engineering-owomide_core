@@ -2,7 +2,11 @@
 
 B2B pricing and proposal SaaS for African distributors and wholesalers, starting with Nigeria.
 
-The canonical object is the **Pricing Proposal**. Three product themes orbit it:
+## Current delivery plan
+
+Start with the [accepted September MVP benchmark and agent delivery plan](docs/product/mvp-2026-09/README.md). It contains the company PRD, all379 requirement assessments, evidence, priorities and dependency-linked GitHub work packages. The target is **Initiative-led**; the current implementation is still a **sample-backed Proposal/repricing workspace**, not a live onboarding-ready product.
+
+The existing backend implementation is centred on the **Pricing Proposal**. Three product themes orbit it:
 
 - **Margin** — margin floor rules, below-cost blocking, override requests
 - **Bulk Repricing** — scoped change-sets, preview-before-commit, scheduled rollouts

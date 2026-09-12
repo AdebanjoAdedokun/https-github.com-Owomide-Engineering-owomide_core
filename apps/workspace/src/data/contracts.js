@@ -167,7 +167,8 @@
  * @property {{code: string, reason: string} | null} exclusion
  * @property {{refreshedCost?: Money, repairedFacts?: Record<string, unknown>} | null} remediationInputs
  * @property {{action: RepricingRemediationAction, fromPreviewRef: ResourceRef, appliedAt: string, explanation: string} | null} remediationEvidence
- * @property {{floorBasisPoints: number | null, floorPrice: Money | null, scope: string | null, sourceId: string | null, result: "clear" | "blocked" | "not-applicable", violation: {code: string, message: string, persistent: boolean, remediation: string, allowedRemediations?: RepricingRemediationAction[]} | null, evaluation: {status: "matched" | "no-match" | "error" | "not-required", appliedRule: AppliedMarginRule | null, matchingChain: AppliedMarginRule[], explanation: string, engineVersion: string, evaluationHash: string}}} policy
+ * @property {{floorBasisPoints: number | null, floorPrice: Money | null, scope: string | null, sourceId: string | null, result: "clear" | "blocked" | "not-applicable", violation: {code: string, message: string, persistent: boolean, remediation: string, allowedRemediations?: RepricingRemediationAction[]} | null, evaluation: {status: "matched" | "no-match" | "error" | "not-required" | "restricted", appliedRule: AppliedMarginRule | null, matchingChain: AppliedMarginRule[], explanation: string, engineVersion: string | null, evaluationHash: string | null}}} policy
+ * @property {{economics: "restricted", reason: string}} [fieldVisibility]
  * @property {{type: string, importId: string, fileName: string, importedAt: string, rowNumber: number, catalogVersion: string}} provenance
  */
 
@@ -203,6 +204,7 @@
 
 /**
  * @typedef {Object} RepricingPreview
+ * @property {{economics: "restricted", reason: string}} [fieldVisibility] Omitted fields are inaccessible, not zero or newly evaluated.
  * @property {"repricing-preview"} kind
  * @property {ResourceRef} ref
  * @property {"fixture-only" | "persisted"} persistence
@@ -217,6 +219,9 @@
  * @property {RepricingBlockerCounts} blockers
  * @property {RepricingLine[]} lines
  * @property {RepricingRemediationEvidence[]} remediationEvidence
+ * @property {ProposalRevisionOrigin} [revisionOrigin] Exact returned-draft lineage for a replacement; never approval authority.
+ * @property {ResourceRef} [relatedProposalRef] Authorised current returned or replacement Proposal in this exact revision lineage; does not broaden Preview actions.
+ * @property {boolean} [readOnlyEvidence] Retained governed source from an earlier pricing revision; remediation actions are disabled.
  * @property {CursorPage} page
  * @property {RepricingFacets} facets
  * @property {RepricingFilterResult} filterResult
@@ -226,11 +231,12 @@
 
 /**
  * @typedef {Object} ProposalMarginEvidence
+ * @property {{economics: "restricted", reason: string}} [fieldVisibility]
  * @property {"proposal-margin-evidence"} kind
  * @property {ResourceRef} proposalRef
  * @property {ResourceRef} sourcePreviewRef
  * @property {string} evaluatedAt
- * @property {{kind: "retained-rule-snapshot", version: string, label: string, effect: string, floorRangeBasisPoints: {minimum: number, maximum: number}}} policySnapshot
+ * @property {{kind: "retained-rule-snapshot", version: string, label: string, effect: string, floorRangeBasisPoints: {minimum: number | null, maximum: number | null}}} policySnapshot
  * @property {{retained: number, unresolved: number, sampleAvailable: number}} counts
  * @property {RepricingLine[]} lines
  * @property {AllowedAction[]} allowedActions
@@ -261,6 +267,7 @@
 
 /**
  * @typedef {Object} ProposalDetail
+ * @property {{economics: "restricted", reason: string}} [fieldVisibility]
  * @property {"proposal-detail"} kind
  * @property {ResourceRef} ref
  * @property {string} title
@@ -270,6 +277,18 @@
  * @property {string} createdAt
  * @property {string} effectiveAt
  * @property {{id: string, displayName: string}} author
+ * @property {{id: string, displayName: string}} [submissionOwner] Current draft owner; never substitutes for original author.
+ * @property {{actor: {id: string, displayName: string}, sourceProposalRef: ResourceRef, submittedAt: string, companyPolicyRef: ResourceRef} | null} [submission]
+ * @property {{analystCanSubmit: boolean, companyPolicyVersion: string}} [submissionPolicy]
+ * @property {Array<{id: string, displayName: string}>} [handoffCandidates] Authoritatively eligible sample targets for this current action.
+ * @property {Array<Record<string, unknown>>} [handoffHistory]
+ * @property {{code: string, label: string, mode: "single-assigned-stage"}} [approvalStage] One assigned authority, not an invented sequential chain.
+ * @property {Record<string, unknown> | null} [returnDecision] Fixture-only return-for-changes evidence; live state mapping is unreleased.
+ * @property {ProposalRevisionOrigin} [revisionOrigin]
+ * @property {ProposalRevisionHandoff} [pricingRevision] Current working-copy route, when this exact returned version has started a revision.
+ * @property {Array<ProposalRevisionOrigin & {replacementProposalRef: ResourceRef, replacementPreviewRef: ResourceRef, revisedBy: {id: string, displayName: string}, revisedAt: string}>} [revisionHistory]
+ * @property {boolean} [readOnlyEvidence]
+ * @property {AuditEvent[]} [activity]
  * @property {{id: string, displayName: string}} assignedApprover
  * @property {{id: string, displayName: string}} assignedPublisher
  * @property {{selected: number, eligible: number, blocked: number}} counts
@@ -348,14 +367,17 @@
  * @property {{id: string, displayName: string}} actor
  * @property {{id: string, name: string, timezone: string, baseCurrency: string}} organisation
  * @property {string[]} roleCodes
+ * @property {string[]} [roleLabels] Display labels only; never authority inference.
  * @property {string[]} effectiveCapabilities
  * @property {string} capabilityVersion
+ * @property {ResourceRef} [companyPolicyRef]
  * @property {string} dataLabel
  * @property {DataProvenance} provenance
  */
 
 /**
  * @typedef {Object} CatalogSkuSummary
+ * @property {{economics: "restricted", reason: string}} [fieldVisibility]
  * @property {"catalog-sku-summary"} kind
  * @property {ResourceRef} ref
  * @property {string} id Canonical SKU UUID; route parameters bind this value.
@@ -447,9 +469,26 @@
  * @property {string[]} supportedTypes
  * @property {string} explanation
  * @property {string} effectiveAt
+ * @property {ProposalRevisionOrigin} [revisionOrigin]
  * @property {string} dataLabel
+ * @property {ResourceRef} [relatedProposalRef] Authorised current returned or replacement Proposal in this exact revision lineage.
  * @property {AllowedAction[]} allowedActions
  * @property {DataProvenance} provenance
+ */
+
+/**
+ * Exact fixture-only lineage. The review reason is retained without carrying
+ * its previous exception, approval, or publication authority into new prices.
+ * @typedef {Object} ProposalRevisionOrigin
+ * @property {ResourceRef} sourceProposalRef Returned draft version, distinct from the review's submitted version.
+ * @property {ResourceRef} sourcePreviewRef Retained pricing evidence that was reviewed.
+ * @property {{actor: {id: string, displayName: string}, decision: "reject", reason: string, reviewedProposalRef: ResourceRef, authority: Record<string, unknown>, decidedAt: string}} returnDecision
+ * @property {{id: string, displayName: string}} startedBy
+ * @property {string} startedAt
+ */
+
+/**
+ * @typedef {ProposalRevisionOrigin & {kind: "proposal-revision", scopeRef: ResourceRef, ruleRef: ResourceRef, previewRef: ResourceRef | null, provenance: DataProvenance}} ProposalRevisionHandoff
  */
 
 /**
@@ -549,6 +588,7 @@
  * @property {(request?: {query?: string, state?: string, cursor?: string | null, limit?: number}) => Promise<OperationalList<Record<string, unknown>>>} list
  * @property {(request: CreateProposalRequest) => Promise<MutationResult<ProposalHandoff>>} createFromPreview
  * @property {(request?: {ref?: ResourceRef}) => Promise<ProposalDetail>} getDetail
+ * @property {(request: {proposalRef: ResourceRef}) => Promise<ProposalDetail>} getVersion Explicit read-only retained-version read.
  * @property {(request: {proposalRef: ResourceRef}) => Promise<ProposalMarginEvidence>} getMarginEvidence
  * @property {(request: {proposalRef: ResourceRef, cursor?: string | null, limit?: number}) => Promise<ProposalCommentThread>} listComments
  * @property {(request: {proposalRef: ResourceRef, idempotencyKey: string, body: string}) => Promise<MutationResult<ProposalComment>>} addComment
@@ -556,6 +596,61 @@
  * @property {(request: {overrideRef: ResourceRef, decision: "approve" | "deny", idempotencyKey: string}) => Promise<MutationResult<{proposal: ProposalDetail, override: OverrideRequest}>>} decideOverride
  * @property {(request: {proposalRef: ResourceRef, idempotencyKey: string}) => Promise<MutationResult<ProposalDetail>>} submit
  * @property {(request: {proposalRef: ResourceRef, idempotencyKey: string}) => Promise<MutationResult<ProposalDetail>>} approve
+ * @property {(request: {proposalRef: ResourceRef, assigneeId: string, idempotencyKey: string}) => Promise<MutationResult<ProposalDetail>>} handoff
+ * @property {(request: {proposalRef: ResourceRef, title: string, idempotencyKey: string}) => Promise<MutationResult<ProposalDetail>>} updateDraft Title-only sample edit; pricing changes require a new Preview.
+ * @property {(request: {proposalRef: ResourceRef, idempotencyKey: string}) => Promise<MutationResult<ProposalRevisionHandoff>>} [startRevision] Fixture-only exact-version working-copy handoff; never enables a live endpoint.
+ * @property {(request: {proposalRef: ResourceRef, decision: "approve" | "reject", reason?: string, idempotencyKey: string}) => Promise<MutationResult<ProposalDetail>>} decide
+ */
+
+/**
+ * Explicit sample company policy. Defaults preserve the existing sample flow;
+ * production role migration and the production default are not released here.
+ * @typedef {Object} CompanyPolicy
+ * @property {"company-policy"} kind
+ * @property {ResourceRef} ref
+ * @property {WorkspaceSession["organisation"]} organisation
+ * @property {{analystCanSubmit: boolean}} policy
+ * @property {Array<{id: string, displayName: string, roleCodes: string[], roleLabels: string[]}>} members
+ * @property {Array<{id: string, displayName: string}>} handoffCandidates
+ * @property {Record<string, unknown>[]} history
+ * @property {AllowedAction[]} allowedActions
+ * @property {DataProvenance} provenance
+ */
+
+/**
+ * Contributor projection is an allowlist: no Proposal, cost, price or margin
+ * fields. Evidence is user-entered TEXT, never uploaded file storage.
+ * @typedef {Object} PricingRequest
+ * @property {"pricing-request"} kind
+ * @property {ResourceRef} ref
+ * @property {"submitted" | "reviewing" | "resolved" | "declined"} status
+ * @property {string} productReference Typed SKU or product text, not a privileged Catalog lookup.
+ * @property {string} issue
+ * @property {string} reason
+ * @property {string} evidence
+ * @property {"text"} evidenceType
+ * @property {string} context
+ * @property {{id: string, displayName: string}} requester
+ * @property {Record<string, unknown> | null} triage Null for contributor; internal notes are not public request updates.
+ * @property {Record<string, unknown>[]} history
+ * @property {string} createdAt
+ * @property {string} updatedAt
+ * @property {AllowedAction[]} allowedActions
+ * @property {DataProvenance} provenance
+ */
+
+/**
+ * @typedef {Object} CompanyRepository
+ * @property {() => Promise<CompanyPolicy>} get
+ * @property {(request: {companyRef: ResourceRef, analystCanSubmit: boolean, idempotencyKey: string}) => Promise<MutationResult<CompanyPolicy>>} updateAnalystSubmission
+ */
+
+/**
+ * @typedef {Object} PricingRequestRepository
+ * @property {(request?: {cursor?: string | null, limit?: number}) => Promise<OperationalList<PricingRequest> & {viewScope: "own" | "team"}>} list
+ * @property {(request: {requestId: string, requestVersion?: string}) => Promise<PricingRequest>} get
+ * @property {(request: {productReference: string, issue: string, reason: string, evidence?: string, context?: string, idempotencyKey: string}) => Promise<MutationResult<PricingRequest>>} create
+ * @property {(request: {requestRef: ResourceRef, status: "reviewing" | "resolved" | "declined", note: string, idempotencyKey: string}) => Promise<MutationResult<PricingRequest>>} triage
  */
 
 /**
@@ -593,6 +688,8 @@
 
 /**
  * @typedef {Object} WorkspaceRepositories
+ * @property {CompanyRepository} company
+ * @property {PricingRequestRepository} requests
  * @property {IdentityRepository} identity
  * @property {RepricingRepository} repricing
  * @property {ProposalRepository} proposals
@@ -609,6 +706,8 @@
  * Concrete fixture composition. The evidence actor controls are intentionally
  * available only on this fixture-specific return type.
  * @typedef {Object} FixtureWorkspaceRepositories
+ * @property {CompanyRepository} company
+ * @property {PricingRequestRepository} requests
  * @property {FixtureIdentityRepositoryContract} identity
  * @property {RepricingRepository} repricing
  * @property {ProposalRepository} proposals
@@ -914,11 +1013,15 @@ export function assertRepricingPreview(value) {
     }
     if (line.classification === "excluded" && !line.exclusion) throw new TypeError(`${path}.exclusion evidence is required.`);
     const evaluation = line.policy?.evaluation;
-    if (!evaluation || !["matched", "no-match", "error", "not-required"].includes(evaluation.status)) {
+    if (!evaluation || !["matched", "no-match", "error", "not-required", "restricted"].includes(evaluation.status)) {
       throw new TypeError(`${path}.policy.evaluation status is not supported.`);
     }
-    if (typeof evaluation.engineVersion !== "string" || !evaluation.engineVersion) throw new TypeError(`${path}.policy.evaluation.engineVersion is required.`);
-    if (typeof evaluation.evaluationHash !== "string" || !evaluation.evaluationHash) throw new TypeError(`${path}.policy.evaluation.evaluationHash is required.`);
+    if (evaluation.status === "restricted") {
+      if (line.fieldVisibility?.economics !== "restricted" || line.currentCost !== null || line.currentMarginBasisPoints !== null || line.proposedMarginBasisPoints !== null || line.policy.floorBasisPoints !== null || line.policy.floorPrice !== null || evaluation.appliedRule !== null || evaluation.matchingChain.length || evaluation.engineVersion !== null || evaluation.evaluationHash !== null || line.remediationInputs !== null || line.remediationEvidence !== null || line.allowedRemediations.length) throw new TypeError(`${path} must not leak restricted pricing economics.`);
+    } else {
+      if (typeof evaluation.engineVersion !== "string" || !evaluation.engineVersion) throw new TypeError(`${path}.policy.evaluation.engineVersion is required.`);
+      if (typeof evaluation.evaluationHash !== "string" || !evaluation.evaluationHash) throw new TypeError(`${path}.policy.evaluation.evaluationHash is required.`);
+    }
     if (!Array.isArray(evaluation.matchingChain)) throw new TypeError(`${path}.policy.evaluation.matchingChain must be an array.`);
     evaluation.matchingChain.forEach((rule, ruleIndex) => {
       if (!rule || typeof rule.id !== "string" || !Number.isSafeInteger(rule.priority) || !Number.isSafeInteger(rule.conditionCount)) {
@@ -1030,7 +1133,7 @@ export function assertProposalMarginEvidence(value) {
     throw new TypeError("proposal margin evidence requires a retained rule snapshot.");
   }
   for (const key of ["minimum", "maximum"]) {
-    if (!Number.isSafeInteger(evidence.policySnapshot.floorRangeBasisPoints?.[key])) {
+    if (evidence.fieldVisibility?.economics === "restricted" ? evidence.policySnapshot.floorRangeBasisPoints?.[key] !== null : !Number.isSafeInteger(evidence.policySnapshot.floorRangeBasisPoints?.[key])) {
       throw new TypeError(`proposal margin ${key} floor must use integer basis points.`);
     }
   }

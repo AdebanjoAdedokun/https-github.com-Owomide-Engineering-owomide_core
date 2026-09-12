@@ -1,0 +1,2085 @@
+[
+  {
+    "id": "EXEC-001",
+    "title": "Execution Eligibility",
+    "pages": [
+      233,
+      234
+    ],
+    "requirement": "11.1.     EXEC-001 Execution Eligibility\n\nA pricing action may enter execution only after the Pricing Initiative has satisfied the\nexecution-readiness gate defined in FLOW-030 and has entered Ready for Execution.\n\nExecution must be bound to the exact controlled Pricing Proposal version that provides the\ncurrent execution authority under PROP-021.\n\nThe applicable Proposal version must:\n\n    ● have Pricing Proposal status Approved or Authorised Within Policy;\n    ● remain the Current applicable Proposal version and valid for execution;\n    ● be identifiable as the exact authorised decision baseline;\n    ● retain the applicable decision snapshot;\n    ● have a defined pricing scope and executable pricing action;\n    ● satisfy applicable effective timing and execution conditions.\n\nBefore execution begins, the system must also verify that:\n\n    ● the acting user possesses the required execution authority;\n    ● no blocking workflow condition remains;\n    ● no blocking governance condition remains;\n    ● required implementation information is available for the applicable pricing action.\n\nFailure of any required execution condition must prevent execution from beginning or\ncontinuing until the condition is appropriately resolved.\n\nA Draft, Awaiting Approval, Changes Requested, Rejected, Superseded or Expired Proposal\nversion must not provide execution authority.\n\nThe execution layer must not independently approve, policy-authorise, modify or reinterpret\nthe Pricing Proposal that provides its execution authority.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "conflicting",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2360 (FixturePublicationRepository.start checks current ref, publish:execute, assigned publisher and approved/readiness state; no validity/timing/manual implemented-value contract)",
+      "apps/workspace/src/ProposalWorkspace.jsx:427 (ReviewDocument displays exact source, effective time, bounded exception and separate publication authority)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)",
+      "src/gateway/src/routes/proposals.ts:31 (forwarded org/user headers); :79 (publish route adds no Executor check); src/proposal/src/context.ts:84 (approver-only helper is used for approval, not publication)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Sample has exact-ref, actor and approved gates, but neither side implements the PRD's Initiative Ready for Execution + Current/Superseded/Expired + policy-authorisation/timing gate; backend lacks Executor permission on publish.",
+    "misrepresentation": "Backend approval alone is effectively treated as sufficient to publish; frontend stronger fixture checks must not be described as server enforcement.",
+    "priority": "P0",
+    "acceptance": "Given each forbidden status, stale/expired version, missing executor scope or blocking condition, when execution is attempted directly, then no write begins; exact currently authorised eligible version alone succeeds."
+  },
+  {
+    "id": "EXEC-002",
+    "title": "Ready for Execution State",
+    "pages": [
+      234
+    ],
+    "requirement": "11.2.    EXEC-002 Ready for Execution State\n\nWhen all execution conditions are satisfied, the Pricing Initiative must enter Ready for\nExecution.\n\nThe applicable Pricing Proposal must retain its Approved or Authorised Within Policy status\nand remain the exact controlled Proposal version providing execution authority.\n\nThe system must clearly display:\n\n   ● authorised pricing action;\n   ● applicable Pricing Proposal status;\n   ● authorised Pricing Proposal version;\n   ● affected pricing scope;\n   ● authorised prices, pricing rule or pricing logic, as applicable;\n   ● effective date or effective period;\n   ● implementation owner;\n   ● relevant implementation instructions;\n   ● conditions attached to the applicable approval or policy authorisation.\n\nReady for Execution indicates that the Pricing Initiative is permitted to proceed into\nimplementation.\n\nIt must not indicate that implementation has already occurred, modify the Pricing Proposal's\ndecision status or create a new source of execution authority.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "conflicting",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:472 (PublicationReview: approved manifest, actor, effective time, Catalog-write wording)",
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)",
+      "src/proposal/src/repo/proposal-repository.ts:129 (updateDraft restricts changes to draft); :229 (approveProposal mutates same row state); :265 (publishProposal replaces approved status with published)"
+    ],
+    "gap": "Publication review shows approved scope, version, publisher and timing, but there is no canonical Initiative Ready for Execution record; backend replaces Proposal Approved with published and does not preserve separate decision/validity/execution status.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P0",
+    "acceptance": "Given an approved current Proposal and complete implementation information, when readiness is reached, then Initiative is Ready for Execution, Proposal remains Approved, and implementation remains Not Started."
+  },
+  {
+    "id": "EXEC-003",
+    "title": "Execution Ownership",
+    "pages": [
+      234,
+      235
+    ],
+    "requirement": "11.3.    EXEC-003 Execution Ownership\n\nAn authorised user must be assignable as the implementation owner.\n\nExecution ownership determines responsibility for carrying out, coordinating or recording\nimplementation of the authorised pricing action.\n\nExecution ownership does not itself grant authority to:\n\n   ● modify the authorised Pricing Proposal version;\n   ● change the authorised pricing action;\n   ● change the authorised pricing scope;\n   ● alter the decision snapshot;\n   ● create approval or policy-authorisation authority.\n\nAny material difference between the authorised decision baseline and the action intended for\nimplementation must follow the applicable execution-variance and governance requirements.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2360 (FixturePublicationRepository.start checks current ref, publish:execute, assigned publisher and approved/readiness state; no validity/timing/manual implemented-value contract)",
+      "apps/workspace/src/ProposalWorkspace.jsx:472 (PublicationReview: approved manifest, actor, effective time, Catalog-write wording)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Fixture uses a fixed assignedPublisher; no assign/reassign implementation-owner journey or persisted implementation ownership in backend.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given an authorised manager and eligible executor, when ownership is assigned, then responsibility and audit event change but the authorised scope/version/prices do not."
+  },
+  {
+    "id": "EXEC-004",
+    "title": "Execution Instructions",
+    "pages": [
+      235
+    ],
+    "requirement": "11.4.     EXEC-004 Execution Instructions\n\nThe authorised pricing action must provide enough structured information for the\nimplementation owner to determine exactly what must be implemented.\n\nWhere applicable, execution instructions should identify:\n\n   ● affected priceable entity or pricing scope;\n   ● applicable location, channel, customer group or other pricing dimension;\n   ● relevant current or baseline pricing state;\n   ● authorised price, pricing value, pricing rule or pricing logic;\n   ● effective date or effective period;\n   ● temporary pricing period where applicable;\n   ● authorised exceptions;\n   ● implementation conditions;\n   ● relevant operational instructions.\n\nExecution instructions must derive from the exact controlled Pricing Proposal version\nproviding execution authority.\n\nThe execution layer must not silently substitute later workspace values, another Scenario,\nanother Proposal version or changed pricing logic for the authorised execution baseline.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:472 (PublicationReview: approved manifest, actor, effective time, Catalog-write wording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1863 (proposalSourceSnapshot retains exact Preview economics/rule/scope); :1932 (getMarginEvidence fails closed on wrong/current source)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)",
+      "src/catalog/src/repo/mappers.ts:178 (skuMessage carries identifiers); src/lib/proto/services/proposal/v1/proposal.proto:61 (proposal lines retain SKU/channel but no operational export shape)"
+    ],
+    "gap": "Manifest includes sample counts, anchor line and effective time, but not complete entity/dimension-level implementation instructions; backend reads stored proposal lines for Catalog changes, without full controlled instruction snapshot or conditions.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given a current authorised version, when instructions open, then every intended entity/dimension/action/timing is derived from that snapshot despite later workspace changes."
+  },
+  {
+    "id": "EXEC-005",
+    "title": "Manual External Execution",
+    "pages": [
+      235,
+      236
+    ],
+    "requirement": "11.5.     EXEC-005 Manual External Execution\n\nWhere the actual price change occurs in an external system, authorised users must be able\nto record the implementation inside Owómidé.\n\nExternal implementation may occur through systems such as:\n\n   ● ERP;\n   ● POS;\n   ● marketplace;\n   ● commerce platform;\n   ● internal business system;\n   ● another operational pricing channel.\n\nOwómidé must not represent external execution as completed until an authorised user\nrecords or confirms it.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)"
+    ],
+    "gap": "No form/API records implementation completed manually outside Owómidé; the only execution path is a simulated frontend Catalog write or backend Catalog apply.",
+    "misrepresentation": "Catalog-write confirmation is not proof of live ERP/POS/commerce implementation; do not relabel this existing release flow as external execution.",
+    "priority": "P1",
+    "acceptance": "Given external manual work, when an authorised executor records what was implemented, then Owómidé creates a separate implementation record without requiring a connector."
+  },
+  {
+    "id": "EXEC-006",
+    "title": "Implementation Confirmation",
+    "pages": [
+      236
+    ],
+    "requirement": "11.6.   EXEC-006 Implementation Confirmation\n\nAn authorised Executor must be able to confirm that the pricing action has been\nimplemented.\n\nConfirmation must capture:\n\n   ● implementing user;\n   ● implementation timestamp;\n   ● actual effective date;\n   ● implementation status;\n   ● actual implemented pricing state where applicable.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No implementation confirmation command captures implementing user, actual timestamp, actual effective date, implementation status and actual state.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given completed external implementation, when Executor confirms with required actual values, then a version-bound record is stored with actor/time and incomplete input is rejected."
+  },
+  {
+    "id": "EXEC-007",
+    "title": "Authorised and Implemented Value",
+    "pages": [
+      236,
+      237
+    ],
+    "requirement": "11.7.   EXEC-007 Authorised and Implemented Value\n\nWhere the authorised pricing action changes a specific numerical price or other directly\nimplementable pricing value, the system must allow the Executor to record the actual\nimplemented value.\n\nThe system must preserve separately:\n\nAuthorised Value\n\nand\n\nImplemented Value\n\nThe Authorised Value must be derived from the exact controlled Pricing Proposal version\nproviding execution authority.\n\nThe Implemented Value must represent what was actually implemented.\n\nRecording the Implemented Value must not overwrite or modify the Authorised Value.\n\nWhere the Implemented Value differs materially from the Authorised Value, that difference\nmust remain identifiable through the execution-variance requirements.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1863 (proposalSourceSnapshot retains exact Preview economics/rule/scope); :1932 (getMarginEvidence fails closed on wrong/current source)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No distinct authorised-value versus actual-implemented-value capture; backend copies proposed_price directly to Catalog.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P0",
+    "acceptance": "Given authorised 100 and actually implemented 98, when confirmation is recorded, then both values survive separately and the authorised snapshot remains 100."
+  },
+  {
+    "id": "EXEC-008",
+    "title": "Execution Variance",
+    "pages": [
+      237
+    ],
+    "requirement": "11.8.    EXEC-008 Execution Variance\n\nThe system must identify where actual implementation differs from the authorised pricing\naction or execution baseline.\n\nRelevant variance may include:\n\n   ● different implemented price or pricing value;\n   ● different pricing rule or logic;\n   ● different affected scope;\n   ● different location, channel or other pricing dimension;\n   ● different effective date or period;\n   ● omitted entities;\n   ● additional entities;\n   ● different promotional or temporary pricing period;\n   ● unauthorised exception or condition.\n\nExecution variance must remain visible within the Pricing Initiative and linked to the exact\nPricing Proposal version that provided execution authority.\n\nThe existence of a variance must not modify the original authorised Proposal version or\ndecision record.\n\nMaterial execution variance must be treated according to EXEC-009.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2389 (reconcile/retry advance prepared publication states with exact operation/idempotency checks)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)",
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)"
+    ],
+    "gap": "No variance comparison for actual value, scope, dimension, timing or omitted/extra entities; recovery counts represent write failures, not authorised-versus-actual variance.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P0",
+    "acceptance": "Given differing actual scope/value/timing, when implementation is recorded, then variance links to the exact authority version without modifying it."
+  },
+  {
+    "id": "EXEC-009",
+    "title": "Material Execution Deviation",
+    "pages": [
+      237,
+      238
+    ],
+    "requirement": "11.9.    EXEC-009 Material Execution Deviation\n\nWhere an actual or intended implementation materially differs from the authorised Pricing\nProposal version or authorised decision baseline, the system must not treat that deviation as\nauthorised by the existing approval or policy authorisation.\n\nWhere the material deviation is identified before implementation, the system must require\neither:\n\n    ● correction of the intended implementation so that it matches the authorised decision\n          baseline; or\n    ● progression of the materially changed pricing action through the applicable Pricing\n          Proposal and organisational decision process before implementation.\n\nWhere a material deviation is identified after implementation has occurred, the system must:\n\n    ● preserve the actual implemented pricing state;\n    ● identify the affected scope;\n    ● preserve the implementation timestamp and responsible user;\n    ● record the deviation as an Implementation Exception;\n    ● preserve the difference between the authorised and implemented action;\n    ● require appropriate remediation, follow-up pricing work or organisational decision\n          treatment according to applicable policy.\n\nAn approval or policy authorisation attached to the original Pricing Proposal version must not\nbe retrospectively extended or reinterpreted to authorise a materially different implemented\naction.\n\nThe execution layer must not independently authorise a material deviation.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/ProposalWorkspace.jsx:427 (ReviewDocument displays exact source, effective time, bounded exception and separate publication authority)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No material execution-deviation guard/remediation workflow or Implementation Exception record. Existing margin override is pre-decision governance, not permission to reinterpret an implemented deviation.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P0",
+    "acceptance": "Given a material deviation before implementation, block or require fresh authority; given one discovered afterward, preserve actual facts, record exception and remediation without retroactive approval."
+  },
+  {
+    "id": "EXEC-010",
+    "title": "Execution Status and Partial Implementation",
+    "pages": [
+      238,
+      239
+    ],
+    "requirement": "11.10.       EXEC-010 Execution Status and Partial Implementation\n\nThe MVP must maintain execution status separately from Pricing Proposal status and\nPricing Initiative lifecycle state.\n\nSupported execution statuses must include:\n\n    ● Not Started;\n    ● In Progress;\n    ● Partially Implemented;\n    ● Implemented;\n    ● Implementation Exception.\n\nNot Started indicates that implementation of the authorised pricing action has not begun.\n\nIn Progress indicates that implementation has begun but has not yet reached a completed\nimplementation state.\n\nPartially Implemented indicates that only part of the authorised pricing scope has been\nimplemented.\n\nImplemented indicates that the applicable authorised pricing action has been implemented\nacross the required execution scope, subject to any separately recorded variance.\n\nImplementation Exception indicates that implementation cannot validly continue or be\nrepresented as normally completed because of a material deviation, blocking condition,\nfailed implementation or other consequential execution issue.\n\nFor pricing actions affecting multiple priceable entities, locations, channels or other pricing\ndimensions, the system must preserve enough component-level execution information to\nidentify what has and has not been implemented.\n\nAggregate execution status must not conceal incomplete, failed or materially divergent\nimplementation.\n\nExecution status must not modify the Pricing Proposal's Approved or Authorised Within\nPolicy status.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "conflicting",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2389 (reconcile/retry advance prepared publication states with exact operation/idempotency checks)",
+      "apps/workspace/src/data/fixtures/proposalJourneyV0.js:201 (FIXTURE_PUBLICATION_STATES hard-code 1,227 requested and four unresolved); apps/workspace/src/data/fixtureWorkspaceRepositories.js:647 (materialisePublication retargets proposalRef, not counts)"
+    ],
+    "evidenceBackend": [
+      "src/catalog/src/write-engine.ts:295 (per-row savepoints and results/summary); src/proposal/src/service.ts:495 (publish ignores that response before published at 517)",
+      "src/proposal/src/repo/proposal-repository.ts:129 (updateDraft restricts changes to draft); :229 (approveProposal mutates same row state); :265 (publishProposal replaces approved status with published)"
+    ],
+    "gap": "Fixture separates publication operation and proposal and shows unknown/incomplete/recovery, but lacks the five canonical execution states/component actual records and uses fixed 1,227-row sample counts. Backend ignores Catalog per-row outcomes then marks Proposal published.",
+    "misrepresentation": "Backend can conceal partial row failures as published. Fixture recovery is prepared evidence, not a durable implementation ledger or proof for arbitrary scopes.",
+    "priority": "P0",
+    "acceptance": "Given a batch with some rejected or omitted entities, when the operation returns, then only confirmed entities count as implemented and aggregate remains partial/exception; Proposal decision status remains unchanged."
+  },
+  {
+    "id": "EXEC-011",
+    "title": "Failed or Blocked Implementation",
+    "pages": [
+      239
+    ],
+    "requirement": "11.11.       EXEC-011 Failed or Blocked Implementation\n\nWhere implementation cannot be completed, the Executor must be able to record:\n\n   ● affected scope;\n   ● failure or blocking reason;\n   ● timestamp;\n   ● relevant notes.\n\nThe initiative must remain unresolved until the execution state is appropriately addressed.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2389 (reconcile/retry advance prepared publication states with exact operation/idempotency checks)"
+    ],
+    "evidenceBackend": [
+      "src/catalog/src/write-engine.ts:295 (per-row savepoints and results/summary); src/proposal/src/service.ts:495 (publish ignores that response before published at 517)",
+      "src/proposal/src/workers/scheduled-rollout.ts:102 (dispatch rechecks approved state, calls Catalog, discards row results and marks dispatched/published under worker actor)"
+    ],
+    "gap": "Sample displays unresolved Catalog writes and bounded retry but cannot record executor failure reason/scope/notes. Backend Catalog has row errors and worker retries/failure, not manual blocked-implementation record or Initiative unresolved gate.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given blocked implementation, when executor records scope/reason/time/notes, then the Initiative cannot complete until resolution is recorded."
+  },
+  {
+    "id": "EXEC-012",
+    "title": "Implementation Evidence",
+    "pages": [
+      239,
+      240
+    ],
+    "requirement": "11.12.       EXEC-012 Implementation Evidence\n\nUsers should be able to attach relevant evidence confirming execution.\n\nExamples include:\n\n   ● system export;\n\n   ● screenshot;\n   ● implementation report;\n   ● internal confirmation;\n   ● other supporting evidence.\n\nEvidence must remain attached to the execution record.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Expected evidence attachment support is absent for execution records. The evidence types in the PRD are examples, not four required formats; when evidence exists its durable execution association is mandatory.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P2",
+    "acceptance": "Given a supported attachment, when attached to an execution record, then authorised readers can retrieve it there after refresh; unrelated users cannot."
+  },
+  {
+    "id": "EXEC-013",
+    "title": "Execution History",
+    "pages": [
+      240
+    ],
+    "requirement": "11.13.       EXEC-013 Execution History\n\nConsequential execution events must be recorded in chronological history.\n\nThis includes:\n\n   ● assignment;\n   ● readiness for execution;\n   ● implementation started;\n   ● partial implementation;\n   ● implementation confirmation;\n   ● implementation failure;\n   ● implementation variance;\n   ● correction.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2465 (getProposalHistory is exact canonical FX-010-only, read-only, sequential fixture reconstruction)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)",
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)"
+    ],
+    "gap": "Prepared publication start/reconcile/retry events exist; backend persists published event/transition. Assignment, manual confirmation, variance, correction and monitoring-linked execution events are missing.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given a real execution with partial confirmation and correction, when history is read, then chronological attributable events cover each consequential step without replacing earlier facts."
+  },
+  {
+    "id": "EXEC-014",
+    "title": "Current Price Update",
+    "pages": [
+      240,
+      241,
+      242
+    ],
+    "requirement": "11.14.       EXEC-014 Current Price Update\n\nWhere implementation is confirmed and the applicable organisation pricing record is\nmaintained inside Owómidé, the system should allow the actual implemented selling price to\nestablish or update the applicable Price Record.\n\nThe resulting Price Record must identify, where applicable:\n\n   ● affected Priceable Entity;\n   ● actual implemented price;\n   ● currency;\n   ● applicable pricing dimensions;\n   ● actual effective date or timestamp;\n   ● originating Pricing Initiative;\n   ● authorised Pricing Proposal version;\n   ● Execution Record;\n   ● implementing or confirming user;\n\n   ● source and provenance.\n\nWhere the implemented price becomes presently applicable to that exact pricing context, the\nresulting Price Record should become the Current Price in accordance with DATA-003.\n\nEstablishing the implemented price as Current Price must not overwrite the Price Record\nrepresenting the previous Current Price.\n\nWhere the previous Current Price has an open-ended or overlapping effective period,\nestablishing the implemented Price Record as the new Current Price must end the previous\nrecord's current applicability from the applicable new effective time.\n\nThis transition must preserve the previous Price Record and its historical period of\napplicability rather than rewriting the previous selling-price value.\n\nThe system must therefore be able to distinguish:\n\n   ● the Price Record that applied before implementation;\n   ● the effective transition point;\n   ● the Price Record that applies after implementation.\n\nUpdating effective applicability to reflect that transition must not destroy the historical state\nthat existed before the implemented price became effective.\n\nThe previous Price Record must remain historically preserved.\n\nWhere implementation affects only part of an authorised Pricing Scope, Current Price must\nbe updated only for the Priceable Entities and pricing-dimension combinations actually\nconfirmed as implemented.\n\nWhere the actual implemented price differs materially from the authorised pricing value, the\nsystem    must    preserve   that    difference   through    the applicable execution-variance\nrequirements     before   treating   the   implemented      value   as an ordinary authorised\nimplementation outcome.\n\nA Current Price update must not silently modify:\n\n   ● the authorised Pricing Proposal version;\n   ● its submitted decision snapshot;\n   ● the authorised pricing value;\n   ● the historical current price used as the decision baseline.\n\nWhere implementation occurs outside Owómidé, the workspace must not represent the new\nvalue as Current Price until implementation has been recorded or confirmed through the\napplicable execution process.\n\nThe resulting Current Price must remain traceable to the implementation event that\nestablished it.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:472 (PublicationReview: approved manifest, actor, effective time, Catalog-write wording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/catalog/src/write-engine.ts:558 (processPriceChange validates period and records proposal/line/actor provenance); :1051 (supersedeAndFragmentPrice preserves old values/effective fragments)",
+      "src/catalog/src/write-engine.ts:295 (per-row savepoints and results/summary); src/proposal/src/service.ts:495 (publish ignores that response before published at 517)",
+      "src/proposal/src/service.ts:467 (publish effectiveAt is new Date, not preserved intended time); src/proposal/src/workers/scheduled-rollout.ts:118 (scheduled path uses rollout effective_at)"
+    ],
+    "gap": "Backend preserves prior Price Records and effective fragments, but no confirmed implementation record/actual-value authority bridge exists; frontend does not mutate real Catalog. Version/Execution Record linkage and actual confirmed-subset semantics remain incomplete.",
+    "misrepresentation": "The Catalog write machinery is real source implementation, but neither an export nor approval can be equated to externally confirmed Current Price.",
+    "priority": "P0",
+    "acceptance": "Given a confirmed partial implementation at T, when Current Price updates, then only confirmed exact contexts get actual new price from T, old records/effective history survive and both records trace to execution and exact Proposal version."
+  },
+  {
+    "id": "EXEC-015",
+    "title": "Monitoring State",
+    "pages": [
+      242
+    ],
+    "requirement": "11.15.        EXEC-015 Monitoring State\n\nAfter implementation, a Pricing Initiative may enter Monitoring.\n\nMonitoring exists to assess whether the pricing action produced the intended outcome and\nto preserve post-decision learning.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Optional entry into Monitoring has no Initiative state/surface/API. Absence alone is not a Must failure, but mandatory outcome recording remains separately missing (EXEC-017/020/021).",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P2",
+    "acceptance": "Given implemented pricing work where monitoring is used, when entering Monitoring, then decision/implementation state and observations remain distinct."
+  },
+  {
+    "id": "EXEC-016",
+    "title": "Monitoring Period",
+    "pages": [
+      242
+    ],
+    "requirement": "11.16.        EXEC-016 Monitoring Period\n\nWhere relevant, users should be able to define a monitoring period or review date.\n\nThis may be based on:\n\n    ● fixed date;\n    ● number of days after implementation;\n    ● promotional period;\n    ● organisation-defined review point.\n\nThe MVP does not require continuous automated monitoring.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Expected configurable monitoring review date/period is absent. Continuous automated monitoring is explicitly not required.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P2",
+    "acceptance": "Given monitoring is relevant, when user chooses supported review date/period, then it is persisted and visible without requiring a live analytics feed."
+  },
+  {
+    "id": "EXEC-017",
+    "title": "Monitoring Metrics",
+    "pages": [
+      242,
+      243
+    ],
+    "requirement": "11.17.        EXEC-017 Monitoring Metrics\n\nUsers must be able to record relevant post-implementation outcomes where information is\navailable.\n\nSupported outcome categories may include:\n\n    ● sales;\n    ● revenue;\n    ● volume;\n    ● gross margin;\n    ● gross profit;\n    ● customer response;\n\n   ● commercial feedback;\n   ● operational feedback;\n   ● pricing exceptions.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No post-implementation outcome recording UI/API. Sales/revenue/volume/margin examples are optional category examples, not an obligation to invent unavailable data.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given available post-implementation information, when user records a supported quantitative outcome, then value/unit/source/time and Initiative linkage persist."
+  },
+  {
+    "id": "EXEC-018",
+    "title": "Baseline Comparison",
+    "pages": [
+      243
+    ],
+    "requirement": "11.18.     EXEC-018 Baseline Comparison\n\nWhere sufficient baseline information is available, users should be able to compare\npost-implementation outcomes with the relevant pre-change position.\n\nThe system must clearly identify whether the comparison is based on:\n\n   ● structured organisational data;\n   ● imported data;\n   ● manually entered information.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Expected pre/post comparison absent; whenever provided it must label structured/imported/manual provenance, not manufacture causal impact.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P2",
+    "acceptance": "Given sufficient baseline and recorded outcome, when comparing, then baseline dates, units and both data sources are identified; insufficient information yields no fabricated result."
+  },
+  {
+    "id": "EXEC-019",
+    "title": "Objective Assessment",
+    "pages": [
+      243
+    ],
+    "requirement": "11.19.     EXEC-019 Objective Assessment\n\nUsers should be able to record whether the initiative's original pricing objective was:\n\n   ● Achieved;\n   ● Partially Achieved;\n   ● Not Achieved;\n   ● Unable to Determine.\n\nThe assessment may include explanatory notes.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Expected Achieved/Partially Achieved/Not Achieved/Unable to Determine objective assessment is not implemented.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P2",
+    "acceptance": "Given a monitored Initiative, when selecting an objective assessment and optional note, then it persists separately from implementation completion."
+  },
+  {
+    "id": "EXEC-020",
+    "title": "Qualitative Outcome Recording",
+    "pages": [
+      243
+    ],
+    "requirement": "11.20.     EXEC-020 Qualitative Outcome Recording\n\nMonitoring must not require every pricing outcome to be expressed numerically.\n\nUsers must be able to record qualitative outcomes such as:\n\n   ● customer resistance;\n   ● improved competitiveness;\n   ● distributor feedback;\n   ● sales-team feedback;\n   ● unexpected operational consequences;\n   ● competitor response.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No qualitative outcome entry; proposal comments are not a monitoring record attached to an implemented Initiative.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given non-numeric commercial feedback, when recorded as an outcome, then no numeric KPI is required and the observation is linked to execution/Initiative."
+  },
+  {
+    "id": "EXEC-021",
+    "title": "Monitoring Data Provenance",
+    "pages": [
+      243,
+      244
+    ],
+    "requirement": "11.21.     EXEC-021 Monitoring Data Provenance\n\nPost-implementation information must preserve its available source and timestamp.\n\nManually entered monitoring information must not be presented as automatically collected\noperational data.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No monitoring provenance schema because outcome records are absent; imports/audit timestamps elsewhere do not satisfy it.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given manual/imported outcome information, when saved/read, then available source, observation/recording time and manual-versus-automatic origin remain explicit."
+  },
+  {
+    "id": "EXEC-022",
+    "title": "AI Monitoring Assistance",
+    "pages": [
+      244
+    ],
+    "requirement": "11.22.     EXEC-022 AI Monitoring Assistance\n\nAI may assist users in interpreting recorded post-implementation information.\n\nAI may:\n\n   ● summarise outcomes;\n   ● compare outcomes with the initiative objective;\n   ● identify notable changes;\n   ● surface possible lessons;\n   ● help prepare a closing summary.\n\nAI must not fabricate missing performance data or claim causation that the available\nevidence does not support.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "AI monitoring assistance is May, not a minimum obligation. No monitoring-AI integration exists; non-fabrication constraints apply if introduced. This optional use case does not remove the replacement PRD's separate bounded-AI requirements.",
+    "misrepresentation": "No current AI monitoring surface claims capability; optional absence is not a mandatory MVP gap.",
+    "priority": "P3",
+    "acceptance": "If monitoring AI is introduced, given missing performance data, then it states the limitation, cites supplied records and does not fabricate numbers or causation."
+  },
+  {
+    "id": "EXEC-023",
+    "title": "Outcome Attribution Boundary",
+    "pages": [
+      244
+    ],
+    "requirement": "11.23.     EXEC-023 Outcome Attribution Boundary\n\nThe MVP must distinguish between:\n\n   ● observed outcome;\n   ● user interpretation;\n   ● AI interpretation.\n\nA change in sales, revenue or margin following implementation must not automatically be\nrepresented as caused solely by the pricing action unless the evidence supports that\nconclusion.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No outcome record model distinguishes observations from human/AI interpretations. This is mandatory when outcomes are represented, including in a workflow without AI.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given an observed sales change and a user's interpretation, when displayed, then both are labelled separately and no causal pricing claim is inferred automatically."
+  },
+  {
+    "id": "EXEC-024",
+    "title": "Follow-Up Pricing Work",
+    "pages": [
+      244,
+      245
+    ],
+    "requirement": "11.24.     EXEC-024 Follow-Up Pricing Work\n\nWhere monitoring indicates that further pricing action is required, an authorised user should\nbe able to create a new Pricing Initiative using relevant context from the completed initiative.\n\nThe new initiative must remain a separate pricing record with its own:\n\n   ● objective;\n   ● versions;\n\n   ● organisational decision records;\n   ● execution history.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1810 (createFromPreview replacement retains author/revision lineage and source snapshot, clears approval/override/publication)",
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Expected monitored-outcome→new Initiative follow-up is absent. Existing returned-proposal revision is the same work, not a new Initiative with independent objective/history.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P2",
+    "acceptance": "Given monitoring identifies follow-up, when creating new pricing work, then a new Initiative links the context but inherits no decision/execution authority."
+  },
+  {
+    "id": "EXEC-025",
+    "title": "Completion Readiness",
+    "pages": [
+      245
+    ],
+    "requirement": "11.25.     EXEC-025 Completion Readiness\n\nAn implemented initiative may be completed when its required operational obligations are\nresolved.\n\nDepending on the initiative, completion may require:\n\n   ● implementation finished;\n   ● execution exceptions resolved;\n   ● required monitoring information recorded;\n   ● objective assessment completed.\n\nNot every initiative must require an extended monitoring period before completion.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No canonical Initiative completion-readiness check; publication completion ends at audit. Conditions are conditional, not a universal requirement for extended monitoring.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P1",
+    "acceptance": "Given required implementation exceptions or outcome obligations remain, when closing an implemented Initiative, then completion is prevented with specific remaining obligations; no unnecessary monitoring delay otherwise."
+  },
+  {
+    "id": "EXEC-026",
+    "title": "Completion Summary",
+    "pages": [
+      245
+    ],
+    "requirement": "11.26.     EXEC-026 Completion Summary\n\nA completed Pricing Initiative should preserve a concise final summary sufficient to connect\nthe original pricing objective with the organisational decision, actual implementation and\nrecorded outcome.\n\nThe summary should contain, where applicable:\n\n   ● original pricing objective;\n   ● exact Pricing Proposal version that provided execution authority;\n   ● whether that Proposal version was Approved or Authorised Within Policy;\n   ● authorised pricing action;\n   ● actual implemented pricing action or state;\n   ● significant execution variances or Implementation Exceptions;\n   ● relevant monitored outcomes;\n   ● final objective assessment;\n   ● final Pricing Initiative status.\n\nThe completion summary must distinguish what was authorised from what was actually\nimplemented.\n\nIt must not overwrite or simplify away material differences preserved in the Proposal,\nexecution or monitoring records.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2465 (getProposalHistory is exact canonical FX-010-only, read-only, sequential fixture reconstruction)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Expected final objective→authority→actual implementation→variance→outcome summary is absent; existing publication status is only operational write accounting.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P2",
+    "acceptance": "Given completed work, when summary is opened, then exact authority and actual outcome are distinguishable and material variance is not hidden."
+  },
+  {
+    "id": "EXEC-027",
+    "title": "Historical Execution Integrity",
+    "pages": [
+      246
+    ],
+    "requirement": "11.27.     EXEC-027 Historical Execution Integrity\n\nSubsequent pricing changes must not rewrite the execution record of an earlier initiative.\n\nHistorical records must continue to show what was implemented at that point in time.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2389 (reconcile/retry advance prepared publication states with exact operation/idempotency checks)"
+    ],
+    "evidenceBackend": [
+      "src/catalog/src/write-engine.ts:558 (processPriceChange validates period and records proposal/line/actor provenance); :1051 (supersedeAndFragmentPrice preserves old values/effective fragments)",
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)"
+    ],
+    "gap": "Sample preserves some Proposal/source history but publication runtime holds only one prepared operation, not durable execution history. Backend append-only price history/events help, but no immutable version-bound implementation record.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P0",
+    "acceptance": "Given a later pricing change, when old execution is retrieved, then authorised and actual values/scope/time stay as recorded at the earlier implementation."
+  },
+  {
+    "id": "EXEC-028",
+    "title": "Execution Permission Enforcement",
+    "pages": [
+      246
+    ],
+    "requirement": "11.28.     EXEC-028 Execution Permission Enforcement\n\nOnly users with appropriate execution authority may confirm consequential implementation.\n\nA user who can view or approve a Pricing Proposal must not automatically gain execution\nauthority.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "conflicting",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2360 (FixturePublicationRepository.start checks current ref, publish:execute, assigned publisher and approved/readiness state; no validity/timing/manual implemented-value contract)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)",
+      "src/gateway/src/routes/proposals.ts:31 (forwarded org/user headers); :79 (publish route adds no Executor check); src/proposal/src/context.ts:84 (approver-only helper is used for approval, not publication)"
+    ],
+    "gap": "Fixture correctly separates publish:execute from review/read and assigned publisher. Backend publish checks gateway/user and approved state but no execution role/resource/scope permission; manual confirmation permission is not implemented.",
+    "misrepresentation": "Passing frontend capability tests does not protect a direct backend request; backend enforcement is a release blocker.",
+    "priority": "P0",
+    "acceptance": "Given a Viewer or Approver without execution authority, when directly invoking publish/confirm, then server denies before Catalog or any execution mutation."
+  },
+  {
+    "id": "EXEC-029",
+    "title": "Execution Auditability",
+    "pages": [
+      246
+    ],
+    "requirement": "11.29.     EXEC-029 Execution Auditability\n\nFor every consequential implemented pricing action, Owómidé must preserve enough\ninformation to determine:\n\n    ● which exact Pricing Proposal version provided execution authority;\n    ● whether that Proposal version was Approved or Authorised Within Policy;\n    ● what exact pricing action and scope were authorised;\n    ● who was responsible for implementation;\n    ● what was actually implemented;\n    ● when implementation occurred;\n    ● whether implementation matched the authorised decision baseline;\n    ● what execution variance or Implementation Exception occurred, where applicable;\n    ● what happened after implementation.\n\nExecution auditability must preserve the distinction between organisational decision authority\nand actual implementation.\n\nA later Pricing Proposal, pricing change or workspace update must not rewrite the execution\nbasis or actual implementation record of the earlier action.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2465 (getProposalHistory is exact canonical FX-010-only, read-only, sequential fixture reconstruction)",
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)",
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Some actor/time/Proposal/operation lineage exists, but no persisted authorised-versus-actual execution record, policy-authorisation path, variance or outcome linkage; source version is absent backend.",
+    "misrepresentation": "No production readiness is established: the workspace is fixture-memory only.",
+    "priority": "P0",
+    "acceptance": "Given any real implemented action, when audited, then exact authority basis, executor, actual facts, discrepancy and outcome are reconstructible across later changes."
+  },
+  {
+    "id": "EXEC-030",
+    "title": "Execution and Monitoring Completeness Principle",
+    "pages": [
+      246,
+      247
+    ],
+    "requirement": "11.30.     EXEC-030 Execution and Monitoring Completeness Principle\n\nThe pricing lifecycle is not complete merely because a Pricing Proposal becomes Approved\nor Authorised Within Policy.\n\nThe MVP must preserve an intelligible chain from:\n\nProposed Pricing Action → Organisational Decision Authority → Actual Implementation →\nObserved Outcome\n\nFor every consequential pricing action, the organisation must be able to distinguish:\n\n   ● what was proposed;\n   ● which exact Pricing Proposal version received execution authority;\n   ● whether that authority resulted from approval or policy authorisation;\n   ● what was actually implemented;\n   ● whether implementation differed from the authorised decision baseline;\n   ● what outcome was subsequently recorded.\n\nProposal decision status, execution status and observed outcome must remain separate\nconcepts.\n\nThe system must not imply that authorisation guarantees implementation or that\nimplementation guarantees the intended commercial outcome.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)",
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)",
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)"
+    ],
+    "gap": "Current journey reaches sample approval→Catalog publication→audit, not required actual implementation→observed outcome lifecycle. Core manual workflow must work without broad connectors.",
+    "misrepresentation": "Calling the currently demonstrated publication-to-audit journey end-to-end MVP complete would overstate the 283-page PRD.",
+    "priority": "P1",
+    "acceptance": "Given real company data, when a multi-actor pricing workflow completes through manual external implementation and outcome recording, then proposal, authority, execution and observations remain separate and inspectable."
+  },
+  {
+    "id": "HIST-001",
+    "title": "Persistent Pricing Record",
+    "pages": [
+      249
+    ],
+    "requirement": "12.1.     HIST-001 Persistent Pricing Record\n\nEvery Pricing Initiative must maintain a persistent historical record containing the relevant:\n\n   ● objective;\n   ● pricing scope;\n   ● pricing context;\n   ● assumptions;\n   ● pricing logic;\n   ● analysis;\n   ● scenarios;\n   ● proposals;\n   ● collaboration;\n   ● reviews;\n   ● organisational decision records, including approvals and policy authorisations;\n   ● execution;\n   ● monitoring;\n   ● lifecycle events.\n\nClosing or completing an initiative must not remove this record.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)",
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Proposal/source/revision events exist in memory and backend proposal/comments/transitions persist, but no complete persistent Initiative record spanning assumptions/scenarios/reviews/execution/monitoring/closure.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given consequential work is completed and the application restarts, then authorised users can reconstruct the Initiative and all related lifecycle records."
+  },
+  {
+    "id": "HIST-002",
+    "title": "Controlled Version Historical Integrity",
+    "pages": [
+      249,
+      250
+    ],
+    "requirement": "12.2.     HIST-002 Controlled Version Historical Integrity\n\nWorking drafts may change continuously.\n\nWhen a Pricing Proposal is submitted, the system must preserve the exact submitted\ndecision snapshot and decision-relevant contents associated with that controlled Proposal\nversion.\n\nPermitted non-material post-submission changes under PROP-018 may update only the\nadministrative or descriptive elements allowed by that requirement and must remain\nseparately attributable and auditable.\n\nSuch changes must not rewrite the preserved submitted decision snapshot, material pricing\ncontent, decision basis or organisational decision history of the controlled Proposal version.\n\nWhere a Proposal version subsequently receives organisational decision authority, later\nvalidity changes, execution activity, annotations or permitted administrative corrections must\nbe represented through their applicable records or auditable events rather than by rewriting\nthe historical decision basis of that Proposal version.",
+    "frontendStatus": "conflicting",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1863 (proposalSourceSnapshot retains exact Preview economics/rule/scope); :1932 (getMarginEvidence fails closed on wrong/current source)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2201 (submit increments Proposal version); :2312 (approve increments version); :522 (version doubles as mutation concurrency token)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/repo/proposal-repository.ts:129 (updateDraft restricts changes to draft); :229 (approveProposal mutates same row state); :265 (publishProposal replaces approved status with published)",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)"
+    ],
+    "gap": "Source snapshots are retained in memory, but sample increments controlled-looking Proposal version on submit/approval/administrative mutations; submitted decision snapshot is not a dedicated immutable backend object. Draft-only editing protection is useful but insufficient.",
+    "misrepresentation": "Current version labels mix mutation concurrency and controlled decision versions. Existing tests intentionally expect submission/approval increments contrary to current PRD.",
+    "priority": "P0",
+    "acceptance": "Given Draft v1 is submitted, then v1 freezes without version increment; later permitted descriptive corrections are audited separately and original submitted evidence/authority remains unchanged."
+  },
+  {
+    "id": "HIST-003",
+    "title": "Proposal Version Identifier",
+    "pages": [
+      250
+    ],
+    "requirement": "12.3.      HIST-003 Proposal Version Identifier\n\nEach controlled Pricing Proposal version must have a unique version identifier within its\nPricing Initiative.\n\nThe system must distinguish between:\n\n    ● the persistent Pricing Proposal identifier;\n    ● the identifier of each controlled Proposal version;\n    ● the Proposal status defined in PROP-012;\n    ● the Proposal version validity defined in PROP-013.\n\nUsers must be able to distinguish controlled versions such as Version 1, Version 2 and\nVersion 3 without confusing version numbering with Proposal status or validity.\n\nThe system must identify which Proposal version, if any, is Current in accordance with\nPROP-013.\n\nActive must not be introduced as an additional Proposal version validity state.\n\nPrevious Proposal versions must remain identifiable and historically retrievable after another\nversion becomes Current.",
+    "frontendStatus": "conflicting",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2201 (submit increments Proposal version); :2312 (approve increments version); :522 (version doubles as mutation concurrency token)"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)"
+    ],
+    "gap": "Frontend displays resource versions but conflates them with state transitions and lacks canonical Current/Superseded/Expired validity. Backend Proposal has no controlled-version field or retained version endpoint.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given Proposal P v1/v2, then stable P identity, version identifier, decision status and validity are distinct; old v1 remains retrievable after v2 is Current."
+  },
+  {
+    "id": "HIST-004",
+    "title": "Controlled Proposal Version Creation History",
+    "pages": [
+      250,
+      251
+    ],
+    "requirement": "12.4.      HIST-004 Controlled Proposal Version Creation History\n\nWhen a new controlled Pricing Proposal version is created following a material\npost-submission change in accordance with PROP-017, the system must preserve the\nversion-creation event as part of the Pricing Initiative's historical record.\n\nThe historical record must identify:\n\n   ● the previous Proposal version;\n   ● the newly created Proposal version;\n   ● the user responsible for the revision;\n   ● the version-creation timestamp;\n   ● the reason or originating change where available;\n   ● the relationship between the previous and new Proposal versions.\n\nCreation of a new controlled Proposal version must not overwrite, modify or reinterpret the\ncontents, status, organisational decision records or decision history of the previous version.\n\nThe historical layer must record version creation but must not independently redefine what\nconstitutes a material Proposal change. Material-change rules are governed by PROP-017.\n\nA later change to Proposal Version Validity under PROP-019 or PROP-020 must not be\ntreated as rewriting the historical Proposal Status or organisational decision recorded for that\nProposal version.\n\nFor example, an Approved or Authorised Within Policy Proposal version may later become\nSuperseded or Expired while preserving the original Proposal Status and organisational\ndecision that occurred for that version.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1810 (createFromPreview replacement retains author/revision lineage and source snapshot, clears approval/override/publication)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2201 (submit increments Proposal version); :2312 (approve increments version); :522 (version doubles as mutation concurrency token)"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)"
+    ],
+    "gap": "Returned-pricing revision stores old/new refs, actor, timestamp, reason and source lineage. No backend controlled-version creation history; sample also increments versions on non-material actions.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given material post-submission change, when replacement is created, then a version-created event links exact old/new versions, actor/time/reason; original decision/status stays historical."
+  },
+  {
+    "id": "HIST-005",
+    "title": "Previous Version Preservation",
+    "pages": [
+      251
+    ],
+    "requirement": "12.5.     HIST-005 Previous Version Preservation\n\nCreating a new version must not overwrite the previous version.\n\nUsers with appropriate access must be able to retrieve previous versions and determine:\n\n   ● what that version contained;\n   ● when it was created;\n   ● who created or submitted it;\n   ● what decision was made against it.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)",
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)"
+    ],
+    "gap": "Explicit getVersion returns in-memory retained snapshots with read-only actions, but no user-facing complete version archive or durable backend version retrieval.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given a superseded version, when authorised history read is requested after reload/restart, then its contents, creator/submission and decision are returned without current-value substitution."
+  },
+  {
+    "id": "HIST-006",
+    "title": "Version Comparison",
+    "pages": [
+      251,
+      252
+    ],
+    "requirement": "12.6.     HIST-006 Version Comparison\n\nThe MVP should allow users to compare relevant controlled versions of pricing work.\n\nComparison should identify material changes such as:\n\n   ● price changes;\n\n    ● scope changes;\n    ● assumption changes;\n    ● pricing-rule changes;\n    ● analysis changes;\n    ● guardrail-state changes.\n\nUsers should not have to manually compare historical records to determine what changed\nbetween submissions.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)",
+      "apps/workspace/src/workspaceRouting.js:17 (parseWorkspaceHash: Proposal/publication/audit routes; no Initiative implementation, monitoring or completion surface)"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)"
+    ],
+    "gap": "No controlled-version comparison UI/API; prior/source refs and audit before/after do not provide comparative price/scope/rule/assumption/guardrail analysis.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P2",
+    "acceptance": "Given two accessible controlled versions, when comparing, then material deltas are identified without manually juxtaposing raw snapshots."
+  },
+  {
+    "id": "HIST-007",
+    "title": "Decision Authority Binding",
+    "pages": [
+      252
+    ],
+    "requirement": "12.7.     HIST-007 Decision Authority Binding\n\nEvery approval or policy authorisation must remain permanently associated with the exact\ncontrolled Pricing Proposal version against which that decision authority was established.\n\nApproval of one Proposal version must never be represented as approval of another\nProposal version.\n\nPolicy authorisation of one Proposal version must never be transferred, inherited or\nrepresented as policy authorisation of another Proposal version.\n\nWhere a materially revised Proposal creates a new controlled version, previous approval or\npolicy-authorisation records must remain historical records attached only to the earlier\nProposal version.\n\nHistorical decision authority must remain consistent with PROP-021 and must not be\nrewritten by later Proposal, workflow, governance or execution changes.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1810 (createFromPreview replacement retains author/revision lineage and source snapshot, clears approval/override/publication)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2201 (submit increments Proposal version); :2312 (approve increments version); :522 (version doubles as mutation concurrency token)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/repo/proposal-repository.ts:129 (updateDraft restricts changes to draft); :229 (approveProposal mutates same row state); :265 (publishProposal replaces approved status with published)",
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Sample replacement clears prior approval and retains earlier detail; backend decisions bind proposal ID only, not controlled version. Policy-authorisation history is absent on both.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given v1 approved then materially revised v2, then v1 authority remains permanently attached only to v1, v2 needs fresh authority, and no event relabels prior approval as v2 approval."
+  },
+  {
+    "id": "HIST-008",
+    "title": "Historical Preservation of Proposal Decision Snapshot",
+    "pages": [
+      252,
+      253
+    ],
+    "requirement": "12.8.     HIST-008 Historical Preservation of Proposal Decision Snapshot\n\nFor every submitted Pricing Proposal version, the system must preserve the complete\ncontrolled decision snapshot established under PROP-011 as part of the Pricing Initiative's\nhistorical record.\n\nThe historical record must preserve the Proposal snapshot exactly as it existed when that\nversion was submitted, including its relationships to the underlying pricing context, analysis,\nassumptions, evidence, guardrail evaluation and other decision-relevant source objects.\n\nSubsequent changes to:\n\n    ● current prices;\n\n   ● costs or other financial inputs;\n   ● pricing context;\n   ● Pricing Builder logic;\n   ● assumptions;\n   ● analysis;\n   ● evidence;\n   ● guardrails;\n   ● workflow or governance configuration;\n   ● other workspace data\n\nmust not modify, recalculate or reinterpret the historical Proposal decision snapshot.\n\nWhere a referenced source object changes after submission, the historical Proposal version\nmust continue to resolve to the version or value that formed part of its original decision\nsnapshot.\n\nHistorical preservation must not independently redefine the contents of the Proposal\ndecision snapshot. The canonical snapshot contract is governed by PROP-011.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1863 (proposalSourceSnapshot retains exact Preview economics/rule/scope); :1932 (getMarginEvidence fails closed on wrong/current source)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)",
+      "src/governance/src/domain/snapshot.ts:14 (snapshot contains Catalog tables only); src/governance/src/subscribers/snapshot-subscriber.ts:19 (publication/import trigger and debounce, not submitted Proposal decision snapshot)"
+    ],
+    "gap": "Sample retains economic source/rule/scope per version; backend proposal lines retain price baseline, but governance snapshot is current Catalog after publish/import, not complete submitted Proposal evidence/guardrail/workflow snapshot.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given source prices/costs/rules/evidence/config change after submission, when historical proposal is read, then its original versioned decision basis is unchanged and no recalculation uses current values."
+  },
+  {
+    "id": "HIST-009",
+    "title": "Activity Timeline",
+    "pages": [
+      253,
+      254
+    ],
+    "requirement": "12.9.     HIST-009 Activity Timeline\n\nEvery Pricing Initiative must contain a chronological activity timeline.\n\nRelevant events should include:\n\n   ● initiative creation;\n   ● scope changes;\n   ● significant edits;\n   ● comments;\n   ● assignments;\n   ● evidence additions;\n   ● scenario creation;\n   ● review submission;\n   ● proposal submission;\n   ● requested changes;\n   ● approvals;\n   ● policy authorisations;\n   ● rejections;\n   ● escalation;\n\n   ● execution events;\n   ● monitoring updates;\n   ● completion;\n   ● cancellation.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/OperationalWorkspace.jsx:952 (AuditScreen/AuditLedger/AuditTimeline: loaded-event search, actor/object/timestamp, entity filters; no complete Initiative archive)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)"
+    ],
+    "gap": "Sample audit timeline and role events cover limited flows; backend maps seven event types and read endpoint is unimplemented. Initiative/scenario/review/monitoring/closure events missing.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given an Initiative with consequential lifecycle events, when timeline is read, then events are chronological, canonical, linked and permission-filtered."
+  },
+  {
+    "id": "HIST-010",
+    "title": "Activity Attribution",
+    "pages": [
+      254
+    ],
+    "requirement": "12.10.      HIST-010 Activity Attribution\n\nEach consequential activity event must identify:\n\n   ● actor;\n   ● action;\n   ● timestamp;\n   ● affected object;\n   ● relevant version where applicable.\n\nSystem-generated events must be distinguishable from human actions.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)",
+      "apps/workspace/src/OperationalWorkspace.jsx:952 (AuditScreen/AuditLedger/AuditTimeline: loaded-event search, actor/object/timestamp, entity filters; no complete Initiative archive)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)",
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)"
+    ],
+    "gap": "Sample dynamic events contain actor/action/time/object/version and source type; backend audit contains actor/action/time/entity but event contract lacks controlled version and explicit human/system origin semantics.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given human and system actions, when inspected, then actor/origin, action, time, object and applicable controlled version are unambiguous."
+  },
+  {
+    "id": "HIST-011",
+    "title": "AI Attribution",
+    "pages": [
+      254
+    ],
+    "requirement": "12.11.      HIST-011 AI Attribution\n\nWhere AI-assisted content materially affects pricing work, history must preserve:\n\n   ● that AI assistance was involved;\n   ● which user applied the output;\n   ● when the change occurred;\n   ● which pricing object was affected.\n\nAI must not appear as the accountable human decision-maker.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)",
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)"
+    ],
+    "gap": "AI-assisted applied-change attribution is absent; there is no current applied-AI work path. Attribution is mandatory when AI-assisted content materially affects pricing work and is a dependency of the replacement PRD's bounded-AI capability. The earlier CEO deferral conflicts with that full-PRD scope and requires an explicit scope decision; it does not make this control optional.",
+    "misrepresentation": "Generic human event fields do not establish AI attribution. Do not describe this mandatory conditional control as a wholly optional AI enhancement or infer a present violation from an absent AI runtime.",
+    "priority": "P1",
+    "acceptance": "Given AI-assisted content materially affects pricing work, when an authorised human applies it, then history records AI assistance, applying human, timestamp and affected object, and never assigns human decision accountability to AI."
+  },
+  {
+    "id": "HIST-012",
+    "title": "Administrative History",
+    "pages": [
+      254,
+      255
+    ],
+    "requirement": "12.12.      HIST-012 Administrative History\n\nConsequential administrative changes affecting pricing governance must remain historically\navailable.\n\nExamples include:\n\n   ● role changes;\n   ● permission changes;\n   ● approval-authority changes;\n   ● workflow changes;\n   ● guardrail changes;\n\n    ● cost-access changes;\n    ● policy-authorisation configuration changes.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureCompanyRequests.js:112 (updateAnalystSubmission appends actor/time/before/after policy history); apps/workspace/src/data/fixtureWorkspaceRepositories.js:2204 (submission retains companyPolicyRef)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)"
+    ],
+    "gap": "Company analyst-submission policy mutation has local history; wider role/permission/authority/workflow/guardrail/cost-access changes lack a complete administrative audit event path in current mapped backend events.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given a consequential governance setting changes, then its before/after/actor/time is append-only and remains inspectable after later settings changes."
+  },
+  {
+    "id": "HIST-013",
+    "title": "Historical Governance Context",
+    "pages": [
+      255
+    ],
+    "requirement": "12.13.       HIST-013 Historical Governance Context\n\nCompleted pricing decisions must retain enough information to determine which governance\nrules applied at the time.\n\nChanging current organisational configuration must not rewrite the governance context of\nearlier decisions.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureCompanyRequests.js:112 (updateAnalystSubmission appends actor/time/before/after policy history); apps/workspace/src/data/fixtureWorkspaceRepositories.js:2204 (submission retains companyPolicyRef)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1863 (proposalSourceSnapshot retains exact Preview economics/rule/scope); :1932 (getMarginEvidence fails closed on wrong/current source)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)",
+      "src/governance/src/domain/snapshot.ts:14 (snapshot contains Catalog tables only); src/governance/src/subscribers/snapshot-subscriber.ts:19 (publication/import trigger and debounce, not submitted Proposal decision snapshot)",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)"
+    ],
+    "gap": "Sample stores company policy ref, approval-stage context and economic policy evidence; backend margin/override events are incomplete governance-at-decision snapshots. No full versioned workflow/policy-authorisation configuration retention.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given policy/authority configuration changes later, when opening an earlier decision, then the original governing configuration/evaluation remains resolvable."
+  },
+  {
+    "id": "HIST-014",
+    "title": "Historical Identity Preservation",
+    "pages": [
+      255
+    ],
+    "requirement": "12.14.       HIST-014 Historical Identity Preservation\n\nWhere a user later leaves, is suspended or changes roles, their previous actions must\nremain attributable to their historical identity.\n\nThe system must not replace historical actors with generic labels that destroy accountability.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)",
+      "apps/workspace/src/data/fixtureCompanyRequests.js:112 (updateAnalystSubmission appends actor/time/before/after policy history); apps/workspace/src/data/fixtureWorkspaceRepositories.js:2204 (submission retains companyPolicyRef)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)"
+    ],
+    "gap": "Sample clones actor/role into some events and static identities; backend stores actor ID as text without user-delete FK loss, but historical display identity/role snapshots and departed-user retrieval are not proven.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given an actor is renamed/suspended/departed or changes role, then earlier actions still show their recorded accountable identity; do not replace with Unknown user."
+  },
+  {
+    "id": "HIST-015",
+    "title": "Audit Record Integrity",
+    "pages": [
+      255
+    ],
+    "requirement": "12.15.       HIST-015 Audit Record Integrity\n\nFormal audit records must not be silently editable or deletable by ordinary users.\n\nWhere administrative correction is necessary, the correction must itself create an auditable\nevent rather than rewriting the original history.",
+    "frontendStatus": "sample-complete",
+    "backendStatus": "implemented-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2465 (getProposalHistory is exact canonical FX-010-only, read-only, sequential fixture reconstruction)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)"
+    ],
+    "gap": "Read-only sample audit exposes no edit/delete operation. Backend audit table grant is SELECT/INSERT only and ingest is idempotent; ordinary-user silent rewrite/delete is prevented by that source design. Administrative correction and runtime privilege verification remain required before deployment.",
+    "misrepresentation": "Source-level append-only audit foundation exists; this is not a claim that deployed database privileges or the unimplemented read API were exercised.",
+    "priority": "P0",
+    "acceptance": "Given an ordinary user attempts audit edit/delete, then it is denied; if administrative correction is supported, a linked new correction event is appended rather than overwriting."
+  },
+  {
+    "id": "HIST-016",
+    "title": "Searchable Pricing History",
+    "pages": [
+      255,
+      256
+    ],
+    "requirement": "12.16.       HIST-016 Searchable Pricing History\n\nAuthorised users must be able to search historical pricing work.\n\nSearch should support relevant criteria such as:\n\n    ● Pricing Initiative;\n    ● product or SKU;\n    ● category;\n    ● owner;\n    ● initiative type;\n    ● status;\n    ● decision date;\n    ● implementation date;\n    ● proposal outcome.\n\nSearch results must respect user permissions and scope.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/OperationalWorkspace.jsx:952 (AuditScreen/AuditLedger/AuditTimeline: loaded-event search, actor/object/timestamp, entity filters; no complete Initiative archive)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:984 (proposal directory query/state filters operate on fixed sample/current Proposal, not persistent historical Initiatives)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/repo/proposal-repository.ts:619 (listProposals supports current row state/actor/cursor); src/governance/src/service.ts:24 (history APIs unimplemented)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)"
+    ],
+    "gap": "UI searches loaded sample events; Proposal list searches sample title/status. Backend supports current Proposal state/actor listing but historical Initiative search and audit service reads are absent.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given authorised historical records beyond first page, when searching supported criteria, then complete paginated matching results are returned with tenant/scope protection."
+  },
+  {
+    "id": "HIST-017",
+    "title": "Historical Filtering",
+    "pages": [
+      256
+    ],
+    "requirement": "12.17.     HIST-017 Historical Filtering\n\nUsers should be able to filter pricing history by relevant dimensions including:\n\n   ● completed;\n   ● rejected;\n   ● cancelled;\n   ● product or category;\n   ● date range;\n   ● location;\n   ● channel;\n   ● initiative type;\n   ● responsible user.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/OperationalWorkspace.jsx:952 (AuditScreen/AuditLedger/AuditTimeline: loaded-event search, actor/object/timestamp, entity filters; no complete Initiative archive)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:984 (proposal directory query/state filters operate on fixed sample/current Proposal, not persistent historical Initiatives)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/repo/proposal-repository.ts:619 (listProposals supports current row state/actor/cursor); src/governance/src/service.ts:24 (history APIs unimplemented)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)"
+    ],
+    "gap": "Sample offers entity/system toggles and fixed Last 30 days text, not actual range/location/channel/type/owner historical filters. Backend state/actor filter and stubbed audit date parameters only.",
+    "misrepresentation": "Last 30 days is currently a displayed label, not evidence of implemented historical date filtering.",
+    "priority": "P2",
+    "acceptance": "Given historical filters are selected, then server query and result count reflect supported dimensions/date range and clearing restores results."
+  },
+  {
+    "id": "HIST-018",
+    "title": "Historical Initiative View",
+    "pages": [
+      256
+    ],
+    "requirement": "12.18.     HIST-018 Historical Initiative View\n\nA historical Pricing Initiative must remain understandable as a coherent record.\n\nUsers should be able to determine:\n\n   ● why the initiative existed;\n   ● what was considered;\n   ● what was proposed;\n   ● what changed;\n   ● what organisational decision was made, including whether the applicable Pricing\n       Proposal was Approved or Authorised Within Policy;\n   ● what was implemented;\n   ● what outcome was recorded.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2465 (getProposalHistory is exact canonical FX-010-only, read-only, sequential fixture reconstruction)",
+      "apps/workspace/src/OperationalWorkspace.jsx:952 (AuditScreen/AuditLedger/AuditTimeline: loaded-event search, actor/object/timestamp, entity filters; no complete Initiative archive)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Proposal evidence and audit detail are partial historical views, not a coherent Initiative record with alternatives, actual implementation and observed outcome.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given completed work, when historical Initiative opens, then trigger, reasoning, versions, authority, implementation and outcome can be understood together."
+  },
+  {
+    "id": "HIST-019",
+    "title": "Organisational Pricing Knowledge",
+    "pages": [
+      256,
+      257
+    ],
+    "requirement": "12.19.     HIST-019 Organisational Pricing Knowledge\n\nCompleted pricing work should become reusable organisational knowledge.\n\nRelevant previous work may provide context for:\n\n   ● future Pricing Initiatives;\n   ● pricing strategies;\n   ● assumptions;\n\n    ● scenarios;\n    ● decision rationale;\n    ● recurring pricing situations.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1810 (createFromPreview replacement retains author/revision lineage and source snapshot, clears approval/override/publication)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:984 (proposal directory query/state filters operate on fixed sample/current Proposal, not persistent historical Initiatives)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/repo/proposal-repository.ts:619 (listProposals supports current row state/actor/cursor); src/governance/src/service.ts:24 (history APIs unimplemented)",
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)"
+    ],
+    "gap": "Historical source snapshots are useful groundwork, but reusable completed-Initiative knowledge/search workflow is not available. Existing same-work return revision is not complete organisational reuse.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P2",
+    "acceptance": "Given previous completed work, when starting related pricing work, then authorised context can be discovered and explicitly copied into new working material."
+  },
+  {
+    "id": "HIST-020",
+    "title": "Reuse Without Authority Transfer",
+    "pages": [
+      257
+    ],
+    "requirement": "12.20.     HIST-020 Reuse Without Authority Transfer\n\nUsers may reuse appropriate structures or context from historical pricing work.\n\nReused content must create new working material.\n\nHistorical:\n\n    ● Approval records;\n    ● Policy Authorisation records;\n    ● execution status;\n    ● proposal validity\n\nmust not transfer to new pricing work.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1810 (createFromPreview replacement retains author/revision lineage and source snapshot, clears approval/override/publication)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)"
+    ],
+    "evidenceBackend": [
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)",
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)"
+    ],
+    "gap": "Sample material revision clears approval/publication and retains source; there is no general historical reuse/new-Initiative workflow in backend. The no-authority-transfer rule is mandatory whenever reuse is added.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given historical context reused into new work, then new ID/working state is created and prior approval/policy-authorisation/execution/validity does not transfer."
+  },
+  {
+    "id": "HIST-021",
+    "title": "AI Historical Retrieval",
+    "pages": [
+      257
+    ],
+    "requirement": "12.21.     HIST-021 AI Historical Retrieval\n\nAI may help authorised users locate and summarise relevant historical pricing work.\n\nAI retrieval must respect:\n\n    ● organisation boundaries;\n    ● user access scope;\n    ● sensitive-data permissions;\n    ● historical context.\n\nAI must distinguish historical decisions from current pricing instructions.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "AI historical retrieval is May in this requirement; no implemented historical retrieval integration exists. Permission and historical-versus-current interpretation constraints apply if added. Broader AI scope is governed by the replacement PRD's AI requirements, not silently removed by the earlier deferral.",
+    "misrepresentation": "This optional capability is not a mandatory independent delivery gap under HIST-021; it does not override separate AI requirements elsewhere in the PRD.",
+    "priority": "P3",
+    "acceptance": "If retrieval AI is introduced, given inaccessible or historical records, then it cannot reveal protected data or present past decisions as current execution instructions."
+  },
+  {
+    "id": "HIST-022",
+    "title": "Decision Rationale Preservation",
+    "pages": [
+      257,
+      258
+    ],
+    "requirement": "12.22.     HIST-022 Decision Rationale Preservation\n\nThe system must preserve enough structured and contextual information to explain why a\nconsequential pricing decision was made.\n\nRationale may include:\n\n    ● stated objective;\n    ● assumptions;\n\n       ● supporting evidence;\n       ● analysis;\n       ● stakeholder input;\n       ● proposal explanation;\n       ● Approval comments or Policy Authorisation evaluation information.\n\nA final price alone is not a sufficient historical record.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:427 (ReviewDocument displays exact source, effective time, bounded exception and separate publication authority)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1810 (createFromPreview replacement retains author/revision lineage and source snapshot, clears approval/override/publication)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1863 (proposalSourceSnapshot retains exact Preview economics/rule/scope); :1932 (getMarginEvidence fails closed on wrong/current source)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)",
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)"
+    ],
+    "gap": "Sample return/override/comments/source evidence preserves limited rationale; backend proposal line reason/comments/override justification exist, but objective/assumptions/scenarios/review/policy-authorisation explanation is not unified.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given a consequential historical decision, then a reader can explain why it was made using retained rationale and decision context, not price alone."
+  },
+  {
+    "id": "HIST-023",
+    "title": "Record Retention",
+    "pages": [
+      258
+    ],
+    "requirement": "12.23.         HIST-023 Record Retention\n\nPricing history must remain available according to the organisation's supported retention\npolicy.\n\nThe MVP should default toward preserving completed pricing records rather than automatic\ndeletion.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)"
+    ],
+    "evidenceBackend": [
+      "src/governance/migrations/0002_audit_log_foundation.up.sql:13 (append-only persisted audit rows, no retention-policy configuration); src/proposal/migrations/0002_proposal_foundation.up.sql:24 (persistent Proposal row)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)"
+    ],
+    "gap": "Frontend history resides in memory and cannot survive a fresh repository/runtime. Backend persists audit/proposals with no automatic deletion shown, but supported organisation retention policy/restore/retrieval agreement is missing.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given supported retention period and application/service restart, then completed pricing history remains available; retention never silently deletes required decision basis."
+  },
+  {
+    "id": "HIST-024",
+    "title": "Exportable Historical Record",
+    "pages": [
+      258
+    ],
+    "requirement": "12.24.         HIST-024 Exportable Historical Record\n\nAuthorised users should be able to export relevant historical pricing records where needed\nfor:\n\n       ● audit;\n       ● management review;\n       ● internal reporting;\n       ● operational reference.\n\nExports must respect data-access restrictions.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)"
+    ],
+    "gap": "Expected history export has no generator/UI; EXPORT-027 independently makes authorised historical export mandatory. Export permission/redaction must be applied.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given authorised history export, then original context and permitted data are exported, with restricted fields excluded."
+  },
+  {
+    "id": "HIST-025",
+    "title": "Audit Search",
+    "pages": [
+      258
+    ],
+    "requirement": "12.25.         HIST-025 Audit Search\n\nUsers with appropriate audit authority should be able to inspect activity by relevant\ndimensions such as:\n\n       ● user;\n       ● action type;\n       ● Pricing Initiative;\n       ● proposal;\n       ● date range.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/OperationalWorkspace.jsx:952 (AuditScreen/AuditLedger/AuditTimeline: loaded-event search, actor/object/timestamp, entity filters; no complete Initiative archive)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)",
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)"
+    ],
+    "gap": "Sample search/toggles cover limited audit event/actor/object text. Gateway has entity/actor/date parameters but service is explicitly unimplemented.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P2",
+    "acceptance": "Given an auditor selects supported user/action/initiative/proposal/date criteria, then results come from complete authorised audit store rather than only loaded sample page."
+  },
+  {
+    "id": "HIST-026",
+    "title": "System Event Recording",
+    "pages": [
+      258,
+      259
+    ],
+    "requirement": "12.26.         HIST-026 System Event Recording\n\nSystem-enforced events that materially affect consequential pricing work should be recorded\nwhere relevant.\n\nExamples include:\n\n   ● creation of a new controlled Pricing Proposal version following a material\n       post-submission change;\n   ● policy-authorisation        evaluation   where the result materially affects Proposal\n       progression;\n   ● guardrail      evaluation    that   blocks, escalates or otherwise materially affects\n       progression;\n   ● Pricing Proposal expiration;\n   ● workflow escalation;\n   ● prevention of execution or operational export because current execution authority is\n       invalid;\n   ● permission-based action denial where organisational audit policy requires it.\n\nA system-generated event must identify the affected pricing object and relevant version\nwhere applicable.\n\nSystem-event history must record what occurred without independently redefining the\nunderlying Proposal, workflow, governance, guardrail, execution or permission rule that\ncaused the event.\n\nHistorical approval or policy-authorisation records must not be described as deleted or\nretrospectively invalidated merely because a later Proposal version is created. Their\nauthority remains bound to the exact Proposal version against which the original decision\nwas established.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2465 (getProposalHistory is exact canonical FX-010-only, read-only, sequential fixture reconstruction)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)",
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)"
+    ],
+    "gap": "Prepared publication and local revision events exist; backend maps blocked/published events only, with no version-validity, policy-authorisation, export denial or configurable permission-denial coverage.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P1",
+    "acceptance": "Given a consequential system block/expiry/version event, when audit policy requires recording, then an attributable system event links the exact object/version and preserves earlier decision authority history."
+  },
+  {
+    "id": "HIST-027",
+    "title": "Record Consistency",
+    "pages": [
+      259
+    ],
+    "requirement": "12.27.        HIST-027 Record Consistency\n\nHistorical records displayed in different areas of Owómidé must refer to the same underlying\nevent and version state.\n\nThe product must not maintain conflicting histories for the same pricing decision.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2465 (getProposalHistory is exact canonical FX-010-only, read-only, sequential fixture reconstruction)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)"
+    ],
+    "gap": "Sample shares canonical-event projection for two audit surfaces, but generated/role journeys omit later publication events when role events exist; backend shared audit store exists yet read projections are unimplemented. Cross-surface/version parity unproven.",
+    "misrepresentation": "Fixture history is not durable production history; backend source findings do not establish integrated runtime behaviour.",
+    "priority": "P0",
+    "acceptance": "Given the same decision event is displayed in proposal and organisation history, then ID/time/version/meaning agree, including generated revision-to-publication journeys."
+  },
+  {
+    "id": "HIST-028",
+    "title": "Pricing Knowledge Boundary",
+    "pages": [
+      259,
+      260
+    ],
+    "requirement": "12.28.        HIST-028 Pricing Knowledge Boundary\n\nThe MVP's pricing-knowledge capability is focused on preserving and retrieving the\norganisation's own pricing work.\n\nThe MVP is not required to provide a broad external pricing-knowledge database or\nautomatically generated market-intelligence repository.",
+    "frontendStatus": "sample-complete",
+    "backendStatus": "implemented-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)"
+    ],
+    "evidenceBackend": [
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)"
+    ],
+    "gap": "The inspected history stores are own-workspace records; no external pricing-knowledge database is required by this ID. This boundary should stay explicit rather than becoming a new MVP dependency.",
+    "misrepresentation": "No independent missing mandatory capability: this ID explicitly excludes broad external knowledge coverage.",
+    "priority": "P3",
+    "acceptance": "Given internal historical work is available, then core retrieval can operate without a broad external market-knowledge database."
+  },
+  {
+    "id": "HIST-029",
+    "title": "Historical Reconstruction Principle",
+    "pages": [
+      260
+    ],
+    "requirement": "12.29.     HIST-029 Historical Reconstruction Principle\n\nFor any completed or consequential Pricing Initiative, an authorised user should be able to\nreconstruct:\n\nWhat triggered the pricing work?\nWhat information was available?\nWhat assumptions were made?\nWhat alternatives were considered?\nWhat changed during development and review?\nWhat exact Pricing Proposal version was submitted, and what organisational decision\nwas made against it, including Approved, Authorised Within Policy, Changes\nRequested or Rejected?\nWho made each consequential decision?\nWhat was implemented?\nWhat outcome was recorded?\n\nIf this cannot be reconstructed from Owómidé, the pricing history is incomplete.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2465 (getProposalHistory is exact canonical FX-010-only, read-only, sequential fixture reconstruction)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1863 (proposalSourceSnapshot retains exact Preview economics/rule/scope); :1932 (getMarginEvidence fails closed on wrong/current source)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/migrations/0002_proposal_foundation.up.sql:24 (proposal row has state/actor/title, no controlled versions); :48 (immutable-after-draft price lines); :66 (transition actor/time/meta)",
+      "src/governance/src/service.ts:24 (getActivityFeed, getEntityHistory, listSnapshots explicitly Unimplemented); src/gateway/src/routes/governance.ts:37 (routed APIs delegate to those stubs)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Full reconstruction is impossible without persistent Initiative context, controlled versions, implementation and outcome records; existing source/snapshot/audit work covers parts only.",
+    "misrepresentation": "Gapless canonical sample audit events are not proof of complete organisational pricing history.",
+    "priority": "P1",
+    "acceptance": "Given any completed consequential Initiative, then a permitted user answers all PRD reconstruction questions including alternatives, exact authority, actual implementation and observed outcome from Owómidé."
+  },
+  {
+    "id": "EXPORT-001",
+    "title": "Structured Pricing Export",
+    "pages": [
+      273
+    ],
+    "requirement": "14.1.   EXPORT-001 Structured Pricing Export\n\nAuthorised users must be able to export supported pricing information from Owómidé in a\nstructured format.\n\nThe MVP must support CSV export for applicable tabular pricing data.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)"
+    ],
+    "gap": "Mandatory structured/CSV export absent: Preview export disabled, no download generator, backend /exports returns 501.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given supported tabular pricing data and permission, when exporting, then a usable CSV with defined fields is generated."
+  },
+  {
+    "id": "EXPORT-002",
+    "title": "Authorised Action Export",
+    "pages": [
+      273,
+      274
+    ],
+    "requirement": "14.2.   EXPORT-002 Authorised Action Export\n\nPricing actions intended for operational implementation must be exportable from the exact\napproved or policy-authorised proposal version.\n\nThe export must not silently use later draft values or current workspace values that differ\nfrom the authorised decision.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:1863 (proposalSourceSnapshot retains exact Preview economics/rule/scope); :1932 (getMarginEvidence fails closed on wrong/current source)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No authorised-action export; exact controlled-version snapshot source and current authority binding must be implemented before operational handoff.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given authorised v1 and later draft v2, when exporting v1 for permitted execution, then only exact valid v1 snapshot values appear; invalid/superseded authority is refused."
+  },
+  {
+    "id": "EXPORT-003",
+    "title": "Execution Export Content",
+    "pages": [
+      274
+    ],
+    "requirement": "14.3.     EXPORT-003 Execution Export Content\n\nWhere applicable, an execution-oriented export should include:\n\n    ● Pricing Initiative identifier;\n    ● proposal identifier and version;\n    ● Priceable Entity identifier;\n    ● Priceable Entity name;\n    ● Priceable Entity type;\n    ● applicable category;\n    ● location;\n    ● channel;\n    ● other relevant pricing dimensions;\n    ● Current Price or other pricing baseline preserved in the exact authorised Proposal\n        version's decision snapshot, where applicable and permitted;\n    ● authorised price, pricing value, pricing rule or pricing logic, as applicable;\n    ● currency;\n    ● effective date;\n    ● authorised exceptions;\n    ● implementation notes where applicable.\n\nThe output must contain enough information for the receiving operational team to identify\nwhat should change.\n\nFor execution-oriented exports affecting multiple Priceable Entities, each exported pricing\ninstruction must remain attributable to the applicable Priceable Entity and relevant pricing\ndimensions.\n\nA category, product group or other grouping selector must not replace the Priceable Entity\nidentifier required for operational implementation unless the receiving operational system\nexplicitly implements pricing at that same directly priceable object level.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:373 (FixtureCatalogRepository supplies canonical identities and external identifiers; no export generator)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/catalog/src/repo/mappers.ts:178 (skuMessage carries identifiers); src/lib/proto/services/proposal/v1/proposal.proto:61 (proposal lines retain SKU/channel but no operational export shape)"
+    ],
+    "gap": "No execution CSV schema/manifest. Must identify each actual priceable entity and dimensions, not substitute group selector; listed content is Should/where applicable.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given multi-entity authorised work, when exported, then receiving team can identify each entity/dimension/value/timing and required context without guessing."
+  },
+  {
+    "id": "EXPORT-004",
+    "title": "Bulk Export",
+    "pages": [
+      274,
+      275
+    ],
+    "requirement": "14.4.     EXPORT-004 Bulk Export\n\nThe MVP must support export of pricing actions affecting multiple products or other priceable\nentities.\n\nBulk export must preserve entity-level results and exceptions.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)"
+    ],
+    "gap": "Bulk pricing-action export absent; existing bounded table page is not complete export population.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given multiple entities including exceptions, when exporting, then complete authorised scope and entity-level results/exceptions survive independently of current page."
+  },
+  {
+    "id": "EXPORT-005",
+    "title": "External Identifiers",
+    "pages": [
+      275
+    ],
+    "requirement": "14.5.     EXPORT-005 External Identifiers\n\nWhere an organisation maintains external identifiers such as:\n\n   ● ERP product code;\n   ● SKU;\n   ● POS identifier;\n   ● marketplace listing identifier;\n   ● internal reference code,\n\nthose identifiers should be available in operational exports where configured.\n\nThis reduces manual mapping during implementation.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:373 (FixtureCatalogRepository supplies canonical identities and external identifiers; no export generator)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/catalog/src/repo/mappers.ts:178 (skuMessage carries identifiers); src/lib/proto/services/proposal/v1/proposal.proto:61 (proposal lines retain SKU/channel but no operational export shape)"
+    ],
+    "gap": "Catalog identity groundwork exists but configured external SKU/ERP/POS/listing identifiers are not exposed in an operational export.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P2",
+    "acceptance": "Given configured merchant SKU/external IDs, when handoff CSV is generated, then those exact IDs are included and never invented."
+  },
+  {
+    "id": "EXPORT-006",
+    "title": "Export Permission",
+    "pages": [
+      275
+    ],
+    "requirement": "14.6.     EXPORT-006 Export Permission\n\nOnly users with appropriate export permissions may export protected pricing information.\n\nExport authority must respect:\n\n   ● organisation membership;\n   ● role;\n   ● resource;\n   ● pricing scope;\n   ● sensitive-data permissions.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/gateway/src/routes/proposals.ts:31 (forwarded org/user headers); :79 (publish route adds no Executor check); src/proposal/src/context.ts:84 (approver-only helper is used for approval, not publication)"
+    ],
+    "gap": "No export capability enforcement endpoint exists. Generic proposal/audit read membership is not sufficient to grant protected export.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given wrong tenant/role/resource/scope export request, then server refuses and no protected file is generated."
+  },
+  {
+    "id": "EXPORT-007",
+    "title": "Restricted Cost Data",
+    "pages": [
+      275
+    ],
+    "requirement": "14.7.     EXPORT-007 Restricted Cost Data\n\nCost and sensitive financial information must be excluded from exports where the exporting\nuser does not have permission to access it.\n\nExport functionality must not bypass normal information-access controls.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:1101 (audit.list requires audit/proposal-read plus economics; filters participant scope); :1141 (getEntityHistory checks ownership/audit scope)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)"
+    ],
+    "gap": "No generated export to verify redaction. Current read projections are useful but require separate export checks.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given an authorised exporter without cost permission, when exporting, then cost/margin/derived sensitive values and free-text leakage are excluded."
+  },
+  {
+    "id": "EXPORT-008",
+    "title": "Export Type Separation",
+    "pages": [
+      275,
+      276
+    ],
+    "requirement": "14.8.     EXPORT-008 Export Type Separation\n\nThe system must distinguish between exports created for different purposes.\n\nRelevant categories may include:\n\n    ● pricing-context export;\n    ● analysis export;\n    ● proposal export;\n    ● authorised-action execution export;\n    ● historical or audit export.\n\nAn exploratory Scenario export must not be represented as an authorised execution\ninstruction.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)"
+    ],
+    "gap": "No export-purpose model; analytical, historical and execution exports need distinct labelling and authority semantics.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given an exploratory/Draft export is permitted, then file and UI explicitly state not authorised for execution; purpose cannot grant authority."
+  },
+  {
+    "id": "EXPORT-009",
+    "title": "Proposal Status, Validity and Execution Status Visibility",
+    "pages": [
+      276,
+      277
+    ],
+    "requirement": "14.9.     EXPORT-009 Proposal Status, Validity and Execution Status Visibility\n\nWhere an export contains Pricing Proposal or execution information, the system must\npreserve the distinction between:\n\n    ● Pricing Proposal Status;\n    ● Pricing Proposal Version Validity;\n    ● Execution Status.\n\nWhere Pricing Proposal Status is included, the exported value must use the canonical\nProposal statuses defined in PROP-012:\n\n    ● Draft;\n    ● Awaiting Approval;\n    ● Changes Requested;\n    ● Rejected;\n    ● Approved;\n    ● Authorised Within Policy.\n\nWhere Pricing Proposal Version Validity is included, the exported value must use the\ncanonical validity states defined in PROP-013:\n\n    ● Current;\n    ● Superseded;\n    ● Expired.\n\nProposal Version Validity must not be merged into or represented as Pricing Proposal\nStatus.\n\nWhere execution information is included, it must be represented separately using the\napplicable execution states defined in EXEC-010:\n\n    ● Not Started;\n    ● In Progress;\n    ● Partially Implemented;\n    ● Implemented;\n    ● Implementation Exception.\n\nAn export must not represent a Pricing Proposal as Implemented because implementation is\nan operational execution state rather than a Pricing Proposal status.\n\nAn Approved or Authorised Within Policy Proposal version that is Superseded or Expired\nmust preserve both pieces of information rather than replacing its historical Proposal status\nwith its current validity state.\n\nExported status information must remain consistent with the authoritative Proposal and\nexecution records inside Owómidé.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No export status fields; backend model itself combines decision with published and lacks controlled validity, so exporting it directly would violate canonical status separation.",
+    "misrepresentation": "Do not serialize backend state='published' as Proposal Status=Implemented or imply approval implies implementation.",
+    "priority": "P0",
+    "acceptance": "Given Approved+Superseded or Approved+Partially Implemented, then exported decision, validity and execution fields retain each fact separately."
+  },
+  {
+    "id": "EXPORT-010",
+    "title": "Unauthorised Execution Protection",
+    "pages": [
+      277
+    ],
+    "requirement": "14.10.      EXPORT-010 Unauthorised Execution Protection\n\nThe system must not allow a Pricing Proposal without current execution authority to be\nexported or handed off in a way that represents it as authorised for implementation.\n\nA Proposal may provide execution authority only where the applicable controlled Proposal\nversion:\n\n    ● is Approved or Authorised Within Policy;\n    ● remains Current and valid for execution;\n    ● satisfies the applicable execution-readiness requirements.\n\nDraft, Awaiting Approval, Changes Requested, Rejected, Superseded or Expired Proposal\nversions must not be represented through an execution-oriented export as currently\nauthorised pricing actions.\n\nAnalytical, Draft, historical or other non-execution exports may still be permitted where the\nuser's permissions allow, but their purpose and non-authorised execution status must remain\nexplicit.\n\nExport functionality must not independently create, infer or extend execution authority.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2360 (FixturePublicationRepository.start checks current ref, publish:execute, assigned publisher and approved/readiness state; no validity/timing/manual implemented-value contract)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)"
+    ],
+    "gap": "No execution-export validation; disabled export currently denies all, but usable operational export needs exact Current/valid/authorised readiness checks.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given Draft/Awaiting Approval/Changes Requested/Rejected/Superseded/Expired or blocked authority, then execution export is denied; separately permitted historical export is clearly non-current."
+  },
+  {
+    "id": "EXPORT-011",
+    "title": "Version Identification",
+    "pages": [
+      278
+    ],
+    "requirement": "14.11.     EXPORT-011 Version Identification\n\nExports of controlled pricing work must identify the relevant proposal or pricing-work version.\n\nThis allows the organisation to determine exactly which decision the exported output\nrepresents.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No generated controlled-work export containing Proposal/version identification; backend controlled-version identifier is absent.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given exported controlled work, then exact persistent Proposal ID plus controlled version is present and traceable."
+  },
+  {
+    "id": "EXPORT-012",
+    "title": "Export Timestamp",
+    "pages": [
+      278
+    ],
+    "requirement": "14.12.     EXPORT-012 Export Timestamp\n\nEvery consequential export must record when the export was generated.\n\nThe exported output should also include a generation timestamp where operationally\nappropriate.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)"
+    ],
+    "gap": "No consequential export event/generation timestamp. Export generation time must be recorded even where file timestamp is only operationally appropriate.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given export generation, then durable event records generation time and file includes it where appropriate."
+  },
+  {
+    "id": "EXPORT-013",
+    "title": "Export Attribution",
+    "pages": [
+      278
+    ],
+    "requirement": "14.13.     EXPORT-013 Export Attribution\n\nConsequential exports must be attributable to the user who generated them.\n\nThe system must preserve:\n\n   ● exporting user;\n   ● timestamp;\n   ● export type;\n   ● related Pricing Initiative;\n   ● proposal version where applicable.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/governance/src/repo/audit-repo.ts:4 (tenant-scoped idempotent insertAuditRow); src/governance/migrations/0002_audit_log_foundation.up.sql:15 (actor/time/entity/payload, indexes, RLS, SELECT/INSERT-only grant at 48)"
+    ],
+    "gap": "No exporter/type/Initiative/version attributable export event.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given a consequential export, then user/time/type/Initiative/exact version can be retrieved in history."
+  },
+  {
+    "id": "EXPORT-014",
+    "title": "Export Audit Event",
+    "pages": [
+      278
+    ],
+    "requirement": "14.14.     EXPORT-014 Export Audit Event\n\nGeneration of an execution-oriented or sensitive pricing export must create an auditable\nevent within the relevant historical record.\n\nRoutine low-risk exports may follow the organisation's supported audit policy.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:556 (recordRoleJourneyEvent records actor/version/time/before/after, isSynthetic); :861 (canonicalAuditEvents combines eligible baseline with role events only)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/governance/src/domain/event-mapper.ts:45 (seven mapped proposal/override/import events); :134 (actor/object/time mapping; no controlled Proposal-version or execution/outcome event contract)"
+    ],
+    "gap": "Execution/sensitive export audit generation absent; generic ingest does not emit this event.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given an execution or sensitive pricing export, then generating it appends audit event in related history without duplicate event on safe replay."
+  },
+  {
+    "id": "EXPORT-015",
+    "title": "Export After Proposal Change",
+    "pages": [
+      278
+    ],
+    "requirement": "14.15.     EXPORT-015 Export After Proposal Change\n\nWhere an authorised Pricing Proposal version is subsequently superseded following a\nmaterial change, previous exports must remain historical records but must not be\nrepresented as reflecting or authorising the revised Proposal version.\n\nA new authorised version requires a new execution export.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No retained export manifest/version supersession model.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given old exported v1 and authorised replacement v2, then v1 export remains historical and v2 requires a new export, without relabelling old output."
+  },
+  {
+    "id": "EXPORT-016",
+    "title": "Expired Pricing Action",
+    "pages": [
+      279
+    ],
+    "requirement": "14.16.     EXPORT-016 Expired Pricing Action\n\nWhere a proposal or pricing action has expired, the system must prevent it from being\nexported as currently valid execution authority.\n\nHistorical export remains permissible where authorised and clearly labelled as historical.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No expiry-validity export guard; canonical version validity is also not modelled by current backend.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given expired action, then operational export is refused while authorised historical export remains clearly historical."
+  },
+  {
+    "id": "EXPORT-017",
+    "title": "Effective-Date Visibility",
+    "pages": [
+      279
+    ],
+    "requirement": "14.17.     EXPORT-017 Effective-Date Visibility\n\nExecution-oriented exports must preserve the intended effective date or effective period\nwhere applicable.\n\nThe system must not assume that the export generation date is the pricing effective date.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/ProposalWorkspace.jsx:472 (PublicationReview: approved manifest, actor, effective time, Catalog-write wording)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/proposal/src/service.ts:467 (publish effectiveAt is new Date, not preserved intended time); src/proposal/src/workers/scheduled-rollout.ts:118 (scheduled path uses rollout effective_at)"
+    ],
+    "gap": "No execution export of intended effective date/period; existing direct backend publish substitutes current time and must not become export contract.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given authorisation effective at T and export at U, then file preserves T explicitly rather than replacing it with U."
+  },
+  {
+    "id": "EXPORT-018",
+    "title": "Human-Readable Handoff",
+    "pages": [
+      279
+    ],
+    "requirement": "14.18.     EXPORT-018 Human-Readable Handoff\n\nIn addition to structured data, the MVP should provide an understandable summary of the\nauthorised action for the person responsible for implementation.\n\nThe handoff should make clear:\n\n   ● what must change;\n   ● where it applies;\n   ● when it becomes effective;\n   ● which version was authorised;\n   ● any relevant exceptions or conditions.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:472 (PublicationReview: approved manifest, actor, effective time, Catalog-write wording)",
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)"
+    ],
+    "gap": "Existing on-screen publication manifest partially explains version/actor/effective time but no human-readable external operational handoff across full scope/conditions.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P2",
+    "acceptance": "Given an authorised action, when handoff summary opens, then recipient understands what/where/when/version/exceptions across actual scope."
+  },
+  {
+    "id": "EXPORT-019",
+    "title": "External Operational Handoff State",
+    "pages": [
+      279
+    ],
+    "requirement": "14.19.     EXPORT-019 External Operational Handoff State\n\nWhere an authorised pricing action is handed to an external implementation process, the\nsystem should be able to record that the action has been Exported or Handed Off for\nExecution.\n\nThis state must identify:\n\n   ● handoff timestamp;\n   ● responsible user;\n   ● affected proposal version;\n   ● implementation owner where applicable.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No separate exported/handed-off state record or handoff timestamp/responsible user/version/implementation owner.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P2",
+    "acceptance": "Given action handed outside, then handoff record captures responsible actor/time/exact version/owner without changing implementation status."
+  },
+  {
+    "id": "EXPORT-020",
+    "title": "Handoff Is Not Implementation",
+    "pages": [
+      280
+    ],
+    "requirement": "14.20.      EXPORT-020 Handoff Is Not Implementation\n\nMarking pricing work as exported or handed off must not automatically move the Pricing\nInitiative to Implemented.\n\nImplementation requires the separate confirmation defined in Section 3.11 Execution and\nPost-Implementation Monitoring, including EXEC-006 Implementation Confirmation.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)"
+    ],
+    "gap": "No export/handoff model; existing Catalog publication must not be reused as automatic external implementation confirmation.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given CSV is downloaded or action marked Handed Off, then Initiative remains not implemented until separate authorised confirmation."
+  },
+  {
+    "id": "EXPORT-021",
+    "title": "Implementation Reference",
+    "pages": [
+      280
+    ],
+    "requirement": "14.21.      EXPORT-021 Implementation Reference\n\nWhen implementation occurs outside Owómidé, authorised users should be able to record\nan external implementation reference where available.\n\nExamples include:\n\n    ● ERP change reference;\n    ● internal ticket number;\n    ● batch identifier;\n    ● marketplace update reference.\n\nThe MVP must not require an external reference where the organisation does not use one.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No optional external implementation reference recording field/API; connector operation ID is not user-provided ERP/ticket evidence.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P2",
+    "acceptance": "Given external confirmation with or without an external reference, then both valid cases can be recorded; no unused reference is required."
+  },
+  {
+    "id": "EXPORT-022",
+    "title": "Exported Versus Implemented Comparison",
+    "pages": [
+      280
+    ],
+    "requirement": "14.22.      EXPORT-022 Exported Versus Implemented Comparison\n\nWhere an execution export exists, the system should preserve the relationship between:\n\nAuthorised Pricing Action → Exported/Handoff Action → Actual Implemented Action\n\nThis allows later identification of execution discrepancies.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No linked authorised→exported/handoff→actual chain or comparison.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P2",
+    "acceptance": "Given an export and later implementation, then their exact entity/value/version relationship and discrepancies are inspectable."
+  },
+  {
+    "id": "EXPORT-023",
+    "title": "Re-Export",
+    "pages": [
+      280
+    ],
+    "requirement": "14.23.      EXPORT-023 Re-Export\n\nAuthorised users may regenerate an export for the same valid proposal version where\noperationally necessary.\n\nEach consequential export event should remain attributable.\n\nRe-exporting must not create a new Proposal version or new organisational decision\nauthority by itself.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)"
+    ],
+    "gap": "Optional regeneration unavailable with absent export subsystem; repeated consequential export should be attributable without creating new Proposal or authority.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P2",
+    "acceptance": "If re-export is supported, given same still-valid version, then regenerated output is attributed as new export event and no Proposal version/decision changes."
+  },
+  {
+    "id": "EXPORT-024",
+    "title": "Data Formatting",
+    "pages": [
+      280,
+      281
+    ],
+    "requirement": "14.24.      EXPORT-024 Data Formatting\n\nExports must use consistent:\n\n   ● column definitions;\n   ● currencies;\n   ● numeric formats;\n   ● dates;\n   ● identifiers.\n\nThe system must avoid ambiguous representations that could cause operational pricing\nerrors.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)"
+    ],
+    "gap": "No CSV column/currency/numeric/date/identifier format contract or roundtrip tests.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given decimal money, differing currencies/timezones and special characters, then CSV uses defined lossless formats and safely escapes cells without ambiguous operational instructions."
+  },
+  {
+    "id": "EXPORT-025",
+    "title": "Missing Operational Identifier",
+    "pages": [
+      281
+    ],
+    "requirement": "14.25.     EXPORT-025 Missing Operational Identifier\n\nWhere a pricing action lacks an external identifier required by the organisation's\nimplementation process, the system should surface the missing value before operational\nexport where that field has been configured as required.\n\nThe system must not invent external identifiers.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureOperationalRepositories.js:373 (FixtureCatalogRepository supplies canonical identities and external identifiers; no export generator)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/catalog/src/repo/mappers.ts:178 (skuMessage carries identifiers); src/lib/proto/services/proposal/v1/proposal.proto:61 (proposal lines retain SKU/channel but no operational export shape)"
+    ],
+    "gap": "No export schema with configured required operational identifiers or preflight validation. Catalog external identifiers exist but export cannot detect missing configured fields.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given a configured-required identifier is missing, then preflight surfaces the affected entity and never invents a mapping; non-required fields need not block."
+  },
+  {
+    "id": "EXPORT-026",
+    "title": "Export Validation",
+    "pages": [
+      281
+    ],
+    "requirement": "14.26.     EXPORT-026 Export Validation\n\nBefore generating an execution-oriented export, the system must validate that:\n\n   ● the proposal has valid execution authority;\n   ● the proposal version is current and identifiable;\n   ● required implementation fields are present;\n   ● affected scope is defined;\n   ● applicable effective dates are valid;\n   ● no blocking execution condition remains.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2360 (FixturePublicationRepository.start checks current ref, publish:execute, assigned publisher and approved/readiness state; no validity/timing/manual implemented-value contract)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "Mandatory execution-export preflight entirely absent: current authority/version, required fields/scope/effective dates and blockers.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P0",
+    "acceptance": "Given each required export condition fails in turn, then no operational export is issued; complete current valid authority succeeds with exact manifest."
+  },
+  {
+    "id": "EXPORT-027",
+    "title": "Historical Export",
+    "pages": [
+      281,
+      282
+    ],
+    "requirement": "14.27.     EXPORT-027 Historical Export\n\nAuthorised users must be able to export relevant historical pricing records for legitimate\npurposes such as:\n\n   ● internal review;\n   ● management reporting;\n   ● audit;\n   ● operational reference.\n\nHistorical exports must preserve original decision context rather than recalculate using\ncurrent workspace values.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:522 (nextProposalVersion preserves detail/source snapshots in Maps); :1906 (getDetail/getVersion project read-only history through current access)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/governance/src/domain/snapshot.ts:14 (snapshot contains Catalog tables only); src/governance/src/subscribers/snapshot-subscriber.ts:19 (publication/import trigger and debounce, not submitted Proposal decision snapshot)"
+    ],
+    "gap": "Mandatory authorised historical export absent; Catalog snapshot storage is not a historical pricing export API.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given later workspace changes, when exporting historical decision, then original context is retained and no current-value recalculation occurs."
+  },
+  {
+    "id": "EXPORT-028",
+    "title": "Bounded External Integration",
+    "pages": [
+      282
+    ],
+    "requirement": "14.28.     EXPORT-028 Bounded External Integration\n\nThe MVP must support bounded integration with selected external systems where those\nintegrations materially improve the ability to exchange pricing context or authorised pricing\nwork with the organisation's existing operating environment.\n\nSupported integrations may include selected:\n\n   ● spreadsheet and productivity systems;\n   ● ERP platforms;\n   ● commerce or marketplace platforms;\n   ● other business systems required by validated MVP customers.\n\nAn integration may support inbound data exchange, outbound authorised pricing handoff or\nboth, according to the capabilities of the supported connector.\n\nThe MVP is not required to provide broad connector coverage, universal bidirectional\nsynchronisation or autonomous execution across an organisation's technology stack.\n\nWhere a native connector is unavailable, the customer must remain able to complete the\ncore Owómidé pricing workflow through supported manual entry, structured import, export\nand operational handoff mechanisms.\n\nSpecific integrations must be prioritised according to validated customer and pilot\nrequirements rather than treated as universal MVP dependencies.",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/catalog/src/service.ts:252 and src/catalog/src/write-engine.ts:561 (internal Proposal-to-Catalog service write only; not evidence of a selected external connector)"
+    ],
+    "gap": "No selected external connector was found in the inspected frontend or backend source. Connector selection depends on validated pilot needs, not universal breadth. Mandatory fallback export/manual handoff is also missing; the core workflow must remain completable without a native connector.",
+    "misrepresentation": "Internal Proposal→Catalog service calls and CSV imports are not proof of selected external operational connector integration. Broad connector coverage is explicitly not required.",
+    "priority": "P1",
+    "acceptance": "Given no native connector, then company completes pricing through manual/import/export/handoff; implement only customer-validated bounded connector after its requirement is confirmed."
+  },
+  {
+    "id": "EXPORT-029",
+    "title": "External System Authority",
+    "pages": [
+      282
+    ],
+    "requirement": "14.29.     EXPORT-029 External System Authority\n\nWhere the operational system remains the organisation's system of record for live prices,\nOwómidé must not falsely claim that an exported pricing action has changed that system.\n\nOwómidé records the pricing decision and its execution status based on the information\navailable within the MVP.",
+    "frontendStatus": "sample-partial",
+    "backendStatus": "partial-source",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/ProposalWorkspace.jsx:472 (PublicationReview: approved manifest, actor, effective time, Catalog-write wording)",
+      "apps/workspace/src/data/fixtureWorkspaceRepositories.js:2503 (createFixtureWorkspaceRepositories: in-memory proposal/publishing/audit composition; no execution-confirmation or monitoring repository; transport at 2536)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/proposal/src/service.ts:439 (publishProposal validates gateway caller, user and approved state; writes Catalog then sets published; no Executor role/current controlled version/validity check)"
+    ],
+    "gap": "Export is disabled, which currently avoids a false export-success claim. Existing UI promises Catalog writes, not external ERP/POS updates; future external claims require separate confirmation.",
+    "misrepresentation": "Current Catalog-write UI must remain distinguished from external system-of-record implementation; do not advertise simulated publication as live external propagation.",
+    "priority": "P0",
+    "acceptance": "Given an external system remains live-price authority, then download/handoff reports only that fact and never claims it changed external prices without implementation evidence."
+  },
+  {
+    "id": "EXPORT-030",
+    "title": "Operational Handoff Completeness Principle",
+    "pages": [
+      282,
+      283
+    ],
+    "requirement": "14.30.     EXPORT-030 Operational Handoff Completeness Principle\n\nFor an authorised pricing action leaving Owómidé for external execution, the MVP must\nmake it possible to answer:\n\nWhat exactly was authorised?\nWhich proposal version did it come from?\nWhich entities and prices were included?\nWhen should the change take effect?\nWho exported or handed it off?\nWho was responsible for implementation?\nWas it subsequently confirmed as implemented?\nDid the implemented result differ from the authorised action?",
+    "frontendStatus": "absent",
+    "backendStatus": "absent",
+    "integrationStatus": "not-connected",
+    "evidenceFrontend": [
+      "apps/workspace/src/data/fixtures/repricingPreviewV0.js:150 (repricing.preview.export is disabled CAPABILITY_UNAVAILABLE); apps/workspace/src/data/fixtureOperationalRepositories.js:534 (rejected-row export disabled)",
+      "apps/workspace/src/ProposalWorkspace.jsx:472 (PublicationReview: approved manifest, actor, effective time, Catalog-write wording)",
+      "apps/workspace/src/ProposalWorkspace.jsx:492 (PublicationStatus: requested/applied/remaining counts, recovery and audit endpoint; no implemented-value entry or outcome recording)"
+    ],
+    "evidenceBackend": [
+      "src/gateway/src/routes/data-pipeline.ts:703 (/exports and /exports/* return HTTP 501 UNIMPLEMENTED; no generated CSV operational/historical export)",
+      "src/proposal/src/service.ts:171 (registered ProposalService methods expose proposal/change-set/publish/schedule/comments, not manual implementation, monitoring or completion)",
+      "src/lib/proto/services/proposal/v1/proposal.proto:11 (RPC inventory); :40 (single ProposalState); :49 (Proposal has no controlled version/validity/Initiative execution record)"
+    ],
+    "gap": "No complete handoff record joining exact authorised version/entities/prices/timing/exporter/owner and later actual confirmation/variance.",
+    "misrepresentation": "Export is explicitly unavailable, not a working MVP capability. Disabled/stubbed export is fail-closed but not feature completion.",
+    "priority": "P1",
+    "acceptance": "Given an authorised action leaves Owómidé, then a permitted user can answer all operational handoff completeness questions from linked records."
+  }
+]

@@ -62,7 +62,12 @@ test("Given Teni's resolved multi-role session, when Work queue loads, then only
   for (const item of queue.items) {
     const open = findAllowedAction(item.allowedActions, "work.open");
     assert.equal(open.enabled, true);
-    assert.deepEqual(open.targetRef, item.ref);
+    if (item.type === "repricing") {
+      const preview = await repositories.repricing.getPreview({ ref: open.targetRef });
+      assert.deepEqual(open.targetRef, preview.ref);
+    } else {
+      assert.deepEqual(open.targetRef, item.ref);
+    }
   }
 });
 

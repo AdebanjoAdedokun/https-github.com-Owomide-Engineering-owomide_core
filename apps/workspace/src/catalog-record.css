@@ -1,0 +1,159 @@
+/* Record detail owns its layout; no dependency on legacy record-card grids. */
+.catalog-record {
+  width: 100%;
+  max-width: 960px;
+  min-width: 0;
+  color: var(--ink);
+}
+
+.catalog-record-back {
+  min-height: 44px;
+  margin: 0 0 16px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 4px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.catalog-record-back:hover { color: var(--green); }
+.catalog-record-back svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.catalog-record-heading {
+  min-width: 0;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.catalog-record-heading > div { min-width: 0; }
+.catalog-record-context { margin: 0 0 8px; color: var(--muted); font-size: 12px; line-height: 18px; }
+.catalog-record-heading h1 { margin: 0; color: var(--green); font-size: var(--text-page-title); line-height: 1.2; letter-spacing: -.025em; font-weight: 600; overflow-wrap: anywhere; }
+.catalog-record-subtitle { margin: 8px 0 0; display: flex; flex-wrap: wrap; column-gap: 16px; row-gap: 4px; color: var(--muted); font-size: 13px; line-height: 20px; }
+.catalog-record-subtitle > span { min-width: 0; overflow-wrap: anywhere; }
+
+.catalog-record-status {
+  min-height: 28px;
+  flex-shrink: 0;
+  margin-top: 24px;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--green);
+  background: transparent;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 550;
+}
+
+.catalog-record-status svg { width: 14px; height: 14px; flex-shrink: 0; }
+.catalog-record-status.is-attention { color: var(--gold-ink, #996500); }
+.catalog-record-sheet { min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+.catalog-record-pricing { padding: 24px; }
+.catalog-record-amounts { margin: 0 0 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.catalog-record-amounts > div { min-width: 0; }
+.catalog-record-amounts > div + div { padding-left: 24px; border-left: 1px solid var(--line); }
+.catalog-record-amounts dt { margin-bottom: 8px; color: var(--muted); font-size: 12px; line-height: 18px; }
+.catalog-record-amounts dd { margin: 0; color: var(--green); font-size: clamp(20px, 2.1vw, 28px); font-weight: 600; letter-spacing: -.02em; line-height: 1.2; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.catalog-record-amounts dd.is-unavailable { color: var(--muted); font-size: 18px; font-weight: 500; }
+.catalog-record-cost-state { display: block; margin-top: 6px; color: var(--gold-ink, #996500); font-size: 12px; line-height: 18px; }
+.catalog-record-dates, .catalog-record-facts { margin: 0; }
+.catalog-record-dates { padding-top: 16px; border-top: 1px solid var(--line); }
+.catalog-record-dates > div, .catalog-record-facts > div { min-width: 0; display: grid; grid-template-columns: 140px minmax(0, 1fr); column-gap: 24px; padding: 8px 0; }
+.catalog-record-dates dt, .catalog-record-facts dt { margin: 0; color: var(--muted); font-size: 13px; line-height: 20px; overflow-wrap: anywhere; }
+.catalog-record-dates dd, .catalog-record-facts dd { min-width: 0; margin: 0; color: var(--ink); font-size: 13px; line-height: 20px; white-space: normal; overflow-wrap: anywhere; }
+.catalog-record-evidence { padding: 24px; border-top: 1px solid var(--line); }
+.catalog-record-evidence h2 { margin: 0 0 16px; color: var(--green); font-size: 15px; line-height: 22px; font-weight: 600; }
+.catalog-record-facts dd small { display: inline-block; margin-left: 12px; color: var(--muted); font-size: 12px; font-weight: 400; }
+.catalog-record-readonly { margin: 0; padding: 16px 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 19px; overflow-wrap: anywhere; }
+
+@media (max-width: 600px) {
+  .catalog-record-back { margin-bottom: 12px; }
+  .catalog-record-heading { flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .catalog-record-heading > div { flex-basis: 100%; }
+  .catalog-record-status { margin-top: 0; }
+  .catalog-record-pricing, .catalog-record-evidence { padding: 20px 16px; }
+  .catalog-record-amounts { gap: 16px; margin-bottom: 20px; }
+  .catalog-record-amounts > div + div { padding-left: 16px; }
+  .catalog-record-dates > div, .catalog-record-facts > div { grid-template-columns: 90px minmax(0, 1fr); column-gap: 16px; }
+  .catalog-record-readonly { padding: 16px; }
+}
+
+/* Give exact financial amounts a full line on small phones. */
+@media (max-width: 420px) {
+  .catalog-record-amounts { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .catalog-record-amounts > div + div { padding-left: 0; border-left: 0; }
+}
+
+/* Scanning ledger: source evidence belongs in the inspector/full record.
+   Named tracks keep the fourth (status) column independent of legacy nth-child
+   rules that previously hid the source column when an inspector was docked. */
+.catalog-ledger-compact .catalog-list > button > span.catalog-ledger-status {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-self: start;
+  gap: 6px;
+  width: max-content;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  font-size: var(--table-text-secondary);
+  line-height: var(--table-line-secondary);
+}
+
+.catalog-ledger-compact .catalog-ledger-status > .ops-status {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+}
+
+@media (min-width: 1101px) {
+  .catalog-split-surface.catalog-ledger-compact .catalog-header,
+  .catalog-split-surface.catalog-ledger-compact .catalog-list > button,
+  .catalog-split-surface.catalog-ledger-compact.has-peek.is-docked .catalog-header,
+  .catalog-split-surface.catalog-ledger-compact.has-peek.is-docked .catalog-list > button {
+    min-width: 0;
+    grid-template-columns: minmax(200px, 1.4fr) minmax(160px, 1fr) minmax(136px, .7fr) minmax(128px, .6fr) 16px;
+    column-gap: 24px;
+    padding-inline: var(--table-inset);
+  }
+
+  .catalog-ledger-compact .catalog-ledger-price-heading { text-align: right; }
+  .catalog-ledger-compact .catalog-list > button > .catalog-money { align-items: flex-end; text-align: right; }
+  .catalog-ledger-compact .catalog-list > button > .catalog-scope { overflow-wrap: anywhere; }
+
+  /* Keep status separate from the right-aligned price, even when the ledger
+     expands or docks. The same inset keeps its heading over its content. */
+  .catalog-ledger-compact .catalog-ledger-status-heading,
+  .catalog-ledger-compact .catalog-list > button > span.catalog-ledger-status { padding-inline-start: 24px; }
+
+  .catalog-split-surface.catalog-ledger-compact.has-peek.is-docked .catalog-header > .catalog-ledger-status-heading { display: block; }
+  .catalog-split-surface.catalog-ledger-compact.has-peek.is-docked .catalog-list > button > .catalog-ledger-status { display: flex; }
+}
+
+@media (max-width: 1100px) {
+  .catalog-ledger-compact .catalog-list > button {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 16px;
+  }
+
+  .catalog-ledger-compact .catalog-list > button > span.catalog-ledger-status {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    align-self: center;
+  }
+}

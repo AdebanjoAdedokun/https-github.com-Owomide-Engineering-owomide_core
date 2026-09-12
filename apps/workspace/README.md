@@ -2,6 +2,8 @@
 
 Authenticated pricing, proposal, approval, publication and audit workspace.
 
+The current checkpoint is a **fixture-backed demonstration**, not a completed real-company journey. The accepted [MVP benchmark and delivery plan](../../docs/product/mvp-2026-09/README.md) is the reference for further frontend alignment, backend work and integration. Earlier polish reviews in this app's docs remain historical implementation evidence, not replacement-PRD sign-off.
+
 ## Local development
 
 From the monorepo root:

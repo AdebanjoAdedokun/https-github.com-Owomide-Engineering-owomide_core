@@ -1,0 +1,78 @@
+import React from "react";
+import { render, screen, within, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { expect, it } from "vitest";
+import { WorkspaceApp } from "../src/WorkspaceApp.jsx";
+import { createFixtureWorkspaceRepositories, FIXTURE_ACTOR_IDS as ACTOR } from "../src/data/index.js";
+import { workspaceHash } from "../src/workspaceRouting.js";
+import { installWorkspaceSelectLayoutFixture } from "./helpers/workspaceSelectLayout.js";
+
+installWorkspaceSelectLayoutFixture();
+
+it("Given a draft-only Analyst, handoff, manager submission, rejection and resubmission retain authorship through the connected workspace", async () => {
+  const repositories = createFixtureWorkspaceRepositories();
+  const start = await repositories.proposals.getDetail();
+  const requested = await repositories.proposals.requestOverride({ proposalRef: start.ref, idempotencyKey: "ui-ready-request" });
+  await repositories.identity.selectDesignEvidenceActor(ACTOR.chika);
+  const ready = (await repositories.proposals.decideOverride({ overrideRef: requested.data.override.ref, decision: "approve", idempotencyKey: "ui-ready-decision" })).data.proposal;
+  await repositories.identity.selectDesignEvidenceActor(ACTOR.owner);
+  const company = await repositories.company.get();
+  await repositories.company.updateAnalystSubmission({ companyRef: company.ref, analystCanSubmit: false, idempotencyKey: "ui-draft-only" });
+  await repositories.identity.selectDesignEvidenceActor(ACTOR.teni);
+  window.history.replaceState(null, "", workspaceHash({ surface: "proposal", resourceId: ready.ref.id, resourceVersion: ready.ref.version, view: "overview" }));
+  const user = userEvent.setup();
+  render(<WorkspaceApp repositories={repositories} />);
+  const actor = async (name) => {
+    await user.click(screen.getByRole("button", { name: "Open session identity details" }));
+    const menu = screen.getByRole("region", { name: "Session identity" });
+    await user.click(within(menu).getByText("Preview another role"));
+    await user.click(within(menu).getByRole("button", { name: new RegExp(name) }));
+    await screen.findByRole("button", { name: "People and permissions" });
+  };
+  const submit = async () => {
+    await user.click(screen.getByRole("button", { name: "Submit for independent review" }));
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Submit for approval" }));
+    await waitFor(async () => expect((await repositories.proposals.getDetail()).state).toBe("submitted"));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  };
+
+  const handoff = await screen.findByRole("region", { name: "Draft submission handoff" });
+  expect((await repositories.identity.getSession()).effectiveCapabilities).not.toContain("proposal:submit");
+  await user.click(within(handoff).getByRole("combobox", { name: "Pricing Manager" }));
+  await user.click(screen.getByRole("option", { name: /^Ada(?:\s|$)/ }));
+  await user.click(within(handoff).getByRole("button", { name: "Review handoff" }));
+  await user.click(within(handoff).getByRole("button", { name: "Confirm handoff" }));
+  await waitFor(async () => expect((await repositories.proposals.getDetail()).submissionOwner.id).toBe(ACTOR.manager));
+  await actor("Ada");
+  await submit();
+  let current = await repositories.proposals.getDetail();
+  expect(current.author.id).toBe(ACTOR.teni);
+  expect(current.submission.actor.id).toBe(ACTOR.manager);
+  await actor("Chika");
+  await user.click(screen.getByRole("button", { name: "Review current version" }));
+  await user.click(await screen.findByRole("button", { name: "Return for changes" }));
+  const dialog = screen.getByRole("dialog");
+  await user.type(within(dialog).getByRole("textbox", { name: "Changes required" }), "Clarify the commercial context before a fresh independent review.");
+  await user.click(within(dialog).getByRole("button", { name: "Return for changes" }));
+  await waitFor(async () => expect((await repositories.proposals.getDetail()).state).toBe("draft"));
+  await screen.findByRole("button", { name: "People and permissions" });
+  await actor("Ada");
+  expect(await screen.findByText("Clarify the commercial context before a fresh independent review.")).toBeVisible();
+  await user.click(screen.getByRole("button", { name: "Edit draft title" }));
+  const title = screen.getByRole("textbox", { name: "Draft title" });
+  await user.clear(title);
+  await user.type(title, "Cost recovery · revised context");
+  await user.click(screen.getByRole("button", { name: "Save title" }));
+  await screen.findByRole("heading", { name: "Cost recovery · revised context" });
+  await submit();
+  current = await repositories.proposals.getDetail();
+  expect(current.approval).toBeNull();
+  expect(current.author.id).toBe(ACTOR.teni);
+  expect(current.submission.actor.id).toBe(ACTOR.manager);
+  await actor("Chika");
+  await user.click(screen.getByRole("button", { name: "Review current version" }));
+  await user.click(await screen.findByRole("button", { name: "Approve Proposal" }));
+  await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Approve Proposal" }));
+  await waitFor(async () => expect((await repositories.proposals.getDetail()).state).toBe("approved"));
+  expect((await repositories.proposals.getDetail()).publicationRef).toBeNull();
+}, 20000);

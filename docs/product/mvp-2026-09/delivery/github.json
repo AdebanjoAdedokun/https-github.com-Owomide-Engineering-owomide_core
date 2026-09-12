@@ -1,0 +1,167 @@
+{
+  "repository": "Owomide-Engineering/owomide_core",
+  "baselineRef": "f867a403e82ad065e15b779f9b50a64a19a8449f",
+  "milestones": {
+    "M0": {
+      "number": 1,
+      "title": "MVP 0 — Product decisions and contracts",
+      "url": "https://github.com/Owomide-Engineering/owomide_core/milestone/1"
+    },
+    "M1": {
+      "number": 2,
+      "title": "MVP 1 — Frontend journey alignment",
+      "url": "https://github.com/Owomide-Engineering/owomide_core/milestone/2"
+    },
+    "M2": {
+      "number": 3,
+      "title": "MVP 2 — Backend product foundations",
+      "url": "https://github.com/Owomide-Engineering/owomide_core/milestone/3"
+    },
+    "M3": {
+      "number": 4,
+      "title": "MVP 3 — Connected pilot and release proof",
+      "url": "https://github.com/Owomide-Engineering/owomide_core/milestone/4"
+    }
+  },
+  "issues": {
+    "CT-01": {
+      "number": 51,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/51",
+      "milestone": "M0"
+    },
+    "CT-02": {
+      "number": 52,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/52",
+      "milestone": "M0"
+    },
+    "FE-01": {
+      "number": 53,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/53",
+      "milestone": "M1"
+    },
+    "FE-02": {
+      "number": 54,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/54",
+      "milestone": "M1"
+    },
+    "FE-03": {
+      "number": 55,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/55",
+      "milestone": "M1"
+    },
+    "FE-04": {
+      "number": 56,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/56",
+      "milestone": "M1"
+    },
+    "FE-05": {
+      "number": 57,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/57",
+      "milestone": "M1"
+    },
+    "FE-06": {
+      "number": 58,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/58",
+      "milestone": "M1"
+    },
+    "FE-07": {
+      "number": 59,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/59",
+      "milestone": "M1"
+    },
+    "FE-08": {
+      "number": 60,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/60",
+      "milestone": "M1"
+    },
+    "FE-09": {
+      "number": 61,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/61",
+      "milestone": "M1"
+    },
+    "FE-10": {
+      "number": 62,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/62",
+      "milestone": "M1"
+    },
+    "FE-11": {
+      "number": 63,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/63",
+      "milestone": "M1"
+    },
+    "BE-01": {
+      "number": 64,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/64",
+      "milestone": "M2"
+    },
+    "BE-02": {
+      "number": 65,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/65",
+      "milestone": "M2"
+    },
+    "BE-03": {
+      "number": 66,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/66",
+      "milestone": "M2"
+    },
+    "BE-04": {
+      "number": 67,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/67",
+      "milestone": "M2"
+    },
+    "BE-05": {
+      "number": 68,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/68",
+      "milestone": "M2"
+    },
+    "BE-06": {
+      "number": 69,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/69",
+      "milestone": "M2"
+    },
+    "BE-07": {
+      "number": 70,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/70",
+      "milestone": "M2"
+    },
+    "BE-08": {
+      "number": 71,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/71",
+      "milestone": "M2"
+    },
+    "BE-09": {
+      "number": 72,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/72",
+      "milestone": "M2"
+    },
+    "IN-01": {
+      "number": 73,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/73",
+      "milestone": "M3"
+    },
+    "IN-02": {
+      "number": 74,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/74",
+      "milestone": "M3"
+    },
+    "IN-03": {
+      "number": 75,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/75",
+      "milestone": "M3"
+    },
+    "IN-04": {
+      "number": 76,
+      "url": "https://github.com/Owomide-Engineering/owomide_core/issues/76",
+      "milestone": "M3"
+    }
+  },
+  "project": {
+    "status": "not-created",
+    "reason": "The configured CLI token lacks Projects permission. No scope change or Project write attempted."
+  },
+  "tracker": {
+    "number": 50,
+    "url": "https://github.com/Owomide-Engineering/owomide_core/issues/50"
+  },
+  "publishedAt": "2026-09-12T10:12:05.393Z"
+}

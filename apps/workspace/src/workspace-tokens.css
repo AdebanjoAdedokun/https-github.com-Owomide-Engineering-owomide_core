@@ -1,0 +1,59 @@
+/* Shared workspace foundations. Import before screen and composition styles. */
+:root {
+  --canvas: #f2f1eb;
+  --paper: #fffdf8;
+  --paper-cool: #fafaf6;
+  --ink: #10211d;
+  --green: #06332c;
+  --green-2: #0f5145;
+  --green-soft: #edf3f0;
+  --muted: #67726e;
+  --quiet: #8a928e;
+  --line: #d9ddd7;
+  --line-strong: #bdc8c2;
+  --gold: #d8b352;
+  --gold-deep: #92650a;
+  --gold-soft: #f7f0dc;
+  --danger: #aa4437;
+  --danger-soft: #faece8;
+  --shadow: 0 1px 0 rgba(6, 51, 44, .04);
+  --ease: cubic-bezier(.22, 1, .36, 1);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --control-size: 44px;
+  --touch-size: 48px;
+  --entity-box: 44px;
+  --step-node: 36px;
+  --radius-control: 8px;
+  --panel-shadow: 0 8px 24px rgba(6, 51, 44, .1);
+  --panel-motion: cubic-bezier(.22, 1, .36, 1);
+  --content-max: 1200px;
+
+  /* Compact operational titles; the login story keeps its display scale. */
+  --text-page-title: clamp(22px, 1.7vw, 28px);
+  --text-page-title-line: 1.1;
+  --text-page-title-tracking: -.028em;
+  --text-body-small: 12px;
+  --text-body-small-line: 16px;
+  --text-meta: 11px;
+  --text-meta-line: 14px;
+
+  /* Table roles: one hierarchy across data rows and richer workflow rows. */
+  --table-text-primary: 14px;
+  --table-line-primary: 20px;
+  --table-text-secondary: 12px;
+  --table-line-secondary: 18px;
+  --table-text-heading: 12px;
+  --table-line-heading: 16px;
+  --table-inset: 20px;
+  --table-inset-mobile: 16px;
+  --table-cell-gap: 16px;
+  --table-text-gap: 2px;
+  --table-row-data: 64px;
+  --table-row-workflow: 80px;
+}

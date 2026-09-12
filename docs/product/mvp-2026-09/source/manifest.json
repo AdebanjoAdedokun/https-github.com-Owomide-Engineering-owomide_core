@@ -1,0 +1,8 @@
+{
+  "source": "prototype-prd.pdf",
+  "sha256": "0abae9e27c514a8f0bdef9bd344d1f5eb75f033fb61495f7ebcc6a225c7ceba3",
+  "physicalPages": 283,
+  "requirements": 379,
+  "acceptedBenchmark": "../audit/MVP_PRD_BENCHMARK.md",
+  "sourcePolicy": "Company-provided PRD archived in the existing private company repository. Original PDF bytes unchanged; audit links made repository-relative."
+}

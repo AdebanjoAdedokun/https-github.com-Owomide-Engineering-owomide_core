@@ -22,6 +22,12 @@ export function parseWorkspaceHash(hash = globalThis.location?.hash ?? "") {
   const search = new URLSearchParams(query);
 
   if (segments[0] === "login") return { surface: "login", view: "default", ...withReturnTo(search) };
+  if (segments[0] === "requests") {
+    if (segments[1] === "new") return { surface: "pricing-request-new", view: "create" };
+    if (segments[1]) return { surface: "pricing-request", resourceId: segments[1], resourceVersion: search.get("version"), view: "detail" };
+    return { surface: "pricing-requests", view: "list" };
+  }
+  if (segments[0] === "settings" && segments[1] === "access") return { surface: "company-access", view: "access" };
   if (segments[0] === "work") {
     const requested = search.get("view") ?? "needs-me";
     return { surface: "work", view: WORK_VIEWS.has(requested) ? requested : "needs-me" };
@@ -71,6 +77,10 @@ export function parseWorkspaceHash(hash = globalThis.location?.hash ?? "") {
 /** @param {Record<string, any>} route */
 export function workspaceHash(route) {
   if (route.surface === "login") return `#/login${route.returnTo ? `?returnTo=${encodeURIComponent(route.returnTo)}` : ""}`;
+  if (route.surface === "pricing-requests") return "#/requests";
+  if (route.surface === "pricing-request-new") return "#/requests/new";
+  if (route.surface === "pricing-request") return `#/requests/${encodeURIComponent(route.resourceId)}${route.resourceVersion ? `?version=${encodeURIComponent(route.resourceVersion)}` : ""}`;
+  if (route.surface === "company-access") return "#/settings/access";
   if (route.surface === "work") return `#/work${route.view && route.view !== "needs-me" ? `?view=${encodeURIComponent(route.view)}` : ""}`;
   if (route.surface === "catalog") return "#/catalog";
   if (route.surface === "catalog-detail") return `#/catalog/${route.resourceId}`;

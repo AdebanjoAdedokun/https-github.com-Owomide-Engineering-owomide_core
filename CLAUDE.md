@@ -1,5 +1,9 @@
 # Owomide
 
+## Accepted MVP delivery baseline — September 2026
+
+Read [docs/product/mvp-2026-09/README.md](docs/product/mvp-2026-09/README.md) and the assigned delivery issue before new product work. The replacement PRD is Initiative-led; older Proposal-centric descriptions in this file describe existing implementation, not full target compliance. Preserve service isolation and engineering conventions. Resolve changed state/authority/data contracts through CT-02 before editing dependent runtime behaviour. Sample behaviour is not live integration evidence; never remove the live-adapter gate merely to make a flow appear complete.
+
 Africa (Starting with Nigeria) B2B pricing & proposal SaaS for distributors and wholesalers.
 
 The canonical object is the **Pricing Proposal**. Three product themes — **Margin**, **Bulk Repricing**, **Governance** — all bind to it.

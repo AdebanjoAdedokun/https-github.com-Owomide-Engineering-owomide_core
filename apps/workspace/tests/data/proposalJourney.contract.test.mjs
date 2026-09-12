@@ -79,7 +79,7 @@ test("Given the design fixture, when evidence actors are selected, then resolved
   const actors = await identity.listDesignEvidenceActors();
   const chika = await identity.selectDesignEvidenceActor(FIXTURE_ACTOR_IDS.chika);
 
-  assert.equal(actors.length, 4);
+  assert.equal(actors.length, Object.keys(FIXTURE_ACTOR_IDS).length);
   assert.deepEqual(actors.map((session) => session.actor.id), Object.values(FIXTURE_ACTOR_IDS));
   assert.deepEqual(chika.roleCodes, ["approver"]);
   assert.ok(chika.effectiveCapabilities.includes("proposal:approve"));

@@ -1,0 +1,50 @@
+/* Task guidance has one content-led layout at every width. */
+.proposal-next-step, .revision-context {
+  display: flex; align-items: center; gap: 16px; min-width: 0;
+  padding: 20px; margin-bottom: 24px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--paper); color: var(--green);
+}
+.proposal-next-step > svg { width: 20px; height: 20px; flex: 0 0 20px; align-self: flex-start; margin-top: 2px; }
+.proposal-journey + .proposal-next-step { margin-top: 16px; }
+.proposal-next-step.needs-attention > svg { color: var(--amber, #956100); }
+.proposal-next-step__copy, .revision-context > div { min-width: 0; flex: 1; }
+.proposal-next-step h2, .revision-context strong { display: block; margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -.015em; }
+.proposal-next-step p, .revision-context p { margin: 4px 0 0; font-size: 13px; line-height: 20px; color: var(--muted); overflow-wrap: anywhere; }
+.proposal-next-step small, .revision-context span { display: block; margin-top: 6px; font-size: 12px; line-height: 18px; color: var(--muted); }
+.revision-context small { display: block; margin-bottom: 4px; font-size: 12px; line-height: 18px; color: var(--muted); }
+.proposal-next-step__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; max-width: 52%; }
+.proposal-next-step__actions button, .revision-context > button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 14px; font-size: 13px; line-height: 20px; white-space: normal; text-align: center; }
+.proposal-next-step__actions button svg, .revision-context > button svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.proposal-evidence-details { border-top: 1px solid var(--line); padding-top: 8px; }
+.proposal-evidence-details > summary { padding: 12px 0; color: var(--muted); cursor: pointer; font-size: 13px; line-height: 20px; }
+.proposal-evidence-details > summary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+.proposal-anchor footer details { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 18px; }
+.proposal-anchor footer summary { cursor: pointer; width: fit-content; }
+.proposal-anchor footer details small { display: block; padding-top: 8px; overflow-wrap: anywhere; }
+.repricing-overview { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin: 24px 0 16px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+.repricing-overview p { margin: 0; color: var(--muted); font-size: 13px; line-height: 20px; }
+.repricing-overview strong { color: var(--green); font-weight: 600; font-variant-numeric: tabular-nums; }
+.repricing-overview > details { color: var(--muted); font-size: 12px; line-height: 20px; }
+.repricing-overview summary { cursor: pointer; }
+.repricing-overview dl { display: grid; grid-template-columns: auto auto; gap: 6px 24px; margin: 10px 0 0; }
+.repricing-overview dt, .repricing-overview dd { margin: 0; }
+.repricing-overview dd { text-align: right; font-variant-numeric: tabular-nums; }
+.filter-strip .workspace-select { flex: 1 1 180px; max-width: 300px; }
+.filter-strip .workspace-select > label { display: block; margin: 0; padding: 0; }
+.filter-strip .workspace-select-trigger { width: 100%; background: var(--paper); }
+.work-surface > .filter-strip { align-items: flex-end; gap: 16px; }
+.filter-strip .filter-strip__clear { min-height: 44px; }
+.page-head + .revision-context { margin-top: 24px; }
+@media (max-width: 1100px) {
+  .proposal-next-step { flex-wrap: wrap; }
+  .proposal-next-step__copy { flex-basis: calc(100% - 40px); }
+  .proposal-next-step__actions { max-width: none; width: 100%; padding-left: 36px; justify-content: flex-start; }
+}
+@media (max-width: 600px) {
+  .proposal-next-step, .revision-context { padding: 16px; gap: 12px; margin-bottom: 20px; }
+  .proposal-next-step__actions { padding-left: 0; flex-direction: column; }
+  .proposal-next-step__actions button { width: 100%; }
+  .revision-context { flex-direction: column; align-items: stretch; }
+  .repricing-overview { align-items: flex-start; padding: 12px 14px; }
+  .filter-strip .workspace-select { max-width: none; flex-basis: 100%; }
+}

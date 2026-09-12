@@ -108,7 +108,9 @@ test("Given canonical FX-010, when the Proposal journey fixture is compared, the
   const canonical = JSON.parse(readFileSync(canonicalFixturePath, "utf8"));
   const fx010 = canonical.scenarios.find((scenario) => scenario.id === "FX-010");
 
-  assert.deepEqual(Object.values(FIXTURE_ACTOR_IDS), canonical.actors.map((actor) => actor.id));
+  // FX-010's four historical actors remain exact. New September role samples
+  // are intentionally outside this canonical audit reconstruction.
+  assert.deepEqual(["teni", "chika", "farida", "moyo"].map((key) => FIXTURE_ACTOR_IDS[key]), canonical.actors.map((actor) => actor.id));
   assert.equal(FIXTURE_PROPOSAL_ID, canonical.auditEvents.find((event) => event.eventType === "proposal.created").object.id);
   assert.equal(FIXTURE_OVERRIDE_ID, canonical.auditEvents.find((event) => event.eventType === "override.requested").object.id);
   assert.equal(FIXTURE_PUBLICATION_ID, canonical.auditEvents.find((event) => event.eventType === "publish.started").object.id);

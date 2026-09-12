@@ -1,8 +1,94 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 export const INSPECTOR_DOCK_MIN_SURFACE = 1500;
 
 const number = (value) => Number(value ?? 0).toLocaleString("en-NG");
+
+/** One filter-rail interaction for operational directories, including narrow surfaces. */
+export function WorkspaceViewTabs({
+  idPrefix,
+  label,
+  panelId,
+  views,
+  value,
+  onChange,
+  focusSelected = false,
+  onFocusSelected,
+}) {
+  const railRef = useRef(null);
+  const [overflow, setOverflow] = useState({ before: false, after: false });
+  const contentKey = views.map(({ id, label: viewLabel, count }) => `${id}:${viewLabel}:${count ?? ""}`).join("|");
+
+  useLayoutEffect(() => {
+    const rail = railRef.current;
+    const active = rail?.querySelector('[aria-selected="true"]');
+    if (!rail || !active) return undefined;
+
+    const updateOverflow = () => {
+      const before = rail.scrollLeft > 2;
+      const after = rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 2;
+      setOverflow((current) => current.before === before && current.after === after ? current : { before, after });
+    };
+    const revealActive = (behavior = "auto") => {
+      if (rail.scrollWidth <= rail.clientWidth) return;
+      const railBox = rail.getBoundingClientRect();
+      const activeBox = active.getBoundingClientRect();
+      const inset = 8;
+      const delta = activeBox.left < railBox.left + inset
+        ? activeBox.left - railBox.left - inset
+        : activeBox.right > railBox.right - inset ? activeBox.right - railBox.right + inset : 0;
+      if (!delta) return;
+      const left = Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, rail.scrollLeft + delta));
+      // Scroll only this rail: changing a filter must not move the whole page.
+      if (typeof rail.scrollTo === "function") rail.scrollTo({ left, behavior });
+      else rail.scrollLeft = left;
+    };
+    const handleResize = () => { revealActive(); updateOverflow(); };
+
+    if (focusSelected) {
+      active.focus({ preventScroll: true });
+      onFocusSelected?.();
+    }
+    const reducedMotion = globalThis.window?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+    revealActive(reducedMotion ? "auto" : "smooth");
+    updateOverflow();
+    rail.addEventListener("scroll", updateOverflow, { passive: true });
+    globalThis.window?.addEventListener?.("resize", handleResize);
+    const observer = globalThis.ResizeObserver ? new globalThis.ResizeObserver(handleResize) : null;
+    observer?.observe(rail);
+    observer?.observe(active);
+    return () => {
+      observer?.disconnect();
+      rail.removeEventListener("scroll", updateOverflow);
+      globalThis.window?.removeEventListener?.("resize", handleResize);
+    };
+  }, [value, contentKey, focusSelected, onFocusSelected]);
+
+  const selectFromKey = (event, index) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? views.length - 1
+      : (index + (event.key === "ArrowRight" ? 1 : -1) + views.length) % views.length;
+    railRef.current?.querySelectorAll('[role="tab"]')[nextIndex]?.focus({ preventScroll: true });
+    onChange(views[nextIndex].id, { keyboard: true });
+  };
+
+  return <div ref={railRef} className={`ops-tabs workspace-view-tabs${overflow.before ? " has-overflow-before" : ""}${overflow.after ? " has-overflow-after" : ""}`} role="tablist" aria-label={label}>
+    {views.map(({ id, label: viewLabel, count }, index) => <button
+      id={`${idPrefix}-${id}`}
+      key={id}
+      type="button"
+      role="tab"
+      className={value === id ? "is-active" : ""}
+      aria-controls={panelId}
+      aria-selected={value === id}
+      tabIndex={value === id ? 0 : -1}
+      onKeyDown={(event) => selectFromKey(event, index)}
+      onClick={() => onChange(id, { keyboard: false })}
+    >{viewLabel}{count != null ? <span>{number(count)}</span> : null}</button>)}
+  </div>;
+}
 
 export function CursorPager({
   pageIndex,

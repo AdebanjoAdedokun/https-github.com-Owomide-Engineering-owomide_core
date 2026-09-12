@@ -1,0 +1,154 @@
+/* Focused sample-access journeys. Keep their layout independent of legacy cards. */
+.role-workspace {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  color: var(--ink, #10211d);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.role-workspace *, .proposal-handoff * { box-sizing: border-box; }
+.role-page-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.role-page-head > div:first-child { min-width: 0; }
+.role-context { margin: 0 0 6px !important; font-size: 11px; font-weight: 600; letter-spacing: .045em; color: var(--muted, #67726e); }
+.role-page-head h1 { margin: 0; font-size: clamp(22px, 2vw, 28px); line-height: 1.22; font-weight: 600; letter-spacing: -.035em; overflow-wrap: anywhere; }
+.role-page-head p { margin: 8px 0 0; color: var(--muted, #67726e); }
+.role-head-actions { display: flex; align-items: center; flex: 0 0 auto; }
+.role-panel { min-width: 0; margin: 0 0 24px; border: 1px solid var(--line, #d9ddd7); border-radius: 8px; background: var(--paper, #fffdf8); overflow: hidden; }
+.role-panel h2, .proposal-handoff h2 { margin: 0; font-size: 16px; line-height: 1.4; font-weight: 600; letter-spacing: -.015em; }
+.role-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--line, #d9ddd7); }
+.role-panel-head > span { font-size: 12px; color: var(--muted, #67726e); white-space: nowrap; }
+.role-primary, .role-secondary, .role-back {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 14px; border: 1px solid var(--line, #d9ddd7);
+  border-radius: 5px; background: transparent; color: var(--green, #073b32);
+  font: inherit; font-size: 13px; font-weight: 600; line-height: 1.4; cursor: pointer;
+  text-decoration: none; transition: background-color 140ms ease, border-color 140ms ease;
+}
+.role-primary { background: var(--green, #073b32); color: #fff; border-color: var(--green, #073b32); }
+.role-primary:hover:not(:disabled) { background: #0f4d42; }
+.role-secondary:hover:not(:disabled), .role-back:hover { background: var(--green-soft, #eef4f1); }
+.role-primary:disabled, .role-secondary:disabled { cursor: not-allowed; opacity: .5; }
+.role-primary svg, .role-secondary svg, .role-back svg { width: 17px; height: 17px; flex-shrink: 0; }
+.role-back { padding-inline: 0; border: 0; min-height: 44px; margin: -10px 0 14px; font-weight: 500; }
+.role-workspace :is(button, input, select, textarea):focus-visible, .proposal-handoff :is(button, input, select, [tabindex]):focus-visible { outline: 2px solid var(--green, #073b32); outline-offset: 3px; }
+.role-status { display: inline-flex; align-items: center; gap: 6px; color: var(--muted, #67726e); font-size: 12px; line-height: 1.4; white-space: nowrap; }
+.role-status svg { width: 15px; height: 15px; flex: 0 0 15px; }
+.role-status.is-reviewing { color: #826213; }
+.role-status.is-resolved { color: var(--green, #073b32); }
+.role-status.is-declined { color: var(--danger, #ab4033); }
+.request-list-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px 178px 16px; align-items: center; gap: var(--table-cell-gap); width: 100%; min-height: var(--table-row-workflow); padding: 12px var(--table-inset); text-align: left; border: 0; border-bottom: 1px solid var(--line, #d9ddd7); background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.request-list-row:last-child { border-bottom: 0; }
+.request-list-row:hover:not([aria-disabled="true"]) { background: var(--green-soft, #eef4f1); }
+.request-list-row[aria-disabled="true"] { cursor: not-allowed; }
+.request-list-row > svg { width: 16px; height: 16px; color: var(--muted, #67726e); }
+.request-list-identity, .request-list-date { min-width: 0; display: grid; gap: var(--table-text-gap); }
+.request-list-identity strong { font-size: var(--table-text-primary); font-weight: 600; line-height: var(--table-line-primary); overflow-wrap: anywhere; }
+.request-list-identity small, .request-list-date small { font-size: var(--table-text-secondary); line-height: var(--table-line-secondary); color: var(--muted, #67726e); overflow-wrap: anywhere; }
+.request-list-date time { font-size: var(--table-text-secondary); line-height: var(--table-line-secondary); color: var(--muted, #67726e); overflow-wrap: anywhere; }
+.request-page-error { padding: 16px 24px; border-bottom: 1px solid var(--line, #d9ddd7); }
+.request-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; border-top: 1px solid var(--line, #d9ddd7); }
+.request-pagination > span { color: var(--muted, #67726e); font-size: 12px; }
+.request-pagination nav { display: flex; align-items: center; gap: 8px; }
+.role-form { display: grid; gap: 20px; padding: 24px; }
+.role-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.role-form label, .proposal-handoff > label, .draft-title-form label { display: grid; align-content: start; gap: 8px; min-width: 0; font-size: 13px; }
+.role-form label > span, .proposal-handoff label > span { font-weight: 550; }
+.role-form label em { margin-left: 5px; font-style: normal; font-weight: 400; color: var(--muted, #67726e); font-size: 12px; }
+.role-form :is(input:not([type="checkbox"]), select, textarea), .proposal-handoff :is(select, input) { min-width: 0; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #bfc9c3; border-radius: 5px; background: #fff; color: var(--ink, #10211d); font: inherit; font-size: 14px; line-height: 1.5; }
+.role-form textarea { resize: vertical; }
+.role-form :is(input, textarea)::placeholder { color: #7b857f; opacity: 1; }
+.role-form :is(input, textarea, select):disabled, .proposal-handoff select:disabled { background: #f4f5f1; cursor: not-allowed; color: var(--muted, #67726e); }
+.role-form label small { font-size: 12px; color: var(--muted, #67726e); line-height: 1.5; font-weight: 400; }
+.role-form header p, .proposal-handoff header p { margin: 6px 0 0; color: var(--muted, #67726e); font-size: 13px; line-height: 1.55; }
+.role-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--line, #d9ddd7); padding-top: 20px; }
+.role-form-footer > p { max-width: 52ch; margin: 0; font-size: 12px; color: var(--muted, #67726e); line-height: 1.5; }
+.role-form-footer > button { flex-shrink: 0; }
+.role-facts { display: grid; gap: 20px; padding: 24px; margin: 0; }
+.role-facts > div { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 24px; }
+.role-facts dt { color: var(--muted, #67726e); font-size: 13px; }
+.role-facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.role-preserve-lines { white-space: pre-wrap; overflow-wrap: anywhere; }
+.role-record-boundary { margin: 0; padding: 16px 24px; border-top: 1px solid var(--line, #d9ddd7); color: var(--muted, #67726e); font-size: 12px; line-height: 1.6; }
+.role-footnote { margin: 0 0 24px; color: var(--muted, #67726e); font-size: 12px; }
+.role-feedback { padding: 24px; }
+.role-feedback p { margin: 12px 0 0; }
+.role-member-list > div { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(0, 1.5fr); align-items: baseline; gap: 24px; padding: 16px 24px; border-bottom: 1px solid var(--line, #d9ddd7); }
+.role-member-list > div:last-child { border-bottom: 0; }
+.role-member-list strong { font-size: var(--table-text-primary); line-height: var(--table-line-primary); font-weight: 600; overflow-wrap: anywhere; }
+.role-member-list span { color: var(--muted, #67726e); font-size: var(--table-text-secondary); line-height: var(--table-line-secondary); overflow-wrap: anywhere; }
+.role-form .role-policy-choice { grid-template-columns: 22px minmax(0, 1fr); align-items: start; gap: 12px; padding: 16px; border: 1px solid var(--line, #d9ddd7); border-radius: 5px; }
+.role-policy-choice input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--green, #073b32); }
+.role-policy-choice > span { display: grid; gap: 4px; }
+.role-policy-choice strong { font-size: 14px; font-weight: 550; }
+.role-permission { margin: 0; font-size: 12px; line-height: 1.6; color: var(--muted, #67726e); }
+.role-error, .role-success { display: flex; align-items: start; gap: 8px; margin: 0; font-size: 13px; line-height: 1.5; }
+.role-error { color: var(--danger, #ab4033); }
+.role-success { color: var(--green, #073b32); }
+.role-error svg, .role-success svg { width: 17px; height: 17px; flex: 0 0 17px; margin-top: 1px; }
+.role-empty, .role-state { padding: 40px 24px; }
+.role-empty h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.role-empty p, .role-state p { margin: 8px 0 20px; max-width: 60ch; color: var(--muted, #67726e); }
+.role-state h1 { margin: 0; font-size: 24px; letter-spacing: -.025em; line-height: 1.3; }
+.role-state > div { display: flex; flex-wrap: wrap; gap: 12px; }
+.proposal-handoff { display: grid; gap: 16px; min-width: 0; padding: 20px; border: 1px solid var(--line, #d9ddd7); border-radius: 8px; background: var(--paper, #fffdf8); color: var(--ink, #10211d); font-size: 14px; line-height: 1.5; }
+.proposal-handoff > button { justify-self: start; }
+.proposal-handoff > .workspace-select { max-width: 400px; }
+.draft-actions-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.draft-actions-head > button { flex-shrink: 0; }
+.draft-title-form { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line, #d9ddd7); border-radius: 5px; }
+.draft-title-form > p { margin: 0; font-size: 12px; color: var(--muted, #67726e); }
+.draft-title-form > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.draft-return-note { padding-bottom: 18px; border-bottom: 1px solid var(--line, #d9ddd7); }
+.draft-return-note h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.draft-return-note p { margin: 8px 0; font-size: 14px; line-height: 1.6; }
+.draft-return-note small { font-size: 12px; color: var(--muted, #67726e); }
+.handoff-confirmation { display: grid; gap: 12px; min-width: 0; padding: 16px; border: 1px solid #bfc9c3; border-radius: 5px; background: var(--green-soft, #eef4f1); }
+.handoff-confirmation h3 { margin: 0; font-size: 14px; line-height: 1.45; font-weight: 600; }
+.handoff-confirmation p { margin: 0; font-size: 13px; line-height: 1.6; }
+.handoff-confirmation > div { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+.proposal-access-note { margin: 0 0 20px; padding: 12px 0; color: var(--muted, #67726e); font-size: 13px; line-height: 1.5; }
+.proposal-draft-tools { margin-bottom: 20px; border: 1px solid var(--line, #d9ddd7); border-radius: 6px; background: var(--paper, #fffdf8); }
+.proposal-draft-tools > summary { padding: 12px 16px; color: var(--green, #073b32); font-size: 13px; font-weight: 550; cursor: pointer; }
+.proposal-draft-tools > summary:focus-visible { outline: 2px solid var(--green, #073b32); outline-offset: 3px; }
+.proposal-draft-tools > .proposal-handoff { border: 0; border-top: 1px solid var(--line, #d9ddd7); border-radius: 0 0 6px 6px; }
+.proposal-price-only { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 0; padding: 20px; }
+.proposal-price-only dt { margin-bottom: 8px; color: var(--muted, #67726e); font-size: 12px; }
+.proposal-price-only dd { margin: 0; color: var(--green, #073b32); font-size: clamp(17px, 2vw, 24px); font-weight: 600; line-height: 1.3; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.proposal-anchor--price-only > footer { display: block; border-top-color: var(--line, #d9ddd7); background: transparent; color: var(--muted, #67726e); }
+.proposal-evidence-grid.proposal-evidence-grid--restricted { grid-template-columns: minmax(0, 1fr); }
+
+@media (max-width: 760px) {
+  .request-list-row { grid-template-columns: minmax(0, 1fr) auto 16px; gap: 12px 16px; }
+  .request-list-identity { grid-column: 1 / 3; }
+  .request-list-row > svg { grid-column: 3; grid-row: 1 / 3; }
+  .request-list-row > .role-status { grid-column: 1; grid-row: 2; }
+  .request-list-date { grid-column: 2; grid-row: 2; text-align: right; }
+  .request-list-date small { display: none; }
+}
+
+@media (max-width: 540px) {
+  .role-page-head { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .role-panel-head { padding: 16px; gap: 12px; }
+  .role-form, .role-feedback, .role-facts { padding: 20px 16px; }
+  .role-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .role-form-footer { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .role-form-footer > button { width: 100%; }
+  .role-facts > div { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  .role-record-boundary { padding: 16px; }
+  .role-member-list > div { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 16px; }
+  .request-list-row { padding: 18px 16px; column-gap: 10px; }
+  .request-pagination { align-items: flex-start; flex-direction: column; padding: 16px; }
+  .request-pagination nav { width: 100%; }
+  .request-pagination nav > button { flex: 1; }
+  .request-list-date { max-width: 145px; }
+  .proposal-handoff { padding: 16px; }
+  .draft-actions-head { flex-direction: column; }
+  .handoff-confirmation { padding: 14px; }
+  .handoff-confirmation > div > button { flex: 1 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .role-primary, .role-secondary, .role-back { transition: none; }
+}
