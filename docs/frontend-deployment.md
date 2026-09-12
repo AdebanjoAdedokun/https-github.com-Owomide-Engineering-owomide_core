@@ -1,5 +1,10 @@
 # Frontend deployment
 
+For the current static sample hosting, see [Cloudflare Workers builds and
+previews](cloudflare-workers-preview.md). The sections below describe the
+separate Kubernetes/container release path, not a claim that the live backend
+integration is already deployed.
+
 The marketing site and authenticated workspace live in one repository but ship
 as separate static containers. Both containers run unprivileged on port `8080`;
 Kubernetes exposes them internally on Service port `80`.

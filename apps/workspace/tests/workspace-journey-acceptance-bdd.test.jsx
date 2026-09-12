@@ -41,15 +41,24 @@ function showProposal(repositories, proposal) {
 
 async function openRevision(user) {
   const trigger = await screen.findByRole("button", { name: "Revise pricing evidence" });
+  // Proposal arrival focuses its result header in a passive effect. Wait for
+  // that handoff before focusing the action: keyboard() yields before Enter.
+  await waitFor(() => expect(document.querySelector("[data-authoritative-result]")).toHaveFocus());
   trigger.focus();
+  expect(trigger).toHaveFocus();
   await user.keyboard("{Enter}");
   return screen.findByRole("region", { name: "Price adjustment" });
 }
 
 async function changeAdjustment(user, panel, value) {
   const input = within(panel).getByRole("textbox");
+  // Settle the mounted rule's initialization effects before the first edit.
+  await act(async () => { input.focus(); });
+  expect(input).toHaveFocus();
   await user.clear(input);
+  expect(input).toHaveValue("");
   await user.type(input, value);
+  expect(input).toHaveValue(value);
   return input;
 }
 
@@ -81,7 +90,9 @@ describe("Connected returned-Proposal acceptance", () => {
     const user = showProposal(repositories, returned);
     const adjustment = await openRevision(user);
     await changeAdjustment(user, adjustment, "4.25");
-    await user.click(screen.getByRole("button", { name: "Save adjustment" }));
+    const saveAdjustment = screen.getByRole("button", { name: "Save adjustment" });
+    expect(saveAdjustment).toBeEnabled();
+    await user.click(saveAdjustment);
     await waitFor(() => expect(save).toHaveBeenCalledOnce());
     const savedRule = (await save.mock.results[0].value).data;
     expect(savedRule.rule.changeBasisPoints).toBe(425);

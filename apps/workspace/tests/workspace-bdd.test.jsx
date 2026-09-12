@@ -132,11 +132,12 @@ async function whenTheDesignEvidenceSessionChangesTo(user, actorName) {
   });
   await user.click(within(authority).getByRole("button", { name: "Close current authority" }));
   expect(screen.queryByRole("complementary", { name: "Current authority" })).not.toBeInTheDocument();
+  await waitFor(() => expect(screen.getByRole("button", { name: "People and permissions" })).toHaveFocus());
 }
 
 async function thenConfirmTheDecision(user, { dialogName, confirmName }) {
   const dialog = await screen.findByRole("dialog", { name: dialogName });
-  expect(within(dialog).getByRole("button", { name: "Close confirmation" })).toHaveFocus();
+  await waitFor(() => expect(within(dialog).getByRole("button", { name: "Close confirmation" })).toHaveFocus());
   if (dialogName === "Request bounded exception") {
     await user.type(within(dialog).getByRole("textbox", { name: "Business reason" }), "Recover the recorded supplier cost before the effective date.");
     await user.type(within(dialog).getByRole("textbox", { name: "Evidence reference" }), "SAMPLE-COST-RECOVERY-01");
@@ -529,7 +530,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     await user.click(within(staleInspector).getByRole("button", { name: "Refresh cost" }));
 
     await waitFor(() => expect(window.location.hash).toMatch(/version=0\.0\.0-design\.1-r1/));
-    expect(screen.getByRole("tab", { name: "Eligible 1,211" })).toHaveAttribute("aria-selected", "true");
+    expect(await screen.findByRole("tab", { name: "Eligible 1,211", selected: true })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "Need review 16" })).toBeVisible();
 
     await user.click(screen.getByRole("tab", { name: "Need review 16" }));
@@ -540,7 +541,7 @@ describe("RPR-03 repricing preview — BDD interaction contract", () => {
     await user.click(within(dimensionInspector).getByRole("button", { name: "Repair dimension" }));
 
     await waitFor(() => expect(window.location.hash).toMatch(/version=0\.0\.0-design\.1-r2/));
-    expect(screen.getByRole("tab", { name: "Eligible 1,212" })).toHaveAttribute("aria-selected", "true");
+    expect(await screen.findByRole("tab", { name: "Eligible 1,212", selected: true })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "Need review 15" })).toBeVisible();
     expect(requests.map(({ action }) => action)).toEqual(["refresh-cost", "repair-dimension"]);
     expect(requests[0].previewRef.version).toBe("0.0.0-design.1");

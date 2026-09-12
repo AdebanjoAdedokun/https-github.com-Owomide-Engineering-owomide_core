@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, expect, it, vi } from "vitest";
 import { WorkspaceApp } from "../src/WorkspaceApp.jsx";
@@ -46,9 +46,13 @@ it.each(["comments", "margin"])("Given a Viewer follows a protected %s deep link
   expect(margin).not.toHaveBeenCalled();
   expect(screen.queryByRole("region", { name: "Proposal comments" })).not.toBeInTheDocument();
   expect(screen.queryByRole("region", { name: "Retained margin evidence" })).not.toBeInTheDocument();
-  within(tabs).getByRole("tab", { name: "Overview" }).focus();
+  // Initial Proposal arrival owns focus before keyboard navigation begins.
+  await waitFor(() => expect(document.querySelector("[data-authoritative-result]")).toHaveFocus());
+  const overview = within(tabs).getByRole("tab", { name: "Overview" });
+  overview.focus();
+  expect(overview).toHaveFocus();
   await user.keyboard("{End}");
-  expect(await screen.findByRole("tab", { name: /^Activity/ })).toHaveAttribute("aria-selected", "true");
+  expect(await screen.findByRole("tab", { name: /^Activity/, selected: true })).toHaveAttribute("aria-selected", "true");
   expect(comments).not.toHaveBeenCalled();
   expect(margin).not.toHaveBeenCalled();
 });
