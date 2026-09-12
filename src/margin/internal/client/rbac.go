@@ -15,8 +15,11 @@ import (
 )
 
 // PermissionChecker asks the rbac service whether roles grant a permission.
+// Permission is the generated enum from src/lib/proto/services/rbac/v1/rbac.proto —
+// the single shared definition every service imports, rather than each
+// service hardcoding its own permission strings.
 type PermissionChecker interface {
-	HasPermission(ctx context.Context, orgID string, roles []string, permission string) (bool, error)
+	HasPermission(ctx context.Context, orgID string, roles []string, permission rbacv1.Permission) (bool, error)
 }
 
 type rbacClient struct {
@@ -48,7 +51,7 @@ func NewRbacClient(
 	}, nil
 }
 
-func (c *rbacClient) HasPermission(ctx context.Context, orgID string, roles []string, permission string) (bool, error) {
+func (c *rbacClient) HasPermission(ctx context.Context, orgID string, roles []string, permission rbacv1.Permission) (bool, error) {
 	if strings.TrimSpace(orgID) == "" {
 		return false, errors.New("organization ID is required")
 	}

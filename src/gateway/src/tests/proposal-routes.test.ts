@@ -1,4 +1,4 @@
-import Fastify from "fastify";
+import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify";
 import { describe, expect, it } from "vitest";
 import { loadConfig } from "../config.js";
 import type { RequestContext } from "../context.js";
@@ -6,9 +6,9 @@ import { registerProposalRoutes } from "../routes/proposals.js";
 import { registerChangeSetRoutes } from "../routes/change-sets.js";
 import { registerOverrideRequestRoutes } from "../routes/override-requests.js";
 
-function contextHook(app: ReturnType<typeof Fastify>) {
+function contextHook(app: FastifyInstance) {
   app.decorateRequest("ctx", undefined as unknown as RequestContext);
-  app.addHook("onRequest", async (request) => {
+  app.addHook("onRequest", async (request: FastifyRequest) => {
     request.ctx = { orgId: "org-test", userId: "user-test", roles: ["pricing_manager"] };
   });
 }

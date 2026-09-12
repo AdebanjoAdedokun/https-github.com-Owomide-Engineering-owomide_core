@@ -16,14 +16,15 @@ import (
 	"github.com/owomide/margin/internal/auth"
 	"github.com/owomide/margin/internal/handler"
 	marginpb "github.com/owomide/proto/services/margin/v1"
+	rbacv1 "github.com/owomide/proto/services/rbac/v1"
 )
 
 // stubPermissionChecker mirrors the CSV: only finance_approver may manage
 // margin guardrails.
 type stubPermissionChecker struct{}
 
-func (stubPermissionChecker) HasPermission(_ context.Context, _ string, roles []string, permission string) (bool, error) {
-	if permission != "margin_guardrail.manage" {
+func (stubPermissionChecker) HasPermission(_ context.Context, _ string, roles []string, permission rbacv1.Permission) (bool, error) {
+	if permission != rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE {
 		return false, nil
 	}
 	for _, r := range roles {

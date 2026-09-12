@@ -1,11 +1,11 @@
 import { createClient } from "@connectrpc/connect";
 import { createGrpcTransport } from "@connectrpc/connect-node";
-import { RbacService } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
+import { Permission, RbacService } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
 
 export interface RbacClient {
   checkPermission(
     roles: readonly string[],
-    permission: string,
+    permission: Permission,
     headers: Headers
   ): Promise<boolean>;
 }
@@ -19,7 +19,7 @@ export class GrpcRbacClient implements RbacClient {
 
   async checkPermission(
     roles: readonly string[],
-    permission: string,
+    permission: Permission,
     headers: Headers
   ): Promise<boolean> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

@@ -21,12 +21,226 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// The full permission catalog, generated once from docs/rbac/role_permissions.csv
+// (see src/rbac/src/permissions.ts, the hand-maintained source of descriptions/
+// categories this enum doesn't carry). This is the single shared definition —
+// every service that needs to reference a permission imports this generated
+// enum rather than hardcoding the string. The rbac service alone converts an
+// enum value to its stored text form (rbac.role_permission.permission_name);
+// nothing else needs to know that mapping.
+type Permission int32
+
+const (
+	Permission_PERMISSION_UNSPECIFIED                   Permission = 0
+	Permission_PERMISSION_ORG_SETTINGS_READ             Permission = 1
+	Permission_PERMISSION_ORG_SETTINGS_UPDATE           Permission = 2
+	Permission_PERMISSION_APPROVAL_ROUTING_CONFIGURE    Permission = 3
+	Permission_PERMISSION_GUARDRAIL_DEFAULTS_CONFIGURE  Permission = 4
+	Permission_PERMISSION_GOVERNANCE_CHANGE_CONFIRM     Permission = 5
+	Permission_PERMISSION_ORG_USER_INVITE               Permission = 6
+	Permission_PERMISSION_ORG_USER_DEACTIVATE           Permission = 7
+	Permission_PERMISSION_ORG_USER_ASSIGN_ROLE          Permission = 8
+	Permission_PERMISSION_WORKSPACE_CREATE              Permission = 9
+	Permission_PERMISSION_WORKSPACE_ARCHIVE             Permission = 10
+	Permission_PERMISSION_WORKSPACE_CONFIGURE           Permission = 11
+	Permission_PERMISSION_WORKSPACE_MANAGE_MEMBERS      Permission = 12
+	Permission_PERMISSION_CATALOGUE_ITEM_READ           Permission = 13
+	Permission_PERMISSION_CATALOGUE_ITEM_MANAGE         Permission = 14
+	Permission_PERMISSION_CATALOGUE_ITEM_EXPORT         Permission = 15
+	Permission_PERMISSION_COST_DATA_READ                Permission = 16
+	Permission_PERMISSION_COST_DATA_MANAGE              Permission = 17
+	Permission_PERMISSION_PROPOSAL_CREATE_DRAFT         Permission = 18
+	Permission_PERMISSION_PROPOSAL_READ                 Permission = 19
+	Permission_PERMISSION_PROPOSAL_EDIT_DRAFT           Permission = 20
+	Permission_PERMISSION_PROPOSAL_DELETE_DRAFT         Permission = 21
+	Permission_PERMISSION_PROPOSAL_SUBMIT               Permission = 22
+	Permission_PERMISSION_PROPOSAL_VERSION_HISTORY_READ Permission = 23
+	Permission_PERMISSION_PRICING_RULE_CREATE_DRAFT     Permission = 24
+	Permission_PERMISSION_PRICING_RULE_READ             Permission = 25
+	Permission_PERMISSION_PRICING_RULE_EDIT_DRAFT       Permission = 26
+	Permission_PERMISSION_PRICING_RULE_SUBMIT           Permission = 27
+	Permission_PERMISSION_APPROVAL_APPROVE              Permission = 28
+	Permission_PERMISSION_APPROVAL_REJECT               Permission = 29
+	Permission_PERMISSION_APPROVAL_REQUEST_CHANGES      Permission = 30
+	Permission_PERMISSION_OVERRIDE_REQUEST              Permission = 31
+	Permission_PERMISSION_OVERRIDE_APPROVE              Permission = 32
+	Permission_PERMISSION_OVERRIDE_REVOKE               Permission = 33
+	Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE       Permission = 34
+	Permission_PERMISSION_MARGIN_GUARDRAIL_READ         Permission = 35
+	Permission_PERMISSION_POLICY_GUARDRAIL_MANAGE       Permission = 36
+	Permission_PERMISSION_POLICY_GUARDRAIL_READ         Permission = 37
+	Permission_PERMISSION_EXECUTION_MARK_IMPLEMENTED    Permission = 38
+	Permission_PERMISSION_EXECUTION_SCHEDULE            Permission = 39
+	Permission_PERMISSION_AUDIT_TRAIL_READ              Permission = 40
+	Permission_PERMISSION_AUDIT_PACK_EXPORT             Permission = 41
+	Permission_PERMISSION_TEMPLATE_MANAGE               Permission = 42
+	Permission_PERMISSION_TEMPLATE_USE                  Permission = 43
+	Permission_PERMISSION_COMMENT_CREATE                Permission = 44
+	Permission_PERMISSION_CHANGE_REQUEST_CREATE         Permission = 45
+	Permission_PERMISSION_CHANGE_REQUEST_TRIAGE         Permission = 46
+	Permission_PERMISSION_ASSIGNMENT_ASSIGN             Permission = 47
+	Permission_PERMISSION_REPORT_EXPORT                 Permission = 48
+	Permission_PERMISSION_AI_ASSISTANCE_INVOKE          Permission = 49
+	Permission_PERMISSION_VENDOR_READ                   Permission = 50
+	Permission_PERMISSION_VENDOR_MANAGE                 Permission = 51
+	Permission_PERMISSION_NOTIFICATION_PREFS_MANAGE_OWN Permission = 52
+	Permission_PERMISSION_PLATFORM_PROVISION_TENANT     Permission = 53
+	Permission_PERMISSION_PLATFORM_SUPPORT_ACCESS       Permission = 54
+	Permission_PERMISSION_PLATFORM_RESTORE              Permission = 55
+)
+
+// Enum value maps for Permission.
+var (
+	Permission_name = map[int32]string{
+		0:  "PERMISSION_UNSPECIFIED",
+		1:  "PERMISSION_ORG_SETTINGS_READ",
+		2:  "PERMISSION_ORG_SETTINGS_UPDATE",
+		3:  "PERMISSION_APPROVAL_ROUTING_CONFIGURE",
+		4:  "PERMISSION_GUARDRAIL_DEFAULTS_CONFIGURE",
+		5:  "PERMISSION_GOVERNANCE_CHANGE_CONFIRM",
+		6:  "PERMISSION_ORG_USER_INVITE",
+		7:  "PERMISSION_ORG_USER_DEACTIVATE",
+		8:  "PERMISSION_ORG_USER_ASSIGN_ROLE",
+		9:  "PERMISSION_WORKSPACE_CREATE",
+		10: "PERMISSION_WORKSPACE_ARCHIVE",
+		11: "PERMISSION_WORKSPACE_CONFIGURE",
+		12: "PERMISSION_WORKSPACE_MANAGE_MEMBERS",
+		13: "PERMISSION_CATALOGUE_ITEM_READ",
+		14: "PERMISSION_CATALOGUE_ITEM_MANAGE",
+		15: "PERMISSION_CATALOGUE_ITEM_EXPORT",
+		16: "PERMISSION_COST_DATA_READ",
+		17: "PERMISSION_COST_DATA_MANAGE",
+		18: "PERMISSION_PROPOSAL_CREATE_DRAFT",
+		19: "PERMISSION_PROPOSAL_READ",
+		20: "PERMISSION_PROPOSAL_EDIT_DRAFT",
+		21: "PERMISSION_PROPOSAL_DELETE_DRAFT",
+		22: "PERMISSION_PROPOSAL_SUBMIT",
+		23: "PERMISSION_PROPOSAL_VERSION_HISTORY_READ",
+		24: "PERMISSION_PRICING_RULE_CREATE_DRAFT",
+		25: "PERMISSION_PRICING_RULE_READ",
+		26: "PERMISSION_PRICING_RULE_EDIT_DRAFT",
+		27: "PERMISSION_PRICING_RULE_SUBMIT",
+		28: "PERMISSION_APPROVAL_APPROVE",
+		29: "PERMISSION_APPROVAL_REJECT",
+		30: "PERMISSION_APPROVAL_REQUEST_CHANGES",
+		31: "PERMISSION_OVERRIDE_REQUEST",
+		32: "PERMISSION_OVERRIDE_APPROVE",
+		33: "PERMISSION_OVERRIDE_REVOKE",
+		34: "PERMISSION_MARGIN_GUARDRAIL_MANAGE",
+		35: "PERMISSION_MARGIN_GUARDRAIL_READ",
+		36: "PERMISSION_POLICY_GUARDRAIL_MANAGE",
+		37: "PERMISSION_POLICY_GUARDRAIL_READ",
+		38: "PERMISSION_EXECUTION_MARK_IMPLEMENTED",
+		39: "PERMISSION_EXECUTION_SCHEDULE",
+		40: "PERMISSION_AUDIT_TRAIL_READ",
+		41: "PERMISSION_AUDIT_PACK_EXPORT",
+		42: "PERMISSION_TEMPLATE_MANAGE",
+		43: "PERMISSION_TEMPLATE_USE",
+		44: "PERMISSION_COMMENT_CREATE",
+		45: "PERMISSION_CHANGE_REQUEST_CREATE",
+		46: "PERMISSION_CHANGE_REQUEST_TRIAGE",
+		47: "PERMISSION_ASSIGNMENT_ASSIGN",
+		48: "PERMISSION_REPORT_EXPORT",
+		49: "PERMISSION_AI_ASSISTANCE_INVOKE",
+		50: "PERMISSION_VENDOR_READ",
+		51: "PERMISSION_VENDOR_MANAGE",
+		52: "PERMISSION_NOTIFICATION_PREFS_MANAGE_OWN",
+		53: "PERMISSION_PLATFORM_PROVISION_TENANT",
+		54: "PERMISSION_PLATFORM_SUPPORT_ACCESS",
+		55: "PERMISSION_PLATFORM_RESTORE",
+	}
+	Permission_value = map[string]int32{
+		"PERMISSION_UNSPECIFIED":                   0,
+		"PERMISSION_ORG_SETTINGS_READ":             1,
+		"PERMISSION_ORG_SETTINGS_UPDATE":           2,
+		"PERMISSION_APPROVAL_ROUTING_CONFIGURE":    3,
+		"PERMISSION_GUARDRAIL_DEFAULTS_CONFIGURE":  4,
+		"PERMISSION_GOVERNANCE_CHANGE_CONFIRM":     5,
+		"PERMISSION_ORG_USER_INVITE":               6,
+		"PERMISSION_ORG_USER_DEACTIVATE":           7,
+		"PERMISSION_ORG_USER_ASSIGN_ROLE":          8,
+		"PERMISSION_WORKSPACE_CREATE":              9,
+		"PERMISSION_WORKSPACE_ARCHIVE":             10,
+		"PERMISSION_WORKSPACE_CONFIGURE":           11,
+		"PERMISSION_WORKSPACE_MANAGE_MEMBERS":      12,
+		"PERMISSION_CATALOGUE_ITEM_READ":           13,
+		"PERMISSION_CATALOGUE_ITEM_MANAGE":         14,
+		"PERMISSION_CATALOGUE_ITEM_EXPORT":         15,
+		"PERMISSION_COST_DATA_READ":                16,
+		"PERMISSION_COST_DATA_MANAGE":              17,
+		"PERMISSION_PROPOSAL_CREATE_DRAFT":         18,
+		"PERMISSION_PROPOSAL_READ":                 19,
+		"PERMISSION_PROPOSAL_EDIT_DRAFT":           20,
+		"PERMISSION_PROPOSAL_DELETE_DRAFT":         21,
+		"PERMISSION_PROPOSAL_SUBMIT":               22,
+		"PERMISSION_PROPOSAL_VERSION_HISTORY_READ": 23,
+		"PERMISSION_PRICING_RULE_CREATE_DRAFT":     24,
+		"PERMISSION_PRICING_RULE_READ":             25,
+		"PERMISSION_PRICING_RULE_EDIT_DRAFT":       26,
+		"PERMISSION_PRICING_RULE_SUBMIT":           27,
+		"PERMISSION_APPROVAL_APPROVE":              28,
+		"PERMISSION_APPROVAL_REJECT":               29,
+		"PERMISSION_APPROVAL_REQUEST_CHANGES":      30,
+		"PERMISSION_OVERRIDE_REQUEST":              31,
+		"PERMISSION_OVERRIDE_APPROVE":              32,
+		"PERMISSION_OVERRIDE_REVOKE":               33,
+		"PERMISSION_MARGIN_GUARDRAIL_MANAGE":       34,
+		"PERMISSION_MARGIN_GUARDRAIL_READ":         35,
+		"PERMISSION_POLICY_GUARDRAIL_MANAGE":       36,
+		"PERMISSION_POLICY_GUARDRAIL_READ":         37,
+		"PERMISSION_EXECUTION_MARK_IMPLEMENTED":    38,
+		"PERMISSION_EXECUTION_SCHEDULE":            39,
+		"PERMISSION_AUDIT_TRAIL_READ":              40,
+		"PERMISSION_AUDIT_PACK_EXPORT":             41,
+		"PERMISSION_TEMPLATE_MANAGE":               42,
+		"PERMISSION_TEMPLATE_USE":                  43,
+		"PERMISSION_COMMENT_CREATE":                44,
+		"PERMISSION_CHANGE_REQUEST_CREATE":         45,
+		"PERMISSION_CHANGE_REQUEST_TRIAGE":         46,
+		"PERMISSION_ASSIGNMENT_ASSIGN":             47,
+		"PERMISSION_REPORT_EXPORT":                 48,
+		"PERMISSION_AI_ASSISTANCE_INVOKE":          49,
+		"PERMISSION_VENDOR_READ":                   50,
+		"PERMISSION_VENDOR_MANAGE":                 51,
+		"PERMISSION_NOTIFICATION_PREFS_MANAGE_OWN": 52,
+		"PERMISSION_PLATFORM_PROVISION_TENANT":     53,
+		"PERMISSION_PLATFORM_SUPPORT_ACCESS":       54,
+		"PERMISSION_PLATFORM_RESTORE":              55,
+	}
+)
+
+func (x Permission) Enum() *Permission {
+	p := new(Permission)
+	*p = x
+	return p
+}
+
+func (x Permission) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Permission) Descriptor() protoreflect.EnumDescriptor {
+	return file_services_rbac_v1_rbac_proto_enumTypes[0].Descriptor()
+}
+
+func (Permission) Type() protoreflect.EnumType {
+	return &file_services_rbac_v1_rbac_proto_enumTypes[0]
+}
+
+func (x Permission) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Permission.Descriptor instead.
+func (Permission) EnumDescriptor() ([]byte, []int) {
+	return file_services_rbac_v1_rbac_proto_rawDescGZIP(), []int{0}
+}
+
 type CheckPermissionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Roles the caller holds, as forwarded by the gateway (x-user-roles).
-	Roles []string `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
-	// A permission code from the catalog, e.g. "proposal.submit".
-	Permission    string `protobuf:"bytes,2,opt,name=permission,proto3" json:"permission,omitempty"`
+	Roles         []string   `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
+	Permission    Permission `protobuf:"varint,2,opt,name=permission,proto3,enum=owomide.services.rbac.v1.Permission" json:"permission,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -68,11 +282,11 @@ func (x *CheckPermissionRequest) GetRoles() []string {
 	return nil
 }
 
-func (x *CheckPermissionRequest) GetPermission() string {
+func (x *CheckPermissionRequest) GetPermission() Permission {
 	if x != nil {
 		return x.Permission
 	}
-	return ""
+	return Permission_PERMISSION_UNSPECIFIED
 }
 
 type CheckPermissionResponse struct {
@@ -123,14 +337,73 @@ var File_services_rbac_v1_rbac_proto protoreflect.FileDescriptor
 
 const file_services_rbac_v1_rbac_proto_rawDesc = "" +
 	"\n" +
-	"\x1bservices/rbac/v1/rbac.proto\x12\x18owomide.services.rbac.v1\"N\n" +
+	"\x1bservices/rbac/v1/rbac.proto\x12\x18owomide.services.rbac.v1\"t\n" +
 	"\x16CheckPermissionRequest\x12\x14\n" +
-	"\x05roles\x18\x01 \x03(\tR\x05roles\x12\x1e\n" +
+	"\x05roles\x18\x01 \x03(\tR\x05roles\x12D\n" +
 	"\n" +
-	"permission\x18\x02 \x01(\tR\n" +
+	"permission\x18\x02 \x01(\x0e2$.owomide.services.rbac.v1.PermissionR\n" +
 	"permission\"3\n" +
 	"\x17CheckPermissionResponse\x12\x18\n" +
-	"\aallowed\x18\x01 \x01(\bR\aallowed2\x85\x01\n" +
+	"\aallowed\x18\x01 \x01(\bR\aallowed*\xee\x0f\n" +
+	"\n" +
+	"Permission\x12\x1a\n" +
+	"\x16PERMISSION_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cPERMISSION_ORG_SETTINGS_READ\x10\x01\x12\"\n" +
+	"\x1ePERMISSION_ORG_SETTINGS_UPDATE\x10\x02\x12)\n" +
+	"%PERMISSION_APPROVAL_ROUTING_CONFIGURE\x10\x03\x12+\n" +
+	"'PERMISSION_GUARDRAIL_DEFAULTS_CONFIGURE\x10\x04\x12(\n" +
+	"$PERMISSION_GOVERNANCE_CHANGE_CONFIRM\x10\x05\x12\x1e\n" +
+	"\x1aPERMISSION_ORG_USER_INVITE\x10\x06\x12\"\n" +
+	"\x1ePERMISSION_ORG_USER_DEACTIVATE\x10\a\x12#\n" +
+	"\x1fPERMISSION_ORG_USER_ASSIGN_ROLE\x10\b\x12\x1f\n" +
+	"\x1bPERMISSION_WORKSPACE_CREATE\x10\t\x12 \n" +
+	"\x1cPERMISSION_WORKSPACE_ARCHIVE\x10\n" +
+	"\x12\"\n" +
+	"\x1ePERMISSION_WORKSPACE_CONFIGURE\x10\v\x12'\n" +
+	"#PERMISSION_WORKSPACE_MANAGE_MEMBERS\x10\f\x12\"\n" +
+	"\x1ePERMISSION_CATALOGUE_ITEM_READ\x10\r\x12$\n" +
+	" PERMISSION_CATALOGUE_ITEM_MANAGE\x10\x0e\x12$\n" +
+	" PERMISSION_CATALOGUE_ITEM_EXPORT\x10\x0f\x12\x1d\n" +
+	"\x19PERMISSION_COST_DATA_READ\x10\x10\x12\x1f\n" +
+	"\x1bPERMISSION_COST_DATA_MANAGE\x10\x11\x12$\n" +
+	" PERMISSION_PROPOSAL_CREATE_DRAFT\x10\x12\x12\x1c\n" +
+	"\x18PERMISSION_PROPOSAL_READ\x10\x13\x12\"\n" +
+	"\x1ePERMISSION_PROPOSAL_EDIT_DRAFT\x10\x14\x12$\n" +
+	" PERMISSION_PROPOSAL_DELETE_DRAFT\x10\x15\x12\x1e\n" +
+	"\x1aPERMISSION_PROPOSAL_SUBMIT\x10\x16\x12,\n" +
+	"(PERMISSION_PROPOSAL_VERSION_HISTORY_READ\x10\x17\x12(\n" +
+	"$PERMISSION_PRICING_RULE_CREATE_DRAFT\x10\x18\x12 \n" +
+	"\x1cPERMISSION_PRICING_RULE_READ\x10\x19\x12&\n" +
+	"\"PERMISSION_PRICING_RULE_EDIT_DRAFT\x10\x1a\x12\"\n" +
+	"\x1ePERMISSION_PRICING_RULE_SUBMIT\x10\x1b\x12\x1f\n" +
+	"\x1bPERMISSION_APPROVAL_APPROVE\x10\x1c\x12\x1e\n" +
+	"\x1aPERMISSION_APPROVAL_REJECT\x10\x1d\x12'\n" +
+	"#PERMISSION_APPROVAL_REQUEST_CHANGES\x10\x1e\x12\x1f\n" +
+	"\x1bPERMISSION_OVERRIDE_REQUEST\x10\x1f\x12\x1f\n" +
+	"\x1bPERMISSION_OVERRIDE_APPROVE\x10 \x12\x1e\n" +
+	"\x1aPERMISSION_OVERRIDE_REVOKE\x10!\x12&\n" +
+	"\"PERMISSION_MARGIN_GUARDRAIL_MANAGE\x10\"\x12$\n" +
+	" PERMISSION_MARGIN_GUARDRAIL_READ\x10#\x12&\n" +
+	"\"PERMISSION_POLICY_GUARDRAIL_MANAGE\x10$\x12$\n" +
+	" PERMISSION_POLICY_GUARDRAIL_READ\x10%\x12)\n" +
+	"%PERMISSION_EXECUTION_MARK_IMPLEMENTED\x10&\x12!\n" +
+	"\x1dPERMISSION_EXECUTION_SCHEDULE\x10'\x12\x1f\n" +
+	"\x1bPERMISSION_AUDIT_TRAIL_READ\x10(\x12 \n" +
+	"\x1cPERMISSION_AUDIT_PACK_EXPORT\x10)\x12\x1e\n" +
+	"\x1aPERMISSION_TEMPLATE_MANAGE\x10*\x12\x1b\n" +
+	"\x17PERMISSION_TEMPLATE_USE\x10+\x12\x1d\n" +
+	"\x19PERMISSION_COMMENT_CREATE\x10,\x12$\n" +
+	" PERMISSION_CHANGE_REQUEST_CREATE\x10-\x12$\n" +
+	" PERMISSION_CHANGE_REQUEST_TRIAGE\x10.\x12 \n" +
+	"\x1cPERMISSION_ASSIGNMENT_ASSIGN\x10/\x12\x1c\n" +
+	"\x18PERMISSION_REPORT_EXPORT\x100\x12#\n" +
+	"\x1fPERMISSION_AI_ASSISTANCE_INVOKE\x101\x12\x1a\n" +
+	"\x16PERMISSION_VENDOR_READ\x102\x12\x1c\n" +
+	"\x18PERMISSION_VENDOR_MANAGE\x103\x12,\n" +
+	"(PERMISSION_NOTIFICATION_PREFS_MANAGE_OWN\x104\x12(\n" +
+	"$PERMISSION_PLATFORM_PROVISION_TENANT\x105\x12&\n" +
+	"\"PERMISSION_PLATFORM_SUPPORT_ACCESS\x106\x12\x1f\n" +
+	"\x1bPERMISSION_PLATFORM_RESTORE\x1072\x85\x01\n" +
 	"\vRbacService\x12v\n" +
 	"\x0fCheckPermission\x120.owomide.services.rbac.v1.CheckPermissionRequest\x1a1.owomide.services.rbac.v1.CheckPermissionResponseB+Z)github.com/owomide/proto/services/rbac/v1b\x06proto3"
 
@@ -146,19 +419,22 @@ func file_services_rbac_v1_rbac_proto_rawDescGZIP() []byte {
 	return file_services_rbac_v1_rbac_proto_rawDescData
 }
 
+var file_services_rbac_v1_rbac_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_services_rbac_v1_rbac_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_services_rbac_v1_rbac_proto_goTypes = []any{
-	(*CheckPermissionRequest)(nil),  // 0: owomide.services.rbac.v1.CheckPermissionRequest
-	(*CheckPermissionResponse)(nil), // 1: owomide.services.rbac.v1.CheckPermissionResponse
+	(Permission)(0),                 // 0: owomide.services.rbac.v1.Permission
+	(*CheckPermissionRequest)(nil),  // 1: owomide.services.rbac.v1.CheckPermissionRequest
+	(*CheckPermissionResponse)(nil), // 2: owomide.services.rbac.v1.CheckPermissionResponse
 }
 var file_services_rbac_v1_rbac_proto_depIdxs = []int32{
-	0, // 0: owomide.services.rbac.v1.RbacService.CheckPermission:input_type -> owomide.services.rbac.v1.CheckPermissionRequest
-	1, // 1: owomide.services.rbac.v1.RbacService.CheckPermission:output_type -> owomide.services.rbac.v1.CheckPermissionResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: owomide.services.rbac.v1.CheckPermissionRequest.permission:type_name -> owomide.services.rbac.v1.Permission
+	1, // 1: owomide.services.rbac.v1.RbacService.CheckPermission:input_type -> owomide.services.rbac.v1.CheckPermissionRequest
+	2, // 2: owomide.services.rbac.v1.RbacService.CheckPermission:output_type -> owomide.services.rbac.v1.CheckPermissionResponse
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_services_rbac_v1_rbac_proto_init() }
@@ -171,13 +447,14 @@ func file_services_rbac_v1_rbac_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_rbac_v1_rbac_proto_rawDesc), len(file_services_rbac_v1_rbac_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_services_rbac_v1_rbac_proto_goTypes,
 		DependencyIndexes: file_services_rbac_v1_rbac_proto_depIdxs,
+		EnumInfos:         file_services_rbac_v1_rbac_proto_enumTypes,
 		MessageInfos:      file_services_rbac_v1_rbac_proto_msgTypes,
 	}.Build()
 	File_services_rbac_v1_rbac_proto = out.File

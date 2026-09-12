@@ -1,5 +1,6 @@
 import { Code, ConnectError, type HandlerContext } from "@connectrpc/connect";
 import { SignJWT, decodeJwt, jwtVerify } from "jose";
+import type { Permission } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
 
 export interface RequestContext {
   orgId: string;
@@ -84,7 +85,7 @@ export async function signServiceJwt(
 export interface PermissionChecker {
   checkPermission(
     roles: readonly string[],
-    permission: string,
+    permission: Permission,
     headers: Headers
   ): Promise<boolean>;
 }
@@ -98,7 +99,7 @@ export async function requirePermission(
   rbac: PermissionChecker,
   rbacHeaders: Headers,
   context: RequestContext,
-  permission: string
+  permission: Permission
 ): Promise<void> {
   if (!context.userId) {
     throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);

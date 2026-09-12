@@ -13,9 +13,9 @@ import (
 	"github.com/owomide/margin/internal/auth"
 	"github.com/owomide/margin/internal/client"
 	"github.com/owomide/margin/internal/db"
-	"github.com/owomide/margin/internal/permission"
 	"github.com/owomide/margin/internal/repo"
 	marginpb "github.com/owomide/proto/services/margin/v1"
+	rbacv1 "github.com/owomide/proto/services/rbac/v1"
 )
 
 type RulesServer struct {
@@ -51,7 +51,7 @@ func NewRulesServer(
 // requirePermission is a no-op when no PermissionChecker is configured — the
 // same convention the Node services use when a downstream service secret is
 // unset (local dev without the full RBAC stack).
-func (s *RulesServer) requirePermission(ctx context.Context, principal auth.Principal, permission string) error {
+func (s *RulesServer) requirePermission(ctx context.Context, principal auth.Principal, permission rbacv1.Permission) error {
 	if s.permissions == nil {
 		return nil
 	}
@@ -90,7 +90,7 @@ func (s *RulesServer) UpsertRule(ctx context.Context, req *marginpb.UpsertRuleRe
 	if principal.UserID == "" {
 		return nil, status.Error(codes.Unauthenticated, "authenticated user identity required")
 	}
-	if err := s.requirePermission(ctx, principal, permission.MarginGuardrailManage); err != nil {
+	if err := s.requirePermission(ctx, principal, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE); err != nil {
 		return nil, err
 	}
 	r := req.GetRule()
@@ -154,7 +154,7 @@ func (s *RulesServer) DeactivateRule(ctx context.Context, req *marginpb.Deactiva
 		return nil, err
 	}
 	orgID := principal.OrgID
-	if err := s.requirePermission(ctx, principal, permission.MarginGuardrailManage); err != nil {
+	if err := s.requirePermission(ctx, principal, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE); err != nil {
 		return nil, err
 	}
 	if req.Id == "" {
@@ -183,7 +183,7 @@ func (s *RulesServer) ListRules(ctx context.Context, req *marginpb.ListRulesRequ
 		return nil, err
 	}
 	orgID := principal.OrgID
-	if err := s.requirePermission(ctx, principal, permission.MarginGuardrailRead); err != nil {
+	if err := s.requirePermission(ctx, principal, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_READ); err != nil {
 		return nil, err
 	}
 

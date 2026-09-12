@@ -1,5 +1,6 @@
 import { Code, ConnectError, type HandlerContext } from "@connectrpc/connect";
 import { decodeJwt, jwtVerify } from "jose";
+import type { Permission } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
 
 export interface RequestContext {
   orgId: string;
@@ -66,14 +67,14 @@ export class ServiceAuthenticator {
 }
 
 export interface PermissionChecker {
-  checkPermission(roles: readonly string[], permission: string, headers: Headers): Promise<boolean>;
+  checkPermission(roles: readonly string[], permission: Permission, headers: Headers): Promise<boolean>;
 }
 
 export async function requirePermission(
   rbac: PermissionChecker,
   rbacHeaders: Headers,
   context: RequestContext,
-  permission: string
+  permission: Permission
 ): Promise<void> {
   const allowed = await rbac.checkPermission(context.roles, permission, rbacHeaders);
   if (!allowed) {

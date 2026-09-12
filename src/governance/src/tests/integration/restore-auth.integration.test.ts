@@ -8,6 +8,7 @@ import pg from "pg";
 import pino from "pino";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { GovernanceService } from "@owomide/proto/services/governance/v1/governance_pb.js";
+import { Permission } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
 import { insertSnapshot } from "../../repo/snapshot-repo.js";
 import { ServiceAuthenticator } from "../../context.js";
 import { GovernanceServiceImpl } from "../../service.js";
@@ -49,8 +50,8 @@ class NoOpObjectStore implements Pick<ObjectStore, "getObject" | "ready"> {
 }
 
 class StubRbac implements RbacClient {
-  async checkPermission(roles: readonly string[], permission: string): Promise<boolean> {
-    return permission === "platform.restore" && roles.includes("account_owner");
+  async checkPermission(roles: readonly string[], permission: Permission): Promise<boolean> {
+    return permission === Permission.PLATFORM_RESTORE && roles.includes("account_owner");
   }
 }
 

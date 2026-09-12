@@ -8,6 +8,7 @@ import {
 import type { ObjectStore } from "./clients/object-store.js";
 import type { CatalogRestoreClient } from "./clients/catalog.js";
 import type { RbacClient } from "./clients/rbac.js";
+import { Permission } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
 import {
   requestContext,
   requirePermission,
@@ -34,19 +35,19 @@ export class GovernanceServiceImpl {
   constructor(deps: GovernanceServiceDeps) {
     this.implementation = {
       getActivityFeed: async (_request, context: HandlerContext) => {
-        await this.gate(deps, context, "audit_trail.read");
+        await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },
       getEntityHistory: async (_request, context: HandlerContext) => {
-        await this.gate(deps, context, "audit_trail.read");
+        await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },
       listSnapshots: async (_request, context: HandlerContext) => {
-        await this.gate(deps, context, "audit_trail.read");
+        await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },
       restore: async (request: RestoreRequest, context: HandlerContext) => {
-        const ctx = await this.gate(deps, context, "platform.restore");
+        const ctx = await this.gate(deps, context, Permission.PLATFORM_RESTORE);
         return handleRestore(ctx, deps, request);
       },
     };
@@ -55,7 +56,7 @@ export class GovernanceServiceImpl {
   private async gate(
     deps: GovernanceServiceDeps,
     context: HandlerContext,
-    permission: string
+    permission: Permission
   ): Promise<RequestContext> {
     await deps.authenticator.authorize(context, CALLERS);
     const ctx = requestContext(context);

@@ -66,7 +66,7 @@ func TestRbacClientSignsScopesAndForwardsRolesAndPermission(t *testing.T) {
 
 	client, err := NewRbacClient(conn, rbacClientSecret, "owomide-internal", time.Second)
 	require.NoError(t, err)
-	allowed, err := client.HasPermission(context.Background(), "org-1", []string{"finance_approver"}, "margin_guardrail.manage")
+	allowed, err := client.HasPermission(context.Background(), "org-1", []string{"finance_approver"}, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE)
 	require.NoError(t, err)
 	require.True(t, allowed)
 
@@ -92,7 +92,7 @@ func TestRbacClientSignsScopesAndForwardsRolesAndPermission(t *testing.T) {
 
 	req := <-impl.request
 	require.Equal(t, []string{"finance_approver"}, req.GetRoles())
-	require.Equal(t, "margin_guardrail.manage", req.GetPermission())
+	require.Equal(t, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE, req.GetPermission())
 }
 
 func TestRbacClientReturnsDenied(t *testing.T) {
@@ -105,7 +105,7 @@ func TestRbacClientReturnsDenied(t *testing.T) {
 
 	client, err := NewRbacClient(conn, rbacClientSecret, "owomide-internal", time.Second)
 	require.NoError(t, err)
-	allowed, err := client.HasPermission(context.Background(), "org-1", []string{"viewer"}, "margin_guardrail.manage")
+	allowed, err := client.HasPermission(context.Background(), "org-1", []string{"viewer"}, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE)
 	require.NoError(t, err)
 	require.False(t, allowed)
 }
@@ -113,6 +113,6 @@ func TestRbacClientReturnsDenied(t *testing.T) {
 func TestRbacClientRejectsMissingOrganization(t *testing.T) {
 	client, err := NewRbacClient(&noCallConn{}, rbacClientSecret, "owomide-internal", time.Second)
 	require.NoError(t, err)
-	_, err = client.HasPermission(context.Background(), " ", []string{"finance_approver"}, "margin_guardrail.manage")
+	_, err = client.HasPermission(context.Background(), " ", []string{"finance_approver"}, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE)
 	require.ErrorContains(t, err, "organization ID is required")
 }

@@ -1,10 +1,10 @@
 import { createClient } from "@connectrpc/connect";
 import { createGrpcTransport } from "@connectrpc/connect-node";
 import { SignJWT } from "jose";
-import { RbacService } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
+import { Permission, RbacService } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
 
 export interface RbacClient {
-  checkPermission(roles: readonly string[], permission: string, headers: Headers): Promise<boolean>;
+  checkPermission(roles: readonly string[], permission: Permission, headers: Headers): Promise<boolean>;
 }
 
 export class GrpcRbacClient implements RbacClient {
@@ -20,7 +20,7 @@ export class GrpcRbacClient implements RbacClient {
 
   async checkPermission(
     roles: readonly string[],
-    permission: string,
+    permission: Permission,
     headers: Headers
   ): Promise<boolean> {
     if (this.secret) {

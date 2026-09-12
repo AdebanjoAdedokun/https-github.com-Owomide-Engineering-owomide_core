@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bservices/rbac/v1/rbac.proto\x12\x18owomide.services.rbac.v1\"N\n\x16\x43heckPermissionRequest\x12\x14\n\x05roles\x18\x01 \x03(\tR\x05roles\x12\x1e\n\npermission\x18\x02 \x01(\tR\npermission\"3\n\x17\x43heckPermissionResponse\x12\x18\n\x07\x61llowed\x18\x01 \x01(\x08R\x07\x61llowed2\x85\x01\n\x0bRbacService\x12v\n\x0f\x43heckPermission\x12\x30.owomide.services.rbac.v1.CheckPermissionRequest\x1a\x31.owomide.services.rbac.v1.CheckPermissionResponseB+Z)github.com/owomide/proto/services/rbac/v1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bservices/rbac/v1/rbac.proto\x12\x18owomide.services.rbac.v1\"t\n\x16\x43heckPermissionRequest\x12\x14\n\x05roles\x18\x01 \x03(\tR\x05roles\x12\x44\n\npermission\x18\x02 \x01(\x0e\x32$.owomide.services.rbac.v1.PermissionR\npermission\"3\n\x17\x43heckPermissionResponse\x12\x18\n\x07\x61llowed\x18\x01 \x01(\x08R\x07\x61llowed*\xee\x0f\n\nPermission\x12\x1a\n\x16PERMISSION_UNSPECIFIED\x10\x00\x12 \n\x1cPERMISSION_ORG_SETTINGS_READ\x10\x01\x12\"\n\x1ePERMISSION_ORG_SETTINGS_UPDATE\x10\x02\x12)\n%PERMISSION_APPROVAL_ROUTING_CONFIGURE\x10\x03\x12+\n\'PERMISSION_GUARDRAIL_DEFAULTS_CONFIGURE\x10\x04\x12(\n$PERMISSION_GOVERNANCE_CHANGE_CONFIRM\x10\x05\x12\x1e\n\x1aPERMISSION_ORG_USER_INVITE\x10\x06\x12\"\n\x1ePERMISSION_ORG_USER_DEACTIVATE\x10\x07\x12#\n\x1fPERMISSION_ORG_USER_ASSIGN_ROLE\x10\x08\x12\x1f\n\x1bPERMISSION_WORKSPACE_CREATE\x10\t\x12 \n\x1cPERMISSION_WORKSPACE_ARCHIVE\x10\n\x12\"\n\x1ePERMISSION_WORKSPACE_CONFIGURE\x10\x0b\x12\'\n#PERMISSION_WORKSPACE_MANAGE_MEMBERS\x10\x0c\x12\"\n\x1ePERMISSION_CATALOGUE_ITEM_READ\x10\r\x12$\n PERMISSION_CATALOGUE_ITEM_MANAGE\x10\x0e\x12$\n PERMISSION_CATALOGUE_ITEM_EXPORT\x10\x0f\x12\x1d\n\x19PERMISSION_COST_DATA_READ\x10\x10\x12\x1f\n\x1bPERMISSION_COST_DATA_MANAGE\x10\x11\x12$\n PERMISSION_PROPOSAL_CREATE_DRAFT\x10\x12\x12\x1c\n\x18PERMISSION_PROPOSAL_READ\x10\x13\x12\"\n\x1ePERMISSION_PROPOSAL_EDIT_DRAFT\x10\x14\x12$\n PERMISSION_PROPOSAL_DELETE_DRAFT\x10\x15\x12\x1e\n\x1aPERMISSION_PROPOSAL_SUBMIT\x10\x16\x12,\n(PERMISSION_PROPOSAL_VERSION_HISTORY_READ\x10\x17\x12(\n$PERMISSION_PRICING_RULE_CREATE_DRAFT\x10\x18\x12 \n\x1cPERMISSION_PRICING_RULE_READ\x10\x19\x12&\n\"PERMISSION_PRICING_RULE_EDIT_DRAFT\x10\x1a\x12\"\n\x1ePERMISSION_PRICING_RULE_SUBMIT\x10\x1b\x12\x1f\n\x1bPERMISSION_APPROVAL_APPROVE\x10\x1c\x12\x1e\n\x1aPERMISSION_APPROVAL_REJECT\x10\x1d\x12\'\n#PERMISSION_APPROVAL_REQUEST_CHANGES\x10\x1e\x12\x1f\n\x1bPERMISSION_OVERRIDE_REQUEST\x10\x1f\x12\x1f\n\x1bPERMISSION_OVERRIDE_APPROVE\x10 \x12\x1e\n\x1aPERMISSION_OVERRIDE_REVOKE\x10!\x12&\n\"PERMISSION_MARGIN_GUARDRAIL_MANAGE\x10\"\x12$\n PERMISSION_MARGIN_GUARDRAIL_READ\x10#\x12&\n\"PERMISSION_POLICY_GUARDRAIL_MANAGE\x10$\x12$\n PERMISSION_POLICY_GUARDRAIL_READ\x10%\x12)\n%PERMISSION_EXECUTION_MARK_IMPLEMENTED\x10&\x12!\n\x1dPERMISSION_EXECUTION_SCHEDULE\x10\'\x12\x1f\n\x1bPERMISSION_AUDIT_TRAIL_READ\x10(\x12 \n\x1cPERMISSION_AUDIT_PACK_EXPORT\x10)\x12\x1e\n\x1aPERMISSION_TEMPLATE_MANAGE\x10*\x12\x1b\n\x17PERMISSION_TEMPLATE_USE\x10+\x12\x1d\n\x19PERMISSION_COMMENT_CREATE\x10,\x12$\n PERMISSION_CHANGE_REQUEST_CREATE\x10-\x12$\n PERMISSION_CHANGE_REQUEST_TRIAGE\x10.\x12 \n\x1cPERMISSION_ASSIGNMENT_ASSIGN\x10/\x12\x1c\n\x18PERMISSION_REPORT_EXPORT\x10\x30\x12#\n\x1fPERMISSION_AI_ASSISTANCE_INVOKE\x10\x31\x12\x1a\n\x16PERMISSION_VENDOR_READ\x10\x32\x12\x1c\n\x18PERMISSION_VENDOR_MANAGE\x10\x33\x12,\n(PERMISSION_NOTIFICATION_PREFS_MANAGE_OWN\x10\x34\x12(\n$PERMISSION_PLATFORM_PROVISION_TENANT\x10\x35\x12&\n\"PERMISSION_PLATFORM_SUPPORT_ACCESS\x10\x36\x12\x1f\n\x1bPERMISSION_PLATFORM_RESTORE\x10\x37\x32\x85\x01\n\x0bRbacService\x12v\n\x0f\x43heckPermission\x12\x30.owomide.services.rbac.v1.CheckPermissionRequest\x1a\x31.owomide.services.rbac.v1.CheckPermissionResponseB+Z)github.com/owomide/proto/services/rbac/v1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,10 +32,12 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'services.rbac.v1.rbac_pb2',
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z)github.com/owomide/proto/services/rbac/v1'
+  _globals['_PERMISSION']._serialized_start=229
+  _globals['_PERMISSION']._serialized_end=2259
   _globals['_CHECKPERMISSIONREQUEST']._serialized_start=57
-  _globals['_CHECKPERMISSIONREQUEST']._serialized_end=135
-  _globals['_CHECKPERMISSIONRESPONSE']._serialized_start=137
-  _globals['_CHECKPERMISSIONRESPONSE']._serialized_end=188
-  _globals['_RBACSERVICE']._serialized_start=191
-  _globals['_RBACSERVICE']._serialized_end=324
+  _globals['_CHECKPERMISSIONREQUEST']._serialized_end=173
+  _globals['_CHECKPERMISSIONRESPONSE']._serialized_start=175
+  _globals['_CHECKPERMISSIONRESPONSE']._serialized_end=226
+  _globals['_RBACSERVICE']._serialized_start=2262
+  _globals['_RBACSERVICE']._serialized_end=2395
 # @@protoc_insertion_point(module_scope)

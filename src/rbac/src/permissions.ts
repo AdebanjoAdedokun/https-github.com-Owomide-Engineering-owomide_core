@@ -405,3 +405,63 @@ export function isKnownPermission(code: string): boolean {
   return PERMISSION_CODES.has(code);
 }
 
+// Maps the generated Permission enum (src/lib/proto/services/rbac/v1/rbac.proto)
+// to the text code stored in rbac.role_permission.permission_name. Generated
+// once alongside PERMISSIONS below — regenerate both together if the CSV changes.
+export const CODE_BY_PERMISSION: Readonly<Record<number, string>> = {
+  1: "org_settings.read", // Permission.ORG_SETTINGS_READ
+  2: "org_settings.update", // Permission.ORG_SETTINGS_UPDATE
+  3: "approval_routing.configure", // Permission.APPROVAL_ROUTING_CONFIGURE
+  4: "guardrail_defaults.configure", // Permission.GUARDRAIL_DEFAULTS_CONFIGURE
+  5: "governance_change.confirm", // Permission.GOVERNANCE_CHANGE_CONFIRM
+  6: "org_user.invite", // Permission.ORG_USER_INVITE
+  7: "org_user.deactivate", // Permission.ORG_USER_DEACTIVATE
+  8: "org_user.assign_role", // Permission.ORG_USER_ASSIGN_ROLE
+  9: "workspace.create", // Permission.WORKSPACE_CREATE
+  10: "workspace.archive", // Permission.WORKSPACE_ARCHIVE
+  11: "workspace.configure", // Permission.WORKSPACE_CONFIGURE
+  12: "workspace.manage_members", // Permission.WORKSPACE_MANAGE_MEMBERS
+  13: "catalogue_item.read", // Permission.CATALOGUE_ITEM_READ
+  14: "catalogue_item.manage", // Permission.CATALOGUE_ITEM_MANAGE
+  15: "catalogue_item.export", // Permission.CATALOGUE_ITEM_EXPORT
+  16: "cost_data.read", // Permission.COST_DATA_READ
+  17: "cost_data.manage", // Permission.COST_DATA_MANAGE
+  18: "proposal.create_draft", // Permission.PROPOSAL_CREATE_DRAFT
+  19: "proposal.read", // Permission.PROPOSAL_READ
+  20: "proposal.edit_draft", // Permission.PROPOSAL_EDIT_DRAFT
+  21: "proposal.delete_draft", // Permission.PROPOSAL_DELETE_DRAFT
+  22: "proposal.submit", // Permission.PROPOSAL_SUBMIT
+  23: "proposal.version_history_read", // Permission.PROPOSAL_VERSION_HISTORY_READ
+  24: "pricing_rule.create_draft", // Permission.PRICING_RULE_CREATE_DRAFT
+  25: "pricing_rule.read", // Permission.PRICING_RULE_READ
+  26: "pricing_rule.edit_draft", // Permission.PRICING_RULE_EDIT_DRAFT
+  27: "pricing_rule.submit", // Permission.PRICING_RULE_SUBMIT
+  28: "approval.approve", // Permission.APPROVAL_APPROVE
+  29: "approval.reject", // Permission.APPROVAL_REJECT
+  30: "approval.request_changes", // Permission.APPROVAL_REQUEST_CHANGES
+  31: "override.request", // Permission.OVERRIDE_REQUEST
+  32: "override.approve", // Permission.OVERRIDE_APPROVE
+  33: "override.revoke", // Permission.OVERRIDE_REVOKE
+  34: "margin_guardrail.manage", // Permission.MARGIN_GUARDRAIL_MANAGE
+  35: "margin_guardrail.read", // Permission.MARGIN_GUARDRAIL_READ
+  36: "policy_guardrail.manage", // Permission.POLICY_GUARDRAIL_MANAGE
+  37: "policy_guardrail.read", // Permission.POLICY_GUARDRAIL_READ
+  38: "execution.mark_implemented", // Permission.EXECUTION_MARK_IMPLEMENTED
+  39: "execution.schedule", // Permission.EXECUTION_SCHEDULE
+  40: "audit_trail.read", // Permission.AUDIT_TRAIL_READ
+  41: "audit_pack.export", // Permission.AUDIT_PACK_EXPORT
+  42: "template.manage", // Permission.TEMPLATE_MANAGE
+  43: "template.use", // Permission.TEMPLATE_USE
+  44: "comment.create", // Permission.COMMENT_CREATE
+  45: "change_request.create", // Permission.CHANGE_REQUEST_CREATE
+  46: "change_request.triage", // Permission.CHANGE_REQUEST_TRIAGE
+  47: "assignment.assign", // Permission.ASSIGNMENT_ASSIGN
+  48: "report.export", // Permission.REPORT_EXPORT
+  49: "ai_assistance.invoke", // Permission.AI_ASSISTANCE_INVOKE
+  50: "vendor.read", // Permission.VENDOR_READ
+  51: "vendor.manage", // Permission.VENDOR_MANAGE
+  52: "notification_prefs.manage_own", // Permission.NOTIFICATION_PREFS_MANAGE_OWN
+  53: "platform.provision_tenant", // Permission.PLATFORM_PROVISION_TENANT
+  54: "platform.support_access", // Permission.PLATFORM_SUPPORT_ACCESS
+  55: "platform.restore", // Permission.PLATFORM_RESTORE
+};

@@ -15,6 +15,7 @@ import pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   CheckPermissionRequestSchema,
+  Permission,
   RbacService,
   type CheckPermissionResponse,
 } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
@@ -125,7 +126,7 @@ describe("RBAC service integration", () => {
 
   it("allows a permission the role holds", async () => {
     const res = await client.checkPermission(
-      { roles: ["finance_approver"], permission: "approval.approve" },
+      { roles: ["finance_approver"], permission: Permission.APPROVAL_APPROVE },
       { headers: headers("finance_approver") }
     );
     expect(res.allowed).toBe(true);
@@ -133,7 +134,7 @@ describe("RBAC service integration", () => {
 
   it("denies a permission the role does not hold", async () => {
     const res = await client.checkPermission(
-      { roles: ["pricing_analyst"], permission: "proposal.submit" },
+      { roles: ["pricing_analyst"], permission: Permission.PROPOSAL_SUBMIT },
       { headers: headers("pricing_analyst") }
     );
     expect(res.allowed).toBe(false);
@@ -141,7 +142,7 @@ describe("RBAC service integration", () => {
 
   it("is additive across multiple roles", async () => {
     const res = await client.checkPermission(
-      { roles: ["pricing_analyst", "pricing_manager"], permission: "proposal.submit" },
+      { roles: ["pricing_analyst", "pricing_manager"], permission: Permission.PROPOSAL_SUBMIT },
       { headers: headers("pricing_analyst,pricing_manager") }
     );
     expect(res.allowed).toBe(true);
@@ -149,16 +150,25 @@ describe("RBAC service integration", () => {
 
   it("denies when no roles are supplied", async () => {
     const res = await client.checkPermission(
-      { roles: [], permission: "proposal.read" },
+      { roles: [], permission: Permission.PROPOSAL_READ },
       { headers: headers("") }
     );
     expect(res.allowed).toBe(false);
   });
 
-  it("rejects an unknown permission code", async () => {
+  it("rejects PERMISSION_UNSPECIFIED", async () => {
     await expect(
       client.checkPermission(
-        { roles: ["account_owner"], permission: "proposal.launch_nukes" },
+        { roles: ["account_owner"], permission: Permission.UNSPECIFIED },
+        { headers: headers("account_owner") }
+      )
+    ).rejects.toMatchObject({ code: Code.InvalidArgument });
+  });
+
+  it("rejects a permission value newer than this server knows about (forward-compat)", async () => {
+    await expect(
+      client.checkPermission(
+        { roles: ["account_owner"], permission: 9_999 as Permission },
         { headers: headers("account_owner") }
       )
     ).rejects.toMatchObject({ code: Code.InvalidArgument });
@@ -167,7 +177,7 @@ describe("RBAC service integration", () => {
   it("rejects a caller without a valid service credential", async () => {
     await expect(
       client.checkPermission(
-        { roles: ["account_owner"], permission: "proposal.read" },
+        { roles: ["account_owner"], permission: Permission.PROPOSAL_READ },
         {
           headers: new Headers({
             "x-org-id": orgA,
@@ -180,7 +190,7 @@ describe("RBAC service integration", () => {
 
   it("global system roles resolve identically for any org", async () => {
     const res = await client.checkPermission(
-      { roles: ["auditor"], permission: "audit_pack.export" },
+      { roles: ["auditor"], permission: Permission.AUDIT_PACK_EXPORT },
       { headers: headers("auditor", orgB) }
     );
     expect(res.allowed).toBe(true);
