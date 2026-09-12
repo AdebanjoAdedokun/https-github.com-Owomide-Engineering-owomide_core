@@ -14,6 +14,7 @@ This is the shared reference for product decisions, implementation prioritisatio
 6. [Development sequence and 40 future BDD scenarios](audit/DEVELOPMENT_BACKLOG.md).
 7. [Current visual journey review](audit/UI_FLOW_AUDIT.md) and [repository baseline](audit/REPOSITORY_BASELINE.md).
 8. [Original company PRD](source/prototype-prd.pdf), [foundation/lifecycle text](source/foundation-and-scope.txt) and [source hash](source/manifest.json).
+9. [Published checkpoint and verification](delivery/CHECKPOINT.md): what was pushed, tested and left outstanding.
 
 ## Current truth
 
