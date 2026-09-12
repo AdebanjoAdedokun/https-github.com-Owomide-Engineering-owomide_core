@@ -1,0 +1,2351 @@
+[p1] 1. Product Foundation
+[p1]
+[p2]              1
+[p2]           PRODUCT
+[p2]          FOUNDATION
+[p2] 1.1.   Product Definition
+[p2]
+[p2] 1.2.   Product Objective
+[p2]
+[p2] 1.3.   Target Customer
+[p2]
+[p2] 1.4.   Problem Definition
+[p2]
+[p2] 1.5.   Product Outcomes
+[p2]
+[p3] 1.1 Product Definition
+[p3]
+[p4]                                    PRODUCT DEFINITION
+[p4]
+[p4] Owómidé MVP is a Collaborative AI Pricing Workspace for mid-to-large businesses
+[p4] operating in dynamic, competitive and price-sensitive emerging economies.
+[p4]
+[p4] It provides a shared environment where businesses and their pricing stakeholders can plan,
+[p4] design, create, analyse, review, refine, execute, monitor and manage pricing work across
+[p4] products, services, categories, channels, locations and other relevant pricing scopes.
+[p4]
+[p4] At its core, the workspace functions as a collaborative AI-native pricing builder.
+[p4]
+[p4] Users bring the products, services or other items they need to price into a common working
+[p4] environment; define what they are trying to achieve; construct and document pricing
+[p4] strategies, rules, logic and proposals; define the conditions and parameters of the pricing
+[p4] approach; reference applicable organisational Guardrails; analyse the financial implications
+[p4] of different pricing choices; collaborate with the stakeholders involved; and move the
+[p4] resulting pricing work from creation through review, the applicable organisational decision
+[p4] path, execution and subsequent monitoring, all with AI embedded throughout the process.
+[p4]
+[p4] The workspace acts as the operational environment for pricing work rather than merely a
+[p4] repository of final prices or an approval system.
+[p4]
+[p4] It brings together the information, reasoning, workflows, participants and controls involved in
+[p4] developing and managing pricing work so that teams no longer have to assemble the
+[p4] process across disconnected spreadsheets, ERP exports, messaging applications, email
+[p4] threads, documents and meetings.
+[p4]
+[p4] AI is embedded throughout the workspace as an assisting participant.
+[p4]
+[p4] Within the permissions and information available to the invoking user, AI can support
+[p4] activities such as:
+[p4]
+[p4]    ● analysing pricing information;
+[p4]    ● identifying risks or inconsistencies;
+[p4]    ● drafting or refining pricing work;
+[p4]    ● summarising inputs and discussions;
+[p4]    ● assisting with calculations and scenarios;
+[p4]    ● explaining pricing implications;
+[p4]    ● retrieving relevant historical context;
+[p4]
+[p5]     ● supporting strategy development;
+[p5]     ● helping users navigate complex pricing tasks.
+[p5]
+[p5] AI assistance remains attributable and subject to human control.
+[p5]
+[p5] The workspace supports collaborative pricing work across its lifecycle, including:
+[p5]
+[p5]     ● organising products, services and other entities being priced;
+[p5]     ● viewing and working with relevant pricing and economic information;
+[p5]     ● creating and managing pricing initiatives, proposals, strategies, rules and related
+[p5]         pricing work;
+[p5]     ● defining     pricing   objectives,   assumptions,    parameters    and   conditions   while
+[p5]         referencing applicable organisational Guardrails;
+[p5]     ● evaluating unit economics and the implications of proposed pricing actions;
+[p5]     ● collaborating through shared context, comments, evidence, assignments and
+[p5]         contributions;
+[p5]     ● maintaining versions of evolving pricing work;
+[p5]     ● routing work through appropriate review and organisational decision processes;
+[p5]     ● controlling actions through roles, permissions, authority levels and organisational
+[p5]         policies;
+[p5]     ● executing or recording authorised pricing actions through the mechanisms available
+[p5]         in the MVP;
+[p5]     ● monitoring the status and progression of active pricing work;
+[p5]     ● preserving the rationale, inputs, changes, organisational decision records and
+[p5]         outcomes associated with pricing work;
+[p5]     ● making historical pricing knowledge searchable and reusable;
+[p5]     ● providing AI assistance across relevant parts of the workflow.
+[p5]
+[p5] The MVP is not simply to digitise pricing approvals. It is to provide businesses and their
+[p5] pricing stakeholders with a dedicated collaborative working environment in which
+[p5] developing, coordinating and managing pricing work becomes more economically informed,
+[p5] efficient, structured, visible, intelligent, reusable and controllable.
+[p5]
+[p6] 1.2 Product Objective
+[p6]
+[p7]                                    PRODUCT OBJECTIVE
+[p7]
+[p7] The objective of the Owómidé MVP is to make the Collaborative AI Pricing Workspace the
+[p7] primary working environment in which businesses and their pricing stakeholders
+[p7] carry out and coordinate pricing work.
+[p7]
+[p7] Instead of pricing work being fragmented across spreadsheets, ERP exports, email,
+[p7] messaging applications, meetings, documents and individual knowledge, the MVP brings the
+[p7] relevant pricing context, analysis, logic, participants, workflows, controls and history into one
+[p7] AI-native workspace.
+[p7]
+[p7] The MVP should enable a pricing team to move a piece of pricing work from an initial need,
+[p7] trigger or objective through analysis, construction, collaboration, review, the applicable
+[p7] organisational decision path, execution and monitoring without repeatedly reconstructing the
+[p7] process across disconnected tools.
+[p7]
+[p7] The objective is not merely to digitise the existing manual process. The product should
+[p7] improve how pricing work itself is performed by making it more structured, context-rich,
+[p7] collaborative, intelligent, traceable and reusable.
+[p7]
+[p7] The objective is to enable a pricing team to collaboratively turn a pricing need,
+[p7] objective or market/business trigger into a well-informed, controlled and executable
+[p7] pricing action, while preserving the context, logic, collaboration and history behind
+[p7] that work.
+[p7]
+[p7] A pricing need may begin through:
+[p7]
+[p7]    ● a supplier or product cost change;
+[p7]    ● margin deterioration;
+[p7]    ● a competitor price movement;
+[p7]    ● a promotion or campaign;
+[p7]    ● a scheduled pricing review;
+[p7]    ● a new product or service launch;
+[p7]    ● inventory conditions requiring markdown or repricing;
+[p7]    ● a commercial opportunity;
+[p7]    ● a stakeholder request;
+[p7]    ● creation or revision of a pricing strategy or rule;
+[p7]    ● an external market or business condition change;
+[p7]    ● a management objective, mandate or guardrail.
+[p7]
+[p8] The core pricing lifecycle is:
+[p8]
+[p8] Understand context → Frame objective → Develop pricing approach → Analyse
+[p8] implications → Collaborate → Apply organisational controls → Decide → Execute →
+[p8] Monitor → Preserve and reuse knowledge
+[p8]
+[p8] The MVP should enable teams to:
+[p8]
+[p8]    1. Understand the pricing context
+[p8]        Bring together the product, current price, cost information, commercial information,
+[p8]        previous decisions, supporting evidence and other available inputs required to
+[p8]        understand the pricing situation.
+[p8]    2. Frame the pricing objective
+[p8]        Establish what the pricing work is intended to accomplish, what it affects, the
+[p8]        assumptions involved and the constraints within which the team must operate.
+[p8]    3. Develop the pricing approach
+[p8]        Create and refine the proposed pricing action, strategy, rule or logic, including
+[p8]        relevant parameters, conditions and calculations while referencing applicable
+[p8]        organisational Guardrails.
+[p8]    4. Analyse the implications
+[p8]        Evaluate unit economics, financial consequences, risks, trade-offs, alternatives and
+[p8]        other available evidence.
+[p8]    5. Collaborate around the work
+[p8]        Allow relevant stakeholders to contribute information, evidence, comments, revisions
+[p8]        and expertise while working from the same pricing context.
+[p8]    6. Apply organisational control
+[p8]        Ensure pricing work respects roles, authority levels, applicable Guardrails, item-level
+[p8]        Approval or Policy Authorisation requirements, and organisational policies.
+[p8]    7. Reach and execute a decision
+[p8]        Progress the work through required review and the applicable organisational decision
+[p8]        path, then translate valid execution authority into an executable or recorded pricing
+[p8]        action.
+[p8]    8. Preserve the decision context
+[p8]        Retain the reasoning, information, versions, participants, organisational decision
+[p8]        records, changes and actions associated with the pricing decision.
+[p8]
+[p9]    9. Monitor the work after decision
+[p9]        Maintain visibility into implementation, status and relevant subsequent outcomes
+[p9]        rather than treating the organisational decision as the end of the process.
+[p9]    10.Reuse organisational pricing knowledge
+[p9]        Make previous pricing work, rationale, decisions, strategies and patterns available as
+[p9]        context for future pricing activity.
+[p9]
+[p9]
+[p9] Role of AI
+[p9]
+[p9] Owómidé is AI-native rather than a conventional workflow product with AI added as a
+[p9] secondary feature.
+[p9]
+[p9] AI should operate across the pricing workflow rather than exist only as a standalone chatbot.
+[p9]
+[p9] Where appropriate and permitted, AI should help users:
+[p9]
+[p9]    ● understand pricing information;
+[p9]    ● construct pricing work;
+[p9]    ● analyse implications;
+[p9]    ● surface relevant context;
+[p9]    ● identify inconsistencies and risks;
+[p9]    ● synthesise stakeholder input;
+[p9]    ● explore alternatives;
+[p9]    ● explain calculations and decisions;
+[p9]    ● retrieve organisational pricing knowledge;
+[p9]    ● reduce repetitive analytical and coordination work.
+[p9]
+[p9] Human users retain governance control over consequential pricing work in the MVP.
+[p9]
+[p9] AI assists the pricing process but does not independently acquire Approval or Policy
+[p9] Authorisation authority, create execution authority, circumvent organisational controls or
+[p9] perform actions outside the permissions and context available to the invoking user.
+[p9]
+[p9] Where Policy Authorisation is enabled, authority derives from the organisation's configured
+[p9] non-AI policy mechanism.
+[p9]
+[p9]
+[p9] Product Success at the Job Level
+[p9]
+[p9] The MVP succeeds at its core job when a real pricing team can use Owómidé as the primary
+[p9] environment for completing actual pricing work from initiation to execution and monitoring,
+[p9]
+[p10] with substantially less dependence on disconnected spreadsheets, messages, email chains
+[p10] and undocumented institutional knowledge.
+[p10]
+[p10] The critical test is not whether users can simply create or approve a price.
+[p10]
+[p10] It is whether a meaningful unit of real pricing work can live, progress and remain
+[p10] intelligible inside Owómidé from beginning to end.
+[p10]
+[p11] 1.3 Target Customer
+[p11]
+[p12]                                         TARGET CUSTOMER
+[p12]
+[p12] The Owómidé MVP is built for mid-to-large businesses operating in emerging
+[p12] economies whose pricing activities are sufficiently complex, frequent, distributed or
+[p12] commercially important that manual and semi-automated pricing processes create material
+[p12] operational, financial or competitive problems.
+[p12]
+[p12] The customer is the organisation.
+[p12]
+[p12] Pricing teams and pricing-adjacent functions are the primary users through whom the
+[p12] organisation receives value.
+[p12]
+[p12] Owómidé is particularly relevant where pricing involves multiple products, services,
+[p12] locations, channels, stakeholder groups, pricing rules or recurring pricing decisions, and
+[p12] where the business currently coordinates this work through combinations of spreadsheets,
+[p12] ERP systems, email, messaging applications, meetings and other disconnected tools.
+[p12]
+[p12]
+[p12] Initial Segment Priority
+[p12]
+[p12] The MVP should remain horizontally capable of supporting pricing work across industries
+[p12] while product development and go-to-market activity initially concentrate on segments for
+[p12] which current research provides the strongest evidence.
+[p12]
+[p12] Primary initial customer segments
+[p12]
+[p12]       ● Multi-location retail chains
+[p12]       ● Multi-vendor marketplaces
+[p12]       ● High-catalogue commerce and e-commerce businesses
+[p12]       ● Mid-to-large manufacturing businesses managing product portfolios
+[p12]
+[p12] For     commerce-oriented      organisations,   strong-fit   characteristics   include   managing
+[p12] approximately 500 or more SKUs and operating across two or more sales channels.
+[p12]
+[p12] Secondary initial customer segments
+[p12]
+[p12]       ● Mid-to-large accommodation and hospitality businesses managing rates across
+[p12]          locations or distribution channels
+[p12]       ● Mid-to-large transportation and mobility businesses managing dynamic fares or rates
+[p12]          across routes, locations or channels
+[p12]
+[p13] These segments guide initial product validation and commercial focus. They do not
+[p13] permanently restrict Owómidé to these industries.
+[p13]
+[p13]
+[p13] Primary User Population
+[p13]
+[p13] The principal users are people who participate directly or indirectly in organisational pricing
+[p13] work.
+[p13]
+[p13] Direct pricing users
+[p13]
+[p13]    ● Pricing managers
+[p13]    ● Pricing analysts
+[p13]    ● Category managers
+[p13]    ● Revenue managers
+[p13]    ● Commercial pricing specialists
+[p13]    ● Other employees whose primary responsibility includes analysing, constructing or
+[p13]         managing prices
+[p13]
+[p13] Indirect pricing users
+[p13]
+[p13]    ● Finance
+[p13]    ● Commercial leadership
+[p13]    ● Sales
+[p13]    ● Procurement
+[p13]    ● Operations
+[p13]    ● Category and brand leadership
+[p13]    ● Executives
+[p13]    ● Compliance or audit
+[p13]    ● Marketplace or vendor management
+[p13]    ● Pricing operations and implementation personnel
+[p13]
+[p13] The MVP must therefore support pricing as a cross-functional organisational workflow,
+[p13] rather than assume that pricing is performed by a single specialist or department.
+[p13]
+[p13]
+[p13] Operating Context
+[p13]
+[p13] Strong-fit customer environments commonly involve:
+[p13]
+[p13]    ● manual or semi-automated pricing processes;
+[p13]
+[p14]    ● several systems or communication channels involved in pricing work;
+[p14]    ● relevant pricing information distributed across people and tools;
+[p14]    ● multiple stakeholders contributing to or controlling pricing decisions;
+[p14]    ● pricing activity across multiple products, categories, locations or channels;
+[p14]    ● decisions requiring financial, commercial or operational judgement;
+[p14]    ● organisational control over who can propose, modify, approve or execute pricing
+[p14]        activity;
+[p14]    ● difficulty retrieving historical pricing rationale and decision context;
+[p14]    ● market, cost, demand, competitive or operational conditions changing faster than
+[p14]        current pricing processes can respond;
+[p14]    ● pricing mistakes, delays or inconsistencies creating measurable margin, revenue,
+[p14]        operational or competitive consequences.
+[p14]
+[p14] The MVP should accommodate organisations at different levels of pricing maturity.
+[p14]
+[p14] Owómidé should not require a dedicated pricing department, sophisticated pricing software
+[p14] or fully digitised pricing operations as a prerequisite for adoption.
+[p14]
+[p14]
+[p14] Geographic Context
+[p14]
+[p14] Owómidé is built for businesses operating across emerging economies.
+[p14]
+[p14] The broader target includes emerging and frontier economies across:
+[p14]
+[p14]    ● Africa
+[p14]    ● Latin America
+[p14]    ● the Middle East
+[p14]    ● Southeast Asia
+[p14]
+[p14] Initial validation and commercial execution are concentrated in:
+[p14]
+[p14]    ● Nigeria
+[p14]    ● Kenya
+[p14]    ● South Africa
+[p14]
+[p14] These are priority launch and learning markets, not the permanent geographic boundary of
+[p14] the product.
+[p14]
+[p14] The MVP should anticipate differences in things like:
+[p14]
+[p15]    ● currencies and currency volatility;
+[p15]    ● taxation and pricing conventions;
+[p15]    ● organisational structures;
+[p15]    ● connectivity and infrastructure reliability;
+[p15]    ● channel fragmentation;
+[p15]    ● pricing maturity;
+[p15]    ● approval practices;
+[p15]    ● available business systems;
+[p15]    ● data availability and quality;
+[p15]    ● regulatory environments.
+[p15]
+[p15] The MVP should solve a common pricing-work problem across emerging economies while
+[p15] allowing each organisation's local operating context to shape its configuration.
+[p15]
+[p16] 1.4 Problem Definition
+[p16]
+[p17]                                    PROBLEM DEFINITION
+[p17]
+[p17] “In emerging economies, mid-to-large businesses lose 10–20% of margins, miss
+[p17] 30–38% of revenue opportunities, and waste 15+ hours weekly because fragmented,
+[p17] manual workflows lack real-time market visibility in environments where nearly 90%
+[p17] of commerce occurs offline and is fast-moving.”
+[p17]
+[p17] The problem is not simply that businesses use spreadsheets, email or manual approval
+[p17] processes.
+[p17]
+[p17] The deeper issue is that pricing is a continuous, distributed and cross-functional business
+[p17] process, while most organisations still manage it as a collection of disconnected activities.
+[p17]
+[p17] A single pricing action can depend on things like:
+[p17]
+[p17]    ● cost information;
+[p17]    ● margins;
+[p17]    ● competitor prices;
+[p17]    ● demand;
+[p17]    ● inventory;
+[p17]    ● supplier conditions;
+[p17]    ● customer behaviour;
+[p17]    ● commercial objectives;
+[p17]    ● regulatory constraints;
+[p17]    ● historical decisions;
+[p17]    ● management judgement.
+[p17]
+[p17] These inputs are often owned by different teams and stored across different systems.
+[p17]
+[p17] The organisation must repeatedly bring these pieces together before it can make, approve
+[p17] and execute a pricing decision.
+[p17]
+[p17]
+[p17] 1. Fragmented Pricing Workflows
+[p17]
+[p17] Pricing work is commonly distributed across ERP systems, spreadsheets, BI dashboards,
+[p17] email, messaging applications, meetings, internal tools and individual working methods.
+[p17]
+[p17] Each tool may perform its own function, but the pricing work itself does not necessarily exist
+[p17] as one continuous process.
+[p17]
+[p18] This forces teams to manually move information and decisions between systems and
+[p18] stakeholders throughout the pricing lifecycle.
+[p18]
+[p18]
+[p18] 2. Pricing Depends on Distributed Organisational Knowledge
+[p18]
+[p18] Pricing is rarely controlled by one person or department.
+[p18]
+[p18] Different functions contribute different parts of the decision:
+[p18]
+[p18]    ● Finance contributes cost, margin and financial implications.
+[p18]    ● Sales contributes customer behaviour, demand and commercial feedback.
+[p18]    ● Pricing, revenue or category teams structure and analyse pricing work.
+[p18]    ● Procurement contributes supplier and input-cost information.
+[p18]    ● Marketing contributes market, promotion and demand context.
+[p18]    ● Operations contributes inventory and execution realities.
+[p18]    ● Commercial leadership determines strategic direction.
+[p18]    ● Management provides authority for consequential decisions.
+[p18]    ● Legal or compliance functions may impose regulatory constraints.
+[p18]    ● Operational teams and systems execute the resulting pricing action.
+[p18]
+[p18] The challenge is not simply getting people to collaborate.
+[p18]
+[p18] The organisation must coordinate specialised responsibilities while maintaining one coherent
+[p18] pricing context.
+[p18]
+[p18]
+[p18] 3. Pricing Teams Spend Too Much Time Assembling the Decision
+[p18]
+[p18] A significant part of pricing work is spent gathering, checking, reconciling and interpreting
+[p18] information before the actual decision can be made.
+[p18]
+[p18] Users may need to obtain:
+[p18]
+[p18]    ● cost information from finance;
+[p18]    ● sales performance from ERP systems;
+[p18]    ● competitor information from market visits;
+[p18]    ● supplier updates from procurement;
+[p18]    ● customer feedback from sales;
+[p18]    ● historical information from previous spreadsheets or reports.
+[p18]
+[p19] Even when the information exists somewhere in the organisation, assembling it into usable
+[p19] pricing context remains largely manual.
+[p19]
+[p19] This creates repeated analytical and coordination work every time pricing work is initiated.
+[p19]
+[p19]
+[p19] 4. Market Conditions Move Faster Than Pricing Processes
+[p19]
+[p19] Pricing decisions in emerging economies can be exposed to fast-changing conditions
+[p19] including:
+[p19]
+[p19]    ● FX movements;
+[p19]    ● inflation;
+[p19]    ● input and supplier costs;
+[p19]    ● logistics costs;
+[p19]    ● competitor pricing;
+[p19]    ● customer purchasing power;
+[p19]    ● demand changes;
+[p19]    ● inventory conditions;
+[p19]    ● promotions;
+[p19]    ● government policy;
+[p19]    ● taxation;
+[p19]    ● regulation;
+[p19]    ● seasonal behaviour;
+[p19]    ● distribution conditions;
+[p19]    ● market availability.
+[p19]
+[p19] These conditions can change continuously while internal pricing processes may still require
+[p19] multiple handoffs, reviews, meetings and approvals.
+[p19]
+[p19] This creates a mismatch between the speed of the market and the speed of the
+[p19] organisation's pricing response.
+[p19]
+[p19]
+[p19] 5. Offline Market Structure Creates an Information Gap
+[p19]
+[p19] A significant proportion of commercial activity in emerging economies occurs outside fully
+[p19] digitised channels.
+[p19]
+[p19] Competitor prices, distributor behaviour, open-market prices, supplier movements and other
+[p19] commercially relevant signals may require:
+[p19]
+[p20]    ● manual field research;
+[p20]    ● store visits;
+[p20]    ● phone calls;
+[p20]    ● supplier relationships;
+[p20]    ● informal market networks.
+[p20]
+[p20] Businesses may therefore have strong internal ERP and BI capabilities while still lacking
+[p20] timely visibility into what is happening outside their own systems.
+[p20]
+[p20] Pricing decisions can consequently depend on information that is incomplete or already stale
+[p20] by the time it reaches the decision-maker.
+[p20]
+[p20]
+[p20] 6. Pricing Analysis Requires Continuous Synthesis
+[p20]
+[p20] The difficult part of pricing is often not calculating a percentage or changing a price field.
+[p20]
+[p20] The harder task is determining how multiple variables should influence the decision at the
+[p20] same time.
+[p20]
+[p20] Businesses may need to balance:
+[p20]
+[p20]    ● profitability against competitiveness;
+[p20]    ● margin against volume;
+[p20]    ● market share against short-term profit;
+[p20]    ● customer affordability against cost inflation;
+[p20]    ● stock clearance against margin protection;
+[p20]    ● growth targets against market conditions;
+[p20]    ● commercial urgency against governance requirements.
+[p20]
+[p20] Pricing therefore requires continuous synthesis of financial, market, operational and strategic
+[p20] information.
+[p20]
+[p20] Where this synthesis remains manual, the quality and speed of decisions become heavily
+[p20] dependent on individual experience.
+[p20]
+[p20]
+[p20] 7. Cross-Functional Coordination Creates Decision Latency
+[p20]
+[p20] Pricing work frequently moves between several people before execution.
+[p20]
+[p21] One stakeholder performs analysis. Another challenges the assumptions. Finance
+[p21] recalculates the economics. Sales provides market feedback. Commercial leadership
+[p21] reviews the recommendation. Management provides approval. Another team implements the
+[p21] resulting decision.
+[p21]
+[p21] Changes at one stage can force earlier stages to be repeated.
+[p21]
+[p21] This creates back-and-forth coordination, duplicated work, follow-ups and waiting time that
+[p21] extend the pricing cycle.
+[p21]
+[p21]
+[p21] 8. Decision Context Is Easily Lost Between Stages
+[p21]
+[p21] As pricing work moves between people and systems, organisations can lose continuity
+[p21] around:
+[p21]
+[p21]    ● why the pricing work started;
+[p21]    ● which information was used;
+[p21]    ● which assumptions were made;
+[p21]    ● what alternatives were considered;
+[p21]    ● what changed during review;
+[p21]    ● which version is current;
+[p21]    ● who contributed to the decision;
+[p21]    ● what was approved;
+[p21]    ● what was ultimately implemented.
+[p21]
+[p21] The resulting price may remain in an ERP while the reasoning that produced it remains
+[p21] distributed across spreadsheets, messages, emails and individual knowledge.
+[p21]
+[p21]
+[p21] 9. Pricing Errors Become Margin and Revenue Problems
+[p21]
+[p21] When costs change without prices being reviewed quickly enough, businesses can continue
+[p21] operating with economically incorrect prices.
+[p21]
+[p21] When market conditions move faster than the organisation responds, the business can
+[p21] remain overpriced, underpriced or commercially misaligned.
+[p21]
+[p21] When pricing analysis does not contain the full cost or commercial context, a decision that
+[p21] initially appears profitable can become loss-making once logistics, marketing, supplier or
+[p21] other costs are considered.
+[p21]
+[p22] These failures connect operational pricing weakness directly to margin leakage and missed
+[p22] revenue opportunities.
+[p22]
+[p22]
+[p22] 10. Organisations Lack a Continuous Pricing Operating Environment
+[p22]
+[p22] Most businesses already have tools for individual parts of the pricing process.
+[p22]
+[p22] The missing layer is the environment connecting the work together.
+[p22]
+[p22] The organisation needs a place where pricing work can retain its:
+[p22]
+[p22]    ● context;
+[p22]    ● data;
+[p22]    ● analysis;
+[p22]    ● assumptions;
+[p22]    ● strategy;
+[p22]    ● contributors;
+[p22]    ● workflow;
+[p22]    ● decisions;
+[p22]    ● approvals;
+[p22]    ● execution state;
+[p22]    ● history.
+[p22]
+[p22] Without that continuity, every pricing initiative becomes another coordination exercise.
+[p22]
+[p22]
+[p22] MVP Problem Scope
+[p22]
+[p22] The MVP focuses on reducing the fragmentation, manual coordination and decision friction
+[p22] involved in how mid-to-large businesses perform pricing work by providing a continuous
+[p22] AI-native workspace for planning, analysing, constructing, collaborating on, governing,
+[p22] executing, monitoring and preserving pricing work.
+[p22]
+[p23] 1.5 Product Outcome
+[p23]
+[p24]                                    PRODUCT OUTCOME
+[p24]
+[p24] The MVP should be judged by whether it materially improves how businesses perform
+[p24] pricing work, not by whether individual features are used.
+[p24]
+[p24] Success means Owómidé becomes a working environment through which real pricing
+[p24] activity can be completed more efficiently, intelligently and controllably than through the
+[p24] organisation's existing process.
+[p24]
+[p24]
+[p24] 1. Business Outcomes
+[p24]
+[p24] The MVP should help businesses:
+[p24]
+[p24]    ● reduce avoidable margin leakage caused by delayed, incorrect or poorly informed
+[p24]        pricing actions;
+[p24]    ● capture more revenue opportunities by responding faster to pricing needs and
+[p24]        changing commercial conditions;
+[p24]    ● reduce the employee time consumed by manual pricing analysis, coordination,
+[p24]        follow-ups and administrative work;
+[p24]    ● improve visibility and control over pricing activity across the organisation;
+[p24]    ● reduce pricing errors and economically unsafe decisions;
+[p24]    ● improve the consistency and quality of pricing decisions.
+[p24]
+[p24] The broader validated business problem establishes margin loss, missed revenue
+[p24] opportunities and 15+ hours of weekly pricing-related waste as the economic context against
+[p24] which these outcomes should ultimately be evaluated.
+[p24]
+[p24]
+[p24] 2. Pricing Workflow Outcomes
+[p24]
+[p24] The MVP should enable a meaningful unit of pricing work to progress through Owómidé from
+[p24] initiation to completion without the core workflow depending on disconnected spreadsheets,
+[p24] email chains or messaging threads.
+[p24]
+[p24] A successful workflow should allow users to:
+[p24]
+[p24]    ● establish the pricing objective and scope;
+[p24]    ● bring together the relevant pricing context;
+[p24]    ● develop and analyse the pricing approach;
+[p24]    ● collaborate with required stakeholders;
+[p24]
+[p25]    ● review and revise the work;
+[p25]    ● apply relevant guardrails and organisational controls;
+[p25]    ● complete the applicable organisational decision path and establish valid execution
+[p25]        authority;
+[p25]    ● record or complete execution;
+[p25]    ● monitor the resulting state;
+[p25]    ● retain the complete history and rationale.
+[p25]
+[p25] The intended outcome is a measurable reduction in pricing cycle time, coordination effort
+[p25] and unnecessary back-and-forth.
+[p25]
+[p25]
+[p25] 3. Decision Quality Outcomes
+[p25]
+[p25] The MVP should improve the quality of pricing decisions by ensuring that users can evaluate
+[p25] relevant financial, commercial and operational implications before execution.
+[p25]
+[p25] Users should be able to understand:
+[p25]
+[p25]    ● the current pricing position;
+[p25]    ● the proposed pricing action;
+[p25]    ● the economic impact of that action;
+[p25]    ● relevant assumptions and constraints;
+[p25]    ● important risks or guardrail breaches;
+[p25]    ● alternative scenarios where applicable;
+[p25]    ● the reasoning supporting the final decision.
+[p25]
+[p25] The product should reduce the likelihood that consequential pricing actions are taken without
+[p25] sufficient context or economic understanding.
+[p25]
+[p25]
+[p25] 4. Collaboration and Organisational Alignment Outcomes
+[p25]
+[p25] The MVP should create one shared pricing context for the people involved in a pricing
+[p25] workflow.
+[p25]
+[p25] Success means stakeholders can understand:
+[p25]
+[p25]    ● what pricing work is active;
+[p25]    ● what stage it is currently in;
+[p25]    ● who is responsible for each required action;
+[p25]    ● what information and assumptions are being used;
+[p25]
+[p26]    ● what has changed;
+[p26]    ● what input is required from them;
+[p26]    ● what has already been reviewed or decided, including Approval or Policy
+[p26]        Authorisation where applicable;
+[p26]    ● what happens next.
+[p26]
+[p26] The product should reduce dependence on manual status updates, repeated explanations
+[p26] and stakeholder chasing.
+[p26]
+[p26]
+[p26] 5. Governance and Control Outcomes
+[p26]
+[p26] Pricing work should remain governed according to the organisation's defined roles,
+[p26] permissions, authority, Guardrails and applicable organisational decision requirements.
+[p26]
+[p26] Success means:
+[p26]
+[p26]    ● users can perform only actions they are authorised to perform;
+[p26]    ● applicable Approval or Policy Authorisation requirements cannot be bypassed;
+[p26]    ● Approval or Policy Authorisation authority remains bound to the exact controlled
+[p26]        Pricing Proposal version against which it was established;
+[p26]    ● material changes must not inherit Approval or Policy Authorisation authority from an
+[p26]        earlier Pricing Proposal version;
+[p26]    ● pricing guardrails are applied consistently;
+[p26]    ● sensitive pricing and cost information respects access restrictions;
+[p26]    ● consequential actions remain attributable to specific users;
+[p26]    ● the history of the pricing workflow remains auditable.
+[p26]
+[p26] Governance should provide control without unnecessarily slowing down routine pricing work.
+[p26]
+[p26]
+[p26] 6. AI Outcomes
+[p26]
+[p26] AI should create measurable value inside the pricing workflow rather than exist as a
+[p26] decorative feature.
+[p26]
+[p26] Successful AI assistance should reduce the effort required to:
+[p26]
+[p26]    ● understand pricing context;
+[p26]    ● analyse pricing information;
+[p26]    ● construct or refine pricing work;
+[p26]    ● identify risks and inconsistencies;
+[p26]
+[p27]    ● evaluate scenarios and alternatives;
+[p27]    ● summarise complex pricing activity;
+[p27]    ● retrieve relevant historical information;
+[p27]    ● prepare work for review or the applicable organisational decision path.
+[p27]
+[p27] AI output must remain explainable within the context of the user's task, constrained by the
+[p27] user's permissions and subject to organisational Governance. AI must not independently
+[p27] create Approval, Policy Authorisation or execution authority.
+[p27]
+[p27]
+[p27] 7. Pricing Knowledge Outcomes
+[p27]
+[p27] Pricing work completed in Owómidé should create reusable organisational knowledge.
+[p27]
+[p27] The business should be able to retrieve and understand previous pricing work without
+[p27] reconstructing it from individual employees, emails or old spreadsheets.
+[p27]
+[p27] Historical records should preserve relevant:
+[p27]
+[p27]    ● objectives;
+[p27]    ● context;
+[p27]    ● inputs;
+[p27]    ● assumptions;
+[p27]    ● analysis;
+[p27]    ● versions;
+[p27]    ● stakeholder contributions;
+[p27]    ● decisions;
+[p27]    ● organisational decision records, including Approval and Policy Authorisation;
+[p27]    ● execution records;
+[p27]    ● outcomes.
+[p27]
+[p27] This should progressively reduce dependence on individual institutional memory.
+[p27]
+[p27]
+[p27] 8. MVP Activation Definition
+[p27]
+[p27] An organisation is meaningfully activated when it completes its first real structured pricing
+[p27] workflow in Owómidé using actual organisational pricing data.
+[p27]
+[p27] The workflow should progress through the relevant stages required by that organisation,
+[p27] including analysis, collaboration, required review, completion of the applicable organisational
+[p27] decision path, and a completed or recorded pricing action.
+[p27]
+[p28] Completing a tutorial, creating a workspace, importing data or generating an AI response
+[p28] does not constitute activation.
+[p28]
+[p28]
+[p28] 9. MVP Success Metrics
+[p28]
+[p28] The MVP should measure success using a combination of adoption, workflow, efficiency and
+[p28] business-impact indicators.
+[p28]
+[p28] Primary product indicators
+[p28]
+[p28]    ● Time from first login to first completed real pricing workflow
+[p28]    ● Pricing workflows completed per account
+[p28]    ● Pricing cycle time
+[p28]    ● Time saved on manual pricing work and coordination
+[p28]    ● Weekly active organisations
+[p28]    ● Weekly active pricing users
+[p28]    ● Multi-stakeholder participation in pricing workflows
+[p28]    ● Percentage of initiated pricing workflows successfully completed
+[p28]    ● Audit trail completeness
+[p28]    ● Frequency of repeat pricing activity in Owómidé
+[p28]
+[p28] Decision and control indicators
+[p28]
+[p28]    ● Number and rate of guardrail breaches detected before execution
+[p28]    ● Number of pricing actions requiring revision before organisational decision
+[p28]    ● Organisational decision turnaround time, including item-level Approval where
+[p28]        applicable
+[p28]    ● Frequency of pricing errors or reversals
+[p28]    ● Percentage of completed pricing work with preserved rationale and supporting
+[p28]        context
+[p28]
+[p28] AI indicators
+[p28]
+[p28]    ● Percentage of pricing workflows where AI assistance is used
+[p28]    ● AI-assisted tasks accepted, modified or rejected by users
+[p28]    ● Reduction in time spent on AI-supported pricing activities
+[p28]    ● Repeat use of AI assistance within active accounts
+[p28]
+[p28] Business-impact indicators
+[p28]
+[p29] Where customer data permits, the MVP should track:
+[p29]
+[p29]    ● margin improvement or avoided margin loss;
+[p29]    ● revenue impact associated with pricing actions;
+[p29]    ● market-response speed;
+[p29]    ● pricing-related labour hours saved;
+[p29]    ● return on investment from using Owómidé.
+[p29]
+[p29] These measures should be evaluated against each customer's baseline rather than
+[p29] assuming identical results across organisations.
+[p29]
+[p29]
+[p29] 10. MVP Success Definition
+[p29]
+[p29] The MVP is successful when target businesses repeatedly use Owómidé to complete real
+[p29] pricing work and demonstrate that the workspace produces a materially better pricing
+[p29] process than their previous operating method.
+[p29]
+[p29] At minimum, success requires evidence that Owómidé:
+[p29]
+[p29]    1. becomes part of the organisation's recurring pricing workflow;
+[p29]    2. reduces manual coordination and fragmented pricing work;
+[p29]    3. shortens the time required to move pricing work from initiation to execution;
+[p29]    4. improves visibility into pricing context, responsibilities and decision state;
+[p29]    5. provides useful AI assistance during real pricing work;
+[p29]    6. preserves reliable pricing history and accountability;
+[p29]    7. improves organisational control over pricing decisions; and
+[p29]    8. produces measurable operational or economic value sufficient for customers to
+[p29]        continue paying for the product.
+[p29]
+[p29] Feature completion alone does not constitute MVP success. The MVP succeeds only when
+[p29] customers repeatedly use it for consequential pricing work and prefer that operating model
+[p29] to the process it replaces.
+[p29]
+[p30] 2. Product Scope
+[p30]
+[p31]                      2
+[p31]                   PRODUCT
+[p31]                    SCOPE
+[p31] 2.1. Product Model
+[p31]
+[p31] 2.2. Product Lifecycle
+[p31]
+[p31] 2.3. Capability Architecture
+[p31]
+[p31] 2.4. Scope Boundary
+[p31]
+[p32] 2.1 Product Model
+[p32]
+[p33]                                      PRODUCT MODEL
+[p33]
+[p33] The Owómidé MVP should organise pricing work around a small set of connected product
+[p33] objects rather than treating individual screens, spreadsheets or approval requests as
+[p33] isolated activities.
+[p33]
+[p33]
+[p33]  1.    Organisation Workspace
+[p33]
+[p33]
+[p33] The Organisation Workspace is the top-level environment for a customer organisation.
+[p33]
+[p33] It contains the organisation's:
+[p33]
+[p33]     ● users and teams;
+[p33]     ● products, services and other priceable entities;
+[p33]     ● pricing initiatives;
+[p33]     ● organisational pricing policies;
+[p33]     ● roles and permissions;
+[p33]     ● pricing guardrails;
+[p33]     ● workflow configurations;
+[p33]     ● pricing history and organisational knowledge.
+[p33]
+[p33] Users operate inside the same organisational environment while seeing and performing only
+[p33] the actions permitted by their assigned authority and scope.
+[p33]
+[p33]
+[p33]  2.    Pricing Initiative
+[p33]
+[p33]
+[p33] The Pricing Initiative is the primary unit of pricing work in the MVP.
+[p33]
+[p33] It represents a defined piece of pricing work being undertaken for a specific business
+[p33] purpose.
+[p33]
+[p33] Examples include:
+[p33]
+[p33]     ● repricing products following a cost increase;
+[p33]     ● reviewing a category's pricing;
+[p33]     ● launching a new product;
+[p33]     ● designing a promotion;
+[p33]     ● clearing ageing inventory;
+[p33]     ● responding to a competitor movement;
+[p33]
+[p34]    ● revising a pricing strategy;
+[p34]    ● changing prices for a customer, region or channel;
+[p34]    ● performing a scheduled price review.
+[p34]
+[p34] A Pricing Initiative should contain the complete context required to understand and progress
+[p34] that work from initiation through completion.
+[p34]
+[p34] It can include:
+[p34]
+[p34]    ● objective and rationale;
+[p34]    ● affected pricing scope;
+[p34]    ● structured Pricing Context and supporting Evidence;
+[p34]    ● assumptions;
+[p34]    ● pricing strategy or logic;
+[p34]    ● calculations and analysis;
+[p34]    ● scenarios;
+[p34]    ● stakeholder contributions;
+[p34]    ● proposals;
+[p34]    ● versions;
+[p34]    ● organisational decision records, including Approval and Policy Authorisation records;
+[p34]    ● execution records;
+[p34]    ● monitoring information;
+[p34]    ● complete activity history.
+[p34]
+[p34] This becomes the persistent container that prevents pricing context from being lost as work
+[p34] moves between people and stages.
+[p34]
+[p34]
+[p34]  3.   Pricing Scope
+[p34]
+[p34]
+[p34] Every Pricing Initiative must define what the pricing work applies to.
+[p34]
+[p34] Pricing Scope represents the Priceable Entities and pricing context to which the pricing work
+[p34] applies.
+[p34]
+[p34] A Pricing Scope must contain one or more Priceable Entities defined in DATA-001.
+[p34]
+[p34] Priceable Entities may be included in scope through:
+[p34]
+[p34]    ● direct selection of individual Priceable Entities;
+[p34]
+[p35]    ● selection of a supported organisational grouping, such as a category or product
+[p35]        group, that resolves to multiple Priceable Entities;
+[p35]    ● another supported scope-selection mechanism that resolves to identifiable Priceable
+[p35]        Entities.
+[p35]
+[p35] The Pricing Scope may additionally be qualified by applicable pricing dimensions such as:
+[p35]
+[p35]    ● location;
+[p35]    ● region;
+[p35]    ● channel;
+[p35]    ● customer group;
+[p35]    ● business unit;
+[p35]    ● vendor;
+[p35]    ● price list;
+[p35]    ● other organisation-defined pricing dimensions.
+[p35]
+[p35] Categories, product groups and pricing dimensions may therefore determine which Priceable
+[p35] Entities or pricing contexts are included in scope, but they must not be treated as Priceable
+[p35] Entities solely because they are used for scope selection.
+[p35]
+[p35] Where a grouping selector is used, the system must be able to determine which Priceable
+[p35] Entities are included by that selector.
+[p35]
+[p35] The same Pricing Initiative may apply to multiple Priceable Entities and multiple
+[p35] pricing-dimension combinations where the pricing action is logically managed as one piece
+[p35] of work.
+[p35]
+[p35] At any consequential decision point, the applicable Pricing Scope must be sufficiently
+[p35] resolved to determine the exact Priceable Entities and pricing dimensions affected by the
+[p35] proposed action.
+[p35]
+[p35]
+[p35]  4.   Pricing Strategy and Logic
+[p35]
+[p35]
+[p35] The workspace must allow users to express how the pricing decision should work.
+[p35]
+[p35] This includes:
+[p35]
+[p35]    ● pricing objective;
+[p35]    ● strategy;
+[p35]    ● calculation logic;
+[p35]
+[p36]    ● rules;
+[p36]    ● conditions;
+[p36]    ● parameters;
+[p36]    ● assumptions;
+[p36]    ● thresholds;
+[p36]    ● constraints;
+[p36]    ● references to applicable organisational guardrails.
+[p36]
+[p36] Organisational Guardrails remain Governance-owned controls. Pricing Strategy and Logic
+[p36] may reference applicable Guardrails but must not independently create, redefine or own
+[p36] them.
+[p36]
+[p36] The MVP should represent this logic in a human-readable format so authorised stakeholders
+[p36] can understand, review and challenge it without requiring technical expertise.
+[p36]
+[p36] For example:
+[p36]
+[p36] Increase selling price by 8% across the selected products while maintaining gross
+[p36] margin above 15%.
+[p36]
+[p36] More complex pricing logic can combine multiple conditions and rules where required.
+[p36]
+[p36]
+[p36]  5.    Pricing Analysis and Scenarios
+[p36]
+[p36]
+[p36] Pricing Initiatives should support analysis of the economic and commercial implications of
+[p36] proposed actions.
+[p36]
+[p36] Users should be able to evaluate relevant information such as:
+[p36]
+[p36]    ● Current Price or another explicitly identified pricing baseline;
+[p36]    ● proposed price;
+[p36]    ● Applicable Unit Cost and relevant cost basis, where required;
+[p36]    ● gross margin;
+[p36]    ● markup;
+[p36]    ● gross profit;
+[p36]    ● price change percentage;
+[p36]    ● alternative pricing scenarios;
+[p36]    ● expected or manually entered business implications.
+[p36]
+[p37] A Scenario represents an alternative pricing approach that can be evaluated before the
+[p37] team commits to a proposal.
+[p37]
+[p37] Scenarios remain exploratory until explicitly selected or incorporated into the active pricing
+[p37] work.
+[p37]
+[p37]
+[p37]  6.     Pricing Proposal
+[p37]
+[p37]
+[p37] A Pricing Proposal is a specific proposed action produced from the work inside a Pricing
+[p37] Initiative.
+[p37]
+[p37] It represents what the team is proposing to do, not the entire pricing initiative itself.
+[p37]
+[p37] A proposal should contain the exact:
+[p37]
+[p37]     ● affected scope;
+[p37]     ● Current Price or other explicitly identified pricing baseline used;
+[p37]     ● proposed pricing state;
+[p37]     ● supporting rationale;
+[p37]     ● assumptions;
+[p37]     ● relevant analysis;
+[p37]     ● applicable Guardrail evaluation and configured behavioural treatment;
+[p37]     ● applicable organisational decision requirements.
+[p37]
+[p37] Once a Draft Pricing Proposal is formally submitted into the applicable organisational
+[p37] decision path, that same Proposal version is frozen as the controlled decision snapshot.
+[p37]
+[p37] Submission does not create a new Proposal version solely because the Proposal entered
+[p37] the decision path.
+[p37]
+[p37] A material change after submission must create a new controlled Proposal version rather
+[p37] than silently modifying the version previously submitted for approval or policy authorisation.
+[p37]
+[p37]
+[p37]  7.     Workflow
+[p37]
+[p37]
+[p37] Each Pricing Initiative progresses through the canonical Pricing Initiative lifecycle defined in
+[p37] Section 2.2.
+[p37]
+[p37] The canonical lifecycle is:
+[p37]
+[p38] Initiated → In Development → In Review → Awaiting Approval → Ready for Execution →
+[p38] Implemented → Monitoring → Completed
+[p38]
+[p38] Workflow governs how pricing work progresses through the applicable review, organisational
+[p38] decision and execution-readiness requirements within that canonical lifecycle.
+[p38]
+[p38] Workflow may determine or coordinate:
+[p38]
+[p38]     ● required reviewer actions within the canonical In Review stage;
+[p38]     ● responsible participants;
+[p38]     ● review completion requirements;
+[p38]     ● the applicable organisational decision path;
+[p38]     ● item-level approval where applicable;
+[p38]     ● policy-authorisation routing where applicable;
+[p38]     ● approval sequence and routing;
+[p38]     ● Changes Requested and revision loops;
+[p38]     ● bounded escalation;
+[p38]     ● authorised delegation where supported;
+[p38]     ● execution-readiness gating;
+[p38]     ● attributable workflow history.
+[p38]
+[p38] Organisational     differences   must   be   represented   through    the   bounded    Workflow
+[p38] Configuration Profile model defined in Section 2.4 and Section 3.8.
+[p38]
+[p38] Workflow configuration must not create alternative Pricing Initiative lifecycle states, arbitrary
+[p38] workflow graphs or unrestricted user-defined workflow automation.
+[p38]
+[p38] Pricing Proposal decision states and approval progress must remain separate from Pricing
+[p38] Initiative lifecycle state.
+[p38]
+[p38]
+[p38]  8.    Approval Record
+[p38]
+[p38]
+[p38] An Approval Record captures an authorised user's formal decision on a specific proposal
+[p38] version.
+[p38]
+[p38] It should preserve:
+[p38]
+[p38]     ● approver;
+[p38]     ● decision;
+[p38]     ● timestamp;
+[p38]
+[p39]    ● proposal version;
+[p39]    ● comments or conditions;
+[p39]    ● authority under which the action was taken.
+[p39]
+[p39] Approvals must attach to the exact version reviewed.
+[p39]
+[p39] A material change after Approval must create a new controlled Pricing Proposal version and
+[p39] complete the applicable organisational decision requirements before new execution authority
+[p39] can be established. The earlier Approval must remain bound only to the Proposal version
+[p39] against which it was made.
+[p39]
+[p39]
+[p39]  9.   Policy Authorisation Record
+[p39]
+[p39]
+[p39] A Policy Authorisation Record captures execution authority established for an exact
+[p39] controlled Pricing Proposal version through the organisation's configured policy-authorisation
+[p39] mechanism rather than through item-level human Approval.
+[p39]
+[p39] It should preserve, where applicable:
+[p39]
+[p39]    ● exact Pricing Proposal version;
+[p39]    ● applicable organisational policy;
+[p39]    ● qualification conditions and evaluation result;
+[p39]    ● submitting or invoking user and relevant authority context;
+[p39]    ● relevant Guardrail configuration and evaluation;
+[p39]    ● authorisation timestamp.
+[p39]
+[p39] Policy Authorisation must remain distinguishable from human Approval and must bind only
+[p39] to the exact controlled Proposal version evaluated.
+[p39]
+[p39] A materially changed Proposal must complete a new policy-authorisation evaluation or other
+[p39] applicable organisational decision path before receiving new execution authority.
+[p39]
+[p39]
+[p39] 10.   Execution Record
+[p39]
+[p39]
+[p39] An Execution Record captures what happened after a Pricing Proposal received valid
+[p39] execution authority through approval or policy authorisation.
+[p39]
+[p39] It should establish:
+[p39]
+[p39]    ● what pricing action received execution authority;
+[p39]
+[p40]    ● what was actually implemented;
+[p40]    ● who implemented or recorded it;
+[p40]    ● when implementation occurred;
+[p40]    ● implementation status;
+[p40]    ● any implementation notes or exceptions.
+[p40]
+[p40] The MVP therefore preserves continuity between decision and execution, even where the
+[p40] actual operational price update occurs outside Owómidé.
+[p40]
+[p40]
+[p40] 11.   Evidence and Collaboration
+[p40]
+[p40]
+[p40] Pricing work should support contextual collaboration directly around the relevant initiative,
+[p40] proposal, rule, scenario or other pricing object.
+[p40]
+[p40] This can include:
+[p40]
+[p40]    ● comments;
+[p40]    ● supporting documents;
+[p40]    ● links;
+[p40]    ● manually entered observations;
+[p40]    ● stakeholder input;
+[p40]    ● decisions;
+[p40]    ● mentions and assignments.
+[p40]
+[p40] Collaboration should remain attached to the pricing work it relates to rather than becoming a
+[p40] disconnected general conversation.
+[p40]
+[p40]
+[p40] 12.   Activity and Audit History
+[p40]
+[p40]
+[p40] Every consequential action should contribute to a persistent chronological history.
+[p40]
+[p40] The history should capture relevant events such as:
+[p40]
+[p40]    ● creation;
+[p40]    ● edits;
+[p40]    ● version changes;
+[p40]    ● comments;
+[p40]    ● assignments;
+[p40]    ● submissions;
+[p40]    ● reviews;
+[p40]
+[p41]     ● Approval and Policy Authorisation events;
+[p41]     ● rejections;
+[p41]     ● guardrail events;
+[p41]     ● execution;
+[p41]     ● status changes.
+[p41]
+[p41] This provides both operational visibility and historical accountability.
+[p41]
+[p41]
+[p41] 13.    AI Participation
+[p41]
+[p41]
+[p41] AI operates across these product objects rather than existing as an isolated system.
+[p41]
+[p41] AI may assist with a Pricing Initiative, strategy, analysis, scenario, proposal, collaboration
+[p41] thread or historical context.
+[p41]
+[p41] AI-generated work must:
+[p41]
+[p41]     ● remain attributable as AI-assisted;
+[p41]     ● operate within the invoking user's permissions;
+[p41]     ● use only information the user is authorised to access;
+[p41]     ● remain reviewable by human users;
+[p41]     ● require explicit authorised-user action before AI-generated content is applied to
+[p41]         consequential pricing work.
+[p41]
+[p41] AI does not independently approve or authorise consequential pricing actions.
+[p41]
+[p41]
+[p41] Core Product Relationship
+[p41]
+[p41] The core MVP relationship is:
+[p41]
+[p41] Organisation Workspace
+[p41] → Pricing Initiative
+[p41] → Pricing Scope + Context + Strategy/Logic + Analysis/Scenarios
+[p41] → Pricing Proposal
+[p41] → Workflow and Collaboration
+[p41] → Organisational Decision Authority
+[p41] → Execution
+[p41] → Monitoring and Historical Record
+[p41]
+[p41] The Pricing Initiative is the connective object that holds this lifecycle together.
+[p41]
+[p42] Organisational Decision Authority may result from item-level Approval or valid Policy
+[p42] Authorisation according to the applicable controlled decision path.
+[p42]
+[p43] 2.2 Product Lifecycle
+[p43]
+[p44]                                     PRODUCT LIFECYCLE
+[p44]
+[p44]
+[p44] Pricing Initiative Lifecycle
+[p44]
+[p44] A Pricing Initiative should represent the complete lifecycle of a piece of pricing work from
+[p44] initiation through execution, monitoring and closure.
+[p44]
+[p44] The lifecycle must track the business state of the pricing work, not merely the screen a
+[p44] user is currently viewing.
+[p44]
+[p44]
+[p44]  1.   Initiated
+[p44]
+[p44]
+[p44] A Pricing Initiative begins when a pricing need, opportunity, request or trigger is formally
+[p44] created in Owómidé.
+[p44]
+[p44] At minimum, the initiative should establish:
+[p44]
+[p44]    ● title;
+[p44]    ● pricing objective or reason;
+[p44]    ● initiative type;
+[p44]    ● owner;
+[p44]    ● pricing scope;
+[p44]    ● urgency;
+[p44]    ● relevant collaborators;
+[p44]    ● initial supporting context.
+[p44]
+[p44] The initiative then moves into active development.
+[p44]
+[p44]
+[p44]  2.   In Development
+[p44]
+[p44]
+[p44] This is the main working state.
+[p44]
+[p44] Users can:
+[p44]
+[p44]    ● gather and attach relevant context;
+[p44]    ● develop pricing strategy and logic;
+[p44]    ● define assumptions and parameters;
+[p44]    ● perform calculations and analysis;
+[p44]    ● create scenarios;
+[p44]
+[p45]    ● assess unit economics;
+[p45]    ● collaborate with stakeholders;
+[p45]    ● use AI assistance;
+[p45]    ● construct the proposed pricing action.
+[p45]
+[p45] An initiative may remain in this state through multiple iterations.
+[p45]
+[p45]
+[p45]  3.   In Review
+[p45]
+[p45]
+[p45] When the pricing work is sufficiently developed, it can move into review.
+[p45]
+[p45] Relevant stakeholders can:
+[p45]
+[p45]    ● inspect the pricing context;
+[p45]    ● review assumptions and analysis;
+[p45]    ● comment;
+[p45]    ● request clarification;
+[p45]    ● identify issues;
+[p45]    ● recommend changes;
+[p45]    ● confirm readiness for formal decision-making.
+[p45]
+[p45] Review is distinct from the organisational decision that may subsequently establish
+[p45] Approved or Authorised Within Policy status.
+[p45]
+[p45] If material changes are required, the initiative returns to In Development.
+[p45]
+[p45]
+[p45]  4.   Awaiting Approval
+[p45]
+[p45]
+[p45] Once applicable review and Proposal-readiness requirements are satisfied, the Pricing
+[p45] Initiative enters Awaiting Approval while the current Pricing Proposal progresses through the
+[p45] applicable organisational decision path.
+[p45]
+[p45] The organisational decision path may be:
+[p45]
+[p45]    ● item-level human approval; or
+[p45]    ● configured policy authorisation where that capability is enabled and the Proposal
+[p45]        qualifies.
+[p45]
+[p45] At entry into the organisational decision path:
+[p45]
+[p46]    ● the current Draft Pricing Proposal version is frozen as the controlled decision
+[p46]        snapshot;
+[p46]    ● the exact affected Pricing Scope is resolved;
+[p46]    ● the applicable organisational decision path is identified;
+[p46]    ● relevant Workflow and Governance requirements are established;
+[p46]    ● applicable Guardrail configuration and authoritative Guardrail evaluation are
+[p46]        preserved as part of the decision context;
+[p46]    ● the submitting user and submission timestamp are preserved;
+[p46]    ● subsequent material changes require a new controlled Proposal version.
+[p46]
+[p46] Where item-level approval applies, the controlled Proposal version progresses from Draft to
+[p46] Awaiting Approval and the required approvers and approval sequence are determined
+[p46] through the applicable Workflow and Governance rules.
+[p46]
+[p46] Where configured policy authorisation applies, the same controlled Proposal version is
+[p46] evaluated against the applicable policy-authorisation requirements.
+[p46]
+[p46] A Proposal validly qualifying for policy authorisation may progress from Draft to Authorised
+[p46] Within Policy without being represented as having received human Approval.
+[p46]
+[p46] The applicable Workflow may vary through the supported Workflow Configuration Profile, but
+[p46] it must remain within the canonical Pricing Initiative lifecycle and bounded decision models
+[p46] defined by this PRD.
+[p46]
+[p46]
+[p46]  5.   Decision Gate
+[p46]
+[p46]
+[p46] The applicable organisational decision path can produce four relevant outcomes.
+[p46]
+[p46] Approved
+[p46] The required authority has approved the submitted proposal version.
+[p46]
+[p46] Changes Requested
+[p46] The proposal requires modification and returns to development or review. Any revised
+[p46] submission becomes a new version.
+[p46]
+[p46] Rejected
+[p46] The submitted proposal is rejected. The initiative may be revised and resubmitted or closed
+[p46] without execution.
+[p46]
+[p47] Authorised Within Policy
+[p47] Where the organisation has explicitly enabled predefined within-guardrail autonomy,
+[p47] qualifying pricing work may proceed without item-level approval. The system records the
+[p47] action as authorised under the applicable policy, not as an approval.
+[p47]
+[p47] No user may approve their own submitted pricing proposal.
+[p47]
+[p47]
+[p47]  6.   Ready for Execution
+[p47]
+[p47]
+[p47] Once a proposal has received all required approvals, or has been validly authorised within
+[p47] policy, it becomes eligible for execution.
+[p47]
+[p47] At this stage the initiative should clearly show:
+[p47]
+[p47]    ● authorised pricing action;
+[p47]    ● exact pricing proposal version providing execution authority;
+[p47]    ● effective date;
+[p47]    ● implementation owner;
+[p47]    ● execution instructions;
+[p47]    ● affected pricing scope;
+[p47]    ● any conditions attached to the decision.
+[p47]
+[p47] An unapproved or unauthorised pricing action cannot be marked as implemented.
+[p47]
+[p47]
+[p47]  7.   Implemented
+[p47]
+[p47]
+[p47] The implementation owner records that the authorised pricing action has been implemented.
+[p47]
+[p47] The execution record should capture:
+[p47]
+[p47]    ● what was implemented;
+[p47]    ● implementation date and time;
+[p47]    ● implementing user;
+[p47]    ● actual implemented price or pricing state;
+[p47]    ● implementation notes;
+[p47]    ● deviations from the authorised decision baseline, if any.
+[p47]
+[p47] Where the implemented state differs materially from the authorised decision baseline, the
+[p47] discrepancy must remain visible rather than silently replacing or reinterpreting the authorised
+[p47] Pricing Proposal version.
+[p47]
+[p48]  8.   Monitoring
+[p48]
+[p48]
+[p48] After implementation, the initiative can enter a monitoring state.
+[p48]
+[p48] Users should be able to record or assess relevant outcomes such as:
+[p48]
+[p48]    ● sales or transaction movement;
+[p48]    ● margin impact;
+[p48]    ● revenue impact;
+[p48]    ● volume changes;
+[p48]    ● commercial feedback;
+[p48]    ● customer response;
+[p48]    ● observed issues;
+[p48]    ● whether the pricing objective was achieved.
+[p48]
+[p48] Monitoring requirements may differ by initiative type and organisation.
+[p48]
+[p48]
+[p48]  9.   Completed
+[p48]
+[p48]
+[p48] A Pricing Initiative becomes completed when:
+[p48]
+[p48]    ● the required pricing work has finished;
+[p48]    ● the final decision is known;
+[p48]    ● execution status is resolved;
+[p48]    ● required monitoring or outcome information has been recorded where applicable.
+[p48]
+[p48] Completion makes the initiative part of the organisation's permanent pricing history.
+[p48]
+[p48] Completed initiatives remain searchable and available as context for future pricing work.
+[p48]
+[p48]
+[p48] 10.   Supporting Lifecycle States
+[p48]
+[p48]
+[p48] The MVP should also support:
+[p48]
+[p48] On Hold
+[p48] Work is temporarily paused without being cancelled. On Hold is a temporary supporting state
+[p48] and does not change the underlying lifecycle stage from which the initiative was paused.
+[p48]
+[p49] Cancelled
+[p49] The Pricing Initiative is intentionally terminated before completion, with the reason recorded.
+[p49]
+[p49] Expiration applies to Pricing Proposal Version Validity and, where relevant, to whether
+[p49] previously established decision authority remains current for progression or execution.
+[p49] Expiration does not apply to the Pricing Initiative itself and must not erase the historical
+[p49] Approval or Policy Authorisation record.
+[p49]
+[p49] These conditions must preserve all previous work and activity history.
+[p49]
+[p49]
+[p49] Revision and Versioning Behaviour
+[p49]
+[p49] Pricing work is expected to move backward as well as forward.
+[p49]
+[p49] The lifecycle must therefore support controlled loops such as:
+[p49]
+[p49] Pricing Proposal Changes Requested → Pricing Initiative returns to In Development or In
+[p49] Review → revised Pricing Proposal version is submitted into the applicable organisational
+[p49] decision path
+[p49]
+[p49] A material change after a Pricing Proposal has received Approval or Policy Authorisation
+[p49] must not inherit the execution authority attached to the earlier Proposal version.
+[p49]
+[p49] The materially changed pricing work must create a new controlled Proposal version and
+[p49] complete the applicable organisational decision requirements before receiving execution
+[p49] authority.
+[p49]
+[p49] Previous Approval or Policy Authorisation records must remain historically attached to the
+[p49] exact Proposal version against which they were made.
+[p49]
+[p49] Previous Pricing Proposal versions, organisational decisions, Approval records and Policy
+[p49] Authorisation records must never be overwritten.
+[p49]
+[p49]
+[p49] Urgent Pricing Work
+[p49]
+[p49] Urgency changes the speed and priority of the lifecycle, not the integrity of the lifecycle.
+[p49]
+[p49] Urgent initiatives can receive:
+[p49]
+[p49]     ● priority routing;
+[p49]     ● accelerated notifications;
+[p49]
+[p50]     ● shorter response windows;
+[p50]     ● escalation timers;
+[p50]     ● alternate authorised approvers where configured.
+[p50]
+[p50] Urgency must not automatically remove required governance controls.
+[p50]
+[p50]
+[p50]
+[p50]
+[p50] Canonical Lifecycle
+[p50]
+[p50] The canonical Pricing Initiative lifecycle is:
+[p50]
+[p50] Initiated → In Development → In Review → Awaiting Approval → Ready for Execution
+[p50] → Implemented → Monitoring → Completed
+[p50]
+[p50] Approval and Policy Authorisation are organisational decision outcomes applied to the
+[p50] relevant Pricing Proposal rather than separate Pricing Initiative lifecycle states.
+[p50]
+[p50] While the Pricing Initiative is Awaiting Approval, the applicable Pricing Proposal may
+[p50] become:
+[p50]
+[p50]     ● Approved;
+[p50]     ● Authorised Within Policy;
+[p50]     ● Changes Requested;
+[p50]     ● Rejected.
+[p50]
+[p50] Where the Pricing Proposal becomes Approved or validly Authorised Within Policy, and all
+[p50] applicable execution conditions are satisfied, the Pricing Initiative may progress to Ready for
+[p50] Execution.
+[p50]
+[p50] Where changes are requested, the Pricing Initiative returns to the appropriate In
+[p50] Development or In Review state.
+[p50]
+[p50] Where a proposal is rejected, the Pricing Initiative may return for further development,
+[p50] remain open for additional analysis, or be cancelled.
+[p50]
+[p51] 2.3 Capability Architecture
+[p51]
+[p52]                                 CAPABILITY ARCHITECTURE
+[p52]
+[p52] The MVP consists of interconnected capability systems that together allow pricing work to
+[p52] move through Owómidé from initiation to completion.
+[p52]
+[p52] The capability architecture below maps directly to the functional areas defined in Sections
+[p52] 3.1 through 3.14.
+[p52]
+[p52] Each capability has a primary functional owner in Section 3.0.
+[p52]
+[p52] Capabilities may consume records, rules, evaluations or outputs owned by another
+[p52] functional area where required by the pricing lifecycle, but doing so must not create a
+[p52] second canonical owner or independently redefine the consumed product contract.
+[p52]
+[p52]
+[p52]    1. Organisation Workspace and Access Management
+[p52]
+[p52] Provides the shared environment in which an organisation's pricing work takes place.
+[p52]
+[p52] It must support:
+[p52]
+[p52]    ● organisation setup;
+[p52]    ● users and teams;
+[p52]    ● workspace configuration;
+[p52]    ● access to active and historical pricing work;
+[p52]    ● organisation-level pricing settings and policies.
+[p52]
+[p52]    2. Product and Pricing Context Management
+[p52]
+[p52] Provides the structured business and pricing context required to perform consequential
+[p52] pricing work.
+[p52]
+[p52] It must support:
+[p52]
+[p52]    ● Priceable Entities, including supported product, SKU or variant, service and other
+[p52]        directly priceable offering types;
+[p52]    ● categories, product groups and other organisational groupings used to organise or
+[p52]        select Priceable Entities;
+[p52]    ● pricing dimensions such as location, region, channel, customer group, business unit,
+[p52]        vendor and price list;
+[p52]    ● Price Records and Current Price;
+[p52]
+[p53]    ● Cost Records and Applicable Unit Cost context;
+[p53]    ● manual data entry;
+[p53]    ● structured CSV import;
+[p53]    ● bounded external pricing-context ingestion where supported;
+[p53]    ● validation, provenance and freshness of pricing-context information;
+[p53]    ● preservation of decision-relevant historical pricing context.
+[p53]
+[p53] Categories, product groups and pricing dimensions must remain distinguishable from the
+[p53] underlying Priceable Entities.
+[p53]
+[p53] Current Price must follow the Price Record model defined in Section 3.2 rather than
+[p53] represent an independent pricing object.
+[p53]
+[p53] Cost-dependent consequential calculations must use the Applicable Unit Cost defined in
+[p53] Section 3.2 rather than an arbitrary Cost Record.
+[p53]
+[p53] The MVP must provide sufficient business context to perform real pricing work without
+[p53] requiring customers to rebuild their ERP, accounting system or complete operational data
+[p53] environment inside Owómidé.
+[p53]
+[p53]
+[p53]    3. Pricing Initiative Management
+[p53]
+[p53] Provides the container through which pricing work is created and managed.
+[p53]
+[p53] It must support:
+[p53]
+[p53]    ● creating initiatives;
+[p53]    ● defining objectives;
+[p53]    ● selecting pricing scope;
+[p53]    ● assigning ownership and collaborators;
+[p53]    ● tracking initiative status;
+[p53]    ● managing urgency and timelines;
+[p53]    ● maintaining all related pricing work within one initiative.
+[p53]
+[p53]    4. Collaborative AI Pricing Builder
+[p53]
+[p53] The Pricing Builder is the core working surface in which users construct the pricing approach
+[p53] associated with a Pricing Initiative.
+[p53]
+[p53] It must support structured construction of:
+[p53]
+[p54]     ● pricing actions;
+[p54]     ● pricing strategies and rules;
+[p54]     ● parameters;
+[p54]     ● assumptions;
+[p54]     ● initiative-specific conditions;
+[p54]     ● initiative-specific constraints;
+[p54]     ● thresholds contained within the pricing logic;
+[p54]     ● affected Pricing Scope;
+[p54]     ● entity-level exceptions where applicable;
+[p54]     ● supported deterministic pricing outputs.
+[p54]
+[p54] The Builder must be able to reference applicable organisational Guardrails but must not
+[p54] independently create, redefine or own those Guardrails.
+[p54]
+[p54] Organisational Guardrail definition and configuration remain governed by the Governance
+[p54] capability.
+[p54]
+[p54] Deterministic calculations and Guardrail evaluations used by the Builder must consume the
+[p54] authoritative outputs of the Pricing Analysis and Scenario Evaluation capability.
+[p54]
+[p54] The Builder should support both straightforward price changes and more structured pricing
+[p54] approaches without requiring users to write code.
+[p54]
+[p54]
+[p54]     5. Pricing Analysis and Scenario Evaluation
+[p54]
+[p54] Provides the deterministic analytical environment required to understand the financial and
+[p54] commercial implications of pricing work before formal organisational decision.
+[p54]
+[p54] It must support, where applicable:
+[p54]
+[p54]     ● Current Price or another explicitly identified pricing baseline;
+[p54]     ● proposed selling price;
+[p54]     ● absolute and percentage price change where validly calculable;
+[p54]     ● Applicable Unit Cost and relevant cost basis;
+[p54]     ● gross profit;
+[p54]     ● gross margin;
+[p54]     ● markup;
+[p54]     ● deterministic target-margin and target-markup calculations;
+[p54]     ● supported promotional, discount and markdown calculations;
+[p54]
+[p55]    ● alternative pricing Scenarios;
+[p55]    ● Scenario comparison;
+[p55]    ● deterministic evaluation of applicable organisational Guardrails;
+[p55]    ● calculation traceability;
+[p55]    ● preservation of decision-relevant analytical context.
+[p55]
+[p55] Alternative analytical baselines must remain distinguishable from Current Price.
+[p55]
+[p55] Guardrail evaluation must consume Governance-defined Guardrails and must not
+[p55] independently create or redefine organisational Guardrails.
+[p55]
+[p55] The MVP analytical capability is intended to support structured pricing decisions and
+[p55] Scenario evaluation rather than advanced autonomous pricing optimisation.
+[p55]
+[p55]
+[p55]    6. Pricing Proposal Management
+[p55]
+[p55] Provides the formal decision object through which sufficiently developed pricing work is
+[p55] packaged for organisational decision.
+[p55]
+[p55] A Pricing Proposal represents the specific pricing action being submitted for decision and
+[p55] remains distinct from the broader Pricing Initiative, exploratory Scenarios and editable
+[p55] Builder work.
+[p55]
+[p55] It must support:
+[p55]
+[p55]    ● creation of a Pricing Proposal from sufficiently developed Initiative work;
+[p55]    ● identification of the exact proposed pricing action and affected Pricing Scope;
+[p55]    ● Proposal identifiers and controlled versions;
+[p55]    ● Proposal readiness;
+[p55]    ● a controlled decision snapshot at formal submission;
+[p55]    ● Proposal status;
+[p55]    ● Proposal version validity;
+[p55]    ● distinction between Proposal status and approval progress;
+[p55]    ● material-change handling;
+[p55]    ● supersession and expiration;
+[p55]    ● preservation of historical Proposal versions;
+[p55]    ● binding organisational decision and execution authority to the exact controlled
+[p55]        Proposal version.
+[p55]
+[p56] Pricing Proposal Management must not independently perform approval routing, grant
+[p56] approval authority, grant policy authorisation or execute the pricing action.
+[p56]
+[p56] Those responsibilities remain with Workflow, Governance and Execution.
+[p56]
+[p56]
+[p56]    7. Collaboration and Evidence Management
+[p56]
+[p56] Allows relevant stakeholders to contribute around the same pricing work while preserving the
+[p56] context to which each contribution relates.
+[p56]
+[p56] It must support:
+[p56]
+[p56]    ● contextual comments;
+[p56]    ● mentions;
+[p56]    ● assignments;
+[p56]    ● supporting evidence and attachments;
+[p56]    ● manual market observations where relevant;
+[p56]    ● stakeholder contributions;
+[p56]    ● review feedback;
+[p56]    ● resolution of relevant collaboration items;
+[p56]    ● visibility into consequential activity and changes;
+[p56]    ● association of collaboration and evidence with the relevant Initiative, Proposal,
+[p56]        version or other pricing object.
+[p56]
+[p56] Collaboration must remain attached to the pricing work it concerns rather than becoming a
+[p56] separate general-purpose messaging system.
+[p56]
+[p56] Evidence and collaboration must not independently become authoritative pricing data,
+[p56] approval authority or execution authority merely because they are attached to pricing work.
+[p56]
+[p56]
+[p56]    8. Workflow, Review and Approval Management
+[p56]
+[p56] Controls how Pricing Initiatives and Pricing Proposals progress through required review,
+[p56] organisational decision and execution-readiness processes.
+[p56]
+[p56] It must support:
+[p56]
+[p56]    ● pricing-specific workflow assignment;
+[p56]    ● required review requirements within the canonical In Review stage;
+[p56]    ● review completion requirements;
+[p56]
+[p57]    ● item-level approval where applicable;
+[p57]    ● configured policy-authorisation routing where applicable;
+[p57]    ● approval routing;
+[p57]    ● supported sequential or multiple-approval requirements;
+[p57]    ● maker-checker enforcement;
+[p57]    ● revision loops;
+[p57]    ● Changes Requested treatment;
+[p57]    ● rejection treatment;
+[p57]    ● bounded urgency, deadline and escalation handling;
+[p57]    ● supported approval delegation where organisational policy permits;
+[p57]    ● execution-readiness gating;
+[p57]    ● workflow visibility and attributable workflow history.
+[p57]
+[p57] The workflow capability must operate against the exact controlled Pricing Proposal version
+[p57] and must not independently redefine Proposal content, Governance rules, Guardrail
+[p57] calculations or decision snapshots.
+[p57]
+[p57] Workflow configuration must operate within the canonical Pricing Initiative lifecycle and the
+[p57] bounded configuration model defined in Section 2.4.
+[p57]
+[p57] The MVP must not allow Workflow configuration to create arbitrary lifecycle states, free-form
+[p57] workflow graphs, user-authored scripts, custom executable expressions, arbitrary triggers or
+[p57] general-purpose automation.
+[p57]
+[p57] Organisational workflow differences must be represented through supported pricing-specific
+[p57] configuration parameters.
+[p57]
+[p57]
+[p57]    9. Roles, Permissions and Pricing Governance
+[p57]
+[p57] Controls who may view, create, modify, review, approve, authorise, execute or administer
+[p57] consequential pricing work.
+[p57]
+[p57] It must support:
+[p57]
+[p57]    ● role-based permissions;
+[p57]    ● organisational and pricing-scope authority;
+[p57]    ● sensitive commercial and cost-data access;
+[p57]    ● separation of duties where required;
+[p57]    ● approval authority and limits;
+[p57]
+[p58]    ● organisational Guardrail definition and configuration;
+[p58]    ● Guardrail behavioural treatment;
+[p58]    ● policy-authorisation configuration;
+[p58]    ● governance enforcement;
+[p58]    ● prevention of unauthorised execution;
+[p58]    ● attributable governance changes;
+[p58]    ● historical governance context.
+[p58]
+[p58] Governance must be enforced by the system rather than depend solely on documented
+[p58] organisational procedures.
+[p58]
+[p58] Governance defines applicable organisational controls but must not independently perform
+[p58] deterministic pricing calculations or Guardrail calculations owned by the analytical capability.
+[p58]
+[p58]
+[p58]    10.    AI Assistance and AI Governance
+[p58]
+[p58]
+[p58] AI operates across the workspace as a contextual assistant to authorised users.
+[p58]
+[p58] AI may assist with activities such as:
+[p58]
+[p58]    ● understanding pricing context;
+[p58]    ● drafting or refining pricing work;
+[p58]    ● translating business intent into structured pricing logic;
+[p58]    ● interpreting pricing analysis;
+[p58]    ● comparing Scenarios;
+[p58]    ● identifying missing or inconsistent information;
+[p58]    ● explaining deterministic calculations;
+[p58]    ● explaining Guardrail results;
+[p58]    ● summarising stakeholder input;
+[p58]    ● retrieving relevant historical pricing context;
+[p58]    ● preparing pricing work for review;
+[p58]    ● summarising recorded post-implementation information.
+[p58]
+[p58] AI must operate within the invoking user's access and authority.
+[p58]
+[p58] AI must not independently:
+[p58]
+[p58]    ● approve or policy-authorise a Pricing Proposal;
+[p58]    ● provide execution authority;
+[p58]    ● execute a pricing action;
+[p58]
+[p59]    ● become the authoritative deterministic calculation engine;
+[p59]    ● become the authoritative Guardrail-evaluation engine;
+[p59]    ● bypass organisational permissions or Governance;
+[p59]    ● silently apply consequential changes to pricing work.
+[p59]
+[p59] AI-generated or AI-assisted changes that are applied to pricing work must remain
+[p59] attributable according to the applicable functional requirements.
+[p59]
+[p59]
+[p59]    11.    Execution and Post-Implementation Monitoring
+[p59]
+[p59]
+[p59] Provides continuity between organisational pricing decision authority and the actual
+[p59] operational outcome.
+[p59]
+[p59] It must support:
+[p59]
+[p59]    ● identification of the exact Approved or Authorised Within Policy Pricing Proposal
+[p59]        version providing execution authority;
+[p59]    ● assignment of implementation responsibility;
+[p59]    ● structured execution instructions;
+[p59]    ● recording implementation;
+[p59]    ● recording the actual implemented pricing state;
+[p59]    ● comparison of authorised and implemented pricing;
+[p59]    ● identification of execution variance;
+[p59]    ● partial implementation and Implementation Exceptions;
+[p59]    ● establishment or update of the applicable Current Price where implementation is
+[p59]        confirmed and Owómidé maintains the relevant Price Record;
+[p59]    ● recording relevant post-implementation results and observations;
+[p59]    ● preservation of implementation history and outcome context.
+[p59]
+[p59] The capability must preserve the distinction between:
+[p59]
+[p59] Authorised Pricing Action → Actual Implementation → Observed Outcome
+[p59]
+[p59] Execution must not independently modify or reinterpret the controlled Pricing Proposal
+[p59] version that provides its authority.
+[p59]
+[p59]
+[p59]    12.    Versioning, Audit Trail and Pricing Knowledge
+[p59]
+[p59]
+[p59] Provides persistent organisational memory around pricing.
+[p59]
+[p60] It must support:
+[p60]
+[p60]    ● version history;
+[p60]    ● chronological activity history;
+[p60]    ● attributable user actions;
+[p60]    ● organisational decision history, including Approval and Policy Authorisation records;
+[p60]    ● decision rationale;
+[p60]    ● execution history;
+[p60]    ● historical pricing initiatives;
+[p60]    ● search and retrieval of previous pricing work.
+[p60]
+[p60] Historical records must not be silently overwritten.
+[p60]
+[p60]
+[p60]    13.    Notifications, Work Queues and Visibility
+[p60]
+[p60]
+[p60] Keeps participants aware of relevant pricing work requiring their attention without becoming
+[p60] an independent source of workflow or decision state.
+[p60]
+[p60] It must support notifications for relevant events such as:
+[p60]
+[p60]    ● assignments;
+[p60]    ● mentions;
+[p60]    ● review requests;
+[p60]    ● approval requests;
+[p60]    ● requested changes;
+[p60]    ● approvals;
+[p60]    ● policy authorisations;
+[p60]    ● rejections;
+[p60]    ● escalations;
+[p60]    ● approaching deadlines;
+[p60]    ● execution assignments;
+[p60]    ● execution-readiness events.
+[p60]
+[p60] Users should also have role-appropriate work queues and workspace-level visibility into:
+[p60]
+[p60]    ● work requiring their attention;
+[p60]    ● active Pricing Initiatives;
+[p60]    ● review work;
+[p60]    ● pending approvals;
+[p60]
+[p61]    ● required actions;
+[p61]    ● execution responsibilities;
+[p61]    ● recently completed work;
+[p61]    ● relevant pricing activity.
+[p61]
+[p61] Notifications, work queues and visibility surfaces must project authoritative underlying
+[p61] product state rather than independently create or redefine that state.
+[p61]
+[p61]
+[p61]
+[p61]
+[p61]    14.    Data Export and External Operational Handoff
+[p61]
+[p61]
+[p61] Provides practical mechanisms for taking supported pricing information and authorised
+[p61] pricing actions from Owómidé into the organisation's external operating environment.
+[p61]
+[p61] It must support, where applicable:
+[p61]
+[p61]    ● structured export of pricing information;
+[p61]    ● export of exact authorised Pricing Proposal versions for operational implementation;
+[p61]    ● external identifiers required for supported handoff;
+[p61]    ● human-readable operational handoff;
+[p61]    ● export validation;
+[p61]    ● export attribution and auditability;
+[p61]    ● bounded integration with selected external systems;
+[p61]    ● distinction between export or handoff and confirmed implementation;
+[p61]    ● relationship between authorised action, handed-off action and actual implementation.
+[p61]
+[p61] A supported connector may also exchange inbound pricing-context information where the
+[p61] connector allows it.
+[p61]
+[p61] Where external information enters Owómidé as pricing context, the semantic ownership of
+[p61] that information remains with Product and Pricing Context Management.
+[p61]
+[p61] Externally received selling-price information must therefore enter the Price Record model,
+[p61] and externally received cost information must enter the Cost Record model, before being
+[p61] used as authoritative Owómidé pricing context.
+[p61]
+[p61] The availability of specific native connectors must be driven by validated customer or pilot
+[p61] requirements.
+[p61]
+[p62] The MVP must not require broad connector coverage, universal bidirectional synchronisation
+[p62] or autonomous publishing into external systems.
+[p62]
+[p62]
+[p62] Capability Relationship
+[p62]
+[p62] The core pricing-work flow is:
+[p62]
+[p62] Product and Pricing Context → Pricing Initiative → Collaborative AI Pricing Builder →
+[p62] Analysis and Scenarios → Collaboration → Pricing Proposal → Review and Organisational
+[p62] Decision Workflow → Execution → Monitoring → Audit and Pricing Knowledge
+[p62]
+[p62] The Pricing Proposal is the formal decision object between developed pricing work and
+[p62] organisational decision authority.
+[p62]
+[p62] Organisation Workspace and Access Management, Roles, Permissions and Pricing
+[p62] Governance, AI Assistance and AI Governance, Notifications, Work Queues and Visibility,
+[p62] and Versioning, Audit Trail and Pricing Knowledge operate across the lifecycle rather than as
+[p62] isolated sequential stages.
+[p62]
+[p62] Governance defines applicable organisational controls.
+[p62]
+[p62] The analytical capability performs authoritative deterministic calculations and Guardrail
+[p62] evaluations.
+[p62]
+[p62] Workflow consumes the controlled Proposal and applicable Governance to establish the
+[p62] required organisational decision path.
+[p62]
+[p62] Execution consumes the exact Proposal version that received valid execution authority.
+[p62]
+[p62] Data Export and External Operational Handoff bridges authorised Owómidé outputs into
+[p62] supported external operating processes.
+[p62]
+[p62] Inbound pricing context received through a supported connector must enter the canonical
+[p62] Product and Pricing Context models before being treated as Owómidé pricing context.
+[p62]
+[p62] Historical records must preserve the exact Proposal, Governance, workflow, execution and
+[p62] pricing context relevant to the decision at the time.
+[p62]
+[p63] 2.4 Scope Boundary
+[p63]
+[p64]                                      SCOPE BOUNDARY
+[p64]
+[p64] The MVP must deliver a complete, usable pricing-workflow experience rather than a broad
+[p64] collection of partially implemented pricing capabilities.
+[p64]
+[p64] A capability belongs in the MVP only when a business must perform real pricing work from
+[p64] initiation through analysis, collaboration, organisational decision, execution recording and
+[p64] monitoring inside Owómidé.
+[p64]
+[p64]
+[p64]  1.   In Scope
+[p64]
+[p64]
+[p64] The MVP includes:
+[p64]
+[p64]    ● organisation workspace setup and management;
+[p64]    ● user, team, role and permission management;
+[p64]    ● Priceable Entity management for supported products, SKUs or variants, services and
+[p64]        other directly priceable offerings, plus category and product-group management;
+[p64]    ● manual and CSV-based pricing data import;
+[p64]    ● bounded external integrations with selected business, spreadsheet, productivity,
+[p64]        commerce or operational systems where those integrations materially reduce
+[p64]        pricing-workflow friction, with specific connectors prioritised according to validated
+[p64]        customer and pilot requirements;
+[p64]    ● Price Records and Current Price, Cost Records and Applicable Unit Cost context;
+[p64]    ● Pricing Initiative creation and lifecycle management;
+[p64]    ● pricing scope selection;
+[p64]    ● collaborative AI-native Pricing Builder;
+[p64]    ● pricing     objectives,   strategies,   rules,   assumptions   and    parameters,   plus
+[p64]        Governance-defined organisational Guardrails;
+[p64]    ● unit-economics calculations;
+[p64]    ● pricing scenario creation and comparison;
+[p64]    ● contextual AI assistance;
+[p64]    ● comments, mentions, assignments and supporting evidence;
+[p64]    ● review and revision behaviour within the canonical Pricing Initiative lifecycle;
+[p64]    ● bounded pricing-specific organisational decision routing using supported condition
+[p64]        types, Approval rules and Policy Authorisation rules where applicable;
+[p64]    ● maker-checker controls, item-level Approval authority and Policy Authorisation
+[p64]        governance;
+[p64]
+[p65]    ● proposal creation and versioning;
+[p65]    ● Approval, Policy Authorisation, Rejection and Changes Requested decision
+[p65]        treatment where applicable;
+[p65]    ● implementation assignment and recording;
+[p65]    ● post-implementation monitoring records;
+[p65]    ● activity history and audit trail;
+[p65]    ● searchable historical pricing work;
+[p65]    ● workspace notifications and work queues;
+[p65]    ● structured export of pricing decisions and authorised pricing actions.
+[p65]
+[p65]  2.   MVP Configuration Boundary
+[p65]
+[p65]
+[p65] The MVP must support bounded, pricing-specific configuration without becoming a
+[p65] user-programmable workflow, rules or automation platform.
+[p65]
+[p65] Organisations should be able to configure supported organisational settings including:
+[p65]
+[p65]    ● roles and permissions;
+[p65]    ● approval authority and organisational scope;
+[p65]    ● organisational Guardrails and supported pricing thresholds;
+[p65]    ● relevant pricing dimensions;
+[p65]    ● initiative types;
+[p65]    ● required fields and participants where supported;
+[p65]    ● a bounded Workflow Configuration Profile.
+[p65]
+[p65] A Workflow Configuration Profile may configure supported workflow parameters such as:
+[p65]
+[p65]    ● whether formal review requirements apply within the canonical In Review stage;
+[p65]    ● required reviewer roles or participants;
+[p65]    ● the applicable organisational decision path;
+[p65]    ● required approver roles;
+[p65]    ● supported sequential or multiple-approval arrangements;
+[p65]    ● approval routing conditions selected from supported pricing-specific condition types;
+[p65]    ● target response dates or approval deadlines;
+[p65]    ● supported escalation behaviour;
+[p65]    ● authorised approval delegation where supported.
+[p65]
+[p65] Workflow configuration must operate within the canonical Pricing Initiative lifecycle defined in
+[p65] Section 2.2.
+[p65]
+[p66] Workflow configuration must not:
+[p66]
+[p66]    ● create additional Pricing Initiative lifecycle states;
+[p66]    ● remove or redefine the meaning of canonical lifecycle states;
+[p66]    ● create arbitrary lifecycle transitions outside supported progression and revision
+[p66]        behaviour;
+[p66]    ● redefine Pricing Proposal statuses or Proposal version-validity states;
+[p66]    ● execute user-authored scripts or code;
+[p66]    ● evaluate arbitrary executable formulas or expressions as workflow logic;
+[p66]    ● create unrestricted user-authored triggers or action chains;
+[p66]    ● create arbitrary external actions or automation;
+[p66]    ● automate general organisational processes unrelated to pricing;
+[p66]    ● bypass Proposal readiness, approval authority, maker-checker controls, Guardrails,
+[p66]        policy-authorisation conditions or other Governance requirements.
+[p66]
+[p66] Different organisational review and decision structures must therefore be represented
+[p66] through supported Workflow Configuration Profile parameters rather than through
+[p66] unrestricted workflow programming.
+[p66]
+[p66]
+[p66]  3.   AI Boundary
+[p66]
+[p66]
+[p66] AI is embedded throughout the workspace but remains assistive.
+[p66]
+[p66] AI may:
+[p66]
+[p66]    ● analyse;
+[p66]    ● draft;
+[p66]    ● summarise;
+[p66]    ● explain;
+[p66]    ● compare;
+[p66]    ● identify risks;
+[p66]    ● retrieve context;
+[p66]    ● suggest alternatives;
+[p66]    ● assist with calculations and pricing construction.
+[p66]
+[p66] AI may not independently:
+[p66]
+[p66]    ● approve or policy-authorise a Pricing Proposal;
+[p66]    ● override permissions, Guardrails or other Governance controls;
+[p66]
+[p67]    ● execute consequential pricing actions;
+[p67]    ● silently change pricing work that has received Approval or Policy Authorisation, or
+[p67]        bypass the applicable Proposal-version and organisational decision requirements.
+[p67]  4.   Execution Boundary
+[p67]
+[p67]
+[p67] The MVP must maintain continuity through execution, but execution does not require
+[p67] Owómidé to automatically publish prices into every operational system.
+[p67]
+[p67] The MVP must be able to record:
+[p67]
+[p67] what was proposed → what received organisational decision authority → what was
+[p67] implemented → who implemented it → when it happened → whether implementation
+[p67] differed from the authorised decision baseline.
+[p67]
+[p67] Manual implementation outside Owómidé remains valid for the MVP.
+[p67]
+[p67]
+[p67]  5.   Monitoring Boundary
+[p67]
+[p67]
+[p67] The MVP supports post-implementation monitoring sufficient to close the pricing lifecycle.
+[p67]
+[p67] Users can record or import relevant outcomes such as:
+[p67]
+[p67]    ● sales;
+[p67]    ● volume;
+[p67]    ● margin;
+[p67]    ● revenue;
+[p67]    ● customer or commercial feedback;
+[p67]    ● observed pricing outcomes.
+[p67]
+[p67] The MVP is not required to automatically optimise future prices from these outcomes.
+[p67]
+[p67]
+[p67]  6.   Explicitly Out of Scope
+[p67]
+[p67]
+[p67] The MVP does not include:
+[p67]
+[p67]    ● autonomous repricing;
+[p67]    ● unattended pricing execution;
+[p67]    ● automated continuous competitor-price collection;
+[p67]    ● proprietary offline market-data collection infrastructure;
+[p67]    ● advanced machine-learning price optimisation;
+[p67]
+[p68]    ● automated elasticity modelling;
+[p68]    ● autonomous demand forecasting;
+[p68]    ● broad, autonomous, or unattended real-time price publishing across ERP, POS,
+[p68]        marketplace, and commerce systems;
+[p68]    ● broad enterprise connector coverage;
+[p68]    ● hardware-based pricing infrastructure;
+[p68]    ● general-purpose workflow automation unrelated to pricing;
+[p68]    ● arbitrary user-defined Pricing Initiative lifecycle stages or free-form workflow graphs;
+[p68]    ● user-authored workflow scripts, custom executable expressions, arbitrary triggers or
+[p68]        arbitrary action chains;
+[p68]    ● unrestricted user-programmable automation;
+[p68]    ● AI acting as an approver or autonomous commercial authority.
+[p68]
+[p68] These capabilities must not become hidden dependencies for completing the MVP's core
+[p68] pricing workflow.
+[p68]
+[p68]
+[p68]  7.   MVP Completeness Test
+[p68]
+[p68]
+[p68] The MVP scope is complete when a target organisation can:
+[p68]
+[p68] bring real pricing data into Owómidé → initiate real pricing work → construct and analyse the
+[p68] pricing approach → collaborate → review and revise → apply organisational controls →
+[p68] complete the applicable organisational decision path → establish execution authority →
+[p68] record implementation → monitor the result → retrieve the complete decision history
+[p68]
+[p68] without requiring any out-of-scope capability for that workflow to succeed.
+[p68]
+[p69] 3. Functional Requirements
+[p69]
+[p70]            3
+[p70]       FUNCTIONAL
+[p70]      REQUIREMENTS
+[p70] 3.1. Organisation Workspace and Access Management
+[p70]
+[p70] 3.2. Product and Pricing Context Management
+[p70]
+[p70] 3.3. Pricing Initiative Management
+[p70]
+[p70] 3.4. Collaborative AI Pricing Builder
+[p70]
+[p70] 3.5. Pricing Analysis and Scenario Evaluation
+[p70]     3.6.   Pricing Proposal Management
+[p70]
+[p71]   3.7. Collaboration and Evidence Management
+[p71]
+[p71]   3.8. Workflow, Review and Approval Management
+[p71]
+[p71]   3.9. Roles, Permissions and Pricing Governance
+[p71]
+[p71] 3.10. AI Assistance and AI Governance
+[p71]
+[p71] 3.11. Execution and Post-Implementation Monitoring
+[p71]
+[p71] 3.12. Versioning, Audit Trail and Pricing Knowledge
+[p71]
+[p71] 3.13. Notifications, Work Queues and Visibility
+[p71]
+[p71] 3.14. Data Export and External Operational Handoff
+[p71]
+[p72] Requirement Interpretation and
+[p72] Criticality
+[p72]
+[p73]                  REQUIREMENT INTERPRETATION AND CRITICALITY
+[p73]
+[p73]
+[p73] This section defines how requirement language must be interpreted throughout Section 3.
+[p73]
+[p73]
+[p73] Requirement Strength
+[p73]
+[p73]              Term                         Meaning                         MVP Effect
+[p73]
+[p73]  Must / Must Not               Mandatory functional              Required for MVP wherever
+[p73]                                behaviour or constraint.          the stated condition applies.
+[p73]
+[p73]  Should / Should Not           Expected MVP behaviour            May be deferred only
+[p73]                                that improves completeness        through an explicit product
+[p73]                                or usability.                     decision and only where the
+[p73]                                                                  deferral does not break a
+[p73]                                                                  mandatory requirement,
+[p73]                                                                  canonical product model,
+[p73]                                                                  core pricing workflow,
+[p73]                                                                  governance integrity,
+[p73]                                                                  historical integrity or
+[p73]                                                                  supported non-AI workflow.
+[p73]
+[p73]  May                           Permitted or optional             Does not by itself create a
+[p73]                                behaviour.                        mandatory MVP
+[p73]                                                                  requirement.
+[p73]
+[p73]  Not Required / Does Not       Explicitly outside the            Does not need to be
+[p73]  Require                       minimum MVP obligation.           delivered unless introduced
+[p73]                                                                  through a separate explicit
+[p73]                                                                  scope decision.
+[p73]
+[p73]
+[p73] Conditional Language
+[p73]
+[p73] Where applicable / Where relevant
+[p73]
+[p73] The requirement applies only when the stated condition exists.
+[p73]
+[p73] Where that condition applies, any associated Must or Must Not requirement remains
+[p73] mandatory.
+[p73]
+[p74] At minimum
+[p74]
+[p74] Every listed item is mandatory.
+[p74]
+[p74] Additional supported items may also be provided.
+[p74]
+[p74]
+[p74] Examples
+[p74]
+[p74] Terms such as:
+[p74]    ● such as
+[p74]    ● for example
+[p74]    ● may include
+[p74]
+[p74] introduce illustrative examples unless the surrounding requirement explicitly makes the listed
+[p74] examples mandatory.
+[p74]
+[p74] Examples must not silently expand the MVP scope.
+[p74]
+[p74]
+[p74] Canonical Requirement References
+[p74]
+[p74] Where one requirement references another canonical requirement, the referenced
+[p74] requirement remains authoritative for the underlying product contract. A consuming
+[p74] requirement must not redefine, weaken or create a competing version of that contract.
+[p74]
+[p74]
+[p74] Interpretation Principle
+[p74]
+[p74] Requirement strength must be determined by the language of the requirement, not by:
+[p74]    ● feature prominence;
+[p74]    ● interface placement;
+[p74]    ● section length;
+[p74]    ● implementation convenience;
+[p74]    ● frequency of mention elsewhere in the PRD.
+[p74]
+[p74] A possible product behaviour must not be interpreted as mandatory merely because it is
+[p74] described in the PRD.
+[p74]
+[p74] Mandatory MVP functional acceptance must ultimately be traceable to:
+[p74]
+[p74]    ● an explicit Must or Must Not requirement; or
+[p74]    ● another mandatory requirement that makes the behaviour necessary.
+[p74]
+[p75] 3.1 Organisation Workspace and
+[p75] Access Management
+[p75]
+[p76]          1. ORGANISATION WORKSPACE AND ACCESS MANAGEMENT
+[p76] The Organisation Workspace is the controlled environment in which a customer manages its
+[p76] users, configuration, pricing data, and pricing work.
+[p76]
+[p76]

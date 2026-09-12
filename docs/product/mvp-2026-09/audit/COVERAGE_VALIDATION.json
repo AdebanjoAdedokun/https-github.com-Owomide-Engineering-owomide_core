@@ -1,0 +1,305 @@
+{
+  "date": "2026-09-12",
+  "requirements": 379,
+  "uniqueIds": 379,
+  "missingIds": [],
+  "domains": {
+    "ORG": {
+      "requirements": 14,
+      "frontendStatus": {
+        "absent": 6,
+        "sample-partial": 8
+      },
+      "backendStatus": {
+        "absent": 7,
+        "partial-source": 6,
+        "conflicting": 1
+      },
+      "integrationStatus": {
+        "not-connected": 14
+      },
+      "priority": {
+        "P0": 12,
+        "P1": 2
+      }
+    },
+    "DATA": {
+      "requirements": 21,
+      "frontendStatus": {
+        "sample-partial": 17,
+        "absent": 3,
+        "sample-complete": 1
+      },
+      "backendStatus": {
+        "partial-source": 11,
+        "conflicting": 7,
+        "implemented-source": 2,
+        "absent": 1
+      },
+      "integrationStatus": {
+        "not-connected": 21
+      },
+      "priority": {
+        "P1": 10,
+        "P0": 10,
+        "P2": 1
+      }
+    },
+    "INIT": {
+      "requirements": 21,
+      "frontendStatus": {
+        "absent": 14,
+        "sample-partial": 7
+      },
+      "backendStatus": {
+        "absent": 14,
+        "partial-source": 7
+      },
+      "integrationStatus": {
+        "not-connected": 21
+      },
+      "priority": {
+        "P1": 14,
+        "P0": 6,
+        "P2": 1
+      }
+    },
+    "BUILD": {
+      "requirements": 24,
+      "frontendStatus": {
+        "sample-partial": 20,
+        "absent": 4
+      },
+      "backendStatus": {
+        "partial-source": 13,
+        "absent": 3,
+        "conflicting": 8
+      },
+      "integrationStatus": {
+        "not-connected": 24
+      },
+      "priority": {
+        "P1": 11,
+        "P0": 11,
+        "P2": 2
+      }
+    },
+    "ANALYSIS": {
+      "requirements": 30,
+      "frontendStatus": {
+        "sample-partial": 19,
+        "absent": 10,
+        "conflicting": 1
+      },
+      "backendStatus": {
+        "partial-source": 12,
+        "conflicting": 10,
+        "absent": 8
+      },
+      "integrationStatus": {
+        "not-connected": 30
+      },
+      "priority": {
+        "P1": 13,
+        "P0": 16,
+        "P2": 1
+      }
+    },
+    "PROP": {
+      "requirements": 22,
+      "frontendStatus": {
+        "sample-partial": 13,
+        "absent": 3,
+        "conflicting": 6
+      },
+      "backendStatus": {
+        "partial-source": 9,
+        "absent": 11,
+        "conflicting": 2
+      },
+      "integrationStatus": {
+        "not-connected": 22
+      },
+      "priority": {
+        "P1": 10,
+        "P0": 11,
+        "P3": 1
+      }
+    },
+    "COLLAB": {
+      "requirements": 21,
+      "frontendStatus": {
+        "sample-partial": 15,
+        "absent": 5,
+        "unverified": 1
+      },
+      "backendStatus": {
+        "partial-source": 4,
+        "implemented-source": 2,
+        "absent": 12,
+        "conflicting": 2,
+        "unverified": 1
+      },
+      "integrationStatus": {
+        "not-connected": 21
+      },
+      "priority": {
+        "P1": 12,
+        "P2": 5,
+        "P0": 3,
+        "P3": 1
+      }
+    },
+    "FLOW": {
+      "requirements": 36,
+      "frontendStatus": {
+        "sample-partial": 16,
+        "absent": 14,
+        "conflicting": 5,
+        "sample-complete": 1
+      },
+      "backendStatus": {
+        "absent": 22,
+        "partial-source": 12,
+        "conflicting": 2
+      },
+      "integrationStatus": {
+        "not-connected": 36
+      },
+      "priority": {
+        "P1": 17,
+        "P0": 14,
+        "P3": 3,
+        "P2": 2
+      }
+    },
+    "GOV": {
+      "requirements": 37,
+      "frontendStatus": {
+        "sample-partial": 27,
+        "absent": 8,
+        "sample-complete": 1,
+        "conflicting": 1
+      },
+      "backendStatus": {
+        "partial-source": 15,
+        "absent": 12,
+        "conflicting": 10
+      },
+      "integrationStatus": {
+        "not-connected": 37
+      },
+      "priority": {
+        "P0": 25,
+        "P1": 12
+      }
+    },
+    "AI": {
+      "requirements": 35,
+      "frontendStatus": {
+        "absent": 34,
+        "sample-partial": 1
+      },
+      "backendStatus": {
+        "absent": 34,
+        "partial-source": 1
+      },
+      "integrationStatus": {
+        "not-connected": 35
+      },
+      "priority": {
+        "P1": 12,
+        "P0": 15,
+        "P2": 8
+      }
+    },
+    "EXEC": {
+      "requirements": 30,
+      "frontendStatus": {
+        "sample-partial": 12,
+        "absent": 18
+      },
+      "backendStatus": {
+        "conflicting": 4,
+        "absent": 19,
+        "partial-source": 7
+      },
+      "integrationStatus": {
+        "not-connected": 30
+      },
+      "priority": {
+        "P0": 10,
+        "P1": 12,
+        "P2": 7,
+        "P3": 1
+      }
+    },
+    "HIST": {
+      "requirements": 29,
+      "frontendStatus": {
+        "sample-partial": 21,
+        "conflicting": 2,
+        "absent": 4,
+        "sample-complete": 2
+      },
+      "backendStatus": {
+        "partial-source": 18,
+        "absent": 9,
+        "implemented-source": 2
+      },
+      "integrationStatus": {
+        "not-connected": 29
+      },
+      "priority": {
+        "P1": 12,
+        "P0": 11,
+        "P2": 4,
+        "P3": 2
+      }
+    },
+    "NOTIF": {
+      "requirements": 29,
+      "frontendStatus": {
+        "sample-partial": 12,
+        "absent": 15,
+        "unverified": 1,
+        "conflicting": 1
+      },
+      "backendStatus": {
+        "absent": 14,
+        "partial-source": 14,
+        "unverified": 1
+      },
+      "integrationStatus": {
+        "not-connected": 29
+      },
+      "priority": {
+        "P1": 19,
+        "P0": 7,
+        "P3": 1,
+        "P2": 2
+      }
+    },
+    "EXPORT": {
+      "requirements": 30,
+      "frontendStatus": {
+        "absent": 28,
+        "sample-partial": 2
+      },
+      "backendStatus": {
+        "absent": 29,
+        "partial-source": 1
+      },
+      "integrationStatus": {
+        "not-connected": 30
+      },
+      "priority": {
+        "P1": 12,
+        "P0": 12,
+        "P2": 6
+      }
+    }
+  },
+  "evidenceWarnings": [],
+  "note": "Coverage is not feature completeness. Multiple IDs share one dependency; all integration statuses share the explicit live-adapter gate."
+}

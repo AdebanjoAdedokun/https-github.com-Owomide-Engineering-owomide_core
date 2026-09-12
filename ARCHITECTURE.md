@@ -1,5 +1,7 @@
 # Owomide Architecture
 
+> September2026 product baseline: this file describes the existing Proposal-centric architecture. The [accepted MVP benchmark](docs/product/mvp-2026-09/README.md) identifies the Initiative-led target and required model changes. Do not silently treat the older lifecycle below as the new PRD contract, or claim that target architecture is already implemented. Ratify contract/ADR changes before migrating services.
+
 This document is the textual companion to the Excalidraw canvas. The canvas is the picture; this is the spec. If they disagree, this file is authoritative — and the canvas should be updated to match.
 
 ---
