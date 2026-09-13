@@ -1,13 +1,25 @@
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createRouterTransport, createClient, Code, ConnectError, type ConnectRouter } from "@connectrpc/connect";
+import type { MessageInitShape } from "@bufbuild/protobuf";
+import {
+  createRouterTransport,
+  createClient,
+  Code,
+  ConnectError,
+  type CallOptions,
+  type ConnectRouter,
+} from "@connectrpc/connect";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { SignJWT } from "jose";
 import pg from "pg";
 import pino from "pino";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { GovernanceService } from "@owomide/proto/services/governance/v1/governance_pb.js";
+import {
+  GovernanceService,
+  RestoreRequestSchema,
+  type RestoreResponse,
+} from "@owomide/proto/services/governance/v1/governance_pb.js";
 import { Permission } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
 import { insertSnapshot } from "../../repo/snapshot-repo.js";
 import { ServiceAuthenticator } from "../../context.js";
@@ -19,6 +31,17 @@ import type { RbacClient } from "../../clients/rbac.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const migrationsDir = resolve(__dirname, "../../../migrations");
 const sql = (filename: string) => readFileSync(resolve(migrationsDir, filename), "utf8");
+
+// A hand-typed subset of GovernanceService, cast into rather than inferred
+// from Client<typeof GovernanceService> — the older TypeScript Bazel pins
+// (5.7.2) fails to resolve that generic's conditional overloads for some
+// methods on this service (works fine under local dev's newer tsc).
+interface GovernanceTestClient {
+  restore(
+    request: MessageInitShape<typeof RestoreRequestSchema>,
+    options?: CallOptions
+  ): Promise<RestoreResponse>;
+}
 
 const gatewaySecret = "gateway-integration-secret-that-is-at-least-32-chars";
 const ORG_A = "00000000-0000-0000-0000-000000000011";
@@ -70,7 +93,7 @@ describe("Governance restore — auth + RBAC gate", () => {
   let container: StartedPostgreSqlContainer;
   let superuser: pg.Client;
   let pool: pg.Pool;
-  let client: ReturnType<typeof createClient<typeof GovernanceService>>;
+  let client: GovernanceTestClient;
   let gatewayToken: string;
   let snapshotId: string;
 
@@ -122,7 +145,7 @@ describe("Governance restore — auth + RBAC gate", () => {
     const transport = createRouterTransport((router: ConnectRouter) =>
       router.service(GovernanceService, service.implementation)
     );
-    client = createClient(GovernanceService, transport);
+    client = createClient(GovernanceService, transport) as unknown as GovernanceTestClient;
     gatewayToken = await serviceToken("gateway_svc", gatewaySecret, "governance");
   }, 120_000);
 

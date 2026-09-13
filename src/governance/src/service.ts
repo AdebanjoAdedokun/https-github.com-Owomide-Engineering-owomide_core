@@ -34,15 +34,15 @@ export class GovernanceServiceImpl {
 
   constructor(deps: GovernanceServiceDeps) {
     this.implementation = {
-      getActivityFeed: async (_request, context: HandlerContext) => {
+      getActivityFeed: async (_request: unknown, context: HandlerContext) => {
         await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },
-      getEntityHistory: async (_request, context: HandlerContext) => {
+      getEntityHistory: async (_request: unknown, context: HandlerContext) => {
         await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },
-      listSnapshots: async (_request, context: HandlerContext) => {
+      listSnapshots: async (_request: unknown, context: HandlerContext) => {
         await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },

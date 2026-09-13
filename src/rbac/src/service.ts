@@ -39,7 +39,7 @@ export class RbacServiceImpl {
         if (!permission) {
           throw new ConnectError(`Unknown permission: ${request.permission}`, Code.InvalidArgument);
         }
-        const roleCodes = request.roles.map((role) => role.trim()).filter(Boolean);
+        const roleCodes = request.roles.map((role: string) => role.trim()).filter(Boolean);
         const allowed = await this.database.withOrgTransaction(ctx.orgId, (client) =>
           this.roles.hasPermission(client, roleCodes, permission)
         );
