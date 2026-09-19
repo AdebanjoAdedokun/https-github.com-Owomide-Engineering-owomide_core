@@ -9,6 +9,8 @@ import { loadConfig } from "./config.js";
 import { Database } from "./db.js";
 import { ObjectStore } from "./clients/object-store.js";
 import { GrpcCatalogSnapshotClient } from "./clients/catalog.js";
+import { GrpcRbacClient } from "./clients/rbac.js";
+import { ServiceAuthenticator } from "./context.js";
 import { GovernanceServiceImpl } from "./service.js";
 import { startAuditSubscriber } from "./subscribers/audit-subscriber.js";
 import { startSnapshotSubscriber } from "./subscribers/snapshot-subscriber.js";
@@ -48,10 +50,19 @@ export async function startServer(): Promise<() => Promise<void>> {
     config.serviceJwtIssuer,
   );
 
+  const authenticator = new ServiceAuthenticator(config.serviceJwtIssuer, config.serviceSecrets);
+  const rbacClient = new GrpcRbacClient(
+    config.rbacUrl,
+    config.rbacServiceSecret,
+    config.serviceJwtIssuer,
+  );
+
   const service = new GovernanceServiceImpl({
     pool: database.pool,
     objectStore,
     catalogClient,
+    authenticator,
+    rbacClient,
     logger,
   });
 

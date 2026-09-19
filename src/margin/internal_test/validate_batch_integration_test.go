@@ -138,6 +138,7 @@ func newBatchClientWithEvaluator(
 		slog.Default(),
 		&stubCostFetcher{costs: costs},
 		evaluator,
+		nil,
 	)
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")

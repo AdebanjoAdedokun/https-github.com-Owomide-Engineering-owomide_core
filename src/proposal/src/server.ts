@@ -12,6 +12,7 @@ import { ProposalRepository } from "./repo/proposal-repository.js";
 import { ProposalServiceImpl } from "./service.js";
 import { GrpcCatalogClient } from "./clients/catalog.js";
 import { GrpcMarginClient } from "./clients/margin.js";
+import { GrpcRbacClient } from "./clients/rbac.js";
 import { OutboxRelay } from "./workers/outbox-relay.js";
 import { ScheduledRolloutWorker } from "./workers/scheduled-rollout.js";
 
@@ -35,11 +36,21 @@ export async function startServer(): Promise<() => Promise<void>> {
   const repo = new ProposalRepository();
   const catalogClient = new GrpcCatalogClient(config.catalogUrl);
   const marginClient = new GrpcMarginClient(config.marginUrl);
-  const service = new ProposalServiceImpl(database, authenticator, repo, catalogClient, marginClient, {
-    serviceJwtIssuer: config.serviceJwtIssuer,
-    catalogServiceSecret: config.catalogServiceSecret,
-    marginServiceSecret: config.marginServiceSecret,
-  });
+  const rbacClient = new GrpcRbacClient(config.rbacUrl);
+  const service = new ProposalServiceImpl(
+    database,
+    authenticator,
+    repo,
+    catalogClient,
+    marginClient,
+    {
+      serviceJwtIssuer: config.serviceJwtIssuer,
+      catalogServiceSecret: config.catalogServiceSecret,
+      marginServiceSecret: config.marginServiceSecret,
+      rbacServiceSecret: config.rbacServiceSecret,
+    },
+    rbacClient
+  );
   const bus = createBus({
     provider: "kafka",
     kafka: { brokers: [config.kafkaBroker], clientId: "proposal-svc" },

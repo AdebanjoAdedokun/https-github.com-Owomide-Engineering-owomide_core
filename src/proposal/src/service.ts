@@ -68,7 +68,15 @@ import {
   OverrideRequestedSchema,
   OverrideApprovedSchema,
 } from "@owomide/proto/events/override/v1_pb.js";
-import { requestContext, requireApproverRole, signServiceJwt, ServiceAuthenticator } from "./context.js";
+import {
+  requestContext,
+  requirePermission,
+  signServiceJwt,
+  ServiceAuthenticator,
+  type RequestContext,
+} from "./context.js";
+import type { RbacClient } from "./clients/rbac.js";
+import { Permission } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
 import { parseScopeDsl } from "./domain/scope-dsl.js";
 import { parseRepricingRule, applyRule } from "./domain/repricing-rules.js";
 import { computeDiff } from "./domain/diff.js";
@@ -166,7 +174,9 @@ export class ProposalServiceImpl {
       serviceJwtIssuer: string;
       catalogServiceSecret: string;
       marginServiceSecret: string;
-    } = { serviceJwtIssuer: "", catalogServiceSecret: "", marginServiceSecret: "" }
+      rbacServiceSecret?: string;
+    } = { serviceJwtIssuer: "", catalogServiceSecret: "", marginServiceSecret: "" },
+    private readonly rbacClient?: RbacClient
   ) {
     this.implementation = {
       createProposal: this.createProposal.bind(this),
@@ -191,12 +201,37 @@ export class ProposalServiceImpl {
     };
   }
 
+  /**
+   * Gate a handler on an RBAC permission via a live CheckPermission call to
+   * the rbac service. A no-op when no rbac client is configured (local dev
+   * without the RBAC stack), mirroring how margin/catalog auth is skipped
+   * when the corresponding service secret is unset.
+   */
+  private async enforce(ctx: RequestContext, permission: Permission): Promise<void> {
+    if (!this.rbacClient) return;
+    const headers = new Headers();
+    headers.set("x-org-id", ctx.orgId);
+    headers.set("x-user-roles", ctx.roles.join(","));
+    if (ctx.userId) headers.set("x-user-id", ctx.userId);
+    if (this.opts.rbacServiceSecret) {
+      const jwt = await signServiceJwt(
+        "proposal_svc",
+        "rbac",
+        this.opts.rbacServiceSecret,
+        this.opts.serviceJwtIssuer
+      );
+      headers.set("Authorization", `Bearer ${jwt}`);
+    }
+    await requirePermission(this.rbacClient, headers, ctx, permission);
+  }
+
   private async createProposal(
     request: CreateProposalRequest,
     context: HandlerContext
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_CREATE_DRAFT);
     if (!request.title.trim()) {
       throw new ConnectError("title is required", Code.InvalidArgument);
     }
@@ -218,6 +253,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_READ);
     validateUuid(request.id, "id");
     const result = await this.db.withOrgTransaction(ctx.orgId, (client) =>
       this.repo.getProposal(client, request.id)
@@ -236,6 +272,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_EDIT_DRAFT);
     validateUuid(request.id, "id");
     if (!request.title.trim()) {
       throw new ConnectError("title is required", Code.InvalidArgument);
@@ -258,6 +295,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_SUBMIT);
     validateUuid(request.id, "id");
     const actorId = ctx.userId ?? "";
     if (!actorId) {
@@ -379,7 +417,7 @@ export class ProposalServiceImpl {
       throw new ConnectError("Authenticated user identity required", Code.Unauthenticated);
     }
 
-    requireApproverRole(ctx);
+    await this.enforce(ctx, Permission.APPROVAL_APPROVE);
 
     const current = await this.db.withOrgTransaction(ctx.orgId, (c) =>
       this.repo.getProposal(c, request.id)
@@ -442,6 +480,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.EXECUTION_MARK_IMPLEMENTED);
     validateUuid(request.id, "id");
     const actorId = ctx.userId ?? "";
     if (!actorId) {
@@ -543,6 +582,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.COMMENT_CREATE);
     validateUuid(request.proposalId, "proposal_id");
     if (!request.body.trim()) {
       throw new ConnectError("body is required", Code.InvalidArgument);
@@ -574,6 +614,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_READ);
     validateUuid(request.proposalId, "proposal_id");
 
     const result = await this.db.withOrgTransaction(ctx.orgId, (c) =>
@@ -595,6 +636,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.OVERRIDE_REQUEST);
     validateUuid(request.proposalId, "proposal_id");
     if (!request.justification.trim()) {
       throw new ConnectError("justification is required", Code.InvalidArgument);
@@ -666,7 +708,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
-    requireApproverRole(ctx);
+    await this.enforce(ctx, Permission.OVERRIDE_APPROVE);
     validateUuid(request.overrideRequestId, "override_request_id");
     const actorId = ctx.userId ?? "";
     if (!actorId) {
@@ -754,6 +796,7 @@ export class ProposalServiceImpl {
   ) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_READ);
     const result = await this.db.withOrgTransaction(ctx.orgId, (client) =>
       this.repo.listProposals(client, request)
     );
@@ -769,6 +812,7 @@ export class ProposalServiceImpl {
   private async buildScope(request: BuildScopeRequest, context: HandlerContext) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_EDIT_DRAFT);
     const scope = parseScopeDsl(request.scopeJson);
 
     const catalogHeaders = new Headers();
@@ -832,6 +876,7 @@ export class ProposalServiceImpl {
   private async previewChangeSet(request: PreviewChangeSetRequest, context: HandlerContext) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_EDIT_DRAFT);
 
     const actorId = ctx.userId ?? "";
     if (!actorId) {
@@ -925,6 +970,7 @@ export class ProposalServiceImpl {
   private async getChangeSet(request: GetChangeSetRequest, context: HandlerContext) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_READ);
     validateUuid(request.id, "id");
     const result = await this.db.withOrgTransaction(ctx.orgId, (c) =>
       this.repo.getChangeSet(c, request.id)
@@ -938,6 +984,7 @@ export class ProposalServiceImpl {
   private async listChangeSets(request: ListChangeSetsRequest, context: HandlerContext) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_READ);
     const result = await this.db.withOrgTransaction(ctx.orgId, (c) =>
       this.repo.listChangeSets(c, request)
     );
@@ -953,6 +1000,7 @@ export class ProposalServiceImpl {
   private async updateChangeSet(request: UpdateChangeSetRequest, context: HandlerContext) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_EDIT_DRAFT);
     validateUuid(request.id, "id");
     try {
       JSON.parse(request.scopeJson);
@@ -975,6 +1023,7 @@ export class ProposalServiceImpl {
   private async submitChangeSet(request: SubmitChangeSetRequest, context: HandlerContext) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_CREATE_DRAFT);
     validateUuid(request.id, "id");
     if (!request.title.trim()) {
       throw new ConnectError("title is required", Code.InvalidArgument);
@@ -994,6 +1043,7 @@ export class ProposalServiceImpl {
   private async discardChangeSet(request: DiscardChangeSetRequest, context: HandlerContext) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.PROPOSAL_DELETE_DRAFT);
     validateUuid(request.id, "id");
     await this.db.withOrgTransaction(ctx.orgId, (c) =>
       this.repo.discardChangeSet(c, request.id)
@@ -1004,6 +1054,7 @@ export class ProposalServiceImpl {
   private async scheduleRollout(request: ScheduleRolloutRequest, context: HandlerContext) {
     await this.authenticator.authorize(context, ["gateway_svc"]);
     const ctx = requestContext(context);
+    await this.enforce(ctx, Permission.EXECUTION_SCHEDULE);
     validateUuid(request.proposalId, "proposalId");
     const actorId = ctx.userId ?? "";
     if (!actorId) {

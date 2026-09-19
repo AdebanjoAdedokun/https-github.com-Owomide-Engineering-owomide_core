@@ -7,13 +7,25 @@ import {
 } from "@owomide/proto/services/governance/v1/governance_pb.js";
 import type { ObjectStore } from "./clients/object-store.js";
 import type { CatalogRestoreClient } from "./clients/catalog.js";
-import { requestContext } from "./context.js";
+import type { RbacClient } from "./clients/rbac.js";
+import { Permission } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
+import {
+  requestContext,
+  requirePermission,
+  ServiceAuthenticator,
+  type RequestContext,
+} from "./context.js";
 import { handleRestore } from "./handlers/restore.js";
+
+// Governance is called only by the gateway (end-user actions) today.
+const CALLERS = ["gateway_svc"] as const;
 
 export interface GovernanceServiceDeps {
   pool: pg.Pool;
   objectStore: ObjectStore;
   catalogClient: CatalogRestoreClient;
+  authenticator: ServiceAuthenticator;
+  rbacClient?: RbacClient;
   logger: pino.Logger;
 }
 
@@ -22,19 +34,39 @@ export class GovernanceServiceImpl {
 
   constructor(deps: GovernanceServiceDeps) {
     this.implementation = {
-      getActivityFeed: async () => {
+      getActivityFeed: async (_request: unknown, context: HandlerContext) => {
+        await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },
-      getEntityHistory: async () => {
+      getEntityHistory: async (_request: unknown, context: HandlerContext) => {
+        await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },
-      listSnapshots: async () => {
+      listSnapshots: async (_request: unknown, context: HandlerContext) => {
+        await this.gate(deps, context, Permission.AUDIT_TRAIL_READ);
         throw new ConnectError("Not implemented", Code.Unimplemented);
       },
       restore: async (request: RestoreRequest, context: HandlerContext) => {
-        const ctx = requestContext(context);
+        const ctx = await this.gate(deps, context, Permission.PLATFORM_RESTORE);
         return handleRestore(ctx, deps, request);
       },
     };
+  }
+
+  private async gate(
+    deps: GovernanceServiceDeps,
+    context: HandlerContext,
+    permission: Permission
+  ): Promise<RequestContext> {
+    await deps.authenticator.authorize(context, CALLERS);
+    const ctx = requestContext(context);
+    if (deps.rbacClient) {
+      const headers = new Headers();
+      headers.set("x-org-id", ctx.orgId);
+      headers.set("x-user-id", ctx.userId);
+      headers.set("x-user-roles", ctx.roles.join(","));
+      await requirePermission(deps.rbacClient, headers, ctx, permission);
+    }
+    return ctx;
   }
 }

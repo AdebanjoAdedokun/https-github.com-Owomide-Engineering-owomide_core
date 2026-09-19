@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package owomide.services.rbac.v1;
+
+option go_package = "github.com/owomide/proto/services/rbac/v1";
+
+// RbacService is the sole owner of role/permission data. Every other service
+// checks a permission by calling CheckPermission — nothing reads rbac's
+// tables directly (schema-per-service, no shared database access).
+service RbacService {
+  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+}
+
+message CheckPermissionRequest {
+  // Roles the caller holds, as forwarded by the gateway (x-user-roles).
+  repeated string roles = 1;
+  Permission permission = 2;
+}
+
+message CheckPermissionResponse {
+  bool allowed = 1;
+}
+
+// The full permission catalog, generated once from docs/rbac/role_permissions.csv
+// (see src/rbac/src/permissions.ts, the hand-maintained source of descriptions/
+// categories this enum doesn't carry). This is the single shared definition —
+// every service that needs to reference a permission imports this generated
+// enum rather than hardcoding the string. The rbac service alone converts an
+// enum value to its stored text form (rbac.role_permission.permission_name);
+// nothing else needs to know that mapping.
+enum Permission {
+  PERMISSION_UNSPECIFIED = 0;
+  PERMISSION_ORG_SETTINGS_READ = 1;
+  PERMISSION_ORG_SETTINGS_UPDATE = 2;
+  PERMISSION_APPROVAL_ROUTING_CONFIGURE = 3;
+  PERMISSION_GUARDRAIL_DEFAULTS_CONFIGURE = 4;
+  PERMISSION_GOVERNANCE_CHANGE_CONFIRM = 5;
+  PERMISSION_ORG_USER_INVITE = 6;
+  PERMISSION_ORG_USER_DEACTIVATE = 7;
+  PERMISSION_ORG_USER_ASSIGN_ROLE = 8;
+  PERMISSION_WORKSPACE_CREATE = 9;
+  PERMISSION_WORKSPACE_ARCHIVE = 10;
+  PERMISSION_WORKSPACE_CONFIGURE = 11;
+  PERMISSION_WORKSPACE_MANAGE_MEMBERS = 12;
+  PERMISSION_CATALOGUE_ITEM_READ = 13;
+  PERMISSION_CATALOGUE_ITEM_MANAGE = 14;
+  PERMISSION_CATALOGUE_ITEM_EXPORT = 15;
+  PERMISSION_COST_DATA_READ = 16;
+  PERMISSION_COST_DATA_MANAGE = 17;
+  PERMISSION_PROPOSAL_CREATE_DRAFT = 18;
+  PERMISSION_PROPOSAL_READ = 19;
+  PERMISSION_PROPOSAL_EDIT_DRAFT = 20;
+  PERMISSION_PROPOSAL_DELETE_DRAFT = 21;
+  PERMISSION_PROPOSAL_SUBMIT = 22;
+  PERMISSION_PROPOSAL_VERSION_HISTORY_READ = 23;
+  PERMISSION_PRICING_RULE_CREATE_DRAFT = 24;
+  PERMISSION_PRICING_RULE_READ = 25;
+  PERMISSION_PRICING_RULE_EDIT_DRAFT = 26;
+  PERMISSION_PRICING_RULE_SUBMIT = 27;
+  PERMISSION_APPROVAL_APPROVE = 28;
+  PERMISSION_APPROVAL_REJECT = 29;
+  PERMISSION_APPROVAL_REQUEST_CHANGES = 30;
+  PERMISSION_OVERRIDE_REQUEST = 31;
+  PERMISSION_OVERRIDE_APPROVE = 32;
+  PERMISSION_OVERRIDE_REVOKE = 33;
+  PERMISSION_MARGIN_GUARDRAIL_MANAGE = 34;
+  PERMISSION_MARGIN_GUARDRAIL_READ = 35;
+  PERMISSION_POLICY_GUARDRAIL_MANAGE = 36;
+  PERMISSION_POLICY_GUARDRAIL_READ = 37;
+  PERMISSION_EXECUTION_MARK_IMPLEMENTED = 38;
+  PERMISSION_EXECUTION_SCHEDULE = 39;
+  PERMISSION_AUDIT_TRAIL_READ = 40;
+  PERMISSION_AUDIT_PACK_EXPORT = 41;
+  PERMISSION_TEMPLATE_MANAGE = 42;
+  PERMISSION_TEMPLATE_USE = 43;
+  PERMISSION_COMMENT_CREATE = 44;
+  PERMISSION_CHANGE_REQUEST_CREATE = 45;
+  PERMISSION_CHANGE_REQUEST_TRIAGE = 46;
+  PERMISSION_ASSIGNMENT_ASSIGN = 47;
+  PERMISSION_REPORT_EXPORT = 48;
+  PERMISSION_AI_ASSISTANCE_INVOKE = 49;
+  PERMISSION_VENDOR_READ = 50;
+  PERMISSION_VENDOR_MANAGE = 51;
+  PERMISSION_NOTIFICATION_PREFS_MANAGE_OWN = 52;
+  PERMISSION_PLATFORM_PROVISION_TENANT = 53;
+  PERMISSION_PLATFORM_SUPPORT_ACCESS = 54;
+  PERMISSION_PLATFORM_RESTORE = 55;
+}

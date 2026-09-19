@@ -28,6 +28,7 @@ import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
 import { ServiceAuthenticator } from "../../context.js";
+import { StubRbacClient } from "./stub-rbac.js";
 import type { CatalogClient } from "../../clients/catalog.js";
 import type { MarginClient } from "../../clients/margin.js";
 
@@ -79,10 +80,11 @@ class TestAuthenticator extends ServiceAuthenticator {
   }
 }
 
-function makeContext(orgId: string, userId: string): HandlerContext {
+function makeContext(orgId: string, userId: string, roles: string[] = []): HandlerContext {
   const headers = new Headers();
   headers.set("x-org-id", orgId);
   headers.set("x-user-id", userId);
+  if (roles.length > 0) headers.set("x-user-roles", roles.join(","));
   return {
     requestHeader: headers,
     responseHeader: new Headers(),
@@ -339,5 +341,58 @@ describe("Proposal Submit", () => {
     ).rejects.toSatisfy(
       (err: unknown) => err instanceof ConnectError && err.code === Code.NotFound
     );
+  });
+
+  describe("RBAC gate on submit", () => {
+    let gatedService: ProposalServiceImpl;
+
+    beforeAll(() => {
+      const authenticator = new TestAuthenticator("owomide-internal", {});
+      gatedService = new ProposalServiceImpl(
+        db,
+        authenticator,
+        repo,
+        new NoOpCatalogClient(),
+        new StubMarginClient(),
+        { serviceJwtIssuer: "owomide-internal", catalogServiceSecret: "", marginServiceSecret: "" },
+        new StubRbacClient()
+      );
+    });
+
+    it("allows a pricing_manager to submit", async () => {
+      const created = await db.withOrgTransaction(ORG_A, (c) =>
+        repo.createProposal(c, ORG_A, USER_1, create(CreateProposalRequestSchema, { title: "Gated OK" }))
+      );
+      const impl = gatedService.implementation.submitProposal!;
+      await impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1, ["pricing_manager"]));
+      const { rows } = await superuser.query("SELECT state FROM proposal.proposal WHERE id = $1", [
+        created.row.id,
+      ]);
+      expect(rows[0].state).toBe("submitted");
+    });
+
+    it("denies a pricing_analyst (draft tier, no submit)", async () => {
+      const created = await db.withOrgTransaction(ORG_A, (c) =>
+        repo.createProposal(c, ORG_A, USER_1, create(CreateProposalRequestSchema, { title: "Gated Deny" }))
+      );
+      const impl = gatedService.implementation.submitProposal!;
+      await expect(
+        impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1, ["pricing_analyst"]))
+      ).rejects.toSatisfy(
+        (err: unknown) => err instanceof ConnectError && err.code === Code.PermissionDenied
+      );
+    });
+
+    it("denies the legacy \"approver\" role (no longer a real role)", async () => {
+      const created = await db.withOrgTransaction(ORG_A, (c) =>
+        repo.createProposal(c, ORG_A, USER_1, create(CreateProposalRequestSchema, { title: "Legacy" }))
+      );
+      const impl = gatedService.implementation.submitProposal!;
+      await expect(
+        impl({ id: created.row.id } as never, makeContext(ORG_A, USER_1, ["approver"]))
+      ).rejects.toSatisfy(
+        (err: unknown) => err instanceof ConnectError && err.code === Code.PermissionDenied
+      );
+    });
   });
 });

@@ -45,6 +45,7 @@ owomide/
 │   ├── data-pipeline/         ← Data Pipeline service — ingestion + intelligence (Python)
 │   ├── gateway/               ← Gateway / BFF (Node.js)
 │   ├── notify/                ← Notify service (Node.js)
+│   ├── rbac/                  ← RBAC service — roles, permissions, CheckPermission (Node.js)
 │   └── lib/                   ← SHARED PACKAGES — imported by services
 │       ├── bus/               ← Provider-agnostic event bus
 │       │   ├── CLAUDE.md      ←   single contract doc for all three impls

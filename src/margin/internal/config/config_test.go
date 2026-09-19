@@ -30,6 +30,7 @@ func TestLoadProductionRejectsDevelopmentSecrets(t *testing.T) {
 	t.Setenv("MARGIN_SERVICE_SECRETS_JSON", `{"gateway_svc":"dev-only-margin-gateway-secret-change-me","proposal_svc":"test-margin-proposal-production-secret"}`)
 	t.Setenv("MARGIN_CATALOG_SERVICE_SECRET", "test-catalog-margin-production-secret")
 	t.Setenv("MARGIN_INTELLIGENCE_SERVICE_SECRET", "test-intelligence-margin-production-secret")
+	t.Setenv("MARGIN_RBAC_SERVICE_SECRET", "test-rbac-margin-production-secret")
 	_, err := Load()
 	require.ErrorContains(t, err, "production cannot use")
 }

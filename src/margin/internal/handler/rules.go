@@ -15,6 +15,7 @@ import (
 	"github.com/owomide/margin/internal/db"
 	"github.com/owomide/margin/internal/repo"
 	marginpb "github.com/owomide/proto/services/margin/v1"
+	rbacv1 "github.com/owomide/proto/services/rbac/v1"
 )
 
 type RulesServer struct {
@@ -24,6 +25,7 @@ type RulesServer struct {
 	logger      *slog.Logger
 	costFetcher client.CostFetcher
 	evaluator   client.MarginEvaluator
+	permissions client.PermissionChecker
 }
 
 func NewRulesServer(
@@ -32,6 +34,7 @@ func NewRulesServer(
 	logger *slog.Logger,
 	costFetcher client.CostFetcher,
 	evaluator client.MarginEvaluator,
+	permissions client.PermissionChecker,
 ) *RulesServer {
 	if costFetcher == nil {
 		panic("NewRulesServer: costFetcher must not be nil")
@@ -41,7 +44,25 @@ func NewRulesServer(
 	}
 	return &RulesServer{
 		db: database, repo: r, logger: logger, costFetcher: costFetcher, evaluator: evaluator,
+		permissions: permissions,
 	}
+}
+
+// requirePermission is a no-op when no PermissionChecker is configured — the
+// same convention the Node services use when a downstream service secret is
+// unset (local dev without the full RBAC stack).
+func (s *RulesServer) requirePermission(ctx context.Context, principal auth.Principal, permission rbacv1.Permission) error {
+	if s.permissions == nil {
+		return nil
+	}
+	allowed, err := s.permissions.HasPermission(ctx, principal.OrgID, principal.Roles, permission)
+	if err != nil {
+		return status.Error(codes.Internal, "permission check failed")
+	}
+	if !allowed {
+		return status.Errorf(codes.PermissionDenied, "permission denied: %s", permission)
+	}
+	return nil
 }
 
 func orgIDFromCtx(ctx context.Context) (string, error) {
@@ -68,6 +89,9 @@ func (s *RulesServer) UpsertRule(ctx context.Context, req *marginpb.UpsertRuleRe
 	orgID := principal.OrgID
 	if principal.UserID == "" {
 		return nil, status.Error(codes.Unauthenticated, "authenticated user identity required")
+	}
+	if err := s.requirePermission(ctx, principal, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE); err != nil {
+		return nil, err
 	}
 	r := req.GetRule()
 	if r == nil {
@@ -125,8 +149,12 @@ func (s *RulesServer) UpsertRule(ctx context.Context, req *marginpb.UpsertRuleRe
 }
 
 func (s *RulesServer) DeactivateRule(ctx context.Context, req *marginpb.DeactivateRuleRequest) (*marginpb.DeactivateRuleResponse, error) {
-	orgID, err := orgIDFromCtx(ctx)
+	principal, err := principalFromCtx(ctx)
 	if err != nil {
+		return nil, err
+	}
+	orgID := principal.OrgID
+	if err := s.requirePermission(ctx, principal, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_MANAGE); err != nil {
 		return nil, err
 	}
 	if req.Id == "" {
@@ -150,8 +178,12 @@ func (s *RulesServer) DeactivateRule(ctx context.Context, req *marginpb.Deactiva
 }
 
 func (s *RulesServer) ListRules(ctx context.Context, req *marginpb.ListRulesRequest) (*marginpb.ListRulesResponse, error) {
-	orgID, err := orgIDFromCtx(ctx)
+	principal, err := principalFromCtx(ctx)
 	if err != nil {
+		return nil, err
+	}
+	orgID := principal.OrgID
+	if err := s.requirePermission(ctx, principal, rbacv1.Permission_PERMISSION_MARGIN_GUARDRAIL_READ); err != nil {
 		return nil, err
 	}
 

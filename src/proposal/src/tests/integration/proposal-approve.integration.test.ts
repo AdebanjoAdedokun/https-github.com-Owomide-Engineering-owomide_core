@@ -14,6 +14,7 @@ import { Database } from "../../db.js";
 import { ProposalRepository } from "../../repo/proposal-repository.js";
 import { ProposalServiceImpl } from "../../service.js";
 import { ServiceAuthenticator } from "../../context.js";
+import { StubRbacClient } from "./stub-rbac.js";
 import type { CatalogClient } from "../../clients/catalog.js";
 import { type MarginClient } from "../../clients/margin.js";
 import { OutboxRelay } from "../../workers/outbox-relay.js";
@@ -129,7 +130,15 @@ describe("Proposal Approve", () => {
     });
     repo = new ProposalRepository();
     const authenticator = new TestAuthenticator("owomide-internal", {});
-    service = new ProposalServiceImpl(db, authenticator, repo, new NoOpCatalogClient(), new StubMarginClient());
+    service = new ProposalServiceImpl(
+      db,
+      authenticator,
+      repo,
+      new NoOpCatalogClient(),
+      new StubMarginClient(),
+      { serviceJwtIssuer: "owomide-internal", catalogServiceSecret: "", marginServiceSecret: "" },
+      new StubRbacClient()
+    );
   }, 120_000);
 
   afterAll(async () => {
@@ -155,7 +164,7 @@ describe("Proposal Approve", () => {
     const proposalId = await createSubmittedProposal(ORG_A, OWNER);
 
     const impl = service.implementation.approveProposal!;
-    await impl({ id: proposalId } as never, makeContext(ORG_A, APPROVER, ["approver"]));
+    await impl({ id: proposalId } as never, makeContext(ORG_A, APPROVER, ["finance_approver"]));
 
     const { rows: stateRows } = await superuser.query<{ state: string }>(
       `SELECT state FROM proposal.proposal WHERE id = $1`,
@@ -185,7 +194,7 @@ describe("Proposal Approve", () => {
     const proposalId = await createSubmittedProposal(ORG_A, OWNER);
 
     const impl = service.implementation.approveProposal!;
-    await impl({ id: proposalId } as never, makeContext(ORG_A, APPROVER, ["approver"]));
+    await impl({ id: proposalId } as never, makeContext(ORG_A, APPROVER, ["finance_approver"]));
 
     const publisher = new MockPublisher();
     const relay = new OutboxRelay(db.pool, publisher, logger);
@@ -211,7 +220,7 @@ describe("Proposal Approve", () => {
 
     const impl = service.implementation.approveProposal!;
     await expect(
-      impl({ id: proposalId } as never, makeContext(ORG_A, OWNER, ["approver"]))
+      impl({ id: proposalId } as never, makeContext(ORG_A, OWNER, ["finance_approver"]))
     ).rejects.toSatisfy(
       (err: unknown) =>
         err instanceof ConnectError && err.code === Code.PermissionDenied
@@ -238,7 +247,7 @@ describe("Proposal Approve", () => {
 
     const impl = service.implementation.approveProposal!;
     await expect(
-      impl({ id: created.row.id } as never, makeContext(ORG_A, APPROVER, ["approver"]))
+      impl({ id: created.row.id } as never, makeContext(ORG_A, APPROVER, ["finance_approver"]))
     ).rejects.toSatisfy(
       (err: unknown) =>
         err instanceof ConnectError && err.code === Code.FailedPrecondition
@@ -250,7 +259,7 @@ describe("Proposal Approve", () => {
 
     const impl = service.implementation.approveProposal!;
     await expect(
-      impl({ id: proposalId } as never, makeContext(ORG_B, APPROVER, ["approver"]))
+      impl({ id: proposalId } as never, makeContext(ORG_B, APPROVER, ["finance_approver"]))
     ).rejects.toSatisfy(
       (err: unknown) =>
         err instanceof ConnectError && err.code === Code.NotFound
