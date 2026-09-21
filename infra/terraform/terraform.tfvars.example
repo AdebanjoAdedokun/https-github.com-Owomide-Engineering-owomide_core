@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars and fill in (terraform.tfvars is gitignored).
+# vultr_api_key is intentionally left out — export TF_VAR_vultr_api_key instead
+# of putting it in a file.
+
+region       = "lhr"
+cluster_name = "owomide-staging"
+k8s_version  = "" # run: vultr-cli kubernetes versions-list
+node_plan    = "vc2-2c-4gb"
+node_count   = 1

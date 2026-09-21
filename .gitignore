@@ -34,3 +34,11 @@ src/*/worker
 .idea/
 *.swp
 *.swo
+
+# Terraform
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.*
+infra/terraform/terraform.tfvars
+infra/terraform/*.auto.tfvars
+infra/terraform/kubeconfig.yaml

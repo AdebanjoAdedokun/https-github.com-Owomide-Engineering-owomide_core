@@ -1,0 +1,12 @@
+# Helm values for ingress-nginx, sized for a single-node testing cluster with
+# no Vultr Load Balancer. The controller binds ports 80/443 directly on the
+# node's public IP instead — point DNS A records at that node's IP.
+controller:
+  kind: DaemonSet
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  service:
+    enabled: false
+  ingressClassResource:
+    name: nginx
+    default: true
