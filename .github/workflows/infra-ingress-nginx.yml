@@ -1,0 +1,54 @@
+name: Install ingress-nginx
+
+# Manual only — this touches the live cluster's edge routing. Installs/
+# upgrades ingress-nginx as a hostNetwork DaemonSet (no Vultr Load Balancer;
+# see infra/ingress-nginx/values.yaml) and prints the node's public IP,
+# which is the entry point once DNS points at it.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra-ingress-nginx
+  cancel-in-progress: false
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    environment: infra-vultr
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: azure/setup-helm@v4
+
+      - name: Configure cluster access
+        env:
+          KUBECONFIG_BASE64: ${{ secrets.KUBECONFIG_BASE64 }}
+        run: |
+          test -n "$KUBECONFIG_BASE64"
+          mkdir -p "$RUNNER_TEMP/owomide-kube"
+          printf '%s' "$KUBECONFIG_BASE64" | base64 --decode > "$RUNNER_TEMP/owomide-kube/config"
+          chmod 600 "$RUNNER_TEMP/owomide-kube/config"
+          echo "KUBECONFIG=$RUNNER_TEMP/owomide-kube/config" >> "$GITHUB_ENV"
+
+      - name: Install ingress-nginx
+        run: |
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+            --namespace ingress-nginx --create-namespace \
+            -f infra/ingress-nginx/values.yaml \
+            --wait
+
+      - name: Show entry point
+        run: |
+          {
+            echo "### ingress-nginx installed"
+            echo "No Load Balancer — the controller binds directly to each node's public IP on 80/443."
+            echo '```'
+            kubectl get nodes -o wide
+            echo '```'
+            echo "Point DNS A records (or test with \`curl -H \"Host: ...\"\`) at the EXTERNAL-IP above."
+          } >> "$GITHUB_STEP_SUMMARY"
