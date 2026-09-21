@@ -1,10 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Extend the shared base — inherits all resources (postgres, redis, minio, kafka, gateway).
-# Minimal overrides: this is local dev, so the base dev values are fine as-is.
+# Extend the shared base — inherits redis, minio, kafka, gateway, and the app
+# services. Postgres is local-dev only (staging/prod use Supabase instead),
+# so it's added explicitly here rather than living in the shared base.
 resources:
   - ../../base
+  - ../../base/postgres
   - catalog-secrets.yaml
   - data-pipeline-secrets.yaml
   - margin-secrets.yaml
