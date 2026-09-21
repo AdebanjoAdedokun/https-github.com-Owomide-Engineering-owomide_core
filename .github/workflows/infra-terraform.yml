@@ -1,0 +1,74 @@
+name: Terraform - Vultr cluster
+
+on:
+  pull_request:
+    paths:
+      - infra/terraform/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra-terraform
+  cancel-in-progress: false
+
+# Only the API key is a secret. Region, cluster name, k8s version, node plan
+# and node count are not sensitive — they're set as defaults directly in
+# variables.tf, so there's nothing else to configure in GitHub.
+env:
+  TF_VAR_vultr_api_key: ${{ secrets.VULTR_API_KEY }}
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+
+      - run: terraform plan -no-color -out=tfplan | tee plan.txt
+
+      - name: Post plan to step summary
+        run: |
+          {
+            echo "### Terraform plan — Vultr cluster"
+            echo '```'
+            cat plan.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Provisions/updates real billed Vultr infrastructure. Required reviewers
+  # aren't available on this private repo's plan, so the safeguard instead is
+  # that this only ever runs when someone manually clicks "Run workflow" in
+  # the Actions tab — never automatically on push.
+  apply:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: infra-vultr
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+
+      - run: terraform apply -auto-approve -no-color | tee apply.txt
+
+      - name: Post result to step summary
+        run: |
+          {
+            echo "### Terraform apply — Vultr cluster"
+            echo '```'
+            cat apply.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
