@@ -20,6 +20,7 @@ jobs:
     #   GOVERNANCE_SVC_PASSWORD   Password for the governance Postgres role
     #   NOTIFY_SVC_PASSWORD       Password for the notify Postgres role
     #   DATA_PIPELINE_SVC_PASSWORD Password for the data_pipeline Postgres role
+    #   RBAC_SVC_PASSWORD         Password for the rbac Postgres role
 
     steps:
       - uses: actions/checkout@v6
@@ -48,3 +49,4 @@ jobs:
           GOVERNANCE_SVC_PASSWORD: ${{ secrets.GOVERNANCE_SVC_PASSWORD }}
           NOTIFY_SVC_PASSWORD: ${{ secrets.NOTIFY_SVC_PASSWORD }}
           DATA_PIPELINE_SVC_PASSWORD: ${{ secrets.DATA_PIPELINE_SVC_PASSWORD }}
+          RBAC_SVC_PASSWORD: ${{ secrets.RBAC_SVC_PASSWORD }}
