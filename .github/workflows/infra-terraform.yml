@@ -5,6 +5,14 @@ on:
     paths:
       - infra/terraform/**
   workflow_dispatch:
+    inputs:
+      import_cluster_id:
+        description: >-
+          Vultr cluster ID to adopt into Terraform state (one-time — only
+          needed for a cluster that was created before the Terraform Cloud
+          backend existed). Leave blank for a normal apply.
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -13,9 +21,9 @@ concurrency:
   group: infra-terraform
   cancel-in-progress: false
 
-# Only the API key is a secret. Region, cluster name, k8s version, node plan
-# and node count are not sensitive — they're set as defaults directly in
-# variables.tf, so there's nothing else to configure in GitHub.
+# VULTR_API_KEY and TF_API_TOKEN (Terraform Cloud, for the state backend) are
+# the only secrets. Region, cluster name, k8s version, node plan and node
+# count are not sensitive — they're set as defaults directly in variables.tf.
 env:
   TF_VAR_vultr_api_key: ${{ secrets.VULTR_API_KEY }}
 
@@ -23,6 +31,7 @@ jobs:
   plan:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    environment: infra-vultr
     defaults:
       run:
         working-directory: infra/terraform
@@ -30,6 +39,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - run: terraform init
 
@@ -49,7 +60,7 @@ jobs:
   # that this only ever runs when someone manually clicks "Run workflow" in
   # the Actions tab — never automatically on push.
   apply:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.import_cluster_id == ''
     runs-on: ubuntu-latest
     environment: infra-vultr
     defaults:
@@ -59,6 +70,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - run: terraform init
 
@@ -70,5 +83,42 @@ jobs:
             echo "### Terraform apply — Vultr cluster"
             echo '```'
             cat apply.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # One-time adoption path: imports a cluster that already exists in Vultr
+  # (created before this state backend was wired up) so Terraform manages it
+  # instead of trying to create a duplicate. Only runs `import` + `plan` —
+  # never `apply` — so nothing changes live until the plan is reviewed and a
+  # normal apply is run afterwards.
+  import:
+    if: github.event_name == 'workflow_dispatch' && inputs.import_cluster_id != ''
+    runs-on: ubuntu-latest
+    environment: infra-vultr
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - run: terraform init
+
+      - run: terraform import vultr_kubernetes.owomide "${{ inputs.import_cluster_id }}"
+
+      - run: terraform plan -no-color -out=tfplan | tee plan.txt
+
+      - name: Post plan to step summary
+        run: |
+          {
+            echo "### Terraform plan after import — verify this says 'No changes'"
+            echo "before ever running apply. If it shows changes instead, the"
+            echo "live cluster's real settings differ from variables.tf defaults —"
+            echo "stop and reconcile the defaults first, don't apply blind."
+            echo '```'
+            cat plan.txt
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
