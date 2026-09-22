@@ -44,7 +44,7 @@ jobs:
 
       - run: terraform init
 
-      - run: terraform plan -no-color -out=tfplan | tee plan.txt
+      - run: set -o pipefail && terraform plan -no-color -out=tfplan | tee plan.txt
 
       - name: Post plan to step summary
         run: |
@@ -75,7 +75,7 @@ jobs:
 
       - run: terraform init
 
-      - run: terraform apply -auto-approve -no-color | tee apply.txt
+      - run: set -o pipefail && terraform apply -auto-approve -no-color | tee apply.txt
 
       - name: Post result to step summary
         run: |
@@ -109,7 +109,7 @@ jobs:
 
       - run: terraform import vultr_kubernetes.owomide "${{ inputs.import_cluster_id }}"
 
-      - run: terraform plan -no-color -out=tfplan | tee plan.txt
+      - run: set -o pipefail && terraform plan -no-color -out=tfplan | tee plan.txt
 
       - name: Post plan to step summary
         run: |
