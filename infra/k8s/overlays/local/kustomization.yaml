@@ -1,9 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Extend the shared base — inherits redis, minio, kafka, gateway, and the app
+# Extend the shared base — inherits redis, minio, kafka, and the app
 # services. Postgres is local-dev only (staging/prod use Supabase instead),
 # so it's added explicitly here rather than living in the shared base.
+# marketing/workspace are not deployed here either — local dev runs them via
+# `make marketing-dev` / `make workspace-dev` (plain Vite dev servers on
+# 4173/4174), not through this cluster.
 resources:
   - ../../base
   - ../../base/postgres
@@ -13,18 +16,7 @@ resources:
   # - bus-smoke
 
 patches:
-  # OrbStack shares the host Docker daemon, so local frontend images are never
-  # pulled from a registry. Skaffold is responsible for building these names.
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      labelSelector: app.kubernetes.io/part-of=owomide-frontend
-    patch: |-
-      - op: replace
-        path: /spec/template/spec/containers/0/imagePullPolicy
-        value: Never
-  # Local development uses plain HTTP and hosts supplied through /etc/hosts.
+  # Local development uses plain HTTP and a host supplied through /etc/hosts.
   - target:
       group: networking.k8s.io
       version: v1
@@ -36,9 +28,6 @@ patches:
         value: "false"
       - op: replace
         path: /spec/rules/0/host
-        value: owomide.local
-      - op: replace
-        path: /spec/rules/1/host
-        value: app.owomide.local
+        value: api.owomide.local
       - op: remove
         path: /spec/tls

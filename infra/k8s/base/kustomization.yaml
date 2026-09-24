@@ -1,6 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+# marketing and workspace are deployed to Cloudflare Workers, not this
+# cluster, in staging/prod. Their k8s manifests live only under
+# overlays/local — added explicitly there for the OrbStack dev stack.
 resources:
   - redis
   - minio
@@ -9,6 +12,4 @@ resources:
   - catalog
   - data-pipeline
   - margin
-  - marketing
-  - workspace
   - ingress

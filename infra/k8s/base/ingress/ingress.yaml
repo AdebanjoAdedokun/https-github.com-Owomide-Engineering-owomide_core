@@ -12,34 +12,18 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - marketing.owomide.invalid
-        - workspace.owomide.invalid
+        - api.owomide.invalid
       secretName: replace-me-tls
   rules:
-    - host: marketing.owomide.invalid
+    # Gateway API, reached by frontends hosted outside this cluster
+    # (marketing/workspace serve from Cloudflare Workers, not k8s).
+    - host: api.owomide.invalid
       http:
         paths:
           - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: marketing
-                port:
-                  number: 80
-    - host: workspace.owomide.invalid
-      http:
-        paths:
-          - path: /api
             pathType: Prefix
             backend:
               service:
                 name: gateway
                 port:
                   number: 5000
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: workspace
-                port:
-                  number: 80
