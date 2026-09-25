@@ -156,7 +156,15 @@ describe("Proposal Publish", () => {
   });
 
   async function createApprovedProposal(orgId: string, ownerId: string): Promise<string> {
-    const req = create(CreateProposalRequestSchema, { title: "Publish Test" });
+    const req = create(CreateProposalRequestSchema, {
+      title: "Publish Test",
+      lines: [{
+        skuId: "00000000-0000-0000-0000-000000000011",
+        channelId: "00000000-0000-0000-0000-000000000012",
+        currentPrice: { amount: 10000n, currency: "NGN" },
+        proposedPrice: { amount: 11000n, currency: "NGN" },
+      }],
+    });
     const created = await db.withOrgTransaction(orgId, (c) =>
       repo.createProposal(c, orgId, ownerId, req)
     );

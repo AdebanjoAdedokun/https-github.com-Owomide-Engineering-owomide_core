@@ -17,7 +17,7 @@ export function requireCompletePriceApplication(changes: PriceChange[], response
     throw new ConnectError(
       "Catalog did not confirm every proposal line. Some prices may have changed; reconcile the Catalog operation before retrying. Proposal remains approved.",
       Code.FailedPrecondition,
-      { metadata: { "catalog-operation-id": response.operationId } },
+      { "catalog-operation-id": response.operationId },
     );
   }
 }
