@@ -93,23 +93,3 @@ test("is a normal pnpm Vite package with no prototype Sites packaging", async ()
   assert.match(viteConfig, /outDir:\s*"dist"/);
   assert.match(viteConfig, /"\/api"[\s\S]*target:\s*gatewayTarget/);
 });
-
-test("serves the SPA on unprivileged port 8080 and never masks API routing errors", async () => {
-  const nginx = await readProjectFile("nginx.conf");
-
-  assert.match(nginx, /listen 8080;/);
-  assert.match(nginx, /location \/[\s\S]*try_files \$uri \$uri\/ \/index\.html;/);
-  assert.match(nginx, /location = \/api[\s\S]*return 404/);
-  assert.match(nginx, /location \^~ \/api\/[\s\S]*return 404/);
-  assert.match(nginx, /location = \/healthz[\s\S]*return 200/);
-});
-
-test("builds into an unprivileged nginx image from the monorepo workspace", async () => {
-  const dockerfile = await readProjectFile("Dockerfile");
-
-  assert.match(dockerfile, /pnpm --filter @owomide\/workspace build/);
-  assert.match(dockerfile, /FROM nginxinc\/nginx-unprivileged:1\.27-alpine AS runtime/);
-  assert.match(dockerfile, /COPY --from=build \/repo\/apps\/workspace\/dist \/usr\/share\/nginx\/html/);
-  assert.match(dockerfile, /EXPOSE 8080/);
-  assert.doesNotMatch(dockerfile, /Sites|\.openai|worker\/index/);
-});
