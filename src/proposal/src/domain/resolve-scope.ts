@@ -1,6 +1,6 @@
 import { create } from "@bufbuild/protobuf";
 import { Code, ConnectError } from "@connectrpc/connect";
-import { ListSkusRequestSchema, BatchGetPricesRequestSchema, type Sku } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
+import { ListSkusRequestSchema, BatchGetPricesRequestSchema, type Sku, type PriceRecord } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
 import type { Money } from "@owomide/proto/common/v1/common_pb.js";
 import type { CatalogClient } from "../clients/catalog.js";
 import type { ScopeDsl } from "./scope-dsl.js";
@@ -34,7 +34,7 @@ export async function resolveScope(catalog: CatalogClient, scope: ScopeDsl, head
       customerSegmentId: scope.customer_segment_id,
     }), headers);
     for (const sku of batch) {
-      const matches = response.prices.filter((price) => price.skuId === sku.id);
+      const matches = response.prices.filter((price: PriceRecord) => price.skuId === sku.id);
       const match = matches[0];
       if (matches.length !== 1 || !match?.price || match.channelId !== scope.channel_id ||
           (match.customerSegmentId ?? "") !== (scope.customer_segment_id ?? "")) {
