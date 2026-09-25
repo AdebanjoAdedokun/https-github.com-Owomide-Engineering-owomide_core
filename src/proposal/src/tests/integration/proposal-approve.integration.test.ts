@@ -152,10 +152,8 @@ describe("Proposal Approve", () => {
     const created = await db.withOrgTransaction(orgId, (c) =>
       repo.createProposal(c, orgId, ownerId, req)
     );
-    // Force state to submitted directly to avoid needing margin stub
-    await superuser.query(
-      `UPDATE proposal.proposal SET state = 'submitted' WHERE id = $1`,
-      [created.row.id]
+    await db.withOrgTransaction(orgId, (c) =>
+      repo.submitProposal(c, created.row.id, 'draft', 'submitted', ownerId, {})
     );
     return created.row.id;
   }
@@ -237,6 +235,16 @@ describe("Proposal Approve", () => {
       (err: unknown) =>
         err instanceof ConnectError && err.code === Code.PermissionDenied
     );
+  });
+
+  it("rejects the actual submitter even when another user created the proposal", async () => {
+    const created = await db.withOrgTransaction(ORG_A, (c) => repo.createProposal(c, ORG_A, OWNER,
+      create(CreateProposalRequestSchema, { title: "Different submitter" })));
+    await db.withOrgTransaction(ORG_A, (c) => repo.submitProposal(c, created.row.id, "draft", "submitted", APPROVER, {}));
+    await expect(service.implementation.approveProposal!({ id: created.row.id } as never,
+      makeContext(ORG_A, APPROVER, ["finance_approver"]))).rejects.toThrow("actual submitter");
+    const proposal = await db.withOrgTransaction(ORG_A, (c) => repo.getProposal(c, created.row.id));
+    expect(proposal!.row.state).toBe("submitted");
   });
 
   it("rejects approval when proposal is not in submitted state", async () => {

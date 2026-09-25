@@ -7,6 +7,9 @@ if (!globalThis.crypto) Object.defineProperty(globalThis, "crypto", { value: web
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const tests = [
+  path.resolve(dirname, "../../../dist_unit/tests/unit/catalog-completion.test.js"),
+  path.resolve(dirname, "../../../dist_unit/tests/unit/resolve-scope.test.js"),
+  path.resolve(dirname, "../../../dist_unit/tests/unit/approval-submitter.test.js"),
   path.resolve(dirname, "../../../dist_unit/tests/unit/state-machine.test.js"),
   path.resolve(dirname, "../../../dist_unit/tests/unit/scope-dsl.test.js"),
   path.resolve(dirname, "../../../dist_unit/tests/unit/repricing-rules.test.js"),
