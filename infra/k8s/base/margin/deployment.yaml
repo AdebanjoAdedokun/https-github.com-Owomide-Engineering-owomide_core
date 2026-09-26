@@ -49,6 +49,11 @@ spec:
                 secretKeyRef:
                   name: margin-secrets
                   key: intelligence-service-secret
+            - name: MARGIN_RBAC_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: margin-secrets
+                  key: rbac-service-secret
           livenessProbe:
             httpGet:
               path: /health
@@ -69,7 +74,7 @@ spec:
             runAsNonRoot: true
           resources:
             requests:
-              cpu: 100m
+              cpu: 50m
               memory: 128Mi
             limits:
               cpu: 1000m
