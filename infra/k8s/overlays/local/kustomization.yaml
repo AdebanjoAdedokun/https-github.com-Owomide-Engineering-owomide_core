@@ -13,6 +13,10 @@ resources:
   - catalog-secrets.yaml
   - data-pipeline-secrets.yaml
   - margin-secrets.yaml
+  - gateway-secrets.yaml
+  - proposal-secrets.yaml
+  - governance-secrets.yaml
+  - rbac-secrets.yaml
   # - bus-smoke
 
 patches:

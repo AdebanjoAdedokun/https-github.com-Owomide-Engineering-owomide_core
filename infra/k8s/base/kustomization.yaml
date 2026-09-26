@@ -12,4 +12,7 @@ resources:
   - catalog
   - data-pipeline
   - margin
+  - proposal
+  - governance
+  - rbac
   - ingress

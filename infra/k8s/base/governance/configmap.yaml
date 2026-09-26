@@ -1,0 +1,20 @@
+# governance/src/config.ts reads these WITHOUT a GOVERNANCE_ prefix (unlike
+# every other service) — GRPC_PORT, SERVICE_JWT_ISSUER, DATABASE_URL are bare.
+# GOVERNANCE_SERVICE_SECRETS_JSON is the one exception that IS prefixed.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: governance-config
+data:
+  GRPC_PORT: "50054"
+  HEALTH_PORT: "8080"
+  HOST: "0.0.0.0"
+  LOG_LEVEL: info
+  SERVICE_JWT_ISSUER: owomide-internal
+  KAFKA_BROKER: kafka:9092
+  CATALOG_URL: http://catalog:50052
+  RBAC_URL: http://rbac:50056
+  MINIO_ENDPOINT: minio:9000
+  MINIO_SECURE: "false"
+  MINIO_BUCKET: owomide-snapshots
+  SNAPSHOT_DEBOUNCE_MS: "300000"

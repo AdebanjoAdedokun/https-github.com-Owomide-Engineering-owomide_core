@@ -1,0 +1,49 @@
+name: Deploy Backend
+
+# Manual only for now — applies infra/k8s/overlays/staging to the live
+# cluster. Doesn't touch Secrets (see deploy-secrets.yml for that); run this
+# whenever you want the cluster's manifests to match what's on main.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy staging
+    runs-on: ubuntu-latest
+    environment: infra-vultr
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: imranismail/setup-kustomize@v2
+
+      - name: Configure cluster access
+        env:
+          KUBECONFIG_BASE64: ${{ secrets.KUBECONFIG_BASE64 }}
+        run: |
+          test -n "$KUBECONFIG_BASE64"
+          mkdir -p "$RUNNER_TEMP/owomide-kube"
+          printf '%s' "$KUBECONFIG_BASE64" | base64 --decode > "$RUNNER_TEMP/owomide-kube/config"
+          chmod 600 "$RUNNER_TEMP/owomide-kube/config"
+          echo "KUBECONFIG=$RUNNER_TEMP/owomide-kube/config" >> "$GITHUB_ENV"
+
+      - name: Apply manifests
+        run: kustomize build infra/k8s/overlays/staging | kubectl apply -f -
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/gateway --timeout=180s
+          kubectl rollout status deployment/catalog --timeout=180s
+          kubectl rollout status deployment/catalog-outbox --timeout=180s
+          kubectl rollout status deployment/data-pipeline --timeout=180s
+          kubectl rollout status deployment/data-pipeline-worker --timeout=180s
+          kubectl rollout status deployment/margin --timeout=180s
+          kubectl rollout status deployment/proposal --timeout=180s
+          kubectl rollout status deployment/governance --timeout=180s
+          kubectl rollout status deployment/rbac --timeout=180s
