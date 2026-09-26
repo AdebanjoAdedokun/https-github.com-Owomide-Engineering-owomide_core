@@ -36,6 +36,26 @@ spec:
                 secretKeyRef:
                   name: margin-secrets
                   key: gateway-service-secret
+            - name: PROPOSAL_GATEWAY_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: proposal-secrets
+                  key: gateway-service-secret
+            - name: GOVERNANCE_GATEWAY_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: governance-secrets
+                  key: gateway-service-secret
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: gateway-secrets
+                  key: jwt-secret
+            - name: DEV_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gateway-secrets
+                  key: dev-user-password
           livenessProbe:
             httpGet:
               path: /health

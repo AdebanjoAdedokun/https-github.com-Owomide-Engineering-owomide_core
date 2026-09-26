@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proposal
+spec:
+  selector:
+    matchLabels:
+      app: proposal
+  template:
+    metadata:
+      labels:
+        app: proposal
+    spec:
+      containers:
+        - name: proposal
+          image: owomide/proposal
+          imagePullPolicy: Never
+          ports:
+            - name: grpc
+              containerPort: 50051
+            - name: health
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: proposal-config
+          env:
+            - name: PROPOSAL_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: proposal-secrets
+                  key: database-url
+            - name: PROPOSAL_SERVICE_SECRETS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: proposal-secrets
+                  key: service-secrets-json
+            - name: CATALOG_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: proposal-secrets
+                  key: catalog-service-secret
+            - name: MARGIN_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: proposal-secrets
+                  key: margin-service-secret
+            - name: RBAC_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: proposal-secrets
+                  key: rbac-service-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

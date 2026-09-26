@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rbac-config
+data:
+  PORT: "50056"
+  HEALTH_PORT: "8080"
+  HOST: "0.0.0.0"
+  LOG_LEVEL: info
+  RBAC_SERVICE_JWT_ISSUER: owomide-internal
+  RBAC_DATABASE_POOL_SIZE: "10"
+  RBAC_DATABASE_STATEMENT_TIMEOUT_MS: "15000"

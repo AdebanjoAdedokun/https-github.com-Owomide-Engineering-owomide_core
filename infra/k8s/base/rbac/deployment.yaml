@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rbac
+spec:
+  selector:
+    matchLabels:
+      app: rbac
+  template:
+    metadata:
+      labels:
+        app: rbac
+    spec:
+      containers:
+        - name: rbac
+          image: owomide/rbac
+          imagePullPolicy: Never
+          ports:
+            - name: grpc
+              containerPort: 50056
+            - name: health
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: rbac-config
+          env:
+            - name: RBAC_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rbac-secrets
+                  key: database-url
+            - name: RBAC_SERVICE_SECRETS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: rbac-secrets
+                  key: service-secrets-json
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

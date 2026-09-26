@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: governance
+spec:
+  selector:
+    matchLabels:
+      app: governance
+  template:
+    metadata:
+      labels:
+        app: governance
+    spec:
+      containers:
+        - name: governance
+          image: owomide/governance
+          imagePullPolicy: Never
+          ports:
+            - name: grpc
+              containerPort: 50054
+            - name: health
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: governance-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: governance-secrets
+                  key: database-url
+            - name: GOVERNANCE_SERVICE_SECRETS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: governance-secrets
+                  key: service-secrets-json
+            - name: CATALOG_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: governance-secrets
+                  key: catalog-service-secret
+            - name: RBAC_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: governance-secrets
+                  key: rbac-service-secret
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: governance-secrets
+                  key: object-store-access-key
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: governance-secrets
+                  key: object-store-secret-key
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

@@ -4,15 +4,28 @@ kind: Kustomization
 resources:
   - ../../base
 
-# Select staging images built by CI.
+# Select staging images built and pushed to GHCR by CI (ci.yml build-* jobs).
 images:
   - name: owomide/gateway
+    newName: ghcr.io/owomide-engineering/gateway
     newTag: staging
   - name: owomide/catalog
+    newName: ghcr.io/owomide-engineering/catalog
     newTag: staging
   - name: owomide/data-pipeline
+    newName: ghcr.io/owomide-engineering/data-pipeline
     newTag: staging
   - name: owomide/margin
+    newName: ghcr.io/owomide-engineering/margin
+    newTag: staging
+  - name: owomide/proposal
+    newName: ghcr.io/owomide-engineering/proposal
+    newTag: staging
+  - name: owomide/governance
+    newName: ghcr.io/owomide-engineering/governance
+    newTag: staging
+  - name: owomide/rbac
+    newName: ghcr.io/owomide-engineering/rbac
     newTag: staging
 
 # Staging-sized resource requests and larger storage.
@@ -47,8 +60,11 @@ patches:
       spec:
         template:
           spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
             containers:
               - name: gateway
+                imagePullPolicy: Always
                 resources:
                   requests:
                     cpu: 200m
@@ -65,3 +81,110 @@ patches:
         resources:
           requests:
             storage: 20Gi
+  # GHCR images are private — every Deployment needs the pull secret plus
+  # imagePullPolicy: Always so the node actually pulls instead of reusing
+  # a stale local image (base sets Never, correct for local OrbStack dev).
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: catalog
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
+            containers:
+              - name: catalog
+                imagePullPolicy: Always
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: catalog-outbox
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
+            containers:
+              - name: catalog-outbox
+                imagePullPolicy: Always
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: data-pipeline
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
+            containers:
+              - name: data-pipeline
+                imagePullPolicy: Always
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: data-pipeline-worker
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
+            containers:
+              - name: data-pipeline-worker
+                imagePullPolicy: Always
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: margin
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
+            containers:
+              - name: margin
+                imagePullPolicy: Always
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: proposal
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
+            containers:
+              - name: proposal
+                imagePullPolicy: Always
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: governance
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
+            containers:
+              - name: governance
+                imagePullPolicy: Always
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: rbac
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-pull-secret
+            containers:
+              - name: rbac
+                imagePullPolicy: Always

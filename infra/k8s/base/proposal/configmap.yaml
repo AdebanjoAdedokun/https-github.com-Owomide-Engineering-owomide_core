@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proposal-config
+data:
+  PORT: "50051"
+  HEALTH_PORT: "8080"
+  HOST: "0.0.0.0"
+  LOG_LEVEL: info
+  PROPOSAL_SERVICE_JWT_ISSUER: owomide-internal
+  PROPOSAL_DATABASE_POOL_SIZE: "20"
+  PROPOSAL_DATABASE_STATEMENT_TIMEOUT_MS: "15000"
+  KAFKA_BROKER: kafka:9092
+  CATALOG_URL: http://catalog:50052
+  MARGIN_URL: http://margin:50053
+  RBAC_URL: http://rbac:50056

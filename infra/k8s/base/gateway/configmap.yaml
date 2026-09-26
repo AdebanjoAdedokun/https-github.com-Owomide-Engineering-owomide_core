@@ -1,3 +1,5 @@
+# JWT_SECRET and DEV_USER_PASSWORD live in the gateway-secrets Secret instead
+# of here (see gateway/deployment.yaml) — they're credentials, not config.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,10 +9,8 @@ data:
   HOST: "0.0.0.0"
   LOG_LEVEL: info
   CORS_ORIGIN: "*"
-  JWT_SECRET: dev-secret-for-local-testing-only
   JWT_EXPIRES_IN: "3600"
   DEV_USER_EMAIL: dev@owomide.local
-  DEV_USER_PASSWORD: dev
   DEV_USER_ORG_ID: org-dev
   DEV_USER_ID: user-dev
   DEV_USER_ROLES: admin
