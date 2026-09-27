@@ -123,6 +123,28 @@ hashes. It is stateless and does not own Margin rules or workflow decisions.
 Only `margin_svc` can invoke `EvaluateMarginBatch`; allowing that service through the shared gRPC
 interceptor does not authorize it for Data Pipeline import or FX methods.
 
+## Pilot readiness check (`intelligence/readiness.py`)
+
+Run before onboarding a design partner (Journey J3, day 1). It reads the three import-template
+files exactly as sent, with the organisation's settings, and reports how many products have a
+margin Owómidé can calculate today, why the rest cannot (reason codes from the pricing engine), how
+many are below cost or below a minimum margin after removing VAT, and every bad row by file, row
+and column. Nothing is corrected or guessed. Later files supersede earlier ones, like sequential
+imports.
+
+```bash
+python -m owomide_data_pipeline.intelligence.readiness \
+  --products products.csv --prices prices.csv --costs costs.csv [--costs update.csv] \
+  --currency NGN --default-tax inclusive --default-tax-rate 7.5 --cost-basis landed \
+  --at 2026-10-01T00:00:00+01:00 --min-margin 15 [--json]
+```
+
+Verdicts: `ready` (at least 95% computable and no errors), `ready_with_gaps`, `not_ready`
+(products file errors or under half computable; exit code 1). With `OWOMIDE_TEST_CATALOGUE` set
+to the pilot test catalogue, `tests/test_readiness.py` also reproduces its independent results:
+4,975 of 5,000 ready, then 40 breaches and the same 10 rejected or held rows after the supplier
+update.
+
 ## Public RPCs
 
 - `UploadImportFile` (client streaming)
