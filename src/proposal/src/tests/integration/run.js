@@ -63,6 +63,10 @@ const tests = [
     dirname,
     "../../../dist_integration/tests/integration/scheduled-rollout.integration.test.js"
   ),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/initiative-decisions.integration.test.js"
+  ),
 ];
 
 process.argv = [
