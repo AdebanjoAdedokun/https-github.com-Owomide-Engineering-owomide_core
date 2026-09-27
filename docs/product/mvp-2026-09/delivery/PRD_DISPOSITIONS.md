@@ -13,9 +13,22 @@ Use the replacement PRD's definitions (physical pp. 73–74) as recorded in the 
 
 Examples and phrases such as “may include” do not expand the normative requirement. Conditional safety requirements remain binding whenever the related capability is introduced. A disposition never converts sample evidence into backend or connected acceptance.
 
-## Partial source-class inventory — AGENT DRAFT, not ratified
+## Exhaustive source-modal occurrence crosswalk — generated, not ratified
 
-This is a source-backed working extraction, **not a validated exhaustive crosswalk of all 379 requirements**. The listed rows were checked against the linked benchmark and domain ledgers, but this pass did not systematically reconcile every numbered row and every normative modal in all five JSON files. It therefore cannot establish how many source-classified rows are still missing from the inventory. Do not use its row counts as proof of 379-row coverage or CT-01 completeness.
+[CT-01_SOURCE_CLASSIFICATION.json](CT-01_SOURCE_CLASSIFICATION.json) contains exactly one record for every stable ID in the 379-row benchmark matrix. It is generated and checked without dependencies using:
+
+```sh
+python docs/product/mvp-2026-09/delivery/scripts/ct01_source_classification.py
+python docs/product/mvp-2026-09/delivery/scripts/ct01_source_classification.py --check
+```
+
+The six separate `source_modal_flags` are deterministic, case-insensitive phrase-occurrence flags extracted from the exact `requirement` strings in `REQUIREMENTS_MATRIX.json`: **Must**, **Must Not**, **Should**, **Should Not**, **May**, and **Not Required**. The extraction prevents “Must Not” from also setting “Must”, and likewise for “Should Not”. Each record cites the benchmark and its corresponding domain matrix, includes source pages, SHA-256 hashes and source snippets for the exact requirement strings in both matrices, and independent modal/conditional flags and evidence from each. The generator compares the two requirement strings byte-for-byte and records text, modal-flag, and conditional-term differences per row; these differences remain review items, not silently reconciled classifications. The original accepted PRD PDF remains the normative source; this crosswalk does not re-extract or claim equivalence with its PDF text. The audit priority and gap are copied into distinct fields and are not used to derive modal flags or dispositions.
+
+These are literal source-text occurrences, not a machine claim that every occurrence is normative in context. The `semantic_review.needs_modal_review` flag calls out absent explicit modals and specific ambiguous wording cues (including choice-framed “should” and “may include” examples). Conditional terms are separately surfaced with snippets; their presence does not resolve the condition's scope. For example, DATA-010 remains flagged for modal review and ORG-014 has no explicit modal phrase. Human interpretation and all product dispositions remain open; this crosswalk does not ratify D-01–08, choose a pilot, or decide whether any Should/May behaviour will be delivered.
+
+## Partial hand-curated source-class notes — AGENT DRAFT, not ratified
+
+The grouped notes below are a source-backed but partial human-curated interpretation. They are retained as an unratified decision aid and must not be mistaken for the exhaustive occurrence-level crosswalk linked above. The prior grouped counts describe only those hand-curated notes; they do not establish complete semantic interpretation or product dispositions.
 
 Sources: [benchmark JSON](../audit/REQUIREMENTS_MATRIX.json), [pricing/data](../audit/pricing-data-matrix.json), [roles/governance](../audit/roles-governance-matrix.json), [collaboration/AI/visibility](../audit/collaboration-ai-visibility-matrix.json), and [execution/history](../audit/execution-history-matrix.json). Review evidence: [pricing/data](../audit/pricing-data-review.md), [roles/governance](../audit/roles-governance-review.md), [collaboration/AI/visibility](../audit/collaboration-ai-visibility-review.md), and [execution/history](../audit/execution-history-review.md).
 
@@ -175,7 +188,7 @@ The following **12 listed requirement rows** state explicit minimum-scope bounda
 | EXPORT-021 | Should + Must Not | An external implementation reference should be recordable where available; one must not be required where the organization does not use one. |
 | EXPORT-028 | Must + Not Required | Bounded selected integration is required, but broad connector coverage, universal bidirectional sync, and autonomous stack-wide execution are not required; manual/import/export/handoff must remain usable. |
 
-**Coverage gap and validation limit:** `rg` confirmed 379 numbered requirement records in the benchmark JSON. This document currently lists 100 IDs in the Should/Should Not section (including one unresolved), 30 ID references in the May section, and 12 rows in the Not Required section; categories overlap. No complete unique-ID crosswalk or modal-by-modal comparison was produced, so the number and IDs of omitted Should, May, or Not Required classifications are **not known**. The detailed matrices/reviews remain the sources for further reconciliation. This draft must not be represented as exhaustive or used to claim CT-01 inventory acceptance. No D-01–08 choice, pilot scope, row disposition, delivery commitment, or ratification is made here.
+**Coverage gap and validation limit:** the generated crosswalk now reconciles the exact benchmark ID set against all four domain matrices (379 rows, 379 unique IDs) and records each explicit modal phrase occurrence deterministically. The partial hand-curated summaries above are still not a complete semantic interpretation: example language, choice-framed modals, and the interaction of conditional clauses may require human review, as surfaced in each row's review fields. Therefore this artifact establishes source-string coverage and extraction reproducibility, not owner acceptance, final normative interpretation, any D-01–08 choice, pilot scope, row disposition, delivery commitment, or ratification.
 
 ## Known decision candidates
 
