@@ -32,6 +32,7 @@ from datetime import datetime
 from fractions import Fraction
 from pathlib import Path
 
+from owomide_data_pipeline.intelligence.build import Member
 from owomide_data_pipeline.intelligence.pricing import (
     Unavailable,
     exact,
@@ -453,15 +454,11 @@ def _costs(
 Files = Sequence[tuple[str, Sequence[Mapping[str, str]]]]
 
 
-def assess(
-    products: Sequence[Mapping[str, str]],
-    prices: Files,
-    costs: Files,
-    settings: Settings,
-) -> Report:
-    """Prices and costs are (file name, rows) pairs in import order. Within one file, two current
-    records for a product are ambiguous (DATA-003). A later file replaces an earlier file's current
-    record for the same product, as a later import supersedes an earlier one."""
+def _read(
+    products: Sequence[Mapping[str, str]], prices: Files, costs: Files, settings: Settings
+) -> tuple[
+    _Collector, dict[str, str], dict[str, _Price], dict[str, _Cost], Counter[str], Counter[str]
+]:
     out = _Collector()
     units = _products(products, out)
     current_prices: dict[str, _Price] = {}
@@ -476,6 +473,44 @@ def assess(
         chosen, aside = _costs(rows, units, settings, out, name)
         current_costs.update(chosen)
         cost_aside += aside
+    return out, units, current_prices, current_costs, price_aside, cost_aside
+
+
+def current_members(
+    products: Sequence[Mapping[str, str]], prices: Files, costs: Files, settings: Settings
+) -> tuple[list[Member], list[Problem]]:
+    """The organisation-wide scope members the files describe at ``settings.at``, one per valid
+    product, read exactly as ``assess`` reads them. A missing record is an ``Unavailable`` value
+    with the Catalog reason, never a zero."""
+    out, units, current_prices, current_costs, _, _ = _read(products, prices, costs, settings)
+    members: list[Member] = []
+    for sku in sorted(units):
+        price = current_prices.get(sku)
+        cost = current_costs.get(sku)
+        members.append(
+            Member(
+                sku_code=sku,
+                current_price=price.amount if price else Unavailable("no_applicable_price_record"),
+                tax_inclusive=price.tax_inclusive if price else settings.default_tax_inclusive,
+                tax_rate_pct=price.rate_pct if price else settings.default_tax_rate_pct,
+                cost=cost.amount if cost else Unavailable("no_applicable_cost_record"),
+            )
+        )
+    return members, out.problems
+
+
+def assess(
+    products: Sequence[Mapping[str, str]],
+    prices: Files,
+    costs: Files,
+    settings: Settings,
+) -> Report:
+    """Prices and costs are (file name, rows) pairs in import order. Within one file, two current
+    records for a product are ambiguous (DATA-003). A later file replaces an earlier file's current
+    record for the same product, as a later import supersedes an earlier one."""
+    out, units, current_prices, current_costs, price_aside, cost_aside = _read(
+        products, prices, costs, settings
+    )
 
     unable: Counter[str] = Counter()
     ready = below_cost = below_min = 0
