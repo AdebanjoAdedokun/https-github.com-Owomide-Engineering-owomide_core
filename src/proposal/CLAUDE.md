@@ -130,8 +130,9 @@ invariants are enforced by triggers, so no code path can bypass them.
 - `scheduled_rollout` — id, org_id, proposal_id, effective_at, status (`pending` | `dispatched` | `failed`), attempts, last_attempted_at.
 - `outbox_event` — transactional outbox for all proposal.* and override.* events. Updated only via SECURITY DEFINER worker functions.
 
-`proposal_svc` can DELETE only from `proposal_line` (replacing a draft's lines); everything else is
-retired by state (`0004_harden_privileges`). `make db-check` enforces this.
+`proposal_svc` can DELETE only from tables tagged `@deletable` (`proposal_line` and
+`proposal_version_line`, the lines of a draft); everything else is retired by state
+(`0004_harden_privileges`). `make db-check` enforces this.
 
 Postgres role `proposal_svc` has access to schema `proposal` only. Reads from Catalog via gRPC, not SQL.
 
