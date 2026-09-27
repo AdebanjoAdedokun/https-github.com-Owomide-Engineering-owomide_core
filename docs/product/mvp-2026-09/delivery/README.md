@@ -6,6 +6,8 @@
 
 Read [decisions](DECISIONS.md), the [CT-01 PRD disposition draft](PRD_DISPOSITIONS.md), [agent execution rules](AGENT_PLAYBOOK.md), [requirement ownership](requirements-ownership.json), the [machine-readable plan](plan.json), and the [unratified CT-02 contract draft](CT-02-contract-draft.md).
 
+See the [V1 30-day release control plan](V1_30_DAY_RELEASE_PLAN.md) for a dated, dependency-gated schedule and measurable go/no-go criteria. It is planning only and does not ratify decisions or authorize implementation.
+
 ## M0 — MVP 0 — Product decisions and contracts
 
 Ratify decision records and canonical data/state/authority contracts. Ready-for-plan is not implementation approval. No invented due date.
