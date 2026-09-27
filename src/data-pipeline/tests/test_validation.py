@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 from dataclasses import replace
+from typing import cast
 
 from owomide_data_pipeline.catalog import CatalogSnapshot, ChannelReference, CostReference
 from owomide_data_pipeline.validation import validate_row
@@ -47,9 +48,9 @@ class ValidationTest(unittest.TestCase):
         self.assertEqual(mapped["price_record"]["channel_id"], CHANNEL_ID)
         self.assertEqual(mapped["price_record"]["currency"], "NGN")
         self.assertEqual(mapped["price_record"]["effective_at"], "2026-07-12T00:00:00Z")
-        self.assertIs(mapped["price_record"]["tax_inclusive"], True)
-        self.assertEqual(mapped["price_record"]["tax_rate_bp"], 750)
-        self.assertNotIn("tax_rate_pct", mapped["price_record"])
+        self.assertIs(record_of(mapped)["tax_inclusive"], True)
+        self.assertEqual(record_of(mapped)["tax_rate_bp"], 750)
+        self.assertNotIn("tax_rate_pct", record_of(mapped))
         self.assertEqual([finding.code for finding in findings], ["invalid_cost"])
         self.assertEqual(findings[0].severity, "warning")
 
@@ -121,6 +122,10 @@ class ValidationTest(unittest.TestCase):
         self.assertEqual(len(cross_org), 2)
 
 
+def record_of(row: dict[str, object]) -> dict[str, object]:
+    return cast(dict[str, object], row["price_record"])
+
+
 def price_row(**price: object) -> dict[str, object]:
     return {
         "sku": {"sku_id": SKU_ID},
@@ -165,21 +170,21 @@ class TaxBasisAndUnitsTest(unittest.TestCase):
         row = price_row(price_minor=1000)
         self.assertNotIn("tax_basis_missing", codes_for(row, snap))
         # The row stays silent; Catalog stamps the default flag and rate together.
-        self.assertNotIn("tax_inclusive", row["price_record"])
-        self.assertNotIn("tax_rate_bp", row["price_record"])
+        self.assertNotIn("tax_inclusive", record_of(row))
+        self.assertNotIn("tax_rate_bp", record_of(row))
         # The default still decides the below-cost check: 850 incl. 7.5% VAT < cost 800.
         self.assertIn("below_cost", codes_for(price_row(price_minor=850), snap))
         # A rate in the file is kept, with the default basis stated beside it.
         row = price_row(price_minor=1000, tax_rate_pct="5")
         codes_for(row, snap)
         self.assertEqual(
-            (row["price_record"]["tax_inclusive"], row["price_record"]["tax_rate_bp"]), (True, 500)
+            (record_of(row)["tax_inclusive"], record_of(row)["tax_rate_bp"]), (True, 500)
         )
 
     def test_a_rate_without_any_basis_is_not_stored(self) -> None:
         row = price_row(price_minor=1000, tax_rate_pct="7.5")
         self.assertIn("tax_basis_missing", codes_for(row))
-        self.assertNotIn("tax_rate_bp", row["price_record"])
+        self.assertNotIn("tax_rate_bp", record_of(row))
 
     def test_inclusive_price_without_a_rate_is_a_warning_not_a_rejection(self) -> None:
         codes = codes_for(price_row(price_minor=1000, tax_inclusive="yes"))
