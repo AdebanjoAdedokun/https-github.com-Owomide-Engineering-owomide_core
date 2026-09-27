@@ -5,6 +5,8 @@ export interface RequestContext {
   orgId: string;
   userId?: string;
   roles: readonly string[];
+  /** Set when the caller acts through an Owómidé support access grant (ORG-015). */
+  supportGrantId?: string;
 }
 
 export function requestContext(context: HandlerContext): RequestContext {
@@ -16,7 +18,8 @@ export function requestContext(context: HandlerContext): RequestContext {
     .split(",")
     .map((role) => role.trim())
     .filter(Boolean);
-  return { orgId, userId, roles };
+  const supportGrantId = context.requestHeader.get("x-support-grant-id")?.trim() || undefined;
+  return { orgId, userId, roles, supportGrantId };
 }
 
 export class ServiceAuthenticator {

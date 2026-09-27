@@ -56,6 +56,38 @@ an existing role's grants into a new org-owned custom role) is tracked in
   system roles are shared by every tenant, so only migrations change them. A future write RPC
   (`DuplicateRole`) grants exactly what it needs in its own migration.
 
+### Organisations, membership and support access (migration 0005)
+
+Decisions D-02 and D-03; PRD ORG-001 to ORG-015. Authority is meant to come from these stored
+rows, resolved per request by `rbac.active_role_codes(org_id, identity_subject)`, rather than
+from token claims. `CheckPermission` still takes roles from the request until the gateway
+resolves them (that needs a new RPC and a `make proto` run).
+
+- `organisation` — name, country, default currency and time zone, default tax basis and rate
+  (basis points), AI data policy (AI-036), and `enabled_role_codes` (Release 1: account_owner,
+  pricing_manager, finance_approver, executor). Created only through
+  `rbac.create_organisation(...)` (SECURITY DEFINER), which also creates the creator's account,
+  active membership, Account Owner role and first access-log entry.
+- `user_account` — one row per person across organisations, keyed by the identity provider's
+  subject. Not tenant data.
+- `membership` — status `invited` | `active` | `suspended` | `removed`.
+- `role_assignment` — only enabled roles can be assigned; rows are revoked, never changed or deleted.
+- An organisation always keeps at least one active Account Owner (deferred constraint trigger,
+  so an ownership transfer inside one transaction works).
+- `invitation` — stores only a SHA-256 of the one-time token; expires within 14 days.
+- `support_access_grant` — purpose, start and a required end at most 30 days later; revoked,
+  never changed.
+- `access_log` — append-only; every support action records its grant id.
+- No DELETE grant to `rbac_svc` on any of these tables.
+
+`CheckPermission` refuses the permissions in `src/support-access.ts` (submit, approve, reject,
+request changes, override approve, mark implemented, schedule, confirm governance changes,
+invite, assign roles, deactivate users) whenever the request carries `x-support-grant-id`,
+whatever roles are present.
+
+Note: the seeded system roles include `ai_assistant` but not a Workspace Admin role. Decision
+D-02 keeps Workspace Admin as a named role (from Release 2), so a later migration needs to add it.
+
 ## Runtime
 
 - Connect/gRPC server: `50056`

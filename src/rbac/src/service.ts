@@ -10,6 +10,7 @@ import { requestContext, ServiceAuthenticator } from "./context.js";
 import { Database } from "./db.js";
 import { CODE_BY_PERMISSION } from "./permissions.js";
 import { RoleRepository } from "./repo/role-repository.js";
+import { isForbiddenUnderSupportAccess } from "./support-access.js";
 
 // Every backend service that gates an action calls CheckPermission.
 const CHECK_CALLERS = [
@@ -38,6 +39,9 @@ export class RbacServiceImpl {
         const permission = CODE_BY_PERMISSION[request.permission];
         if (!permission) {
           throw new ConnectError(`Unknown permission: ${request.permission}`, Code.InvalidArgument);
+        }
+        if (ctx.supportGrantId && isForbiddenUnderSupportAccess(permission)) {
+          return create(CheckPermissionResponseSchema, { allowed: false });
         }
         const roleCodes = request.roles.map((role: string) => role.trim()).filter(Boolean);
         const allowed = await this.database.withOrgTransaction(ctx.orgId, (client) =>

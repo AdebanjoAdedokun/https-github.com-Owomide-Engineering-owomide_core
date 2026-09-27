@@ -23,6 +23,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const tests = [
   path.resolve(dirname, "../../../dist_unit/tests/unit/permissions.test.js"),
   path.resolve(dirname, "../../../dist_unit/tests/unit/system-role-templates.test.js"),
+  path.resolve(dirname, "../../../dist_unit/tests/unit/support-access.test.js"),
 ];
 
 process.argv = [process.argv[0], process.argv[1], "run", "--environment", "node", ...tests];
