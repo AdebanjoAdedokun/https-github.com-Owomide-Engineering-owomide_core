@@ -6,7 +6,7 @@ permission by calling `CheckPermission` over Connect/gRPC — they never read
 
 ## Ownership
 
-- `rbac.role` — the 11 global system roles (`org_id IS NULL`, `is_system = true`)
+- `rbac.role` — the 12 global system roles (11 from 0003, `workspace_admin` from 0006) (`org_id IS NULL`, `is_system = true`)
   and, later, per-org custom roles (`org_id` set, `is_system = false`).
 - `rbac.role_permission` — one row per **granted** permission. No row means Deny;
   there is no allow/deny column.
@@ -86,8 +86,13 @@ request changes, override approve, mark implemented, schedule, confirm governanc
 invite, assign roles, deactivate users) whenever the request carries `x-support-grant-id`,
 whatever roles are present.
 
-Note: the seeded system roles include `ai_assistant` but not a Workspace Admin role. Decision
-D-02 keeps Workspace Admin as a named role (from Release 2), so a later migration needs to add it.
+### Workspace Admin (migration 0006)
+
+Decision D-02. `workspace_admin` is seeded as a 12th system role with 14 grants: workspace settings
+and members, templates, assignments, and read access to what it administers. It has no cost data,
+no drafting, submitting, approving, overriding or implementing, and no organisation-level user or
+role administration. Release 1 organisations do not list it in `enabled_role_codes`, so it cannot
+be assigned until an organisation enables it (Release 2).
 
 ## Runtime
 

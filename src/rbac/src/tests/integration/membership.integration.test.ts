@@ -14,6 +14,7 @@ const MIGRATIONS = [
   "0003_seed_system_roles.up.sql",
   "0004_lock_system_roles.up.sql",
   "0005_organisations_membership_support_access.up.sql",
+  "0006_seed_workspace_admin_role.up.sql",
 ];
 const sql = (f: string) => readFileSync(resolve(process.cwd(), "migrations", f), "utf8");
 
@@ -25,7 +26,9 @@ describe("Organisations, membership and support access", () => {
   beforeAll(async () => {
     let adminUrl = process.env.RBAC_TEST_DATABASE_URL;
     if (!adminUrl) {
-      container = await new PostgreSqlContainer("postgres:16-alpine").withDatabase("owomide_rbac_test").start();
+      container = await new PostgreSqlContainer("postgres:16-alpine")
+        .withDatabase("owomide_rbac_test")
+        .start();
       adminUrl = container.getConnectionUri();
     }
     admin = new pg.Client({ connectionString: adminUrl });
@@ -78,7 +81,12 @@ describe("Organisations, membership and support access", () => {
     }
   }
 
-  async function addMember(org: string, subject: string, email: string, roles: string[]): Promise<string> {
+  async function addMember(
+    org: string,
+    subject: string,
+    email: string,
+    roles: string[]
+  ): Promise<string> {
     return inOrg(org, async (c) => {
       const u = await c.query(
         `INSERT INTO rbac.user_account (identity_subject, email) VALUES ($1, $2)
@@ -100,7 +108,11 @@ describe("Organisations, membership and support access", () => {
   }
 
   const rolesOf = (org: string, subject: string) =>
-    inOrg(org, async (c) => (await c.query(`SELECT rbac.active_role_codes($1, $2) AS r`, [org, subject])).rows[0].r);
+    inOrg(
+      org,
+      async (c) =>
+        (await c.query(`SELECT rbac.active_role_codes($1, $2) AS r`, [org, subject])).rows[0].r
+    );
 
   it("creates a workspace with its creator as the active Account Owner", async () => {
     const org = await createOrg("idp|femi-1", "femi1@example.test");
@@ -112,21 +124,49 @@ describe("Organisations, membership and support access", () => {
   it("assigns only the roles the organisation has enabled (Release 1: four)", async () => {
     const org = await createOrg("idp|femi-2", "femi2@example.test");
     await addMember(org, "idp|ada-2", "ada2@example.test", ["pricing_manager"]);
-    await expect(addMember(org, "idp|bisi-2", "bisi2@example.test", ["commercial_approver"])).rejects.toThrow(
-      /not enabled for this organisation/
+    await expect(
+      addMember(org, "idp|bisi-2", "bisi2@example.test", ["commercial_approver"])
+    ).rejects.toThrow(/not enabled for this organisation/);
+  });
+
+  it("seeds Workspace Admin (D-02) but lets it be assigned only once an organisation enables it", async () => {
+    const seeded = await admin.query(
+      `SELECT r.name, count(rp.*)::int AS grants,
+              bool_or(rp.permission_name IN ('approval.approve', 'proposal.submit', 'cost_data.read')) AS money
+       FROM rbac.role r JOIN rbac.role_permission rp ON rp.role_id = r.id
+       WHERE r.org_id IS NULL AND r.code = 'workspace_admin' GROUP BY r.name`
     );
+    expect(seeded.rows).toEqual([{ name: "Workspace Admin", grants: 14, money: false }]);
+    await admin.query(sql("0006_seed_workspace_admin_role.up.sql")); // idempotent
+    const again = await admin.query(
+      `SELECT count(*)::int AS n FROM rbac.role WHERE code = 'workspace_admin'`
+    );
+    expect(again.rows[0].n).toBe(1);
+
+    const org = await createOrg("idp|femi-wa", "femiwa@example.test");
+    await expect(
+      addMember(org, "idp|kemi-wa", "kemiwa@example.test", ["workspace_admin"])
+    ).rejects.toThrow(/not enabled for this organisation/);
+    await admin.query(
+      `UPDATE rbac.organisation SET enabled_role_codes = enabled_role_codes || '{workspace_admin}' WHERE id = $1`,
+      [org]
+    );
+    await addMember(org, "idp|kemi-wa", "kemiwa@example.test", ["workspace_admin"]);
+    expect(await rolesOf(org, "idp|kemi-wa")).toEqual(["workspace_admin"]);
   });
 
   it("never leaves an organisation without an active Account Owner", async () => {
     const org = await createOrg("idp|femi-3", "femi3@example.test");
     await expect(
       inOrg(org, (c) =>
-        c.query(`UPDATE rbac.role_assignment SET revoked_at = now(), revoked_by = 'femi' WHERE role_code = 'account_owner'`)
+        c.query(
+          `UPDATE rbac.role_assignment SET revoked_at = now(), revoked_by = 'femi' WHERE role_code = 'account_owner'`
+        )
       )
     ).rejects.toThrow(/at least one active Account Owner/);
-    await expect(inOrg(org, (c) => c.query(`UPDATE rbac.membership SET status = 'suspended'`))).rejects.toThrow(
-      /at least one active Account Owner/
-    );
+    await expect(
+      inOrg(org, (c) => c.query(`UPDATE rbac.membership SET status = 'suspended'`))
+    ).rejects.toThrow(/at least one active Account Owner/);
     // A transfer in one transaction is allowed.
     await addMember(org, "idp|ada-3", "ada3@example.test", ["pricing_manager"]);
     await inOrg(org, async (c) => {
@@ -163,10 +203,16 @@ describe("Organisations, membership and support access", () => {
   it("revokes role assignments but never rewrites or deletes them", async () => {
     const org = await createOrg("idp|femi-5", "femi5@example.test");
     await addMember(org, "idp|kemi-5", "kemi5@example.test", ["executor"]);
-    await expect(inOrg(org, (c) => c.query(`UPDATE rbac.role_assignment SET role_code = 'account_owner' WHERE role_code = 'executor'`))).rejects.toThrow(
-      /only be revoked/
+    await expect(
+      inOrg(org, (c) =>
+        c.query(
+          `UPDATE rbac.role_assignment SET role_code = 'account_owner' WHERE role_code = 'executor'`
+        )
+      )
+    ).rejects.toThrow(/only be revoked/);
+    await expect(inOrg(org, (c) => c.query(`DELETE FROM rbac.role_assignment`))).rejects.toThrow(
+      /permission denied/
     );
-    await expect(inOrg(org, (c) => c.query(`DELETE FROM rbac.role_assignment`))).rejects.toThrow(/permission denied/);
   });
 
   it("time-boxes support access to at most 30 days and only allows revocation", async () => {
@@ -180,27 +226,43 @@ describe("Organisations, membership and support access", () => {
         )
       )
     ).rejects.toThrow(/check constraint/);
-    const grant = await inOrg(org, async (c) =>
-      (
-        await c.query(
-          `INSERT INTO rbac.support_access_grant (org_id, owomide_user_id, purpose, granted_by, ends_at)
+    const grant = await inOrg(
+      org,
+      async (c) =>
+        (
+          await c.query(
+            `INSERT INTO rbac.support_access_grant (org_id, owomide_user_id, purpose, granted_by, ends_at)
            VALUES ($1, 'owomide|sam', 'onboarding and data import', 'femi', now() + interval '7 days') RETURNING id`,
-          [org]
-        )
-      ).rows[0].id
+            [org]
+          )
+        ).rows[0].id
     );
     await expect(
-      inOrg(org, (c) => c.query(`UPDATE rbac.support_access_grant SET ends_at = now() + interval '20 days' WHERE id = $1`, [grant]))
+      inOrg(org, (c) =>
+        c.query(
+          `UPDATE rbac.support_access_grant SET ends_at = now() + interval '20 days' WHERE id = $1`,
+          [grant]
+        )
+      )
     ).rejects.toThrow(/only be revoked/);
     await inOrg(org, (c) =>
-      c.query(`INSERT INTO rbac.access_log (org_id, actor_user_id, via_support_grant_id, action, resource) VALUES ($1, 'owomide|sam', $2, 'import.map', 'batch-1')`, [
-        org,
-        grant,
-      ])
+      c.query(
+        `INSERT INTO rbac.access_log (org_id, actor_user_id, via_support_grant_id, action, resource) VALUES ($1, 'owomide|sam', $2, 'import.map', 'batch-1')`,
+        [org, grant]
+      )
     );
-    await inOrg(org, (c) => c.query(`UPDATE rbac.support_access_grant SET revoked_at = now(), revoked_by = 'femi' WHERE id = $1`, [grant]));
-    await expect(inOrg(org, (c) => c.query(`UPDATE rbac.access_log SET action = 'x'`))).rejects.toThrow(/permission denied/);
-    await expect(inOrg(org, (c) => c.query(`DELETE FROM rbac.access_log`))).rejects.toThrow(/permission denied/);
+    await inOrg(org, (c) =>
+      c.query(
+        `UPDATE rbac.support_access_grant SET revoked_at = now(), revoked_by = 'femi' WHERE id = $1`,
+        [grant]
+      )
+    );
+    await expect(
+      inOrg(org, (c) => c.query(`UPDATE rbac.access_log SET action = 'x'`))
+    ).rejects.toThrow(/permission denied/);
+    await expect(inOrg(org, (c) => c.query(`DELETE FROM rbac.access_log`))).rejects.toThrow(
+      /permission denied/
+    );
   });
 
   it("stores only a hash of each invitation token and bounds its lifetime", async () => {
@@ -234,11 +296,15 @@ describe("Organisations, membership and support access", () => {
       logs: (await c.query(`SELECT id FROM rbac.access_log`)).rowCount,
     }));
     expect(seen).toEqual({ orgs: 0, members: 0, logs: 0 });
-    const own = await inOrg(orgA, async (c) => (await c.query(`SELECT id FROM rbac.organisation`)).rowCount);
+    const own = await inOrg(
+      orgA,
+      async (c) => (await c.query(`SELECT id FROM rbac.organisation`)).rowCount
+    );
     expect(own).toBe(1);
   });
 
   it("rolls back cleanly", async () => {
+    await admin.query(sql("0006_seed_workspace_admin_role.down.sql"));
     await admin.query(sql("0005_organisations_membership_support_access.down.sql"));
     const { rows } = await admin.query(
       `SELECT tablename FROM pg_tables WHERE schemaname = 'rbac' AND tablename IN ('organisation', 'membership', 'access_log')`
