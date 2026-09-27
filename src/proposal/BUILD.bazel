@@ -146,6 +146,8 @@ js_test(
         "migrations/0003_scheduled_rollout_claim_fn.up.sql",
         "migrations/0004_harden_privileges.down.sql",
         "migrations/0004_harden_privileges.up.sql",
+        "migrations/0005_initiative_versions_decisions.down.sql",
+        "migrations/0005_initiative_versions_decisions.up.sql",
     ],
     env = {"NODE_OPTIONS": "--experimental-global-webcrypto"},
     entry_point = "src/tests/integration/run.js",
