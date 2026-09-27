@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed. This is the records and import slice of CT-02 (issue #52), drafted 27 September 2026 for
+Proposed; partly implemented (see Implementation notes). This is the records and import slice of CT-02 (issue #52), drafted 27 September 2026 for
 BE-02 and FE-02. It follows decisions D-04 and D-06 and conventions C-1 to C-6 in
 `docs/product/mvp-2026-09/delivery/DECISIONS.md`. It pairs with ADR-015 (pricing engine), which
 consumes the resolved records defined here. It needs lead engineer review before any runtime code
@@ -155,6 +155,27 @@ Each item is checked by an existing fixture or test:
 4. **Existing staging rows are left as they are.** The backfill marks them `tax_inclusive = false`
    from `migration`, so they are distinguishable and can be corrected by re-import. No production
    data exists yet.
+
+## Implementation notes (27 September 2026)
+
+The Catalog and import parts that need no proto change are built on branches
+`claude/catalog-tax-basis-resolution` (Catalog migration 0003) and
+`claude/import-tax-basis-and-units`. Where the build differs from this record, the build is the
+proposal:
+
+| Topic | This record said | Built | Why |
+|---|---|---|---|
+| Existing rows | Backfill `tax_inclusive = false`, source `migration` | `tax_inclusive` NULL, source `unspecified`; resolution reports `TAX_BASIS_MISSING` | "Unknown" and "exclusive" must stay distinguishable; a wrong `false` silently understates margins by the VAT rate |
+| Applying the default | At import | A Catalog insert trigger stamps the organisation default on any new price that states no basis (`organisation_default`); re-importing an `unspecified` price replaces it | Works before the write proto carries tax fields; one place, whatever the write path |
+| Settings location (open question 2) | Open | `catalog.pricing_settings`, one row per organisation, with the default channel; RBAC's organisation table no longer duplicates the tax defaults | The records that use the settings live in Catalog |
+| Resolution (open question 3) | Open | SQL functions `catalog.resolve_current_prices` / `resolve_applicable_costs`, batched by a JSON array, one row per input in order | Row-level security applies unchanged; an RPC can wrap them after `make proto` |
+| Missing basis on import | Row outcome `tax_basis_missing` | An information finding, not a warning | Catalog applies the default at write time; a warning would force confirmation of every file without a VAT column |
+| Below cost on import | Not covered | Compared after removing VAT when the rate is known, as written otherwise | Removing VAT only lowers a price, so "below cost as written" is below cost on any basis |
+| `product.category` target | Add | Not added | Catalog's `NewSku` has no product fields, so the value would be staged and then dropped |
+| Location codes | Needs a code-to-id lookup | Not mapped by the template presets | Release 1 prices are organisation-wide; the readiness check reports location rows |
+
+Still needed: tax and unit fields on `PriceWrite` / `CostWrite`, the resolve RPCs, the organisation
+settings RPC, and moving Proposal scope building onto resolution. All need `make proto`.
 
 ## Open questions for the lead engineer
 
