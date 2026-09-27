@@ -3,8 +3,11 @@
 ## Status
 
 Proposed. This is the identity and access slice of CT-02 (issue #52), drafted 27 September 2026 for
-BE-01 and FE-01. It follows decisions D-02 and D-03 in `docs/product/mvp-2026-09/delivery/DECISIONS.md`.
-It needs lead engineer review before any runtime code changes.
+BE-01 and FE-01. It assumes the CEO's proposed options for D-02 and D-03. None is ratified:
+`DECISIONS.md` holds no ratification record for them yet, and if a ratified choice differs, this ADR
+changes with it. It is input to the team's CT-02 draft
+(`docs/product/mvp-2026-09/delivery/CT-02-contract-draft.md`); where the two differ, the draft and
+its review govern. It needs lead engineer review before any runtime code changes.
 
 ## Context
 
