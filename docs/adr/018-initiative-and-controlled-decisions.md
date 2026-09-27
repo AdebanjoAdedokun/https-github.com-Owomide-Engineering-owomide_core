@@ -3,8 +3,11 @@
 ## Status
 
 Proposed. This is the Initiative and decision slice of CT-02 (issue #52), drafted 27 September 2026
-for BE-04 and BE-05 (Release 1 parts) and FE-03, FE-06 and FE-08. It follows decisions D-05 and D-08.
-It needs lead engineer review before any runtime code changes.
+for BE-04 and BE-05 (Release 1 parts) and FE-03, FE-06 and FE-08. It assumes the CEO's proposed
+options for D-05 and D-08. None is ratified: `DECISIONS.md` holds no ratification record for them
+yet, and if a ratified choice differs, this ADR changes with it. It is input to the team's CT-02
+draft (`docs/product/mvp-2026-09/delivery/CT-02-contract-draft.md`); where the two differ, the draft
+and its review govern. It needs lead engineer review before any runtime code changes.
 
 ## Context
 
