@@ -110,6 +110,19 @@ with how `actor_id` is used across all state-transition and event payloads.
 - `proposal_comment` — id, org_id, proposal_id, author_id, body, occurred_at. Append-only — no UPDATE grant to proposal_svc.
 - `override_request` — id, org_id, proposal_id, requester_id, justification, status, requested_at, decided_at (nullable), decider_id (nullable). Both decided_at and decider_id are set together (check constraint) — present on both approved and rejected outcomes.
 
+### Initiative, version and decision tables (migration 0005)
+
+Decisions D-05 and D-08 as proposed by the CEO (not yet ratified in `DECISIONS.md`). The
+invariants are enforced by triggers, so no code path can bypass them.
+
+- `initiative` — id, org_id, type (PRD INIT-002 list), title, objective, priority, owner_user_id, lifecycle_state (canonical PRD states), created_from, created_by. No DELETE grant.
+- `initiative_scope_member` — SKU and context in scope. Rows are never deleted; removal sets removed_by, removed_at and a required removal_reason, and nothing else may change.
+- `initiative_assumption`, `initiative_transition` — append-only.
+- `proposal.initiative_id` — links a Proposal to its Initiative (same org). Not yet required: the check that forbids a Proposal without an Initiative is added together with CreateInitiative in the API.
+- `proposal_version` — version_number, status (`draft` | `awaiting_approval` | `changes_requested` | `rejected` | `approved`), revision, submitted_by, submitted_at, snapshot JSONB, snapshot_hash, previous_version_id, superseded_by_version_id. New rows start as unsubmitted drafts; one open draft per Proposal. Once submitted the snapshot, submitter and revision are frozen, and status can only follow a recorded decision. No DELETE grant.
+- `proposal_version_line` — draft lines; inserts, updates and deletes are refused unless the version is a draft.
+- `decision` — one per version (Release 1 has one approval step): outcome (`approved` | `rejected` | `changes_requested`), decided_by, reason (required unless approved). Refused unless the version is awaiting approval and decided_by differs from the version's submitted_by (FLOW-013). Inserting a decision sets the version status. Append-only.
+
 ### Bulk repricing tables
 
 - `change_set` — id, org_id, status (`draft` | `submitted` | `discarded`), **actor_id** (creator), scope JSONB, rule JSONB, created_at, updated_at, submitted_at (nullable), proposal_id (nullable, set on submit).
