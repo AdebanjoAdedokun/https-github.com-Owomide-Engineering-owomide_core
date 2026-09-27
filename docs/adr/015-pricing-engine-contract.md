@@ -2,10 +2,25 @@
 
 ## Status
 
-Proposed. This is the pricing slice of CT-02 (issue #52), drafted 27 September 2026. The product
-owner accepted the calculation conventions C-1 to C-6 on 27 September 2026, and they are recorded in
-`docs/product/mvp-2026-09/delivery/DECISIONS.md`. The service ownership, field shapes and migration
-steps below need lead engineer review before any runtime code changes.
+Proposed. This is the pricing slice of CT-02 (issue #52), drafted 27 September 2026. It is input to
+the team's CT-02 draft (`docs/product/mvp-2026-09/delivery/CT-02-contract-draft.md`); where the two
+differ, the draft and its review govern. The calculation conventions C-1 to C-6 (below) are the
+product owner's proposed conventions and need lead engineer review as part of CT-02. The service
+ownership, field shapes and migration steps below need that review before any runtime code changes.
+
+## Calculation conventions (proposed)
+
+- C-1 Exact arithmetic; prices stored in minor units; no rounding of percentages before comparison.
+- C-2 A calculated price is rounded to the minor unit, half-up, only when it becomes a proposed
+  price, unless a commercial rounding rule is chosen; the unrounded value is kept.
+- C-3 Commercial rounding applies to the operational (shelf) price; for tax-inclusive organisations
+  that is the VAT-inclusive price.
+- C-4 Target margin and markup are calculated on the tax-exclusive price, then converted to the
+  shelf basis; percentage and absolute adjustments apply to the Current Price as recorded.
+- C-5 Guardrail limits are inclusive, and every guardrail judges the final rounded proposed price.
+- C-6 A cost record with no dimensions applies everywhere unless a more specific one exists.
+  **Open against CT-02:** the draft says absent dimensions are not wildcards. C-6 needs an explicit
+  D-04 decision; without one, a location-less cost should resolve as unresolved, not applicable.
 
 ## Context
 
