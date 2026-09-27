@@ -57,12 +57,46 @@ None.
 
 ---
 
-## Database (schema: `notify`)
+## Database (schema: `notify`, migration 0002)
 
-- `notification` — id, org_id, user_id, event_type, title, body, read, created_at.
-- `notification_preference` — id, org_id, user_id, event_type, email_enabled, in_app_enabled.
+- `notification` — one row per (source event, recipient), unique, so a redelivered event creates
+  nothing new. Content is immutable; `read_at` is set once (column-level UPDATE grant plus a
+  trigger). `show_in_app` is false for email-only notifications.
+- `notification_preference` — (org, user, event type) → `email_enabled`, `in_app_enabled`. No row
+  means both on. In-app cannot be switched off for requests that need someone to act
+  (`proposal.submitted`, `proposal.published`, `override.requested`).
+- `email_delivery` — at most one email per notification. The sender leases and settles rows only
+  through `claim_email_deliveries`, `mark_email_sent` and `mark_email_failed` (SECURITY DEFINER;
+  exponential backoff capped at one hour; `failed` after the attempt limit). A failed email never
+  affects the in-app notification or any upstream flow.
+- `proposal_participant` — projection of each Proposal's submitter and approver, built from
+  `proposal.submitted` / `proposal.approved`, because later events do not repeat the submitter.
 
-Postgres role `notify_svc` has access to schema `notify` only.
+All tables force row-level security on `org_id`. Postgres role `notify_svc` has access to schema
+`notify` only and holds no DELETE grant.
+
+## Routing (implemented in `src/domain/routing.ts`)
+
+| Event | Recipients |
+|---|---|
+| `proposal.submitted` | holders of `approval.approve`, never the submitter (FLOW-013) |
+| `proposal.blocked` | the submitter |
+| `proposal.approved` | the submitter |
+| `proposal.published` | the submitter, the approver and holders of `execution.mark_implemented` |
+| `override.requested` | holders of `override.approve` |
+| `override.approved` | the requester |
+| `import.committed` | the uploader |
+
+Nobody is notified of their own action (except the uploader, whose import finishes later).
+Messages never contain prices, costs or margins (`src/domain/templates.ts`).
+
+## Status
+
+Implemented and tested: schema, routing, templates, event decoding, the idempotent
+`handleEvent` handler and the inbox/preference repository. Not yet built: the bus subscriber and
+server entrypoint, the ZeptoMail sender, the gRPC API (needs `make proto`), and the RBAC-backed
+`RecipientDirectory` (needs an RBAC lookup RPC; `rbac.active_role_codes` and the membership
+tables already exist on the RBAC side).
 
 ---
 

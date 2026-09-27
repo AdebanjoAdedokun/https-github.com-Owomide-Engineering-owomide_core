@@ -1,0 +1,24 @@
+{
+  "name": "@owomide/notify",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:unit": "vitest run src/tests/unit",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.12.1",
+    "@owomide/proto": "workspace:*",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^10.28.0",
+    "@types/node": "^22.15.0",
+    "@types/pg": "^8.15.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.2.3"
+  }
+}
