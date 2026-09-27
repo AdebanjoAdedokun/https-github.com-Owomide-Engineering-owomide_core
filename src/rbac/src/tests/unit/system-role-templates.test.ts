@@ -14,11 +14,14 @@ const EXPECTED_ROLE_CODES = [
   "viewer",
   "auditor",
   "ai_assistant",
+  "workspace_admin",
 ];
 
 describe("system role templates", () => {
-  it("covers exactly the 11 system roles", () => {
-    expect(SYSTEM_ROLE_TEMPLATES.map((r) => r.code).sort()).toEqual([...EXPECTED_ROLE_CODES].sort());
+  it("covers exactly the 12 system roles", () => {
+    expect(SYSTEM_ROLE_TEMPLATES.map((r) => r.code).sort()).toEqual(
+      [...EXPECTED_ROLE_CODES].sort()
+    );
   });
 
   it("every grant references a real permission in the catalog", () => {
@@ -46,6 +49,24 @@ describe("system role templates", () => {
       "execution.mark_implemented",
     ]) {
       expect(ai?.grants).not.toContain(forbidden);
+    }
+  });
+
+  it("workspace_admin administers a workspace but holds no authority over prices or people", () => {
+    const admin = SYSTEM_ROLE_TEMPLATES.find((r) => r.code === "workspace_admin");
+    expect(admin?.grants).toContain("workspace.manage_members");
+    for (const forbidden of [
+      "cost_data.read",
+      "proposal.create_draft",
+      "proposal.submit",
+      "approval.approve",
+      "override.approve",
+      "execution.mark_implemented",
+      "org_user.invite",
+      "org_user.assign_role",
+      "org_settings.update",
+    ]) {
+      expect(admin?.grants).not.toContain(forbidden);
     }
   });
 

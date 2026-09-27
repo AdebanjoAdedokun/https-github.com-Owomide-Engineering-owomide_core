@@ -6,7 +6,7 @@ permission by calling `CheckPermission` over Connect/gRPC — they never read
 
 ## Ownership
 
-- `rbac.role` — the 11 global system roles (`org_id IS NULL`, `is_system = true`)
+- `rbac.role` — the 12 global system roles (11 from 0003, `workspace_admin` from 0006) (`org_id IS NULL`, `is_system = true`)
   and, later, per-org custom roles (`org_id` set, `is_system = false`).
 - `rbac.role_permission` — one row per **granted** permission. No row means Deny;
   there is no allow/deny column.
@@ -55,6 +55,44 @@ an existing role's grants into a new org-owned custom role) is tracked in
 - `rbac_svc` can only read `role` and `role_permission` (`0004_lock_system_roles`): the global
   system roles are shared by every tenant, so only migrations change them. A future write RPC
   (`DuplicateRole`) grants exactly what it needs in its own migration.
+
+### Organisations, membership and support access (migration 0005)
+
+Decisions D-02 and D-03; PRD ORG-001 to ORG-015. Authority is meant to come from these stored
+rows, resolved per request by `rbac.active_role_codes(org_id, identity_subject)`, rather than
+from token claims. `CheckPermission` still takes roles from the request until the gateway
+resolves them (that needs a new RPC and a `make proto` run).
+
+- `organisation` — name, country, default currency and time zone, AI data policy (AI-036), and
+  `enabled_role_codes` (Release 1: account_owner, pricing_manager, finance_approver, executor).
+  Tax defaults and the calculation cost basis are pricing settings owned by Catalog
+  (`catalog.pricing_settings`), not RBAC. Created only through `rbac.create_organisation(...)`
+  (SECURITY DEFINER), which also creates the creator's account, active membership, Account Owner
+  role and first access-log entry.
+- `user_account` — one row per person across organisations, keyed by the identity provider's
+  subject. Not tenant data.
+- `membership` — status `invited` | `active` | `suspended` | `removed`.
+- `role_assignment` — only enabled roles can be assigned; rows are revoked, never changed or deleted.
+- An organisation always keeps at least one active Account Owner (deferred constraint trigger,
+  so an ownership transfer inside one transaction works).
+- `invitation` — stores only a SHA-256 of the one-time token; expires within 14 days.
+- `support_access_grant` — purpose, start and a required end at most 30 days later; revoked,
+  never changed.
+- `access_log` — append-only; every support action records its grant id.
+- No DELETE grant to `rbac_svc` on any of these tables.
+
+`CheckPermission` refuses the permissions in `src/support-access.ts` (submit, approve, reject,
+request changes, override approve, mark implemented, schedule, confirm governance changes,
+invite, assign roles, deactivate users) whenever the request carries `x-support-grant-id`,
+whatever roles are present.
+
+### Workspace Admin (migration 0006)
+
+Decision D-02. `workspace_admin` is seeded as a 12th system role with 14 grants: workspace settings
+and members, templates, assignments, and read access to what it administers. It has no cost data,
+no drafting, submitting, approving, overriding or implementing, and no organisation-level user or
+role administration. Release 1 organisations do not list it in `enabled_role_codes`, so it cannot
+be assigned until an organisation enables it (Release 2).
 
 ## Runtime
 

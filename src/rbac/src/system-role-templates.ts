@@ -1,6 +1,7 @@
 // GENERATED FROM docs/rbac/role_permissions.csv — transcribed once during F0.10.
-// The 11 system roles and their Allow-only grant lists. Consumed exclusively by the
-// 0003_seed_system_roles migration — never imported at request time. See src/rbac/CLAUDE.md.
+// The system roles and their Allow-only grant lists. The first 11 are seeded by
+// 0003_seed_system_roles; workspace_admin (decision D-02) by 0006_seed_workspace_admin_role.
+// Never imported at request time. See src/rbac/CLAUDE.md.
 
 export interface SystemRoleTemplate {
   readonly code: string;
@@ -269,5 +270,24 @@ export const SYSTEM_ROLE_TEMPLATES: readonly SystemRoleTemplate[] = [
       "comment.create",
     ],
   },
+  {
+    code: "workspace_admin",
+    name: "Workspace Admin",
+    grants: [
+      "workspace.configure",
+      "workspace.manage_members",
+      "org_settings.read",
+      "catalogue_item.read",
+      "proposal.read",
+      "proposal.version_history_read",
+      "margin_guardrail.read",
+      "policy_guardrail.read",
+      "audit_trail.read",
+      "template.manage",
+      "template.use",
+      "comment.create",
+      "assignment.assign",
+      "notification_prefs.manage_own",
+    ],
+  },
 ];
-
