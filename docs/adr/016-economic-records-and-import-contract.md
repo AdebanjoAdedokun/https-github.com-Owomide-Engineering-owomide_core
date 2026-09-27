@@ -2,11 +2,14 @@
 
 ## Status
 
-Proposed; partly implemented (see Implementation notes). This is the records and import slice of CT-02 (issue #52), drafted 27 September 2026 for
-BE-02 and FE-02. It follows decisions D-04 and D-06 and conventions C-1 to C-6 in
-`docs/product/mvp-2026-09/delivery/DECISIONS.md`. It pairs with ADR-015 (pricing engine), which
-consumes the resolved records defined here. It needs lead engineer review before any runtime code
-changes.
+Proposed; partly implemented (see Implementation notes). This is the records and import slice of
+CT-02 (issue #52), drafted 27 September 2026 for BE-02 and FE-02. It assumes the CEO's proposed
+options for D-04 and D-06. None is ratified: `DECISIONS.md` holds no ratification record for them
+yet, and if a ratified choice differs, this ADR changes with it. Conventions C-1 to C-6 are proposed
+in ADR-015. It is input to the team's CT-02 draft
+(`docs/product/mvp-2026-09/delivery/CT-02-contract-draft.md`); where the two differ, the draft and
+its review govern. It pairs with ADR-015 (pricing engine), which consumes the resolved records
+defined here. It needs lead engineer review before any runtime code changes.
 
 ## Context
 
