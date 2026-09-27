@@ -32,17 +32,50 @@ export class AiUnavailableError extends Error {
 // Field names that carry cost or anything derived from cost.
 const COST_DERIVED = /cost|margin|markup|profit/i;
 
-/** Removes cost-derived fields at every depth. Other values are copied unchanged. */
-export function redactCostData(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(redactCostData);
+// Fields that hold a check's result. A margin or markup guardrail result such as
+// { kind: "min_margin", state: "Breach", actual: 12.3, gap: -2.7 } reveals the margin through
+// field names the key test above cannot see, so the whole result is removed.
+const RESULT_FIELDS = ["actual", "gap", "state", "status", "threshold", "limit"];
+
+function identifies(value: unknown): boolean {
+  return typeof value === "string" && COST_DERIVED.test(value);
+}
+
+function isCostDerivedCheck(obj: Record<string, unknown>): boolean {
+  const inner =
+    obj.guardrail !== null && typeof obj.guardrail === "object"
+      ? (obj.guardrail as Record<string, unknown>)
+      : {};
+  const named = [obj.kind, obj.type, obj.name, inner.kind, inner.type, inner.name].some(identifies);
+  return named && RESULT_FIELDS.some((field) => field in obj);
+}
+
+const REMOVED = Symbol("removed");
+
+function redact(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(redact).filter((item) => item !== REMOVED);
   if (value !== null && typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    if (isCostDerivedCheck(obj)) return REMOVED;
     const out: Record<string, unknown> = {};
-    for (const [key, inner] of Object.entries(value as Record<string, unknown>)) {
-      if (!COST_DERIVED.test(key)) out[key] = redactCostData(inner);
+    for (const [key, inner] of Object.entries(obj)) {
+      if (COST_DERIVED.test(key)) continue;
+      const kept = redact(inner);
+      if (kept !== REMOVED) out[key] = kept;
     }
     return out;
   }
   return value;
+}
+
+/**
+ * Removes cost-derived data at every depth: fields named for cost, margin, markup or profit, and
+ * the results of margin, markup and cost checks (whose figures sit in fields such as `actual`).
+ * Other values are copied unchanged.
+ */
+export function redactCostData(value: unknown): unknown {
+  const out = redact(value);
+  return out === REMOVED ? {} : out;
 }
 
 export interface SummaryInput {

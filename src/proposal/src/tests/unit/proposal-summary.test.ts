@@ -77,6 +77,36 @@ describe("AI data policy", () => {
       type: "cost_driven_repricing",
     });
   });
+
+  it("removes margin and markup check results, whose figures hide behind other field names", () => {
+    const line = {
+      sku_id: "sku-1",
+      proposed_price_minor: 118000,
+      guardrails: [
+        {
+          guardrail: { kind: "min_margin", threshold: 15 },
+          state: "Breach",
+          actual: 12.3,
+          gap: -2.7,
+        },
+        { kind: "markup_floor", status: "Within", actual: 31 },
+        { guardrail: { kind: "max_increase", threshold: 12 }, state: "Within", actual: 8, gap: 4 },
+      ],
+    };
+    expect(redactCostData(line)).toEqual({
+      sku_id: "sku-1",
+      proposed_price_minor: 118000,
+      guardrails: [
+        { guardrail: { kind: "max_increase", threshold: 12 }, state: "Within", actual: 8, gap: 4 },
+      ],
+    });
+  });
+
+  it("keeps a record whose type mentions cost when it carries no check result", () => {
+    expect(
+      redactCostData({ type: "cost_driven_repricing", title: "Supplier increase", objective: "x" })
+    ).toEqual({ type: "cost_driven_repricing", title: "Supplier increase", objective: "x" });
+  });
 });
 
 describe("summariseProposal", () => {

@@ -173,7 +173,9 @@ Decision D-06. The execution file goes to store staff and never carries cost, ma
   below the minimum cacheable size, so no prompt caching is configured.
 - The organisation's AI data policy is applied first: `disabled` sends nothing,
   `enabled_without_cost_margin` removes every field whose name mentions cost, margin, markup or
-  profit, at any depth. Free-text fields (objectives, reasons) are sent as written.
+  profit, and the whole result of any margin, markup or cost check (its `actual` and `gap` reveal
+  the margin), at any depth. Free-text fields (objectives, reasons) are sent as written, so a
+  reason that quotes a cost is sent too.
 - Customer data goes in the user turn inside `<proposal>` tags, as data. A refusal, an empty or an
   over-long answer stores nothing. `src/repo/ai-suggestion-repository.ts` records the result
   (with the model that actually answered) and applies it once.
