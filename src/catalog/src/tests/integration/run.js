@@ -8,6 +8,10 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const tests = [
   path.resolve(dirname, "../../../dist_integration/tests/integration/catalog.integration.test.js"),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/tax-basis-resolution.integration.test.js"
+  ),
 ];
 
 process.argv = [

@@ -47,6 +47,35 @@ Caller identity is a signed, short-lived service JWT with audience `catalog`. `o
 - Catalog events are written to `outbox_event` in the same transaction. The worker provides at-least-once delivery; stable event IDs provide logical deduplication to consumers.
 - Never claim transport-level exactly-once delivery.
 
+## Tax basis, cost units and resolution (migration 0003)
+
+ADR-016; decision D-04 (VAT-inclusive at 7.5%, landed cost); PRD DATA-003, DATA-004, DATA-022.
+
+- `price_record.tax_inclusive`, `tax_rate_bp` (basis points, 7.5% = 750) and `tax_basis_source`
+  (`explicit` | `organisation_default` | `unspecified`). A record with no stated basis is
+  `unspecified` with `tax_inclusive` NULL. It is never assumed to be tax-exclusive. (This replaces
+  ADR-016's "backfill `false`" so unknown and exclusive stay distinguishable.)
+- `cost_record.unit` (lower-case code, default `each`).
+- `pricing_settings`, one row per organisation: default tax basis and rate, the
+  `calculation_cost_basis` (D-04: `landed`) and the `default_channel_id` used for organisation-wide
+  prices. Written only through `catalog.configure_pricing_settings(...)`, which also creates the
+  `default` channel.
+- A new price record without a stated basis takes the organisation default when it is written
+  (trigger `price_record_apply_default_tax_basis`). Changing the default never rewrites stored
+  records. Fragments copy their parent's basis, and the cost unit, exactly.
+- Re-importing an `unspecified` price after a default exists replaces it (`UPDATED`), so early
+  imports can be corrected without new files.
+- `catalog.resolve_current_prices(contexts jsonb, at timestamptz)` and
+  `catalog.resolve_applicable_costs(contexts jsonb, at timestamptz)` return one row per context in
+  input order, with an `unavailable_reason` instead of a guess:
+  `NO_APPLICABLE_PRICE_RECORD`, `TAX_BASIS_MISSING`, `TAX_RATE_MISSING_FOR_INCLUSIVE_PRICE`,
+  `NO_APPLICABLE_COST_RECORD`, `COST_BASIS_REQUIRES_SELECTION`, `COST_CURRENCY_INCOMPATIBLE`,
+  `COST_UNIT_INCOMPATIBLE`. Prices resolve for the exact context only. Costs use only the configured
+  basis and prefer the exact location to a location-less record (convention C-6).
+
+Not yet exposed over Connect: the write proto has no tax fields and there are no resolve RPCs.
+Both need `make proto`. Until then imports rely on the organisation default.
+
 ## Runtime
 
 - Connect/gRPC server: `50052`
