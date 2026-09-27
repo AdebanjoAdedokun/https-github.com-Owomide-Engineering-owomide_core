@@ -42,6 +42,11 @@ const gatewaySecret = "gateway-integration-secret-that-is-at-least-32-chars";
 const pipelineSecret = "pipeline-integration-secret-that-is-at-least-32-chars";
 const proposalSecret = "proposal-integration-secret-that-is-at-least-32-chars";
 const orgA = "org-integration-a";
+const CATALOG_MIGRATIONS = [
+  "0001_create_schema.up.sql",
+  "0002_catalog_foundation.up.sql",
+  "0003_tax_basis_cost_unit_resolution.up.sql",
+];
 const orgB = "org-integration-b";
 
 type UnaryClient<I extends DescMessage, O> = (
@@ -70,7 +75,7 @@ async function serviceToken(service: string, secret: string): Promise<string> {
 }
 
 describe("Catalog service integration", () => {
-  let container: StartedPostgreSqlContainer;
+  let container: StartedPostgreSqlContainer | undefined;
   let admin: pg.Client;
   let database: Database;
   let client: CatalogTestClient;
@@ -89,20 +94,29 @@ describe("Catalog service integration", () => {
     });
 
   beforeAll(async () => {
-    container = await new PostgreSqlContainer("postgres:16-alpine")
-      .withDatabase("owomide_catalog_test")
-      .start();
-    admin = new pg.Client({ connectionString: container.getConnectionUri() });
+    // CATALOG_TEST_DATABASE_URL (a superuser URL for an empty database) replaces the container
+    // where Docker is unavailable.
+    let adminUrl = process.env.CATALOG_TEST_DATABASE_URL;
+    if (!adminUrl) {
+      container = await new PostgreSqlContainer("postgres:16-alpine")
+        .withDatabase("owomide_catalog_test")
+        .start();
+      adminUrl = container.getConnectionUri();
+    }
+    admin = new pg.Client({ connectionString: adminUrl });
     await admin.connect();
-    await admin.query("CREATE ROLE catalog_svc LOGIN PASSWORD 'catalog_test'");
+    await admin.query(
+      "DO $$ BEGIN CREATE ROLE catalog_svc LOGIN PASSWORD 'catalog_test'; " +
+        "EXCEPTION WHEN duplicate_object THEN NULL; END $$"
+    );
     await admin.query("CREATE SCHEMA catalog");
     await admin.query("GRANT USAGE ON SCHEMA catalog TO catalog_svc");
-    for (const filename of ["0001_create_schema.up.sql", "0002_catalog_foundation.up.sql"]) {
+    for (const filename of CATALOG_MIGRATIONS) {
       const up = readFileSync(resolve(process.cwd(), "migrations", filename), "utf8");
       await admin.query(up);
     }
 
-    const runtimeUrl = new URL(container.getConnectionUri());
+    const runtimeUrl = new URL(adminUrl);
     runtimeUrl.username = "catalog_svc";
     runtimeUrl.password = "catalog_test";
     database = new Database({
@@ -129,8 +143,11 @@ describe("Catalog service integration", () => {
 
   afterAll(async () => {
     await database?.close();
-    for (const filename of ["0002_catalog_foundation.down.sql", "0001_create_schema.down.sql"]) {
-      const down = readFileSync(resolve(process.cwd(), "migrations", filename), "utf8");
+    for (const filename of [...CATALOG_MIGRATIONS].reverse()) {
+      const down = readFileSync(
+        resolve(process.cwd(), "migrations", filename.replace(".up.sql", ".down.sql")),
+        "utf8"
+      );
       await admin?.query(down);
     }
     const extension = await admin?.query(

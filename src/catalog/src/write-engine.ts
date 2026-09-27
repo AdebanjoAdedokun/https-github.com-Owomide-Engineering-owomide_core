@@ -945,10 +945,10 @@ export class CatalogWriteEngine {
       for (const [start, end] of this.fragments(row, incomingStart, incomingEnd)) {
         await client.query(
           `INSERT INTO catalog.cost_record (
-             org_id, sku_id, location_id, cost_type, amount_minor, currency,
+             org_id, sku_id, location_id, cost_type, amount_minor, currency, unit,
              effective_at, effective_until, recorded_at, source_type, source_ref,
              source_item_ref, actor_id, write_operation_id, derived_from_record_id
-           ) SELECT org_id, sku_id, location_id, cost_type, amount_minor, currency,
+           ) SELECT org_id, sku_id, location_id, cost_type, amount_minor, currency, unit,
              $2, $3, $4, source_type, source_ref, source_item_ref, actor_id, $5, id
            FROM catalog.cost_record WHERE id = $1`,
           [row.id, start, end, now, operationId]
@@ -1004,10 +1004,17 @@ export class CatalogWriteEngine {
         input.end,
       ]
     );
+    // A record stored without a tax basis is not "unchanged" once the organisation has a default:
+    // re-importing it replaces it with a record that carries the default (ADR-016).
+    const defaults = await client.query<{ has_default: boolean }>(
+      "SELECT default_tax_inclusive IS NOT NULL AS has_default FROM catalog.pricing_settings"
+    );
+    const hasDefaultTaxBasis = defaults.rows[0]?.has_default === true;
     const same = overlaps.rows.find(
       (row) =>
         BigInt(row.amount_minor) === input.amountMinor &&
-        containsPeriod(row, input.start, input.end)
+        containsPeriod(row, input.start, input.end) &&
+        !(hasDefaultTaxBasis && row.tax_basis_source === "unspecified")
     );
     if (same) return { id: same.id, status: WriteStatus.UNCHANGED };
     await this.supersedeAndFragmentPrice(
@@ -1065,10 +1072,12 @@ export class CatalogWriteEngine {
         await client.query(
           `INSERT INTO catalog.price_record (
              org_id, sku_id, channel_id, location_id, customer_segment_id, amount_minor,
-             currency, effective_at, effective_until, recorded_at, source_type, source_ref,
-             source_item_ref, actor_id, write_operation_id, derived_from_record_id
+             currency, tax_inclusive, tax_rate_bp, tax_basis_source, effective_at,
+             effective_until, recorded_at, source_type, source_ref, source_item_ref, actor_id,
+             write_operation_id, derived_from_record_id
            ) SELECT org_id, sku_id, channel_id, location_id, customer_segment_id, amount_minor,
-             currency, $2, $3, $4, source_type, source_ref, source_item_ref, actor_id, $5, id
+             currency, tax_inclusive, tax_rate_bp, tax_basis_source, $2, $3, $4, source_type,
+             source_ref, source_item_ref, actor_id, $5, id
            FROM catalog.price_record WHERE id = $1`,
           [row.id, start, end, now, operationId]
         );
