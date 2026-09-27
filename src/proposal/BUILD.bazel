@@ -44,6 +44,7 @@ ts_project(
     tsconfig = ":tsconfig",
     visibility = ["//visibility:public"],
     deps = [
+        ":node_modules/@anthropic-ai/sdk",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@connectrpc/connect-node",
@@ -79,6 +80,7 @@ ts_project(
     tsconfig = ":tsconfig_test",
     deps = [
         ":proposal_ts",
+        ":node_modules/@anthropic-ai/sdk",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@types/node",
@@ -110,6 +112,7 @@ ts_project(
     source_map = True,
     tsconfig = ":tsconfig_integration",
     deps = [
+        ":node_modules/@anthropic-ai/sdk",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@connectrpc/connect-node",
@@ -132,6 +135,7 @@ js_test(
     chdir = package_name(),
     data = [
         ":integration_tests_ts",
+        ":node_modules/@anthropic-ai/sdk",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@testcontainers/postgresql",
@@ -152,6 +156,12 @@ js_test(
         "migrations/0006_execution_handoff_record.up.sql",
         "migrations/0007_activity_history.down.sql",
         "migrations/0007_activity_history.up.sql",
+        "migrations/0008_initiative_lifecycle.down.sql",
+        "migrations/0008_initiative_lifecycle.up.sql",
+        "migrations/0009_cycle_times.down.sql",
+        "migrations/0009_cycle_times.up.sql",
+        "migrations/0010_ai_suggestion.down.sql",
+        "migrations/0010_ai_suggestion.up.sql",
     ],
     env = {"NODE_OPTIONS": "--experimental-global-webcrypto"},
     entry_point = "src/tests/integration/run.js",

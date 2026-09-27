@@ -142,6 +142,52 @@ Decision D-06. The execution file goes to store staff and never carries cost, ma
   `activity_kind_order`, then source row); `src/domain/activity.ts` `describeActivity` turns an
   entry into one plain-language sentence for the history panel.
 
+### Initiative lifecycle (migration 0008)
+
+- An Initiative's `lifecycle_state` changes only by inserting an `initiative_transition`, and only
+  along the moves in `initiative_lifecycle_rule` (mirrored by `src/domain/initiative-lifecycle.ts`;
+  an integration test keeps them identical). Pausing, cancelling and going backwards need a reason.
+  `completed` and `cancelled` are final. New Initiatives start `initiated`.
+- `proposal_svc` may update only an Initiative's title, objective, priority, owner and overlap
+  acknowledgement. The state is applied by the SECURITY DEFINER transition trigger; a direct
+  update is refused even for the table owner.
+
+### Measurement (migration 0009)
+
+- `version_cycle_time` and `initiative_cycle_time` (security_invoker views) give seconds from
+  creation to submission, submission to decision, decision to export and to the first line on the
+  shelf (failed lines do not count), per version and per Initiative (PRD HIST-030).
+
+### AI suggestions (migration 0010)
+
+- `ai_suggestion` — every AI output for a submitted, frozen version, stored exactly as returned
+  with model, prompt version, input hash and the data policy it ran under (decision D-01,
+  suggest-only). A person applies it once (`applied_by`, `applied_at`, `applied_text`, the only
+  columns the service may update). Never deleted.
+
+### AI proposal summary (`src/ai/proposal-summary.ts`)
+
+- Summarises a frozen version for the approver with `@anthropic-ai/sdk`, model `claude-opus-5`,
+  adaptive thinking at medium effort, server-side refusal fallbacks (`fallbacks: "default"`,
+  beta `server-side-fallback-2026-07-01`), 60-second timeout and two retries. The system prompt is
+  below the minimum cacheable size, so no prompt caching is configured.
+- The organisation's AI data policy is applied first: `disabled` sends nothing,
+  `enabled_without_cost_margin` removes every field whose name mentions cost, margin, markup or
+  profit, and the whole result of any margin, markup or cost check (its `actual` and `gap` reveal
+  the margin), at any depth. Free-text fields (objectives, reasons) are sent as written, so a
+  reason that quotes a cost is sent too.
+- Customer data goes in the user turn inside `<proposal>` tags, as data. A refusal, an empty or an
+  over-long answer stores nothing. `src/repo/ai-suggestion-repository.ts` records the result
+  (with the model that actually answered) and applies it once.
+- Needs `ANTHROPIC_API_KEY` in the Proposal service's environment, and the AI provider terms and
+  data-processing review (open founder decision) before it is switched on for a pilot.
+
+### Frozen snapshot
+
+- `src/domain/snapshot.ts` builds the frozen version document in canonical JSON (sorted keys,
+  fixed line order, integers or decimal strings only) and its `sha256:` fingerprint for
+  `proposal_version.snapshot` / `snapshot_hash`.
+
 ### Bulk repricing tables
 
 - `change_set` — id, org_id, status (`draft` | `submitted` | `discarded`), **actor_id** (creator), scope JSONB, rule JSONB, created_at, updated_at, submitted_at (nullable), proposal_id (nullable, set on submit).
