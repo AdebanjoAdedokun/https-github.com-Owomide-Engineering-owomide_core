@@ -129,6 +129,14 @@ Logical event duplicates use one deterministic event ID so consumers can dedupli
   its pricing settings. The normalised fields are staged in `mapped_data`; sending them to Catalog
   needs the tax fields on `PriceWrite` / `CostWrite` (`make proto`).
 
+## Template presets (`template_presets.py`)
+
+`owomide_prices_v1` and `owomide_costs_v1` map Owómidé's own import templates with no manual
+mapping, validated by the mapping-template rules. `location` and `source` are left unmapped (no
+canonical target or code-to-id lookup yet), so Release 1 files must not carry location rows. A
+products file cannot be imported alone because every row needs a price or a cost. Exposing the
+presets through `ListMappingTemplates` needs a proto change.
+
 ## F7.3-F7.4 Intelligence Scope
 
 F7.3 provides immutable historical FX snapshots, bitemporal lookup, exact cross rates, and

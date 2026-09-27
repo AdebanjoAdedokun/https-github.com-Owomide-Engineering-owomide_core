@@ -29,6 +29,7 @@ py_library(
         "owomide_data_pipeline/service.py",
         "owomide_data_pipeline/storage.py",
         "owomide_data_pipeline/streaming.py",
+        "owomide_data_pipeline/template_presets.py",
         "owomide_data_pipeline/transformations.py",
         "owomide_data_pipeline/validation.py",
     ],
@@ -255,4 +256,11 @@ py_test(
         "@data_pipeline_pip//psycopg_binary",
         "@data_pipeline_pip//pyjwt",
     ],
+)
+
+py_test(
+    name = "template_presets_test",
+    srcs = ["tests/test_template_presets.py"],
+    main = "tests/test_template_presets.py",
+    deps = [":runtime"],
 )
