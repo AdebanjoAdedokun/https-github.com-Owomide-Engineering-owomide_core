@@ -190,6 +190,14 @@ REVOKE ALL ON FUNCTION notify.claim_email_deliveries(integer, integer) FROM PUBL
 REVOKE ALL ON FUNCTION notify.mark_email_sent(uuid, text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION notify.mark_email_failed(uuid, text, integer) FROM PUBLIC;
 
+-- The migration runner grants SELECT, INSERT, UPDATE and DELETE on every new table by default,
+-- so what is not allowed is revoked explicitly: nothing is deleted, notifications change only by
+-- being marked read, and deliveries change only through the SECURITY DEFINER functions.
+REVOKE UPDATE, DELETE ON notify.notification FROM notify_svc;
+REVOKE DELETE ON notify.notification_preference FROM notify_svc;
+REVOKE UPDATE, DELETE ON notify.email_delivery FROM notify_svc;
+REVOKE DELETE ON notify.proposal_participant FROM notify_svc;
+
 GRANT EXECUTE ON FUNCTION notify.current_org_id() TO notify_svc;
 GRANT SELECT, INSERT ON notify.notification TO notify_svc;
 GRANT UPDATE (read_at) ON notify.notification TO notify_svc;
