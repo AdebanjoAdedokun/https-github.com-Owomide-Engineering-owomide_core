@@ -82,7 +82,7 @@ def exact(value: str | int | Fraction) -> Fraction:
 
 def tax_exclusive(amount: Value, tax_inclusive: bool | None, rate_pct: Fraction | None) -> Value:
     """Calculation price. Tax-exclusive = tax-inclusive / (1 + rate)."""
-    if is_unavailable(amount):
+    if isinstance(amount, Unavailable):
         return amount
     if tax_inclusive is None:
         return Unavailable("tax_basis_unknown")
@@ -94,7 +94,7 @@ def tax_exclusive(amount: Value, tax_inclusive: bool | None, rate_pct: Fraction 
 
 
 def tax_inclusive(excl: Value, rate_pct: Fraction | None) -> Value:
-    if is_unavailable(excl):
+    if isinstance(excl, Unavailable):
         return excl
     if rate_pct is None:
         return Unavailable("tax_rate_missing")
@@ -105,17 +105,17 @@ def tax_inclusive(excl: Value, rate_pct: Fraction | None) -> Value:
 
 
 def gross_profit(price: Value, cost: Value) -> Value:
-    if is_unavailable(price):
+    if isinstance(price, Unavailable):
         return price
-    if is_unavailable(cost):
+    if isinstance(cost, Unavailable):
         return cost
     return price - cost
 
 
 def gross_margin_pct(price: Value, cost: Value) -> Value:
-    if is_unavailable(price):
+    if isinstance(price, Unavailable):
         return price
-    if is_unavailable(cost):
+    if isinstance(cost, Unavailable):
         return cost
     if price <= 0:
         return Unavailable("price_not_positive")
@@ -123,9 +123,9 @@ def gross_margin_pct(price: Value, cost: Value) -> Value:
 
 
 def markup_pct(price: Value, cost: Value) -> Value:
-    if is_unavailable(price):
+    if isinstance(price, Unavailable):
         return price
-    if is_unavailable(cost):
+    if isinstance(cost, Unavailable):
         return cost
     if cost <= 0:
         return Unavailable("cost_not_positive")
@@ -134,7 +134,7 @@ def markup_pct(price: Value, cost: Value) -> Value:
 
 def target_margin_price(cost: Value, target_pct: Fraction, negative_permitted: bool) -> Value:
     """Tax-exclusive price = cost / (1 - target / 100), unrounded."""
-    if is_unavailable(cost):
+    if isinstance(cost, Unavailable):
         return cost
     if cost <= 0:
         return Unavailable("cost_not_positive")
@@ -147,7 +147,7 @@ def target_margin_price(cost: Value, target_pct: Fraction, negative_permitted: b
 
 def target_markup_price(cost: Value, target_pct: Fraction, negative_permitted: bool) -> Value:
     """Tax-exclusive price = cost * (1 + target / 100), unrounded."""
-    if is_unavailable(cost):
+    if isinstance(cost, Unavailable):
         return cost
     if cost <= 0:
         return Unavailable("cost_not_positive")
@@ -164,7 +164,7 @@ def target_markup_price(cost: Value, target_pct: Fraction, negative_permitted: b
 def adjust(baseline: Value, action: str, value: Fraction) -> Value:
     if action == "set_price":
         return value if value >= 0 else Unavailable("negative_price")
-    if is_unavailable(baseline):
+    if isinstance(baseline, Unavailable):
         return baseline
     if value < 0:
         return Unavailable("negative_adjustment_use_opposite_action")
@@ -185,10 +185,10 @@ def adjust(baseline: Value, action: str, value: Fraction) -> Value:
 
 def price_change(current: Value, proposed: Value) -> tuple[Value, Value]:
     """(absolute change, percentage change) against Current Price."""
-    if is_unavailable(current):
+    if isinstance(current, Unavailable):
         missing = Unavailable("current_price_unavailable")
         return missing, missing
-    if is_unavailable(proposed):
+    if isinstance(proposed, Unavailable):
         return proposed, proposed
     pct: Value = (
         Unavailable("zero_baseline") if current == 0 else (proposed - current) / current * _HUNDRED
@@ -201,7 +201,7 @@ def price_change(current: Value, proposed: Value) -> tuple[Value, Value]:
 
 def round_to_increment(value: Value, increment: Fraction, mode: str) -> Value:
     """Commercial rounding. 'nearest' rounds a midpoint up (prices are never negative)."""
-    if is_unavailable(value):
+    if isinstance(value, Unavailable):
         return value
     if increment <= 0:
         raise InvalidPricingRequestError("rounding increment must be positive")
@@ -220,7 +220,7 @@ def round_to_increment(value: Value, increment: Fraction, mode: str) -> Value:
 
 def round_to_minor_unit(value: Value, minor_digits: int = 2) -> Value:
     """Half-up to the currency minor unit. Used only when a value becomes a proposed price."""
-    if is_unavailable(value):
+    if isinstance(value, Unavailable):
         return value
     scaled = Decimal(value.numerator) / Decimal(value.denominator) * (Decimal(10) ** minor_digits)
     return Fraction(int(scaled.quantize(Decimal(1), rounding=ROUND_HALF_UP)), 10**minor_digits)
@@ -376,7 +376,7 @@ def evaluate_line(line: PricingLine) -> LineResult:
         excl_target = derive(line.cost, line.action_value, line.negative_target_permitted)
         unrounded = (
             tax_inclusive(excl_target, line.tax_rate_pct)
-            if line.tax_inclusive and not is_unavailable(excl_target)
+            if line.tax_inclusive and not isinstance(excl_target, Unavailable)
             else excl_target
         )
     else:
@@ -390,11 +390,11 @@ def evaluate_line(line: PricingLine) -> LineResult:
     proposed = _economics(final, line)
     change_abs, change_pct = price_change(line.current_price, final)
     target_met: bool | None = None
-    if line.action in ("target_margin", "target_markup") and not is_unavailable(final):
+    if line.action in ("target_margin", "target_markup") and not isinstance(final, Unavailable):
         achieved = (
             proposed.gross_margin_pct if line.action == "target_margin" else proposed.markup_pct
         )
-        target_met = not is_unavailable(achieved) and achieved == line.action_value
+        target_met = not isinstance(achieved, Unavailable) and achieved == line.action_value
     results = tuple(
         evaluate_guardrail(
             g,

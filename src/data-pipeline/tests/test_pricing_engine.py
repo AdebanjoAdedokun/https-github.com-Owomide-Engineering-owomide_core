@@ -81,7 +81,8 @@ def _line(inputs: dict) -> PricingLine:
 class PricingEngineConformanceTest(unittest.TestCase):
     def assert_value(self, case_id: str, name: str, got: object, want: dict) -> None:
         if "unavailable" in want:
-            self.assertIsInstance(got, Unavailable, f"{case_id} {name}: expected unavailable")
+            if not isinstance(got, Unavailable):
+                self.fail(f"{case_id} {name}: expected unavailable, got {got}")
             self.assertEqual(got.reason, want["unavailable"], f"{case_id} {name}")
         else:
             self.assertNotIsInstance(got, Unavailable, f"{case_id} {name}: got {got}")
