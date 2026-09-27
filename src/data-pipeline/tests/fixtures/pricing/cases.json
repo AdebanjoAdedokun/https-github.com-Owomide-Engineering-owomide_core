@@ -1,0 +1,4482 @@
+{
+  "pack": "Owómidé calculation test pack",
+  "version": "0.1.0",
+  "source": "MVP PRD sections 3.2 and 3.5; conventions in README.md",
+  "cases": [
+    {
+      "id": "CALC-A01",
+      "group": "Tax basis",
+      "title": "PRD example: 1,075 including 7.5% VAT, cost 800, margin 20.0%",
+      "requirements": [
+        "DATA-022",
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "1075",
+        "inclusive": true,
+        "rate": "7.5",
+        "cost": "800",
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1075",
+            "approx": "1075.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "20",
+              "approx": "20.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "current.calculation_price_excl_tax": "1000",
+        "current.gross_margin_pct": "20"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-A02",
+      "group": "Tax basis",
+      "title": "Tax-exclusive price with no tax rate on file still calculates",
+      "requirements": [
+        "DATA-022"
+      ],
+      "inputs": {
+        "current": "1000",
+        "inclusive": false,
+        "rate": null,
+        "cost": "800",
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "20",
+              "approx": "20.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": "An unknown rate must not block a price that is already tax-exclusive."
+    },
+    {
+      "id": "CALC-A03",
+      "group": "Tax basis",
+      "title": "Tax-inclusive price with no tax rate: Unable to Evaluate, never Within",
+      "requirements": [
+        "DATA-022",
+        "ANALYSIS-014",
+        "ANALYSIS-031"
+      ],
+      "inputs": {
+        "current": "1000",
+        "inclusive": true,
+        "rate": null,
+        "cost": "800",
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "tax_rate_missing"
+          },
+          "gross_profit": {
+            "unavailable": "tax_rate_missing"
+          },
+          "gross_margin_pct": {
+            "unavailable": "tax_rate_missing"
+          },
+          "markup_pct": {
+            "unavailable": "tax_rate_missing"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Unable to Evaluate",
+            "reason": "tax_rate_missing"
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-A04",
+      "group": "Tax basis",
+      "title": "Same 1,000 shelf price looks healthy tax-exclusive but breaches once VAT is removed",
+      "requirements": [
+        "DATA-022",
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "1000",
+        "inclusive": true,
+        "rate": "7.5",
+        "cost": "800",
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "40000/43",
+            "approx": "930.232558"
+          },
+          "gross_profit": {
+            "exact": "5600/43",
+            "approx": "130.232558"
+          },
+          "gross_margin_pct": {
+            "exact": "14",
+            "approx": "14.000000"
+          },
+          "markup_pct": {
+            "exact": "700/43",
+            "approx": "16.279070"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Breach",
+            "actual": {
+              "exact": "14",
+              "approx": "14.000000"
+            },
+            "gap_pp": {
+              "exact": "1",
+              "approx": "1.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "current.gross_margin_pct": "14"
+      },
+      "note": "1,000 / 1.075 = 930.23; 800 / 930.23 = 0.86, so margin is exactly 14.0%. Using the shelf price would wrongly show 20%."
+    },
+    {
+      "id": "CALC-A05",
+      "group": "Tax basis",
+      "title": "Tax basis not recorded: calculation unavailable",
+      "requirements": [
+        "DATA-022"
+      ],
+      "inputs": {
+        "current": "1000",
+        "inclusive": null,
+        "rate": "7.5",
+        "cost": "800"
+      },
+      "expected": {
+        "current": {
+          "calculation_price_excl_tax": {
+            "unavailable": "tax_basis_unknown"
+          },
+          "gross_margin_pct": {
+            "unavailable": "tax_basis_unknown"
+          }
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-B01",
+      "group": "Margin and markup",
+      "title": "PRD Margin Exposure example: 1,000 with cost 900 is 10.0%, gap 5 points",
+      "requirements": [
+        "ANALYSIS-031",
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "900",
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "markup_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Breach",
+            "actual": {
+              "exact": "10",
+              "approx": "10.000000"
+            },
+            "gap_pp": {
+              "exact": "5",
+              "approx": "5.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "current.gross_margin_pct": "10",
+        "guardrails.0.gap_pp": "5"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-B02",
+      "group": "Margin and markup",
+      "title": "Margin and markup are different numbers (20% margin = 25% markup)",
+      "requirements": [
+        "ANALYSIS-004",
+        "ANALYSIS-005"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800"
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {
+        "current.gross_margin_pct": "20",
+        "current.markup_pct": "25"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-B03",
+      "group": "Margin and markup",
+      "title": "Zero cost: margin 100%, markup unavailable",
+      "requirements": [
+        "ANALYSIS-005"
+      ],
+      "inputs": {
+        "current": "500",
+        "cost": "0"
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "500",
+            "approx": "500.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "500",
+            "approx": "500.000000"
+          },
+          "gross_profit": {
+            "exact": "500",
+            "approx": "500.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "markup_pct": {
+            "unavailable": "cost_not_positive"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-B04",
+      "group": "Margin and markup",
+      "title": "Zero price: margin unavailable, markup -100%",
+      "requirements": [
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "0",
+        "cost": "400"
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "0",
+            "approx": "0.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "0",
+            "approx": "0.000000"
+          },
+          "gross_profit": {
+            "exact": "-400",
+            "approx": "-400.000000"
+          },
+          "gross_margin_pct": {
+            "unavailable": "price_not_positive"
+          },
+          "markup_pct": {
+            "exact": "-100",
+            "approx": "-100.000000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-B05",
+      "group": "Margin and markup",
+      "title": "Price below cost gives a negative margin, shown as it is",
+      "requirements": [
+        "ANALYSIS-003",
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "800",
+        "cost": "900",
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "800",
+            "approx": "800.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "800",
+            "approx": "800.000000"
+          },
+          "gross_profit": {
+            "exact": "-100",
+            "approx": "-100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "-25/2",
+            "approx": "-12.500000"
+          },
+          "markup_pct": {
+            "exact": "-100/9",
+            "approx": "-11.111111"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Breach",
+            "actual": {
+              "exact": "-25/2",
+              "approx": "-12.500000"
+            },
+            "gap_pp": {
+              "exact": "55/2",
+              "approx": "27.500000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-B06",
+      "group": "Margin and markup",
+      "title": "No applicable cost: every cost metric unavailable, guardrail Unable to Evaluate",
+      "requirements": [
+        "DATA-004",
+        "ANALYSIS-003",
+        "ANALYSIS-014"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": null,
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "gross_margin_pct": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "markup_pct": {
+            "unavailable": "no_applicable_cost_record"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Unable to Evaluate",
+            "reason": "no_applicable_cost_record"
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-B07",
+      "group": "Margin and markup",
+      "title": "Very large amounts keep exact precision",
+      "requirements": [
+        "ANALYSIS-023"
+      ],
+      "inputs": {
+        "current": "4999999999.99",
+        "cost": "3333333333.33"
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "499999999999/100",
+            "approx": "4999999999.99"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "499999999999/100",
+            "approx": "4999999999.990000"
+          },
+          "gross_profit": {
+            "exact": "83333333333/50",
+            "approx": "1666666666.660000"
+          },
+          "gross_margin_pct": {
+            "exact": "16666666666600/499999999999",
+            "approx": "33.333333"
+          },
+          "markup_pct": {
+            "exact": "16666666666600/333333333333",
+            "approx": "50.000000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C01",
+      "group": "Targets",
+      "title": "PRD J1: cost 900, target margin 18%, round to nearest 10 gives 1,100 (+10%, 18.2%)",
+      "requirements": [
+        "ANALYSIS-004",
+        "ANALYSIS-023",
+        "BUILD-013"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "900",
+        "action": {
+          "type": "target_margin",
+          "value": "18"
+        },
+        "rounding": {
+          "increment": "10",
+          "mode": "nearest"
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          },
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "markup_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "45000/41",
+            "approx": "1097.560976"
+          },
+          "rounding": {
+            "increment": "10",
+            "mode": "nearest"
+          },
+          "operational_price": {
+            "exact": "1100",
+            "approx": "1100.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1100",
+            "approx": "1100.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "200/11",
+            "approx": "18.181818"
+          },
+          "markup_pct": {
+            "exact": "200/9",
+            "approx": "22.222222"
+          },
+          "change_abs": {
+            "exact": "100",
+            "approx": "100.00"
+          },
+          "change_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "target_met_exactly": false
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "200/11",
+              "approx": "18.181818"
+            }
+          },
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "10",
+              "approx": "10.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "proposed.operational_price": "1100",
+        "proposed.change_pct": "10",
+        "proposed.gross_margin_pct": "200/11",
+        "proposed.target_met_exactly": false
+      },
+      "note": "Unrounded price is 900 / 0.82 = 1,097.56. After rounding the margin is 18.18%, not exactly 18%, and must not be labelled as exactly on target."
+    },
+    {
+      "id": "CALC-C02",
+      "group": "Targets",
+      "title": "Target margin on a VAT-inclusive shelf price: convert first, round the shelf price",
+      "requirements": [
+        "DATA-022",
+        "ANALYSIS-004",
+        "ANALYSIS-023"
+      ],
+      "inputs": {
+        "current": "1075",
+        "inclusive": true,
+        "rate": "7.5",
+        "cost": "900",
+        "action": {
+          "type": "target_margin",
+          "value": "18"
+        },
+        "rounding": {
+          "increment": "10",
+          "mode": "nearest"
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1075",
+            "approx": "1075.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "markup_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "48375/41",
+            "approx": "1179.878049"
+          },
+          "rounding": {
+            "increment": "10",
+            "mode": "nearest"
+          },
+          "operational_price": {
+            "exact": "1180",
+            "approx": "1180.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "47200/43",
+            "approx": "1097.674419"
+          },
+          "gross_profit": {
+            "exact": "8500/43",
+            "approx": "197.674419"
+          },
+          "gross_margin_pct": {
+            "exact": "2125/118",
+            "approx": "18.008475"
+          },
+          "markup_pct": {
+            "exact": "8500/387",
+            "approx": "21.963824"
+          },
+          "change_abs": {
+            "exact": "105",
+            "approx": "105.00"
+          },
+          "change_pct": {
+            "exact": "420/43",
+            "approx": "9.767442"
+          },
+          "target_met_exactly": false
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "2125/118",
+              "approx": "18.008475"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "proposed.operational_price": "1180",
+        "proposed.gross_margin_pct": "212.5/11.8"
+      },
+      "note": "Tax-exclusive target price 1,097.56 becomes 1,179.88 with VAT, rounded to 1,180. Margin on 1,180 / 1.075 is 18.0085%."
+    },
+    {
+      "id": "CALC-C03",
+      "group": "Targets",
+      "title": "Target margin of 100% is refused",
+      "requirements": [
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "900",
+        "action": {
+          "type": "target_margin",
+          "value": "100"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "markup_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "target_margin_at_or_above_100"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "target_margin_at_or_above_100"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "target_margin_at_or_above_100"
+          },
+          "gross_profit": {
+            "unavailable": "target_margin_at_or_above_100"
+          },
+          "gross_margin_pct": {
+            "unavailable": "target_margin_at_or_above_100"
+          },
+          "markup_pct": {
+            "unavailable": "target_margin_at_or_above_100"
+          },
+          "change_abs": {
+            "unavailable": "target_margin_at_or_above_100"
+          },
+          "change_pct": {
+            "unavailable": "target_margin_at_or_above_100"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C04",
+      "group": "Targets",
+      "title": "Target margin of 99.99% is valid and very large",
+      "requirements": [
+        "ANALYSIS-004",
+        "ANALYSIS-023"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "900",
+        "action": {
+          "type": "target_margin",
+          "value": "99.99"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "markup_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "9000000",
+            "approx": "9000000.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "9000000",
+            "approx": "9000000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "9000000",
+            "approx": "9000000.000000"
+          },
+          "gross_profit": {
+            "exact": "8999100",
+            "approx": "8999100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "9999/100",
+            "approx": "99.990000"
+          },
+          "markup_pct": {
+            "exact": "999900",
+            "approx": "999900.000000"
+          },
+          "change_abs": {
+            "exact": "8999000",
+            "approx": "8999000.00"
+          },
+          "change_pct": {
+            "exact": "899900",
+            "approx": "899900.000000"
+          },
+          "target_met_exactly": true
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C05",
+      "group": "Targets",
+      "title": "Negative target margin refused unless the organisation permits it",
+      "requirements": [
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "900",
+        "action": {
+          "type": "target_margin",
+          "value": "-10"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "markup_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "negative_target_not_permitted"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "negative_target_not_permitted"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "negative_target_not_permitted"
+          },
+          "gross_profit": {
+            "unavailable": "negative_target_not_permitted"
+          },
+          "gross_margin_pct": {
+            "unavailable": "negative_target_not_permitted"
+          },
+          "markup_pct": {
+            "unavailable": "negative_target_not_permitted"
+          },
+          "change_abs": {
+            "unavailable": "negative_target_not_permitted"
+          },
+          "change_pct": {
+            "unavailable": "negative_target_not_permitted"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C06",
+      "group": "Targets",
+      "title": "Negative target margin where permitted",
+      "requirements": [
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "900",
+        "action": {
+          "type": "target_margin",
+          "value": "-10"
+        },
+        "negative_target_permitted": true
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "markup_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "9000/11",
+            "approx": "818.181818"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "40909/50",
+            "approx": "818.18"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "40909/50",
+            "approx": "818.180000"
+          },
+          "gross_profit": {
+            "exact": "-4091/50",
+            "approx": "-81.820000"
+          },
+          "gross_margin_pct": {
+            "exact": "-409100/40909",
+            "approx": "-10.000244"
+          },
+          "markup_pct": {
+            "exact": "-4091/450",
+            "approx": "-9.091111"
+          },
+          "change_abs": {
+            "exact": "-9091/50",
+            "approx": "-181.82"
+          },
+          "change_pct": {
+            "exact": "-9091/500",
+            "approx": "-18.182000"
+          },
+          "target_met_exactly": false
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C07",
+      "group": "Targets",
+      "title": "Target margin with zero cost is refused",
+      "requirements": [
+        "ANALYSIS-004"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "0",
+        "action": {
+          "type": "target_margin",
+          "value": "20"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "markup_pct": {
+            "unavailable": "cost_not_positive"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "cost_not_positive"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "cost_not_positive"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "cost_not_positive"
+          },
+          "gross_profit": {
+            "unavailable": "cost_not_positive"
+          },
+          "gross_margin_pct": {
+            "unavailable": "cost_not_positive"
+          },
+          "markup_pct": {
+            "unavailable": "cost_not_positive"
+          },
+          "change_abs": {
+            "unavailable": "cost_not_positive"
+          },
+          "change_pct": {
+            "unavailable": "cost_not_positive"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C08",
+      "group": "Targets",
+      "title": "Target margin with no cost is refused, with the reason",
+      "requirements": [
+        "ANALYSIS-004",
+        "BUILD-014"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": null,
+        "action": {
+          "type": "target_margin",
+          "value": "20"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "gross_margin_pct": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "markup_pct": {
+            "unavailable": "no_applicable_cost_record"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "gross_profit": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "gross_margin_pct": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "markup_pct": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "change_abs": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "change_pct": {
+            "unavailable": "no_applicable_cost_record"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C09",
+      "group": "Targets",
+      "title": "Target markup 25% on cost 800 gives 1,000",
+      "requirements": [
+        "ANALYSIS-005"
+      ],
+      "inputs": {
+        "current": "900",
+        "cost": "800",
+        "action": {
+          "type": "target_markup",
+          "value": "25"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "900",
+            "approx": "900.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "900",
+            "approx": "900.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          },
+          "markup_pct": {
+            "exact": "25/2",
+            "approx": "12.500000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          },
+          "change_abs": {
+            "exact": "100",
+            "approx": "100.00"
+          },
+          "change_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          },
+          "target_met_exactly": true
+        },
+        "guardrails": []
+      },
+      "hand_checked": {
+        "proposed.operational_price": "1000"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-C10",
+      "group": "Targets",
+      "title": "Target markup of -100% where permitted gives a price of 0",
+      "requirements": [
+        "ANALYSIS-005"
+      ],
+      "inputs": {
+        "current": "900",
+        "cost": "800",
+        "action": {
+          "type": "target_markup",
+          "value": "-100"
+        },
+        "negative_target_permitted": true
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "900",
+            "approx": "900.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "900",
+            "approx": "900.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          },
+          "markup_pct": {
+            "exact": "25/2",
+            "approx": "12.500000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "0",
+            "approx": "0.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "0",
+            "approx": "0.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "0",
+            "approx": "0.000000"
+          },
+          "gross_profit": {
+            "exact": "-800",
+            "approx": "-800.000000"
+          },
+          "gross_margin_pct": {
+            "unavailable": "price_not_positive"
+          },
+          "markup_pct": {
+            "exact": "-100",
+            "approx": "-100.000000"
+          },
+          "change_abs": {
+            "exact": "-900",
+            "approx": "-900.00"
+          },
+          "change_pct": {
+            "exact": "-100",
+            "approx": "-100.000000"
+          },
+          "target_met_exactly": true
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C11",
+      "group": "Targets",
+      "title": "Target markup below -100% is refused",
+      "requirements": [
+        "ANALYSIS-005"
+      ],
+      "inputs": {
+        "current": "900",
+        "cost": "800",
+        "action": {
+          "type": "target_markup",
+          "value": "-100.01"
+        },
+        "negative_target_permitted": true
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "900",
+            "approx": "900.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "900",
+            "approx": "900.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          },
+          "markup_pct": {
+            "exact": "25/2",
+            "approx": "12.500000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "target_markup_below_minus_100"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "target_markup_below_minus_100"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "target_markup_below_minus_100"
+          },
+          "gross_profit": {
+            "unavailable": "target_markup_below_minus_100"
+          },
+          "gross_margin_pct": {
+            "unavailable": "target_markup_below_minus_100"
+          },
+          "markup_pct": {
+            "unavailable": "target_markup_below_minus_100"
+          },
+          "change_abs": {
+            "unavailable": "target_markup_below_minus_100"
+          },
+          "change_pct": {
+            "unavailable": "target_markup_below_minus_100"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C12",
+      "group": "Targets",
+      "title": "Target markup with zero cost is refused",
+      "requirements": [
+        "ANALYSIS-005"
+      ],
+      "inputs": {
+        "current": "900",
+        "cost": "0",
+        "action": {
+          "type": "target_markup",
+          "value": "25"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "900",
+            "approx": "900.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "900",
+            "approx": "900.000000"
+          },
+          "gross_profit": {
+            "exact": "900",
+            "approx": "900.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "markup_pct": {
+            "unavailable": "cost_not_positive"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "cost_not_positive"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "cost_not_positive"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "cost_not_positive"
+          },
+          "gross_profit": {
+            "unavailable": "cost_not_positive"
+          },
+          "gross_margin_pct": {
+            "unavailable": "cost_not_positive"
+          },
+          "markup_pct": {
+            "unavailable": "cost_not_positive"
+          },
+          "change_abs": {
+            "unavailable": "cost_not_positive"
+          },
+          "change_pct": {
+            "unavailable": "cost_not_positive"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-C13",
+      "group": "Targets",
+      "title": "Rounding to the kobo can drop a price just below its own margin target",
+      "requirements": [
+        "ANALYSIS-023",
+        "ANALYSIS-014"
+      ],
+      "inputs": {
+        "current": "1300",
+        "cost": "1000",
+        "action": {
+          "type": "target_margin",
+          "value": "30"
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "30",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1300",
+            "approx": "1300.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1300",
+            "approx": "1300.000000"
+          },
+          "gross_profit": {
+            "exact": "300",
+            "approx": "300.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "300/13",
+            "approx": "23.076923"
+          },
+          "markup_pct": {
+            "exact": "30",
+            "approx": "30.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "10000/7",
+            "approx": "1428.571429"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "142857/100",
+            "approx": "1428.57"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "142857/100",
+            "approx": "1428.570000"
+          },
+          "gross_profit": {
+            "exact": "42857/100",
+            "approx": "428.570000"
+          },
+          "gross_margin_pct": {
+            "exact": "4285700/142857",
+            "approx": "29.999930"
+          },
+          "markup_pct": {
+            "exact": "42857/1000",
+            "approx": "42.857000"
+          },
+          "change_abs": {
+            "exact": "12857/100",
+            "approx": "128.57"
+          },
+          "change_pct": {
+            "exact": "989/100",
+            "approx": "9.890000"
+          },
+          "target_met_exactly": false
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "30",
+            "treatment": "Blocking",
+            "state": "Breach",
+            "actual": {
+              "exact": "4285700/142857",
+              "approx": "29.999930"
+            },
+            "gap_pp": {
+              "exact": "10/142857",
+              "approx": "0.000070"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "proposed.operational_price": "1428.57",
+        "guardrails.0.state": "Breach"
+      },
+      "note": "1,000 / 0.7 = 1,428.571…; rounded half-up to 1,428.57 the margin is 29.99993%. The guardrail must judge the final price, so this is a Breach."
+    },
+    {
+      "id": "CALC-C14",
+      "group": "Targets",
+      "title": "Same case rounded up to the next 10 stays above target",
+      "requirements": [
+        "ANALYSIS-023"
+      ],
+      "inputs": {
+        "current": "1300",
+        "cost": "1000",
+        "action": {
+          "type": "target_margin",
+          "value": "30"
+        },
+        "rounding": {
+          "increment": "10",
+          "mode": "up"
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "30",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1300",
+            "approx": "1300.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1300",
+            "approx": "1300.000000"
+          },
+          "gross_profit": {
+            "exact": "300",
+            "approx": "300.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "300/13",
+            "approx": "23.076923"
+          },
+          "markup_pct": {
+            "exact": "30",
+            "approx": "30.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "10000/7",
+            "approx": "1428.571429"
+          },
+          "rounding": {
+            "increment": "10",
+            "mode": "up"
+          },
+          "operational_price": {
+            "exact": "1430",
+            "approx": "1430.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1430",
+            "approx": "1430.000000"
+          },
+          "gross_profit": {
+            "exact": "430",
+            "approx": "430.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "4300/143",
+            "approx": "30.069930"
+          },
+          "markup_pct": {
+            "exact": "43",
+            "approx": "43.000000"
+          },
+          "change_abs": {
+            "exact": "130",
+            "approx": "130.00"
+          },
+          "change_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "target_met_exactly": false
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "30",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "4300/143",
+              "approx": "30.069930"
+            }
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D01",
+      "group": "Adjustments",
+      "title": "Increase by 10%",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "pct_increase",
+          "value": "10"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "1100",
+            "approx": "1100.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "1100",
+            "approx": "1100.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1100",
+            "approx": "1100.000000"
+          },
+          "gross_profit": {
+            "exact": "300",
+            "approx": "300.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "300/11",
+            "approx": "27.272727"
+          },
+          "markup_pct": {
+            "exact": "75/2",
+            "approx": "37.500000"
+          },
+          "change_abs": {
+            "exact": "100",
+            "approx": "100.00"
+          },
+          "change_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D02",
+      "group": "Adjustments",
+      "title": "Decrease by 12.5%",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "pct_decrease",
+          "value": "12.5"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "875",
+            "approx": "875.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "875",
+            "approx": "875.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "875",
+            "approx": "875.000000"
+          },
+          "gross_profit": {
+            "exact": "75",
+            "approx": "75.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "60/7",
+            "approx": "8.571429"
+          },
+          "markup_pct": {
+            "exact": "75/8",
+            "approx": "9.375000"
+          },
+          "change_abs": {
+            "exact": "-125",
+            "approx": "-125.00"
+          },
+          "change_pct": {
+            "exact": "-25/2",
+            "approx": "-12.500000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D03",
+      "group": "Adjustments",
+      "title": "Increase by 150",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "abs_increase",
+          "value": "150"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "1150",
+            "approx": "1150.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "1150",
+            "approx": "1150.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1150",
+            "approx": "1150.000000"
+          },
+          "gross_profit": {
+            "exact": "350",
+            "approx": "350.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "700/23",
+            "approx": "30.434783"
+          },
+          "markup_pct": {
+            "exact": "175/4",
+            "approx": "43.750000"
+          },
+          "change_abs": {
+            "exact": "150",
+            "approx": "150.00"
+          },
+          "change_pct": {
+            "exact": "15",
+            "approx": "15.000000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D04",
+      "group": "Adjustments",
+      "title": "Decrease by the whole price gives 0, which is allowed",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "abs_decrease",
+          "value": "1000"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "0",
+            "approx": "0.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "0",
+            "approx": "0.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "0",
+            "approx": "0.000000"
+          },
+          "gross_profit": {
+            "exact": "-800",
+            "approx": "-800.000000"
+          },
+          "gross_margin_pct": {
+            "unavailable": "price_not_positive"
+          },
+          "markup_pct": {
+            "exact": "-100",
+            "approx": "-100.000000"
+          },
+          "change_abs": {
+            "exact": "-1000",
+            "approx": "-1000.00"
+          },
+          "change_pct": {
+            "exact": "-100",
+            "approx": "-100.000000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D05",
+      "group": "Adjustments",
+      "title": "Decrease past zero is refused",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "abs_decrease",
+          "value": "1000.01"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "negative_price"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "negative_price"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "negative_price"
+          },
+          "gross_profit": {
+            "unavailable": "negative_price"
+          },
+          "gross_margin_pct": {
+            "unavailable": "negative_price"
+          },
+          "markup_pct": {
+            "unavailable": "negative_price"
+          },
+          "change_abs": {
+            "unavailable": "negative_price"
+          },
+          "change_pct": {
+            "unavailable": "negative_price"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D06",
+      "group": "Adjustments",
+      "title": "Percentage reduction above 100% is refused",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "pct_decrease",
+          "value": "101"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "percentage_reduction_over_100"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "percentage_reduction_over_100"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "percentage_reduction_over_100"
+          },
+          "gross_profit": {
+            "unavailable": "percentage_reduction_over_100"
+          },
+          "gross_margin_pct": {
+            "unavailable": "percentage_reduction_over_100"
+          },
+          "markup_pct": {
+            "unavailable": "percentage_reduction_over_100"
+          },
+          "change_abs": {
+            "unavailable": "percentage_reduction_over_100"
+          },
+          "change_pct": {
+            "unavailable": "percentage_reduction_over_100"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D07",
+      "group": "Adjustments",
+      "title": "Negative value on an increase is refused (use a decrease)",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "pct_increase",
+          "value": "-5"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "unavailable": "negative_adjustment_use_opposite_action"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "unavailable": "negative_adjustment_use_opposite_action"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "negative_adjustment_use_opposite_action"
+          },
+          "gross_profit": {
+            "unavailable": "negative_adjustment_use_opposite_action"
+          },
+          "gross_margin_pct": {
+            "unavailable": "negative_adjustment_use_opposite_action"
+          },
+          "markup_pct": {
+            "unavailable": "negative_adjustment_use_opposite_action"
+          },
+          "change_abs": {
+            "unavailable": "negative_adjustment_use_opposite_action"
+          },
+          "change_pct": {
+            "unavailable": "negative_adjustment_use_opposite_action"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D08",
+      "group": "Adjustments",
+      "title": "25% markdown on 13,999.99 rounds half-up to the kobo",
+      "requirements": [
+        "ANALYSIS-006",
+        "ANALYSIS-023"
+      ],
+      "inputs": {
+        "current": "13999.99",
+        "cost": "9000",
+        "action": {
+          "type": "discount_pct",
+          "value": "25"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1399999/100",
+            "approx": "13999.99"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1399999/100",
+            "approx": "13999.990000"
+          },
+          "gross_profit": {
+            "exact": "499999/100",
+            "approx": "4999.990000"
+          },
+          "gross_margin_pct": {
+            "exact": "49999900/1399999",
+            "approx": "35.714240"
+          },
+          "markup_pct": {
+            "exact": "499999/9000",
+            "approx": "55.555444"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "4199997/400",
+            "approx": "10499.992500"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "1049999/100",
+            "approx": "10499.99"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1049999/100",
+            "approx": "10499.990000"
+          },
+          "gross_profit": {
+            "exact": "149999/100",
+            "approx": "1499.990000"
+          },
+          "gross_margin_pct": {
+            "exact": "14999900/1049999",
+            "approx": "14.285633"
+          },
+          "markup_pct": {
+            "exact": "149999/9000",
+            "approx": "16.666556"
+          },
+          "change_abs": {
+            "exact": "-3500",
+            "approx": "-3500.00"
+          },
+          "change_pct": {
+            "exact": "-35000000/1399999",
+            "approx": "-25.000018"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {
+        "proposed.operational_price": "10499.99"
+      },
+      "note": "13,999.99 × 0.75 = 10,499.9925."
+    },
+    {
+      "id": "CALC-D09",
+      "group": "Adjustments",
+      "title": "Set an exact price",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "set_price",
+          "value": "1099.99"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "109999/100",
+            "approx": "1099.990000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "109999/100",
+            "approx": "1099.99"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "109999/100",
+            "approx": "1099.990000"
+          },
+          "gross_profit": {
+            "exact": "29999/100",
+            "approx": "299.990000"
+          },
+          "gross_margin_pct": {
+            "exact": "2999900/109999",
+            "approx": "27.272066"
+          },
+          "markup_pct": {
+            "exact": "29999/800",
+            "approx": "37.498750"
+          },
+          "change_abs": {
+            "exact": "9999/100",
+            "approx": "99.99"
+          },
+          "change_pct": {
+            "exact": "9999/1000",
+            "approx": "9.999000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-D10",
+      "group": "Adjustments",
+      "title": "Add 50 to a VAT-inclusive shelf price: the 50 is on the shelf price",
+      "requirements": [
+        "ANALYSIS-006",
+        "DATA-022"
+      ],
+      "inputs": {
+        "current": "1075",
+        "inclusive": true,
+        "rate": "7.5",
+        "cost": "800",
+        "action": {
+          "type": "abs_increase",
+          "value": "50"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1075",
+            "approx": "1075.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "1125",
+            "approx": "1125.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "1125",
+            "approx": "1125.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "45000/43",
+            "approx": "1046.511628"
+          },
+          "gross_profit": {
+            "exact": "10600/43",
+            "approx": "246.511628"
+          },
+          "gross_margin_pct": {
+            "exact": "212/9",
+            "approx": "23.555556"
+          },
+          "markup_pct": {
+            "exact": "1325/43",
+            "approx": "30.813953"
+          },
+          "change_abs": {
+            "exact": "50",
+            "approx": "50.00"
+          },
+          "change_pct": {
+            "exact": "200/43",
+            "approx": "4.651163"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {},
+      "note": "Adjustments apply to the Current Price as recorded. The margin is then worked out on 1,125 / 1.075."
+    },
+    {
+      "id": "CALC-D11",
+      "group": "Rounding",
+      "title": "Midpoint at the kobo rounds up (10.005 to 10.01)",
+      "requirements": [
+        "ANALYSIS-023"
+      ],
+      "inputs": {
+        "current": "10",
+        "cost": "5",
+        "action": {
+          "type": "pct_increase",
+          "value": "0.05"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "10",
+            "approx": "10.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "gross_profit": {
+            "exact": "5",
+            "approx": "5.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "50",
+            "approx": "50.000000"
+          },
+          "markup_pct": {
+            "exact": "100",
+            "approx": "100.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "2001/200",
+            "approx": "10.005000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "1001/100",
+            "approx": "10.01"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1001/100",
+            "approx": "10.010000"
+          },
+          "gross_profit": {
+            "exact": "501/100",
+            "approx": "5.010000"
+          },
+          "gross_margin_pct": {
+            "exact": "50100/1001",
+            "approx": "50.049950"
+          },
+          "markup_pct": {
+            "exact": "501/5",
+            "approx": "100.200000"
+          },
+          "change_abs": {
+            "exact": "1/100",
+            "approx": "0.01"
+          },
+          "change_pct": {
+            "exact": "1/10",
+            "approx": "0.100000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {
+        "proposed.operational_price": "10.01"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-D12",
+      "group": "Rounding",
+      "title": "Midpoint at the nearest 10 rounds up (1,095 to 1,100)",
+      "requirements": [
+        "ANALYSIS-023"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "set_price",
+          "value": "1095"
+        },
+        "rounding": {
+          "increment": "10",
+          "mode": "nearest"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "1095",
+            "approx": "1095.000000"
+          },
+          "rounding": {
+            "increment": "10",
+            "mode": "nearest"
+          },
+          "operational_price": {
+            "exact": "1100",
+            "approx": "1100.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1100",
+            "approx": "1100.000000"
+          },
+          "gross_profit": {
+            "exact": "300",
+            "approx": "300.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "300/11",
+            "approx": "27.272727"
+          },
+          "markup_pct": {
+            "exact": "75/2",
+            "approx": "37.500000"
+          },
+          "change_abs": {
+            "exact": "100",
+            "approx": "100.00"
+          },
+          "change_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          }
+        },
+        "guardrails": []
+      },
+      "hand_checked": {
+        "proposed.operational_price": "1100"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-D13",
+      "group": "Rounding",
+      "title": "Round down to the nearest 5",
+      "requirements": [
+        "ANALYSIS-023"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "900",
+        "action": {
+          "type": "target_margin",
+          "value": "18"
+        },
+        "rounding": {
+          "increment": "5",
+          "mode": "down"
+        }
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "10",
+            "approx": "10.000000"
+          },
+          "markup_pct": {
+            "exact": "100/9",
+            "approx": "11.111111"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "45000/41",
+            "approx": "1097.560976"
+          },
+          "rounding": {
+            "increment": "5",
+            "mode": "down"
+          },
+          "operational_price": {
+            "exact": "1095",
+            "approx": "1095.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1095",
+            "approx": "1095.000000"
+          },
+          "gross_profit": {
+            "exact": "195",
+            "approx": "195.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "1300/73",
+            "approx": "17.808219"
+          },
+          "markup_pct": {
+            "exact": "65/3",
+            "approx": "21.666667"
+          },
+          "change_abs": {
+            "exact": "95",
+            "approx": "95.00"
+          },
+          "change_pct": {
+            "exact": "19/2",
+            "approx": "9.500000"
+          },
+          "target_met_exactly": false
+        },
+        "guardrails": []
+      },
+      "hand_checked": {
+        "proposed.operational_price": "1095"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-E01",
+      "group": "Price change",
+      "title": "Current price of zero: percentage change unavailable, not 0%",
+      "requirements": [
+        "ANALYSIS-006"
+      ],
+      "inputs": {
+        "current": "0",
+        "cost": "400",
+        "action": {
+          "type": "set_price",
+          "value": "500"
+        },
+        "guardrails": [
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "0",
+            "approx": "0.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "0",
+            "approx": "0.000000"
+          },
+          "gross_profit": {
+            "exact": "-400",
+            "approx": "-400.000000"
+          },
+          "gross_margin_pct": {
+            "unavailable": "price_not_positive"
+          },
+          "markup_pct": {
+            "exact": "-100",
+            "approx": "-100.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "500",
+            "approx": "500.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "500",
+            "approx": "500.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "500",
+            "approx": "500.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          },
+          "change_abs": {
+            "exact": "500",
+            "approx": "500.00"
+          },
+          "change_pct": {
+            "unavailable": "zero_baseline"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking",
+            "state": "Unable to Evaluate",
+            "reason": "zero_baseline"
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": "owomide_core src/proposal/src/domain/diff.ts currently returns 0% here."
+    },
+    {
+      "id": "CALC-E02",
+      "group": "Price change",
+      "title": "No Current Price: change unavailable, proposed margin still calculated",
+      "requirements": [
+        "ANALYSIS-006",
+        "ANALYSIS-007"
+      ],
+      "inputs": {
+        "current": null,
+        "cost": "400",
+        "action": {
+          "type": "set_price",
+          "value": "500"
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          },
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "unavailable": "current_price_unavailable"
+          },
+          "calculation_price_excl_tax": {
+            "unavailable": "current_price_unavailable"
+          },
+          "gross_profit": {
+            "unavailable": "current_price_unavailable"
+          },
+          "gross_margin_pct": {
+            "unavailable": "current_price_unavailable"
+          },
+          "markup_pct": {
+            "unavailable": "current_price_unavailable"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "500",
+            "approx": "500.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "500",
+            "approx": "500.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "500",
+            "approx": "500.000000"
+          },
+          "gross_profit": {
+            "exact": "100",
+            "approx": "100.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          },
+          "change_abs": {
+            "unavailable": "current_price_unavailable"
+          },
+          "change_pct": {
+            "unavailable": "current_price_unavailable"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "20",
+              "approx": "20.000000"
+            }
+          },
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking",
+            "state": "Unable to Evaluate",
+            "reason": "current_price_unavailable"
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-E03",
+      "group": "Price change",
+      "title": "12% increase on 999.99 lands at 12.0001% after rounding: Breach of a 12% cap",
+      "requirements": [
+        "ANALYSIS-023",
+        "ANALYSIS-014"
+      ],
+      "inputs": {
+        "current": "999.99",
+        "cost": "800",
+        "action": {
+          "type": "pct_increase",
+          "value": "12"
+        },
+        "guardrails": [
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "99999/100",
+            "approx": "999.99"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "99999/100",
+            "approx": "999.990000"
+          },
+          "gross_profit": {
+            "exact": "19999/100",
+            "approx": "199.990000"
+          },
+          "gross_margin_pct": {
+            "exact": "1999900/99999",
+            "approx": "19.999200"
+          },
+          "markup_pct": {
+            "exact": "19999/800",
+            "approx": "24.998750"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "699993/625",
+            "approx": "1119.988800"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "111999/100",
+            "approx": "1119.99"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "111999/100",
+            "approx": "1119.990000"
+          },
+          "gross_profit": {
+            "exact": "31999/100",
+            "approx": "319.990000"
+          },
+          "gross_margin_pct": {
+            "exact": "3199900/111999",
+            "approx": "28.570791"
+          },
+          "markup_pct": {
+            "exact": "31999/800",
+            "approx": "39.998750"
+          },
+          "change_abs": {
+            "exact": "120",
+            "approx": "120.00"
+          },
+          "change_pct": {
+            "exact": "400000/33333",
+            "approx": "12.000120"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking",
+            "state": "Breach",
+            "actual": {
+              "exact": "400000/33333",
+              "approx": "12.000120"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "proposed.operational_price": "1119.99",
+        "guardrails.0.state": "Breach"
+      },
+      "note": "999.99 × 1.12 = 1,119.9888, rounded to 1,119.99, which is a 12.00012% increase."
+    },
+    {
+      "id": "CALC-F01",
+      "group": "Guardrails",
+      "title": "Margin exactly on the 15% floor is Within",
+      "requirements": [
+        "ANALYSIS-014"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "850",
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "150",
+            "approx": "150.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "15",
+            "approx": "15.000000"
+          },
+          "markup_pct": {
+            "exact": "300/17",
+            "approx": "17.647059"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "15",
+              "approx": "15.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "guardrails.0.state": "Within Guardrail"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-F02",
+      "group": "Guardrails",
+      "title": "Margin of 14.99% is a Breach with a 0.01 point gap",
+      "requirements": [
+        "ANALYSIS-014",
+        "ANALYSIS-031"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "850.10",
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "1499/10",
+            "approx": "149.900000"
+          },
+          "gross_margin_pct": {
+            "exact": "1499/100",
+            "approx": "14.990000"
+          },
+          "markup_pct": {
+            "exact": "149900/8501",
+            "approx": "17.633220"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Breach",
+            "actual": {
+              "exact": "1499/100",
+              "approx": "14.990000"
+            },
+            "gap_pp": {
+              "exact": "1/100",
+              "approx": "0.010000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "guardrails.0.state": "Breach",
+        "guardrails.0.gap_pp": "0.01"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-F03",
+      "group": "Guardrails",
+      "title": "Increase of exactly 12% is Within",
+      "requirements": [
+        "ANALYSIS-014"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "800",
+        "action": {
+          "type": "pct_increase",
+          "value": "12"
+        },
+        "guardrails": [
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "200",
+            "approx": "200.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "20",
+            "approx": "20.000000"
+          },
+          "markup_pct": {
+            "exact": "25",
+            "approx": "25.000000"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "1120",
+            "approx": "1120.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "1120",
+            "approx": "1120.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1120",
+            "approx": "1120.000000"
+          },
+          "gross_profit": {
+            "exact": "320",
+            "approx": "320.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "200/7",
+            "approx": "28.571429"
+          },
+          "markup_pct": {
+            "exact": "40",
+            "approx": "40.000000"
+          },
+          "change_abs": {
+            "exact": "120",
+            "approx": "120.00"
+          },
+          "change_pct": {
+            "exact": "12",
+            "approx": "12.000000"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "12",
+              "approx": "12.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "guardrails.0.state": "Within Guardrail"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-F04",
+      "group": "Guardrails",
+      "title": "J2 hero SKU: 35% markdown breaches a 30% maximum decrease",
+      "requirements": [
+        "ANALYSIS-014",
+        "GOV-025"
+      ],
+      "inputs": {
+        "current": "20000",
+        "cost": "11000",
+        "action": {
+          "type": "discount_pct",
+          "value": "35"
+        },
+        "guardrails": [
+          {
+            "kind": "max_decrease_pct",
+            "threshold": "30",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "20000",
+            "approx": "20000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "20000",
+            "approx": "20000.000000"
+          },
+          "gross_profit": {
+            "exact": "9000",
+            "approx": "9000.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "45",
+            "approx": "45.000000"
+          },
+          "markup_pct": {
+            "exact": "900/11",
+            "approx": "81.818182"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "13000",
+            "approx": "13000.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "13000",
+            "approx": "13000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "13000",
+            "approx": "13000.000000"
+          },
+          "gross_profit": {
+            "exact": "2000",
+            "approx": "2000.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "200/13",
+            "approx": "15.384615"
+          },
+          "markup_pct": {
+            "exact": "200/11",
+            "approx": "18.181818"
+          },
+          "change_abs": {
+            "exact": "-7000",
+            "approx": "-7000.00"
+          },
+          "change_pct": {
+            "exact": "-35",
+            "approx": "-35.000000"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "max_decrease_pct",
+            "threshold": "30",
+            "treatment": "Blocking",
+            "state": "Breach",
+            "actual": {
+              "exact": "-35",
+              "approx": "-35.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "guardrails.0.state": "Breach"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-F05",
+      "group": "Guardrails",
+      "title": "J2 hero SKU as an exception at 30% is Within",
+      "requirements": [
+        "BUILD-012",
+        "ANALYSIS-014"
+      ],
+      "inputs": {
+        "current": "20000",
+        "cost": "11000",
+        "action": {
+          "type": "discount_pct",
+          "value": "30"
+        },
+        "guardrails": [
+          {
+            "kind": "max_decrease_pct",
+            "threshold": "30",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "20000",
+            "approx": "20000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "20000",
+            "approx": "20000.000000"
+          },
+          "gross_profit": {
+            "exact": "9000",
+            "approx": "9000.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "45",
+            "approx": "45.000000"
+          },
+          "markup_pct": {
+            "exact": "900/11",
+            "approx": "81.818182"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "14000",
+            "approx": "14000.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "14000",
+            "approx": "14000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "14000",
+            "approx": "14000.000000"
+          },
+          "gross_profit": {
+            "exact": "3000",
+            "approx": "3000.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "150/7",
+            "approx": "21.428571"
+          },
+          "markup_pct": {
+            "exact": "300/11",
+            "approx": "27.272727"
+          },
+          "change_abs": {
+            "exact": "-6000",
+            "approx": "-6000.00"
+          },
+          "change_pct": {
+            "exact": "-30",
+            "approx": "-30.000000"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "max_decrease_pct",
+            "threshold": "30",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "-30",
+              "approx": "-30.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "guardrails.0.state": "Within Guardrail"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-F06",
+      "group": "Guardrails",
+      "title": "Two guardrails, each kept separately: no cost gives one Unable to Evaluate, the other still evaluates",
+      "requirements": [
+        "ANALYSIS-014",
+        "GOV-023"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": null,
+        "action": {
+          "type": "pct_increase",
+          "value": "5"
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          },
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "gross_margin_pct": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "markup_pct": {
+            "unavailable": "no_applicable_cost_record"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "1050",
+            "approx": "1050.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "1050",
+            "approx": "1050.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1050",
+            "approx": "1050.000000"
+          },
+          "gross_profit": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "gross_margin_pct": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "markup_pct": {
+            "unavailable": "no_applicable_cost_record"
+          },
+          "change_abs": {
+            "exact": "50",
+            "approx": "50.00"
+          },
+          "change_pct": {
+            "exact": "5",
+            "approx": "5.000000"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Unable to Evaluate",
+            "reason": "no_applicable_cost_record"
+          },
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "5",
+              "approx": "5.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": "Only the first matching rule is evaluated in owomide_core today; every applicable guardrail must be."
+    },
+    {
+      "id": "CALC-F07",
+      "group": "Guardrails",
+      "title": "J1: one of the six SKUs that needs more than 12% to reach an 18% margin",
+      "requirements": [
+        "ANALYSIS-014",
+        "BUILD-013"
+      ],
+      "inputs": {
+        "current": "1000",
+        "cost": "950",
+        "action": {
+          "type": "target_margin",
+          "value": "18"
+        },
+        "rounding": {
+          "increment": "10",
+          "mode": "nearest"
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking"
+          },
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "1000",
+            "approx": "1000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_profit": {
+            "exact": "50",
+            "approx": "50.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "5",
+            "approx": "5.000000"
+          },
+          "markup_pct": {
+            "exact": "100/19",
+            "approx": "5.263158"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "47500/41",
+            "approx": "1158.536585"
+          },
+          "rounding": {
+            "increment": "10",
+            "mode": "nearest"
+          },
+          "operational_price": {
+            "exact": "1160",
+            "approx": "1160.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "1160",
+            "approx": "1160.000000"
+          },
+          "gross_profit": {
+            "exact": "210",
+            "approx": "210.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "525/29",
+            "approx": "18.103448"
+          },
+          "markup_pct": {
+            "exact": "420/19",
+            "approx": "22.105263"
+          },
+          "change_abs": {
+            "exact": "160",
+            "approx": "160.00"
+          },
+          "change_pct": {
+            "exact": "16",
+            "approx": "16.000000"
+          },
+          "target_met_exactly": false
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Blocking",
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "525/29",
+              "approx": "18.103448"
+            }
+          },
+          {
+            "kind": "max_increase_pct",
+            "threshold": "12",
+            "treatment": "Blocking",
+            "state": "Breach",
+            "actual": {
+              "exact": "16",
+              "approx": "16.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {
+        "proposed.operational_price": "1160",
+        "guardrails.1.state": "Breach"
+      },
+      "note": ""
+    },
+    {
+      "id": "CALC-F08",
+      "group": "Guardrails",
+      "title": "J2: 25% markdown pushes margin below a 15% floor with Approval Escalation",
+      "requirements": [
+        "ANALYSIS-014",
+        "GOV-025"
+      ],
+      "inputs": {
+        "current": "10000",
+        "cost": "6500",
+        "action": {
+          "type": "discount_pct",
+          "value": "25"
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Approval Escalation"
+          }
+        ]
+      },
+      "expected": {
+        "current": {
+          "operational_price": {
+            "exact": "10000",
+            "approx": "10000.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "10000",
+            "approx": "10000.000000"
+          },
+          "gross_profit": {
+            "exact": "3500",
+            "approx": "3500.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "35",
+            "approx": "35.000000"
+          },
+          "markup_pct": {
+            "exact": "700/13",
+            "approx": "53.846154"
+          }
+        },
+        "proposed": {
+          "unrounded_operational_price": {
+            "exact": "7500",
+            "approx": "7500.000000"
+          },
+          "rounding": {
+            "increment": "0.01",
+            "mode": "nearest",
+            "note": "currency minor unit"
+          },
+          "operational_price": {
+            "exact": "7500",
+            "approx": "7500.00"
+          },
+          "calculation_price_excl_tax": {
+            "exact": "7500",
+            "approx": "7500.000000"
+          },
+          "gross_profit": {
+            "exact": "1000",
+            "approx": "1000.000000"
+          },
+          "gross_margin_pct": {
+            "exact": "40/3",
+            "approx": "13.333333"
+          },
+          "markup_pct": {
+            "exact": "200/13",
+            "approx": "15.384615"
+          },
+          "change_abs": {
+            "exact": "-2500",
+            "approx": "-2500.00"
+          },
+          "change_pct": {
+            "exact": "-25",
+            "approx": "-25.000000"
+          }
+        },
+        "guardrails": [
+          {
+            "kind": "min_gross_margin_pct",
+            "threshold": "15",
+            "treatment": "Approval Escalation",
+            "state": "Breach",
+            "actual": {
+              "exact": "40/3",
+              "approx": "13.333333"
+            },
+            "gap_pp": {
+              "exact": "5/3",
+              "approx": "1.666667"
+            }
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": "7,500 against cost 6,500 is a 13.33% margin: a Breach whose treatment is escalation, not blocking."
+    },
+    {
+      "id": "CALC-G01",
+      "group": "Choosing records",
+      "title": "One record for this exact context is the Current Price",
+      "requirements": [
+        "DATA-003"
+      ],
+      "inputs": {
+        "price_records": [
+          {
+            "id": "PR-1",
+            "amount": "1000",
+            "dimensions": {
+              "channel": "store"
+            },
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          },
+          {
+            "id": "PR-2",
+            "amount": "1050",
+            "dimensions": {
+              "channel": "online"
+            },
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          }
+        ],
+        "context": {
+          "channel": "store"
+        },
+        "at": "2026-10-05T12:00:00+01:00"
+      },
+      "expected": {
+        "current_price": {
+          "record_id": "PR-1",
+          "amount": "1000"
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-G02",
+      "group": "Choosing records",
+      "title": "Two records for the same context at the same time: unresolved, never the newest",
+      "requirements": [
+        "DATA-003",
+        "DATA-016"
+      ],
+      "inputs": {
+        "price_records": [
+          {
+            "id": "PR-1",
+            "amount": "1000",
+            "dimensions": {
+              "channel": "store"
+            },
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          },
+          {
+            "id": "PR-2",
+            "amount": "1050",
+            "dimensions": {
+              "channel": "online"
+            },
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          },
+          {
+            "id": "PR-3",
+            "amount": "1100",
+            "dimensions": {
+              "channel": "store"
+            },
+            "effective_from": "2026-10-01T00:00:00+01:00"
+          }
+        ],
+        "context": {
+          "channel": "store"
+        },
+        "at": "2026-10-05T12:00:00+01:00"
+      },
+      "expected": {
+        "current_price": {
+          "unavailable": "current_price_unresolved_overlap"
+        }
+      },
+      "hand_checked": {},
+      "note": "Recording an implementation must end-date the old record, otherwise this is exactly what happens."
+    },
+    {
+      "id": "CALC-G03",
+      "group": "Choosing records",
+      "title": "Only another channel has a price: unavailable, not borrowed",
+      "requirements": [
+        "DATA-003"
+      ],
+      "inputs": {
+        "price_records": [
+          {
+            "id": "PR-2",
+            "amount": "1050",
+            "dimensions": {
+              "channel": "online"
+            },
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          }
+        ],
+        "context": {
+          "channel": "store"
+        },
+        "at": "2026-10-05T12:00:00+01:00"
+      },
+      "expected": {
+        "current_price": {
+          "unavailable": "no_applicable_price_record"
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-G04",
+      "group": "Choosing records",
+      "title": "A future price is not current before its start time",
+      "requirements": [
+        "DATA-003"
+      ],
+      "inputs": {
+        "price_records": [
+          {
+            "id": "PR-1",
+            "amount": "1000",
+            "dimensions": {
+              "channel": "store"
+            },
+            "effective_from": "2026-09-01T00:00:00+01:00",
+            "effective_to": "2026-10-10T00:00:00+01:00"
+          },
+          {
+            "id": "PR-4",
+            "amount": "1100",
+            "dimensions": {
+              "channel": "store"
+            },
+            "effective_from": "2026-10-10T00:00:00+01:00"
+          }
+        ],
+        "context": {
+          "channel": "store"
+        },
+        "at": "2026-10-09T23:59:59+01:00"
+      },
+      "expected": {
+        "current_price": {
+          "record_id": "PR-1",
+          "amount": "1000"
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-G05",
+      "group": "Choosing records",
+      "title": "…and becomes current exactly at its start time",
+      "requirements": [
+        "DATA-003"
+      ],
+      "inputs": {
+        "price_records": [
+          {
+            "id": "PR-1",
+            "amount": "1000",
+            "dimensions": {
+              "channel": "store"
+            },
+            "effective_from": "2026-09-01T00:00:00+01:00",
+            "effective_to": "2026-10-10T00:00:00+01:00"
+          },
+          {
+            "id": "PR-4",
+            "amount": "1100",
+            "dimensions": {
+              "channel": "store"
+            },
+            "effective_from": "2026-10-10T00:00:00+01:00"
+          }
+        ],
+        "context": {
+          "channel": "store"
+        },
+        "at": "2026-10-10T00:00:00+01:00"
+      },
+      "expected": {
+        "current_price": {
+          "record_id": "PR-4",
+          "amount": "1100"
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-G06",
+      "group": "Choosing records",
+      "title": "Two cost bases and no configured basis: someone must choose",
+      "requirements": [
+        "DATA-004"
+      ],
+      "inputs": {
+        "cost_records": [
+          {
+            "id": "CR-L",
+            "amount": "900",
+            "basis": "landed",
+            "unit": "each",
+            "currency": "NGN",
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          },
+          {
+            "id": "CR-P",
+            "amount": "820",
+            "basis": "purchase",
+            "unit": "each",
+            "currency": "NGN",
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          }
+        ],
+        "configured_cost_basis": null,
+        "context": {},
+        "price_unit": "each",
+        "price_currency": "NGN"
+      },
+      "expected": {
+        "applicable_unit_cost": {
+          "unavailable": "cost_basis_requires_selection"
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-G07",
+      "group": "Choosing records",
+      "title": "Configured basis 'landed' picks the landed cost",
+      "requirements": [
+        "DATA-004"
+      ],
+      "inputs": {
+        "cost_records": [
+          {
+            "id": "CR-L",
+            "amount": "900",
+            "basis": "landed",
+            "unit": "each",
+            "currency": "NGN",
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          },
+          {
+            "id": "CR-P",
+            "amount": "820",
+            "basis": "purchase",
+            "unit": "each",
+            "currency": "NGN",
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          }
+        ],
+        "configured_cost_basis": "landed",
+        "context": {},
+        "price_unit": "each",
+        "price_currency": "NGN"
+      },
+      "expected": {
+        "applicable_unit_cost": {
+          "record_id": "CR-L",
+          "amount": "900"
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-G08",
+      "group": "Choosing records",
+      "title": "Cost in US dollars against a naira price: incompatible, no silent conversion",
+      "requirements": [
+        "DATA-004",
+        "ANALYSIS-003"
+      ],
+      "inputs": {
+        "cost_records": [
+          {
+            "id": "CR-L",
+            "amount": "900",
+            "basis": "landed",
+            "unit": "each",
+            "currency": "USD",
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          }
+        ],
+        "configured_cost_basis": "landed",
+        "context": {},
+        "price_unit": "each",
+        "price_currency": "NGN"
+      },
+      "expected": {
+        "applicable_unit_cost": {
+          "unavailable": "cost_currency_incompatible"
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-G09",
+      "group": "Choosing records",
+      "title": "Cost per case of 12 against a price per item: incompatible",
+      "requirements": [
+        "DATA-004"
+      ],
+      "inputs": {
+        "cost_records": [
+          {
+            "id": "CR-L",
+            "amount": "900",
+            "basis": "landed",
+            "unit": "case_12",
+            "currency": "NGN",
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          }
+        ],
+        "configured_cost_basis": "landed",
+        "context": {},
+        "price_unit": "each",
+        "price_currency": "NGN"
+      },
+      "expected": {
+        "applicable_unit_cost": {
+          "unavailable": "cost_unit_incompatible"
+        }
+      },
+      "hand_checked": {},
+      "note": ""
+    },
+    {
+      "id": "CALC-G10",
+      "group": "Choosing records",
+      "title": "Store-specific cost is preferred to an organisation-wide cost",
+      "requirements": [
+        "DATA-004"
+      ],
+      "inputs": {
+        "cost_records": [
+          {
+            "id": "CR-L",
+            "amount": "900",
+            "basis": "landed",
+            "unit": "each",
+            "currency": "NGN",
+            "effective_from": "2026-09-01T00:00:00+01:00"
+          },
+          {
+            "id": "CR-IKJ",
+            "amount": "930",
+            "basis": "landed",
+            "unit": "each",
+            "currency": "NGN",
+            "effective_from": "2026-09-01T00:00:00+01:00",
+            "dimensions": {
+              "location": "ikeja"
+            }
+          }
+        ],
+        "configured_cost_basis": "landed",
+        "context": {
+          "location": "ikeja"
+        },
+        "price_unit": "each",
+        "price_currency": "NGN"
+      },
+      "expected": {
+        "applicable_unit_cost": {
+          "record_id": "CR-IKJ",
+          "amount": "930"
+        }
+      },
+      "hand_checked": {},
+      "note": "Proposed convention for CT-02: a cost with no dimensions applies everywhere unless a more specific one exists."
+    },
+    {
+      "id": "CALC-H01",
+      "group": "Margin Exposure View",
+      "title": "Only Breach and Unable to Evaluate are listed; exactly 15% is not",
+      "requirements": [
+        "ANALYSIS-031",
+        "ANALYSIS-014"
+      ],
+      "inputs": {
+        "guardrail": {
+          "kind": "min_gross_margin_pct",
+          "threshold": "15",
+          "treatment": "Blocking"
+        },
+        "items": [
+          {
+            "sku": "SKU-A",
+            "price": "1000",
+            "tax_inclusive": false,
+            "tax_rate": null,
+            "cost": "900"
+          },
+          {
+            "sku": "SKU-B",
+            "price": "1000",
+            "tax_inclusive": false,
+            "tax_rate": null,
+            "cost": "850"
+          },
+          {
+            "sku": "SKU-C",
+            "price": "1000",
+            "tax_inclusive": false,
+            "tax_rate": null,
+            "cost": "700"
+          },
+          {
+            "sku": "SKU-D",
+            "price": "1000",
+            "tax_inclusive": false,
+            "tax_rate": null,
+            "cost": null
+          },
+          {
+            "sku": "SKU-E",
+            "price": "1075",
+            "tax_inclusive": true,
+            "tax_rate": null,
+            "cost": "800"
+          },
+          {
+            "sku": "SKU-F",
+            "price": "1075",
+            "tax_inclusive": true,
+            "tax_rate": "7.5",
+            "cost": "950"
+          }
+        ]
+      },
+      "expected": {
+        "items": [
+          {
+            "sku": "SKU-A",
+            "listed": true,
+            "state": "Breach",
+            "actual": {
+              "exact": "10",
+              "approx": "10.000000"
+            },
+            "gap_pp": {
+              "exact": "5",
+              "approx": "5.000000"
+            }
+          },
+          {
+            "sku": "SKU-B",
+            "listed": false,
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "15",
+              "approx": "15.000000"
+            }
+          },
+          {
+            "sku": "SKU-C",
+            "listed": false,
+            "state": "Within Guardrail",
+            "actual": {
+              "exact": "30",
+              "approx": "30.000000"
+            }
+          },
+          {
+            "sku": "SKU-D",
+            "listed": true,
+            "state": "Unable to Evaluate",
+            "reason": "no_applicable_cost_record"
+          },
+          {
+            "sku": "SKU-E",
+            "listed": true,
+            "state": "Unable to Evaluate",
+            "reason": "tax_rate_missing"
+          },
+          {
+            "sku": "SKU-F",
+            "listed": true,
+            "state": "Breach",
+            "actual": {
+              "exact": "5",
+              "approx": "5.000000"
+            },
+            "gap_pp": {
+              "exact": "10",
+              "approx": "10.000000"
+            }
+          }
+        ]
+      },
+      "hand_checked": {},
+      "note": ""
+    }
+  ]
+}
