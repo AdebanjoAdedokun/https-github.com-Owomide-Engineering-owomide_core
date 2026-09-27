@@ -75,5 +75,7 @@ ALTER TABLE proposal.ai_suggestion FORCE ROW LEVEL SECURITY;
 CREATE POLICY ai_suggestion_tenant_policy ON proposal.ai_suggestion
   USING (org_id = proposal.current_org_id()) WITH CHECK (org_id = proposal.current_org_id());
 
+-- The runner grants UPDATE and DELETE on new tables by default; only applying is allowed.
+REVOKE UPDATE, DELETE ON proposal.ai_suggestion FROM proposal_svc;
 GRANT SELECT, INSERT ON proposal.ai_suggestion TO proposal_svc;
 GRANT UPDATE (applied_by, applied_at, applied_text) ON proposal.ai_suggestion TO proposal_svc;

@@ -156,6 +156,8 @@ GRANT UPDATE (title, objective, priority, owner_user_id, overlap_acknowledged_by
   ON proposal.initiative TO proposal_svc;
 REVOKE ALL ON FUNCTION proposal.apply_initiative_transition() FROM PUBLIC;
 
+-- Reference data: the runner's default INSERT, UPDATE and DELETE are revoked.
+REVOKE INSERT, UPDATE, DELETE ON proposal.initiative_lifecycle_rule FROM proposal_svc;
 GRANT SELECT ON proposal.initiative_lifecycle_rule TO proposal_svc;
 GRANT EXECUTE ON FUNCTION proposal.initiative_state_order(text) TO proposal_svc;
 GRANT EXECUTE ON FUNCTION proposal.initiative_transition_allowed(text, text) TO proposal_svc;
