@@ -89,6 +89,8 @@ class Report:
     below_min_margin: int | None
     set_aside_rows: dict[str, int]
     problems: list[Problem] = field(default_factory=list)
+    # The product codes behind each unable_to_evaluate count, in code order.
+    unable_products: dict[str, list[str]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -513,21 +515,25 @@ def assess(
     )
 
     unable: Counter[str] = Counter()
+    unable_products: dict[str, list[str]] = {}
     ready = below_cost = below_min = 0
     for sku in sorted(units):
         price = current_prices.get(sku)
         cost = current_costs.get(sku)
         if price is None:
             unable["no_applicable_price_record"] += 1
+            unable_products.setdefault("no_applicable_price_record", []).append(sku)
             continue
         if cost is None:
             unable["no_applicable_cost_record"] += 1
+            unable_products.setdefault("no_applicable_cost_record", []).append(sku)
             continue
         margin = gross_margin_pct(
             tax_exclusive(price.amount, price.tax_inclusive, price.rate_pct), cost.amount
         )
         if isinstance(margin, Unavailable):
             unable[margin.reason] += 1
+            unable_products.setdefault(margin.reason, []).append(sku)
             continue
         ready += 1
         if margin < 0:
@@ -573,6 +579,7 @@ def assess(
         margin_ready=ready,
         margin_ready_pct=f"{float(share * 100):.1f}",
         unable_to_evaluate=dict(sorted(unable.items())),
+        unable_products=dict(sorted(unable_products.items())),
         below_cost=below_cost,
         below_min_margin=below_min if settings.min_margin_pct is not None else None,
         set_aside_rows=dict(sorted((price_aside + cost_aside).items())),
@@ -601,6 +608,112 @@ def summary(report: Report) -> str:
     return "\n".join(lines)
 
 
+# Plain-English explanations for the shareable report. Every code the checker emits has one.
+_PROBLEM_TEXT = {
+    "missing_value": "A required column is empty.",
+    "invalid_number": "A number is written with commas, currency signs, spaces or letters. "
+    "Use digits and one decimal point, e.g. 1075.00.",
+    "negative_value": "A price or cost is negative.",
+    "invalid_currency": "The currency is not a three-letter code such as NGN.",
+    "invalid_date": "A date is missing its time, its time zone, or ends before it starts. "
+    "Use e.g. 2026-09-01T00:00:00+01:00.",
+    "invalid_tax_flag": "tax_inclusive must be true or false.",
+    "invalid_tax_rate": "tax_rate_pct must be a percentage between 0 and 100, e.g. 7.5.",
+    "unknown_sku": "The product code is not in the products file.",
+    "duplicate_in_file": "The same product appears more than once. Both rows are held until "
+    "you say which is right.",
+    "currency_incompatible": "The amount is in a different currency. It is kept for reference "
+    "and not converted.",
+    "cost_unit_incompatible": "The cost is for a different unit than the product is sold in, "
+    "so it is not used for margins.",
+    "zero_cost": "A cost of 0 would show a 100% margin. Leave the row out if the cost is unknown.",
+    "tax_basis_missing": "Prices do not say whether they include VAT, and no default is set.",
+    "tax_rate_missing_for_inclusive_price": "VAT-inclusive prices have no VAT rate.",
+}
+_UNABLE_TEXT = {
+    "no_applicable_price_record": "no current price",
+    "no_applicable_cost_record": "no usable cost",
+    "tax_basis_unknown": "the price does not say whether it includes VAT",
+    "tax_rate_missing": "the price includes VAT but has no rate",
+    "price_not_positive": "the price is zero",
+    "cost_not_positive": "the cost is zero",
+}
+_VERDICT_TEXT = {
+    READY: "Ready. The files can be imported as they are.",
+    READY_WITH_GAPS: "Ready with gaps. The files can be imported; the products listed below "
+    "show as Unable to Evaluate, and rows marked Must fix are left out, until they are fixed.",
+    NOT_READY: "Not ready. Please fix the problems below and send the files again.",
+}
+
+
+def markdown(report: Report, settings: Settings, title: str) -> str:
+    """A report to send to the design partner: numbers, then each problem with its rows."""
+    lines = [
+        f"# {title}",
+        "",
+        f"Checked {settings.at.date().isoformat()} against: prices in {settings.currency}, "
+        f"{settings.cost_basis} costs"
+        + (
+            f", prices {'including' if settings.default_tax_inclusive else 'excluding'} VAT "
+            "unless a row says otherwise"
+            if settings.default_tax_inclusive is not None
+            else ""
+        )
+        + ".",
+        "",
+        f"**{_VERDICT_TEXT[report.verdict]}**",
+        "",
+        "| | Products |",
+        "|---|---|",
+        f"| In the products file | {report.products:,} |",
+        f"| Margin can be calculated today | {report.margin_ready:,} "
+        f"({report.margin_ready_pct}%) |",
+    ]
+    for reason, count in report.unable_to_evaluate.items():
+        lines.append(f"| Unable to Evaluate: {_UNABLE_TEXT.get(reason, reason)} | {count:,} |")
+    lines.append(f"| Below cost once VAT is removed | {report.below_cost} |")
+    if report.below_min_margin is not None and settings.min_margin_pct is not None:
+        lines.append(
+            f"| Below the {float(settings.min_margin_pct):g}% minimum margin | "
+            f"{report.below_min_margin} |"
+        )
+    if report.unable_products:
+        lines += ["", "## Products whose margin cannot be calculated yet", ""]
+        for reason, skus in report.unable_products.items():
+            shown = ", ".join(skus[:25]) + (f" and {len(skus) - 25} more" if len(skus) > 25 else "")
+            lines.append(f"- {_UNABLE_TEXT.get(reason, reason).capitalize()}: {shown}")
+    groups: dict[tuple[str, str, str], list[int | None]] = {}
+    for problem in report.problems:
+        groups.setdefault((problem.severity, problem.file, problem.code), []).append(problem.row)
+    if groups:
+        lines += ["", "## What to fix", "", "| File | Problem | Rows |", "|---|---|---|"]
+        order = {"error": 0, "warning": 1, "info": 2}
+        for (severity, file, code), rows in sorted(
+            groups.items(), key=lambda g: (order[g[0][0]], g[0][1], g[0][2])
+        ):
+            numbered = sorted({r for r in rows if r is not None})
+            shown = ", ".join(map(str, numbered[:12])) + (
+                f" and {len(numbered) - 12} more" if len(numbered) > 12 else ""
+            )
+            label = "Must fix" if severity == "error" else "Check"
+            lines.append(
+                f"| {file} | {label}: {_PROBLEM_TEXT.get(code, code)} | {shown or 'whole file'} |"
+            )
+    if report.set_aside_rows:
+        lines += [
+            "",
+            "## Kept for later, not used now",
+            "",
+            "These rows are fine. They are not used in the first release (one organisation-wide "
+            "price per product, and the chosen cost basis only), or they take effect later.",
+            "",
+        ]
+        for reason, count in report.set_aside_rows.items():
+            lines.append(f"- {reason.replace('_', ' ')}: {count} rows")
+    lines += ["", f"_Owómidé readiness check {report.version}._", ""]
+    return "\n".join(lines)
+
+
 def _tax_flag(value: str) -> bool | None:
     if value == "none":
         return None
@@ -624,7 +737,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--cost-basis", default="landed")
     parser.add_argument("--at", required=True, help="ISO date-time with time zone")
     parser.add_argument("--min-margin", help="percent, e.g. 12")
-    parser.add_argument("--json", action="store_true")
+    output = parser.add_mutually_exclusive_group()
+    output.add_argument("--json", action="store_true")
+    output.add_argument("--markdown", action="store_true", help="a report to share")
+    parser.add_argument("--title", default="Data readiness report")
     args = parser.parse_args(argv)
 
     at = _timestamp(args.at)
@@ -647,6 +763,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.json:
         json.dump(report.to_dict(), sys.stdout, indent=2)
         sys.stdout.write("\n")
+    elif args.markdown:
+        sys.stdout.write(markdown(report, settings, args.title))
     else:
         print(summary(report))
     return 0 if report.verdict != NOT_READY else 1

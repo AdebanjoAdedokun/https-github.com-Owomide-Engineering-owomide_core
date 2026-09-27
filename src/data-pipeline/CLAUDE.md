@@ -139,6 +139,9 @@ python -m owomide_data_pipeline.intelligence.readiness \
   --at 2026-10-01T00:00:00+01:00 --min-margin 15 [--json]
 ```
 
+`--markdown --title "..."` writes a plain-English report to send to the design partner: the
+numbers, the products whose margin cannot be calculated yet, and each problem with its rows.
+
 Verdicts: `ready` (at least 95% computable and no errors), `ready_with_gaps`, `not_ready`
 (products file errors or under half computable; exit code 1). With `OWOMIDE_TEST_CATALOGUE` set
 to the pilot test catalogue, `tests/test_readiness.py` also reproduces its independent results:

@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import unittest
 from contextlib import redirect_stdout
 from datetime import datetime
@@ -10,7 +11,9 @@ from fractions import Fraction
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from owomide_data_pipeline.intelligence import readiness as readiness_module
 from owomide_data_pipeline.intelligence.readiness import (
+    _PROBLEM_TEXT,
     NOT_READY,
     READY,
     READY_WITH_GAPS,
@@ -18,6 +21,7 @@ from owomide_data_pipeline.intelligence.readiness import (
     assess,
     load_csv,
     main,
+    markdown,
 )
 
 AT = datetime.fromisoformat("2026-10-01T00:00:00+01:00")
@@ -267,6 +271,30 @@ class ReadinessTest(unittest.TestCase):
             )
             with redirect_stdout(io.StringIO()):
                 self.assertEqual(main(args), 1)
+
+
+class MarkdownReportTest(unittest.TestCase):
+    def test_explains_every_problem_code_and_lists_products_and_rows(self) -> None:
+        report = assess(
+            [product("A"), product("B"), product("C")],
+            [("prices.csv", [price("A", "1075.00"), price("B", "1,500"), price("C", "100.00")])],
+            [("costs.csv", [cost("A", "800.00")])],
+            LAGOS,
+        )
+        text = markdown(report, LAGOS, "Data readiness report: Example Stores")
+        self.assertTrue(text.startswith("# Data readiness report: Example Stores\n"))
+        self.assertIn("| In the products file | 3 |", text)
+        self.assertIn("- No current price: B", text)
+        self.assertIn("- No usable cost: C", text)
+        self.assertIn("| prices.csv | Must fix: A number is written with commas", text)
+        self.assertIn("| 3 |", text)  # the bad row number
+        self.assertIn("Below the 15% minimum margin", text)
+
+    def test_has_plain_text_for_every_code_the_checker_can_emit(self) -> None:
+        source = Path(readiness_module.__file__).read_text()
+        codes = set(re.findall(r'out\.add\(\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*"([a-z_]+)"', source))
+        self.assertTrue(codes)
+        self.assertEqual(codes - set(_PROBLEM_TEXT), set(), "a problem code has no explanation")
 
 
 @unittest.skipUnless(
