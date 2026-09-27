@@ -217,19 +217,16 @@ describe("PreviewChangeSet", () => {
     expect(persisted!.lines).toHaveLength(0);
   });
 
-  it("silently drops unpriced SKU — 2 SKUs, 1 price → 1 line", async () => {
+  it("rejects an incomplete price basis before persisting preview", async () => {
     const skus   = [makeSku(SKU_ID_1), makeSku(SKU_ID_2)];
     const prices = [makePriceRecord(SKU_ID_1, 100000n)];
     const service = makeService(new StubCatalogClient(skus, prices));
     const impl = service.implementation.previewChangeSet!;
 
-    const resp = await impl(
+    await expect(impl(
       create(PreviewChangeSetRequestSchema, { scopeJson: VALID_SCOPE, ruleJson: PCT_UP_5 }) as never,
       makeContext(ORG_ID, USER_ID),
-    ) as { changeSet: { lines: Array<{ skuId: string }> } };
-
-    expect(resp.changeSet.lines).toHaveLength(1);
-    expect(resp.changeSet.lines[0]!.skuId).toBe(SKU_ID_1);
+    )).rejects.toThrow("missing or ambiguous");
   });
 
   it("rejects invalid rule_json — non-JSON", async () => {

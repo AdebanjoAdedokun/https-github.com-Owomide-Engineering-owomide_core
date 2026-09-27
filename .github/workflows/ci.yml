@@ -11,6 +11,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  proposal-integrity:
+    name: Proposal integrity integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v5
+        with:
+          version: 8.15.9
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @owomide/bus build
+      - run: pnpm --filter @owomide/proposal build
+      - name: Test real PostgreSQL authority, scope and publication boundaries
+        working-directory: src/proposal
+        run: >-
+          pnpm exec vitest run --config vitest.integration.config.ts
+          src/tests/integration/proposal-approve.integration.test.ts
+          src/tests/integration/proposal-publish.integration.test.ts
+          src/tests/integration/build-scope.integration.test.ts
+          src/tests/integration/preview-change-set.integration.test.ts
+          src/tests/integration/scheduled-rollout.integration.test.ts
   lint:
     name: Lint
     runs-on: ubuntu-latest

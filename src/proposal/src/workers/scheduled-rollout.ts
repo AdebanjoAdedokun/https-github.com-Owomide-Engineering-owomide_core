@@ -7,6 +7,7 @@ import {
 } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
 import { ProposalPublishedSchema } from "@owomide/proto/events/proposal/v1_pb.js";
 import { signServiceJwt } from "../context.js";
+import { requireCompletePriceApplication } from "../domain/catalog-completion.js";
 import { dateToTimestamp } from "../domain/time.js";
 import type { Database } from "../db.js";
 import type { ProposalRepository } from "../repo/proposal-repository.js";
@@ -141,7 +142,7 @@ export class ScheduledRolloutWorker {
         catalogHeaders.set("Authorization", `Bearer ${jwt}`);
       }
 
-      await this.catalogClient.applyPriceChanges(
+      const application = await this.catalogClient.applyPriceChanges(
         create(ApplyPriceChangesRequestSchema, {
           idempotencyKey: row.proposal_id,
           proposalId: row.proposal_id,
@@ -150,6 +151,7 @@ export class ScheduledRolloutWorker {
         }),
         catalogHeaders,
       );
+      requireCompletePriceApplication(changes, application);
 
       // Phase 3: publish proposal + outbox + mark dispatched — all atomic
       const now = new Date();

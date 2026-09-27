@@ -45,10 +45,6 @@ import {
 import {
   ApplyPriceChangesRequestSchema,
   PriceChangeSchema,
-  ListSkusRequestSchema,
-  BatchGetPricesRequestSchema,
-  type Sku,
-  type PriceRecord,
 } from "@owomide/proto/services/catalog/v1/catalog_pb.js";
 import {
   ValidateBatchRequestSchema,
@@ -56,7 +52,7 @@ import {
   type Violation,
   ViolationSeverity,
 } from "@owomide/proto/services/margin/v1/margin_pb.js";
-import { type Money, MoneySchema, PaginatedResponseSchema, PaginationSchema } from "@owomide/proto/common/v1/common_pb.js";
+import { MoneySchema, PaginatedResponseSchema } from "@owomide/proto/common/v1/common_pb.js";
 import {
   ProposalSubmittedSchema,
   ProposalBlockedSchema,
@@ -77,7 +73,9 @@ import {
 } from "./context.js";
 import type { RbacClient } from "./clients/rbac.js";
 import { Permission } from "@owomide/proto/services/rbac/v1/rbac_pb.js";
+import { resolveScope } from "./domain/resolve-scope.js";
 import { parseScopeDsl } from "./domain/scope-dsl.js";
+import { requireCompletePriceApplication } from "./domain/catalog-completion.js";
 import { parseRepricingRule, applyRule } from "./domain/repricing-rules.js";
 import { computeDiff } from "./domain/diff.js";
 import type { CatalogClient } from "./clients/catalog.js";
@@ -531,7 +529,7 @@ export class ProposalServiceImpl {
       catalogHeaders.set("Authorization", `Bearer ${jwt}`);
     }
 
-    await this.catalogClient.applyPriceChanges(
+    const application = await this.catalogClient.applyPriceChanges(
       create(ApplyPriceChangesRequestSchema, {
         idempotencyKey: request.id,
         proposalId: request.id,
@@ -540,6 +538,7 @@ export class ProposalServiceImpl {
       }),
       catalogHeaders
     );
+    requireCompletePriceApplication(changes, application);
 
     const payload = toBinary(
       ProposalPublishedSchema,
@@ -827,48 +826,10 @@ export class ProposalServiceImpl {
       catalogHeaders.set("Authorization", `Bearer ${jwt}`);
     }
 
-    // Single page, 500-SKU cap (matches Phase 5 bulk repricing exit criteria)
-    const skuResp = await this.catalogClient.listSkus(
-      create(ListSkusRequestSchema, {
-        channelId: scope.channel_id,
-        productId: scope.product_id ?? "",
-        category: scope.category ?? "",
-        query: scope.query ?? "",
-        pagination: create(PaginationSchema, { pageSize: 500 }),
-      }),
-      catalogHeaders,
-    );
-
-    if (skuResp.skus.length === 0) {
-      return create(BuildScopeResponseSchema, { skus: [] });
-    }
-
-    const skuIds = skuResp.skus.map((s: Sku) => s.id);
-    const priceResp = await this.catalogClient.batchGetPrices(
-      create(BatchGetPricesRequestSchema, {
-        skuIds,
-        channelId: scope.channel_id,
-        customerSegmentId: scope.customer_segment_id ?? "",
-      }),
-      catalogHeaders,
-    );
-
-    const priceBySkuId = new Map(priceResp.prices.map((p: PriceRecord) => [p.skuId, p.price]));
-
-    // SKUs with no active price for this channel are silently dropped — they cannot be repriced
-    const scopedSkus = [];
-    for (const sku of skuResp.skus) {
-      const price = priceBySkuId.get(sku.id);
-      if (price) {
-        scopedSkus.push(
-          create(ScopedSkuSchema, {
-            skuId: sku.id,
-            channelId: scope.channel_id,
-            currentPrice: price,
-          }),
-        );
-      }
-    }
+    const resolved = await resolveScope(this.catalogClient, scope, catalogHeaders);
+    const scopedSkus = resolved.skus.map((sku) => create(ScopedSkuSchema, {
+      skuId: sku.id, channelId: scope.channel_id, currentPrice: resolved.prices.get(sku.id),
+    }));
 
     return create(BuildScopeResponseSchema, { skus: scopedSkus });
   }
@@ -898,35 +859,12 @@ export class ProposalServiceImpl {
       catalogHeaders.set("Authorization", `Bearer ${jwt}`);
     }
 
-    const skuResp = await this.catalogClient.listSkus(
-      create(ListSkusRequestSchema, {
-        channelId: scope.channel_id,
-        productId: scope.product_id ?? "",
-        category: scope.category ?? "",
-        query: scope.query ?? "",
-        pagination: create(PaginationSchema, { pageSize: 500 }),
-      }),
-      catalogHeaders,
-    );
-
+    const resolved = await resolveScope(this.catalogClient, scope, catalogHeaders);
     const lineInputs: Parameters<typeof this.repo.bulkInsertChangeSetLines>[3] = [];
 
-    if (skuResp.skus.length > 0) {
-      const skuIds = skuResp.skus.map((s: Sku) => s.id);
-      const priceResp = await this.catalogClient.batchGetPrices(
-        create(BatchGetPricesRequestSchema, {
-          skuIds,
-          channelId: scope.channel_id,
-          customerSegmentId: scope.customer_segment_id ?? "",
-        }),
-        catalogHeaders,
-      );
-
-      const priceBySkuId = new Map<string, Money | undefined>(priceResp.prices.map((p: PriceRecord) => [p.skuId, p.price]));
-
-      for (const sku of skuResp.skus) {
-        const price = priceBySkuId.get(sku.id);
-        if (!price) continue;
+    if (resolved.skus.length > 0) {
+      for (const sku of resolved.skus) {
+        const price = resolved.prices.get(sku.id)!;
         const currentMinor = price.amount;
         const currency = price.currency;
         const proposedMinor = applyRule(rule, currentMinor, currency);

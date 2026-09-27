@@ -169,20 +169,17 @@ describe("BuildScope", () => {
       expect(resp.skus).toHaveLength(0);
     });
 
-    it("silently drops SKUs that have no active price for the channel", async () => {
+    it("rejects unpriced scope members", async () => {
       const skus = [makeSku(SKU_ID_1), makeSku(SKU_ID_2)];
       // Only SKU_ID_1 has a price; SKU_ID_2 is priced but excluded from BatchGetPrices response
       const prices = [makePriceRecord(SKU_ID_1, 120000n)];
       service = makeService(new StubCatalogClient(skus, prices));
 
       const impl = service.implementation.buildScope!;
-      const resp = await impl(
+      await expect(impl(
         create(BuildScopeRequestSchema, { scopeJson: VALID_SCOPE }) as never,
         makeContext(ORG_ID, USER_ID),
-      ) as { skus: Array<{ skuId: string }> };
-
-      expect(resp.skus).toHaveLength(1);
-      expect(resp.skus[0]!.skuId).toBe(SKU_ID_1);
+      )).rejects.toThrow("missing or ambiguous");
     });
   });
 

@@ -73,7 +73,7 @@ class StubCatalogClient implements CatalogClient {
   async applyPriceChanges(req: ApplyPriceChangesRequest, _headers: Headers): Promise<ApplyPriceChangesResponse> {
     if (this.shouldFailApply) throw new Error("catalog unavailable");
     this.applyCalls.push(req);
-    return create(ApplyPriceChangesResponseSchema, {});
+    return create(ApplyPriceChangesResponseSchema, { results: req.changes.map((change) => ({ sourceItemRef: change.proposalLineId, skuId: change.skuId, status: 2, priceRecordIds: [`price-${change.proposalLineId}`] })) });
   }
 }
 

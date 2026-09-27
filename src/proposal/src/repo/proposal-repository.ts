@@ -233,6 +233,27 @@ export class ProposalRepository {
     actorId: string,
     meta: Record<string, unknown>
   ): Promise<ProposalWithLines> {
+    // Lock the proposal before checking its immutable submission evidence so
+    // the authority check and decision share the caller's transaction.
+    await client.query(
+      `SELECT id FROM proposal.proposal
+       WHERE id = $1 AND org_id = proposal.current_org_id() FOR UPDATE`,
+      [id]
+    );
+    const submission = await client.query<{ actor_id: string }>(
+      `SELECT actor_id FROM proposal.proposal_transition
+       WHERE proposal_id = $1 AND org_id = proposal.current_org_id()
+         AND from_state = 'draft' AND to_state IN ('submitted', 'blocked')
+       ORDER BY occurred_at DESC, id DESC LIMIT 1`,
+      [id]
+    );
+    const submitter = submission.rows[0]?.actor_id;
+    if (!submitter) {
+      throw new ConnectError("Submission evidence is required before approval", Code.FailedPrecondition);
+    }
+    if (submitter === actorId) {
+      throw new ConnectError("The actual submitter cannot approve this proposal", Code.PermissionDenied);
+    }
     const proposalResult = await client.query<ProposalRow>(
       `UPDATE proposal.proposal
        SET state = 'approved', updated_at = clock_timestamp()

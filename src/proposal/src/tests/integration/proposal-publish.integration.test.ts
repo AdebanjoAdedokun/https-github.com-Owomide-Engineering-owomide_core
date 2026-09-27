@@ -64,6 +64,7 @@ class StubMarginClient implements MarginClient {
 class MockCatalogClient implements CatalogClient {
   readonly calls: ApplyPriceChangesRequest[] = [];
   shouldFail = false;
+  rejectRows = false;
 
   async applyPriceChanges(req: ApplyPriceChangesRequest, _headers: Headers) {
     if (this.shouldFail) {
@@ -73,7 +74,7 @@ class MockCatalogClient implements CatalogClient {
     return create(ApplyPriceChangesResponseSchema, {
       operationId: "mock-op",
       replayed: false,
-      results: [],
+      results: req.changes.map((change) => ({ sourceItemRef: change.proposalLineId, skuId: change.skuId, status: this.rejectRows ? 4 : 2, priceRecordIds: this.rejectRows ? [] : [`price-${change.proposalLineId}`] })),
     });
   }
   async listSkus(_req: never, _headers: Headers): Promise<never> {
@@ -155,7 +156,15 @@ describe("Proposal Publish", () => {
   });
 
   async function createApprovedProposal(orgId: string, ownerId: string): Promise<string> {
-    const req = create(CreateProposalRequestSchema, { title: "Publish Test" });
+    const req = create(CreateProposalRequestSchema, {
+      title: "Publish Test",
+      lines: [{
+        skuId: "00000000-0000-0000-0000-000000000011",
+        channelId: "00000000-0000-0000-0000-000000000012",
+        currentPrice: { amount: 10000n, currency: "NGN" },
+        proposedPrice: { amount: 11000n, currency: "NGN" },
+      }],
+    });
     const created = await db.withOrgTransaction(orgId, (c) =>
       repo.createProposal(c, orgId, ownerId, req)
     );
@@ -280,5 +289,20 @@ describe("Proposal Publish", () => {
 
     expect(catalogClient.calls[0]!.idempotencyKey).toBe(proposalId);
     expect(catalogClient.calls[0]!.proposalId).toBe(proposalId);
+  });
+
+  it("does not publish or emit completion when Catalog returns rejected rows", async () => {
+    const proposalId = await createApprovedProposal(ORG_A, OWNER);
+    catalogClient.rejectRows = true;
+    try {
+      await expect(service.implementation.publishProposal!({ id: proposalId } as never, makeContext(ORG_A, PUBLISHER)))
+        .rejects.toThrow("did not confirm every proposal line");
+      const proposal = await db.withOrgTransaction(ORG_A, (c) => repo.getProposal(c, proposalId));
+      expect(proposal!.row.state).toBe("approved");
+      const events = await superuser.query("SELECT id FROM proposal.outbox_event WHERE aggregate_id = $1 AND event_type = 'proposal.published'", [proposalId]);
+      expect(events.rows).toHaveLength(0);
+    } finally {
+      catalogClient.rejectRows = false;
+    }
   });
 });
