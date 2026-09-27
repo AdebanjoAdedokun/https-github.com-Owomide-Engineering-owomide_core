@@ -2,6 +2,7 @@ node_modules
 src/gateway/node_modules
 src/catalog/node_modules
 src/governance/node_modules
+src/notify/node_modules
 src/proposal/node_modules
 src/rbac/node_modules
 src/lib/bus-smoke/node_modules

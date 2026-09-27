@@ -315,6 +315,34 @@ importers:
         specifier: ^2.12.1
         version: 2.12.1
 
+  src/notify:
+    dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^2.12.1
+        version: 2.12.1
+      '@owomide/proto':
+        specifier: workspace:*
+        version: link:../lib/proto
+      pg:
+        specifier: ^8.16.3
+        version: 8.22.0
+    devDependencies:
+      '@testcontainers/postgresql':
+        specifier: ^10.28.0
+        version: 10.28.0
+      '@types/node':
+        specifier: ^22.15.0
+        version: 22.20.0
+      '@types/pg':
+        specifier: ^8.15.5
+        version: 8.20.0
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.7(@types/node@22.20.0)(tsx@4.22.4)
+
   src/proposal:
     dependencies:
       '@bufbuild/protobuf':

@@ -1,0 +1,134 @@
+load("@aspect_rules_js//js:defs.bzl", "js_test")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages(name = "node_modules")
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = ["//:tsconfig_base_json"],
+)
+
+ts_config(
+    name = "tsconfig_test",
+    src = "tsconfig.test.json",
+    deps = [
+        ":tsconfig",
+        "//:tsconfig_base_json",
+    ],
+)
+
+ts_config(
+    name = "tsconfig_integration",
+    src = "tsconfig.integration.json",
+    deps = [
+        ":tsconfig",
+        "//:tsconfig_base_json",
+    ],
+)
+
+ts_project(
+    name = "notify_ts",
+    srcs = glob(
+        ["src/**/*.ts"],
+        exclude = ["src/tests/**"],
+    ),
+    data = ["package.json"],
+    declaration = True,
+    declaration_map = True,
+    out_dir = "dist",
+    resolve_json_module = True,
+    root_dir = "src",
+    source_map = True,
+    tsconfig = ":tsconfig",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/proto",
+        ":node_modules/@types/node",
+        ":node_modules/@types/pg",
+        ":node_modules/pg",
+    ],
+)
+
+ts_project(
+    name = "unit_tests_ts",
+    srcs = glob(["src/**/*.ts"], exclude = ["src/tests/integration/**"]),
+    declaration = True,
+    declaration_map = True,
+    out_dir = "dist_unit",
+    resolve_json_module = True,
+    root_dir = "src",
+    source_map = True,
+    tsconfig = ":tsconfig_test",
+    deps = [
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/proto",
+        ":node_modules/@types/node",
+        ":node_modules/@types/pg",
+        ":node_modules/pg",
+        ":node_modules/vitest",
+        "//src/lib/proto:pkg",
+    ],
+)
+
+js_test(
+    name = "unit_tests",
+    data = [
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/proto",
+        ":node_modules/vitest",
+        ":unit_tests_ts",
+        "//src/lib/proto:pkg",
+    ],
+    entry_point = "src/tests/unit/run.js",
+    visibility = ["//visibility:public"],
+)
+
+ts_project(
+    name = "integration_tests_ts",
+    srcs = glob(["src/**/*.ts"], exclude = ["src/tests/unit/**"]),
+    declaration = True,
+    declaration_map = True,
+    out_dir = "dist_integration",
+    resolve_json_module = True,
+    root_dir = "src",
+    source_map = True,
+    tsconfig = ":tsconfig_integration",
+    deps = [
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/proto",
+        ":node_modules/@testcontainers/postgresql",
+        ":node_modules/@types/node",
+        ":node_modules/@types/pg",
+        ":node_modules/pg",
+        ":node_modules/vitest",
+        "//src/lib/proto:pkg",
+    ],
+)
+
+js_test(
+    name = "integration_tests",
+    args = [],
+    chdir = package_name(),
+    data = [
+        ":integration_tests_ts",
+        ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/proto",
+        ":node_modules/@testcontainers/postgresql",
+        ":node_modules/pg",
+        ":node_modules/vitest",
+        "//src/lib/proto:pkg",
+        "migrations/0001_create_schema.down.sql",
+        "migrations/0001_create_schema.up.sql",
+        "migrations/0002_notifications.down.sql",
+        "migrations/0002_notifications.up.sql",
+    ],
+    entry_point = "src/tests/integration/run.js",
+    tags = [
+        "manual",
+        "requires-docker",
+    ],
+    visibility = ["//visibility:public"],
+)
