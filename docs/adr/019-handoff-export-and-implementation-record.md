@@ -3,8 +3,12 @@
 ## Status
 
 Proposed. This is the execution slice of CT-02 (issue #52), drafted 27 September 2026 for BE-07
-(Release 1 parts) and FE-09. It follows decision D-06, and depends on ADR-016 (Catalog records) and
-ADR-018 (frozen versions). It needs lead engineer review before any runtime code changes.
+(Release 1 parts) and FE-09. It assumes the CEO's proposed options for D-06. None is ratified:
+`DECISIONS.md` holds no ratification record for them yet, and if a ratified choice differs, this ADR
+changes with it. It is input to the team's CT-02 draft
+(`docs/product/mvp-2026-09/delivery/CT-02-contract-draft.md`); where the two differ, the draft and
+its review govern. It depends on ADR-016 (Catalog records) and ADR-018 (frozen versions). It needs
+lead engineer review before any runtime code changes.
 
 ## Context
 
