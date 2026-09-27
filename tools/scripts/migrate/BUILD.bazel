@@ -106,9 +106,11 @@ js_test(
     name = "integration_tests",
     data = [
         ":dist_integration/env.js",
+        ":dist_integration/invariants.js",
         ":dist_integration/manifest.js",
         ":dist_integration/runner.js",
         ":dist_integration/sql-files.js",
+        ":dist_integration/tests/integration/invariants.integration.test.js",
         ":dist_integration/tests/integration/migrate.integration.test.js",
         ":dist_integration/tracker.js",
         ":node_modules/@testcontainers/postgresql",

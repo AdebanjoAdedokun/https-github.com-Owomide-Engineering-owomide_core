@@ -144,6 +144,8 @@ js_test(
         "migrations/0002_rbac_foundation.down.sql",
         "migrations/0003_seed_system_roles.up.sql",
         "migrations/0003_seed_system_roles.down.sql",
+        "migrations/0004_lock_system_roles.up.sql",
+        "migrations/0004_lock_system_roles.down.sql",
     ],
     env = {"NODE_OPTIONS": "--experimental-global-webcrypto"},
     entry_point = "src/tests/integration/run.js",

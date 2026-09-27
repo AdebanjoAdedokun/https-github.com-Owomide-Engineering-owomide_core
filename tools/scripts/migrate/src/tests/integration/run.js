@@ -2,6 +2,7 @@ const path = require("node:path");
 
 const tests = [
   path.resolve(__dirname, "../../../dist_integration/tests/integration/migrate.integration.test.js"),
+  path.resolve(__dirname, "../../../dist_integration/tests/integration/invariants.integration.test.js"),
 ];
 
 process.argv = [

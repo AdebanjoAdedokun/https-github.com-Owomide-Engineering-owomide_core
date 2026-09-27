@@ -158,6 +158,10 @@ make migrate-down svc=catalog             # roll back last migration
 make migrate-down svc=catalog steps=3     # roll back last 3 migrations
 make migrate-create svc=<name> name=<desc> # scaffold a new paired .up.sql + .down.sql
 
+# Database invariants and backup drill
+make db-check                             # RLS forced, privileges, SECURITY DEFINER settings on DATABASE_URL
+make backup-drill                         # SOURCE_DATABASE_URL + DRILL_ADMIN_URL: dump, restore, compare, check
+
 # Lint & format
 make lint
 make fmt
@@ -177,6 +181,7 @@ make manifests-validate
 - **Python services:** Type hints required; `ruff` for lint, `pyright` for typecheck. Validate inputs at gRPC handlers.
 - **Go services:** standard `go fmt` / `golangci-lint`; protobuf-first for contracts.
 - **Schema-per-service.** Migrations live in `src/<name>/migrations/`. Each service connects with its own Postgres role.
+- **Revoke, don't just omit.** The migration runner grants each service role SELECT, INSERT, UPDATE and DELETE on every new table by default. A migration that must forbid UPDATE or DELETE has to `REVOKE` it. Tag a table `@append-only` or `@deletable` in its `COMMENT`; `make db-check` fails on any DELETE a table does not declare.
 - **Tenant boundary.** Customer-owned tables include `org_id`; indexes and uniqueness constraints start with it where applicable.
 - **gRPC for service-to-service.** REST only at the gateway (BFF pattern).
 - **Events:** dotted `noun.verb` names. Payloads are protobuf-encoded (defined in `src/lib/proto/events/`). Versioned; consumers tolerate unknown fields.

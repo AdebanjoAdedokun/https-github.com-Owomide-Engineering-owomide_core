@@ -52,6 +52,9 @@ an existing role's grants into a new org-owned custom role) is tracked in
   for reads (global rows always visible), `WITH CHECK (org_id = current_org_id())`
   for writes (nothing writes a global row through the tenant path).
 - Postgres role `rbac_svc` has access to schema `rbac` only.
+- `rbac_svc` can only read `role` and `role_permission` (`0004_lock_system_roles`): the global
+  system roles are shared by every tenant, so only migrations change them. A future write RPC
+  (`DuplicateRole`) grants exactly what it needs in its own migration.
 
 ## Runtime
 
