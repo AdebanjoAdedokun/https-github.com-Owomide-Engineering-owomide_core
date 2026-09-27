@@ -117,8 +117,8 @@ class ReadinessTest(unittest.TestCase):
         self.assertEqual(
             report.unable_to_evaluate,
             {
-                "no_applicable_cost": 1,
-                "no_current_price": 1,
+                "no_applicable_cost_record": 1,
+                "no_applicable_price_record": 1,
                 "price_not_positive": 1,
                 "tax_basis_unknown": 1,
                 "tax_rate_missing": 1,
@@ -173,7 +173,7 @@ class ReadinessTest(unittest.TestCase):
             [("costs", [cost("A", "50.00")])],
             LAGOS,
         )
-        self.assertEqual(report.unable_to_evaluate, {"no_current_price": 1})
+        self.assertEqual(report.unable_to_evaluate, {"no_applicable_price_record": 1})
         self.assertEqual(
             [c for _, _, c in codes(report)], ["duplicate_in_file", "duplicate_in_file"]
         )
@@ -289,7 +289,7 @@ class TestCatalogueConformanceTest(unittest.TestCase):
 
         baseline = assess(products, prices, [opening], LAGOS)
         self.assertEqual((baseline.products, baseline.margin_ready), (5000, 4975))
-        self.assertEqual(baseline.unable_to_evaluate, {"no_applicable_cost": 25})
+        self.assertEqual(baseline.unable_to_evaluate, {"no_applicable_cost_record": 25})
         self.assertEqual(baseline.below_min_margin, 0)
 
         after = assess(

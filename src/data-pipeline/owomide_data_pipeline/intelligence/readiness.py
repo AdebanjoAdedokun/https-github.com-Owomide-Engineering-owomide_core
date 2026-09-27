@@ -483,10 +483,10 @@ def assess(
         price = current_prices.get(sku)
         cost = current_costs.get(sku)
         if price is None:
-            unable["no_current_price"] += 1
+            unable["no_applicable_price_record"] += 1
             continue
         if cost is None:
-            unable["no_applicable_cost"] += 1
+            unable["no_applicable_cost_record"] += 1
             continue
         margin = gross_margin_pct(
             tax_exclusive(price.amount, price.tax_inclusive, price.rate_pct), cost.amount
