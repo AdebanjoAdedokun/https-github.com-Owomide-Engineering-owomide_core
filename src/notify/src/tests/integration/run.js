@@ -8,6 +8,10 @@ const tests = [
     dirname,
     "../../../dist_integration/tests/integration/notifications.integration.test.js",
   ),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/delivery.integration.test.js",
+  ),
 ];
 
 process.argv = [

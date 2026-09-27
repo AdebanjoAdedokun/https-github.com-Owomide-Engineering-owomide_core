@@ -92,11 +92,27 @@ Messages never contain prices, costs or margins (`src/domain/templates.ts`).
 
 ## Status
 
-Implemented and tested: schema, routing, templates, event decoding, the idempotent
-`handleEvent` handler and the inbox/preference repository. Not yet built: the bus subscriber and
-server entrypoint, the ZeptoMail sender, the gRPC API (needs `make proto`), and the RBAC-backed
-`RecipientDirectory` (needs an RBAC lookup RPC; `rbac.active_role_codes` and the membership
-tables already exist on the RBAC side).
+Implemented and tested:
+- schema, routing, templates, event decoding and the idempotent `handleEvent` handler;
+- the inbox and preference repository;
+- `clients/zeptomail.ts` — ZeptoMail `POST /v1.1/email` with the agent's
+  `Zoho-enczapikey` token, plain text, no open or click tracking. 4xx (except 408, 425 and 429)
+  is permanent; 5xx, 429 and network errors are retried;
+- `workers/email-sender.ts` — leases queued emails across tenants, sends, records the provider
+  request id, backs off on retryable failures and fails permanent ones immediately. Never logs
+  recipient addresses;
+- `subscribers/notification-subscriber.ts` — consumer group `notify.inapp` on every locked event;
+- `server.ts` — `/healthz`, `/readyz` (database) and the email sender. Without
+  `ZEPTOMAIL_TOKEN`, emails stay queued.
+
+Configuration: `NOTIFY_DATABASE_URL`, `NOTIFY_APP_BASE_URL` (required); `ZEPTOMAIL_TOKEN`,
+`NOTIFY_FROM_ADDRESS`, `NOTIFY_FROM_NAME`, `ZEPTOMAIL_API_URL` (regional hosts differ),
+`ZEPTOMAIL_TIMEOUT_MS`, `NOTIFY_EMAIL_BATCH_SIZE`, `NOTIFY_EMAIL_POLL_MS`,
+`NOTIFY_EMAIL_MAX_ATTEMPTS`, `NOTIFY_HEALTH_PORT`, `LOG_LEVEL`, `KAFKA_BROKER`.
+
+Not yet wired: the server does not start the bus subscriber, because the `RecipientDirectory`
+needs RBAC's `members_with_permission` (RBAC migration 0006) exposed as an RPC, which needs
+`make proto`. The gRPC inbox API needs the same. No Kubernetes manifests exist for Notify yet.
 
 ---
 

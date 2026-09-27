@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.12.1",
+    "@owomide/bus": "workspace:*",
     "@owomide/proto": "workspace:*",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "pino": "^10.3.1"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^10.28.0",
