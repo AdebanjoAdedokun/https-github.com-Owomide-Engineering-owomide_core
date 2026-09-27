@@ -4,7 +4,7 @@
 -- support grants and the access log. Safe in local dev only.
 
 DROP FUNCTION IF EXISTS rbac.active_role_codes(text, text);
-DROP FUNCTION IF EXISTS rbac.create_organisation(text, text, text, text, text, text, text, boolean, integer, text);
+DROP FUNCTION IF EXISTS rbac.create_organisation(text, text, text, text, text, text, text, text);
 DROP TABLE IF EXISTS rbac.access_log;
 DROP TABLE IF EXISTS rbac.support_access_grant;
 DROP FUNCTION IF EXISTS rbac.guard_support_grant_update();

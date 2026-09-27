@@ -67,7 +67,7 @@ describe("Organisations, membership and support access", () => {
     try {
       const { rows } = await svc.query(
         `SELECT rbac.create_organisation($1, $2, $3, 'Illustrative Stores', 'NG', 'NGN', 'Africa/Lagos',
-                                         true, 750, 'enabled_without_cost_margin') AS id`,
+                                         'enabled_without_cost_margin') AS id`,
         [subject, email, "Femi"]
       );
       await svc.query("COMMIT");

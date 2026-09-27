@@ -63,11 +63,12 @@ rows, resolved per request by `rbac.active_role_codes(org_id, identity_subject)`
 from token claims. `CheckPermission` still takes roles from the request until the gateway
 resolves them (that needs a new RPC and a `make proto` run).
 
-- `organisation` — name, country, default currency and time zone, default tax basis and rate
-  (basis points), AI data policy (AI-036), and `enabled_role_codes` (Release 1: account_owner,
-  pricing_manager, finance_approver, executor). Created only through
-  `rbac.create_organisation(...)` (SECURITY DEFINER), which also creates the creator's account,
-  active membership, Account Owner role and first access-log entry.
+- `organisation` — name, country, default currency and time zone, AI data policy (AI-036), and
+  `enabled_role_codes` (Release 1: account_owner, pricing_manager, finance_approver, executor).
+  Tax defaults and the calculation cost basis are pricing settings owned by Catalog
+  (`catalog.pricing_settings`), not RBAC. Created only through `rbac.create_organisation(...)`
+  (SECURITY DEFINER), which also creates the creator's account, active membership, Account Owner
+  role and first access-log entry.
 - `user_account` — one row per person across organisations, keyed by the identity provider's
   subject. Not tenant data.
 - `membership` — status `invited` | `active` | `suspended` | `removed`.

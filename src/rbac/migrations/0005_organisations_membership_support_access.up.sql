@@ -20,8 +20,6 @@ CREATE TABLE rbac.organisation (
   country text NOT NULL CHECK (country ~ '^[A-Z]{2}$'),
   default_currency text NOT NULL CHECK (default_currency ~ '^[A-Z]{3}$'),
   time_zone text NOT NULL CHECK (btrim(time_zone) <> ''),
-  default_tax_inclusive boolean NOT NULL,
-  default_tax_rate_bp integer CHECK (default_tax_rate_bp BETWEEN 0 AND 10000),
   ai_data_policy text NOT NULL CHECK (ai_data_policy IN ('disabled', 'enabled_without_cost_margin', 'enabled')),
   -- Release 1 supports four roles (PRD section 2.5); later releases enable more.
   enabled_role_codes text[] NOT NULL
@@ -29,7 +27,6 @@ CREATE TABLE rbac.organisation (
   created_by text NOT NULL CHECK (btrim(created_by) <> ''),
   created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-  CHECK (NOT default_tax_inclusive OR default_tax_rate_bp IS NOT NULL),
   CHECK ('account_owner' = ANY (enabled_role_codes))
 );
 
@@ -236,8 +233,6 @@ CREATE FUNCTION rbac.create_organisation(
   p_country text,
   p_default_currency text,
   p_time_zone text,
-  p_default_tax_inclusive boolean,
-  p_default_tax_rate_bp integer,
   p_ai_data_policy text
 )
 RETURNS text
@@ -260,10 +255,9 @@ BEGIN
   v_org := gen_random_uuid()::text;
   PERFORM set_config('app.org_id', v_org, true);
 
-  INSERT INTO rbac.organisation (id, name, country, default_currency, time_zone, default_tax_inclusive,
-                                 default_tax_rate_bp, ai_data_policy, created_by)
-  VALUES (v_org, p_name, p_country, p_default_currency, p_time_zone, p_default_tax_inclusive,
-          p_default_tax_rate_bp, p_ai_data_policy, v_user::text);
+  INSERT INTO rbac.organisation (id, name, country, default_currency, time_zone, ai_data_policy,
+                                 created_by)
+  VALUES (v_org, p_name, p_country, p_default_currency, p_time_zone, p_ai_data_policy, v_user::text);
 
   INSERT INTO rbac.membership (org_id, user_id, status, joined_at, status_changed_by)
   VALUES (v_org, v_user, 'active', clock_timestamp(), v_user::text)
@@ -333,5 +327,5 @@ GRANT SELECT, INSERT, UPDATE ON rbac.organisation, rbac.membership, rbac.role_as
 GRANT SELECT, INSERT, UPDATE ON rbac.user_account TO rbac_svc;
 GRANT SELECT, INSERT ON rbac.access_log TO rbac_svc;
 GRANT EXECUTE ON FUNCTION rbac.active_role_codes(text, text) TO rbac_svc;
-REVOKE ALL ON FUNCTION rbac.create_organisation(text, text, text, text, text, text, text, boolean, integer, text) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION rbac.create_organisation(text, text, text, text, text, text, text, boolean, integer, text) TO rbac_svc;
+REVOKE ALL ON FUNCTION rbac.create_organisation(text, text, text, text, text, text, text, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION rbac.create_organisation(text, text, text, text, text, text, text, text) TO rbac_svc;
