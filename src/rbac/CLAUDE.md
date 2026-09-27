@@ -94,6 +94,18 @@ no drafting, submitting, approving, overriding or implementing, and no organisat
 role administration. Release 1 organisations do not list it in `enabled_role_codes`, so it cannot
 be assigned until an organisation enables it (Release 2).
 
+### Directory and invitations (migration 0007)
+
+- `rbac.members_with_permission(permission)` — identity subject, email and name of every active
+  member of the current organisation holding the permission through an active assignment of an
+  enabled role. Support access never counts. Notify uses it to find approvers and executors
+  (needs an RPC and `make proto` before Notify can call it).
+- `rbac.accept_invitation(token, identity_subject, email, display_name)` (SECURITY DEFINER) —
+  checks the token by SHA-256 through a narrow read policy, requires it unused, unrevoked,
+  unexpired and addressed to the signed-in email, then creates or reactivates the membership (never
+  a suspended one), assigns the invited roles, marks the invitation accepted and logs it. Every
+  failure gives the same message.
+
 ## Runtime
 
 - Connect/gRPC server: `50056`
