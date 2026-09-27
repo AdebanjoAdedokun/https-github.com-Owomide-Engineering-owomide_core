@@ -326,6 +326,12 @@ GRANT SELECT, INSERT, UPDATE ON rbac.organisation, rbac.membership, rbac.role_as
   rbac.invitation, rbac.support_access_grant TO rbac_svc;
 GRANT SELECT, INSERT, UPDATE ON rbac.user_account TO rbac_svc;
 GRANT SELECT, INSERT ON rbac.access_log TO rbac_svc;
+-- The migration runner grants SELECT, INSERT, UPDATE and DELETE on new tables by default, so the
+-- rules above ("never deleted", "append-only") need explicit revokes.
+REVOKE DELETE ON rbac.organisation, rbac.membership, rbac.role_assignment, rbac.invitation,
+  rbac.support_access_grant, rbac.user_account FROM rbac_svc;
+REVOKE UPDATE, DELETE ON rbac.access_log FROM rbac_svc;
+COMMENT ON TABLE rbac.access_log IS 'Who did what in an organisation, including support access. @append-only';
 GRANT EXECUTE ON FUNCTION rbac.active_role_codes(text, text) TO rbac_svc;
 REVOKE ALL ON FUNCTION rbac.create_organisation(text, text, text, text, text, text, text, text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION rbac.create_organisation(text, text, text, text, text, text, text, text) TO rbac_svc;
