@@ -13,6 +13,8 @@ const tests = [
   path.resolve(dirname, "../../../dist_unit/tests/unit/diff.test.js"),
   path.resolve(dirname, "../../../dist_unit/tests/unit/execution.test.js"),
   path.resolve(dirname, "../../../dist_unit/tests/unit/activity.test.js"),
+  path.resolve(dirname, "../../../dist_unit/tests/unit/initiative-lifecycle.test.js"),
+  path.resolve(dirname, "../../../dist_unit/tests/unit/snapshot.test.js"),
 ];
 
 process.argv = [process.argv[0], process.argv[1], "run", "--environment", "node", ...tests];

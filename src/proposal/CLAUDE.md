@@ -142,6 +142,35 @@ Decision D-06. The execution file goes to store staff and never carries cost, ma
   `activity_kind_order`, then source row); `src/domain/activity.ts` `describeActivity` turns an
   entry into one plain-language sentence for the history panel.
 
+### Initiative lifecycle (migration 0008)
+
+- An Initiative's `lifecycle_state` changes only by inserting an `initiative_transition`, and only
+  along the moves in `initiative_lifecycle_rule` (mirrored by `src/domain/initiative-lifecycle.ts`;
+  an integration test keeps them identical). Pausing, cancelling and going backwards need a reason.
+  `completed` and `cancelled` are final. New Initiatives start `initiated`.
+- `proposal_svc` may update only an Initiative's title, objective, priority, owner and overlap
+  acknowledgement. The state is applied by the SECURITY DEFINER transition trigger; a direct
+  update is refused even for the table owner.
+
+### Measurement (migration 0009)
+
+- `version_cycle_time` and `initiative_cycle_time` (security_invoker views) give seconds from
+  creation to submission, submission to decision, decision to export and to the first line on the
+  shelf (failed lines do not count), per version and per Initiative (PRD HIST-030).
+
+### AI suggestions (migration 0010)
+
+- `ai_suggestion` — every AI output for a submitted, frozen version, stored exactly as returned
+  with model, prompt version, input hash and the data policy it ran under (decision D-01,
+  suggest-only). A person applies it once (`applied_by`, `applied_at`, `applied_text`, the only
+  columns the service may update). Never deleted.
+
+### Frozen snapshot
+
+- `src/domain/snapshot.ts` builds the frozen version document in canonical JSON (sorted keys,
+  fixed line order, integers or decimal strings only) and its `sha256:` fingerprint for
+  `proposal_version.snapshot` / `snapshot_hash`.
+
 ### Bulk repricing tables
 
 - `change_set` — id, org_id, status (`draft` | `submitted` | `discarded`), **actor_id** (creator), scope JSONB, rule JSONB, created_at, updated_at, submitted_at (nullable), proposal_id (nullable, set on submit).

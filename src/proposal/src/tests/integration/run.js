@@ -75,6 +75,10 @@ const tests = [
     dirname,
     "../../../dist_integration/tests/integration/activity-history.integration.test.js"
   ),
+  path.resolve(
+    dirname,
+    "../../../dist_integration/tests/integration/lifecycle-measurement-ai.integration.test.js"
+  ),
 ];
 
 process.argv = [
