@@ -12,6 +12,7 @@ const tests = [
   path.resolve(dirname, "../../../dist_unit/tests/unit/repricing-rules.test.js"),
   path.resolve(dirname, "../../../dist_unit/tests/unit/diff.test.js"),
   path.resolve(dirname, "../../../dist_unit/tests/unit/execution.test.js"),
+  path.resolve(dirname, "../../../dist_unit/tests/unit/activity.test.js"),
 ];
 
 process.argv = [process.argv[0], process.argv[1], "run", "--environment", "node", ...tests];
