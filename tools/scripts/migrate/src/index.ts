@@ -109,7 +109,34 @@ await yargs(hideBin(process.argv))
       console.log(`Created: ${down}`);
     },
   )
-  .demandCommand(1, "Please provide a command: apply, down, or create")
+  .command(
+    "check",
+    "Check database invariants (RLS, privileges, SECURITY DEFINER settings) on a migrated database",
+    (y) =>
+      y
+        .option("svc", { type: "string", describe: "Check one service only" })
+        .option("manifest", { type: "string", describe: "Path to roles.yaml", default: DEFAULT_MANIFEST }),
+    async (argv) => {
+      const { loadManifest, filterToService } = await import("./manifest.js");
+      const { checkInvariants, formatFindings } = await import("./invariants.js");
+      const pg = (await import("pg")).default;
+      const all = loadManifest(argv.manifest);
+      const services = argv.svc ? [filterToService(all, argv.svc)] : all;
+      const client = new pg.Client({ connectionString: requireEnv("DATABASE_URL") });
+      await client.connect();
+      try {
+        // Cross-schema access is judged against every service, even when checking one.
+        const findings = (await checkInvariants(client, all)).filter((f) =>
+          services.some((s) => s.schema === f.schema)
+        );
+        console.log(formatFindings(findings));
+        if (findings.length > 0) process.exit(1);
+      } finally {
+        await client.end();
+      }
+    },
+  )
+  .demandCommand(1, "Please provide a command: apply, down, create, or check")
   .strict()
   .help()
   .parseAsync();

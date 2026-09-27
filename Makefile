@@ -110,6 +110,14 @@ migrate-create: ## Scaffold a new migration (usage: make migrate-create svc=<nam
 	@[ -n "$(name)" ] || (echo "Error: name= is required"; exit 1)
 	@cd tools/scripts/migrate && pnpm run migrate create --svc $(svc) --name "$(name)"
 
+.PHONY: db-check
+db-check: ## Check database invariants (RLS, privileges, SECURITY DEFINER) on DATABASE_URL
+	@cd tools/scripts/migrate && pnpm run migrate check $(if $(svc),--svc $(svc),)
+
+.PHONY: backup-drill
+backup-drill: ## Back up SOURCE_DATABASE_URL, restore into a scratch database on DRILL_ADMIN_URL, verify
+	@tools/scripts/backup-drill.sh
+
 .PHONY: bus-test
 bus-test: ## Run all bus library tests (JS, Python, Go)
 	cd src/lib/bus/js && pnpm test
