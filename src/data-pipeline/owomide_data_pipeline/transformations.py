@@ -134,6 +134,40 @@ def parse_tax_flag(value: object) -> bool:
     raise TransformationError("expected a recognised inclusive/exclusive boolean value")
 
 
+def percent_to_basis_points(value: object) -> int:
+    """Parse a tax rate such as "7.5", "7.5%" or 7.5 into basis points (750).
+
+    Rates finer than one basis point, negative rates and rates above 100% are refused rather
+    than rounded, because a silently rounded tax rate changes every margin computed from it.
+    """
+    raw = value.strip().removesuffix("%").strip() if isinstance(value, str) else value
+    if isinstance(raw, float):
+        raise TransformationError("tax rate must be given as text or an integer, not a float")
+    percent = _decimal(raw)
+    basis_points = percent * 100
+    if basis_points != basis_points.to_integral_value():
+        raise TransformationError("tax rate must not be finer than 0.01%")
+    if not 0 <= basis_points <= 10_000:
+        raise TransformationError("tax rate must be between 0% and 100%")
+    return int(basis_points)
+
+
+_UNIT_CODE = re.compile(r"[a-z][a-z0-9_]{0,31}")
+
+
+def cost_unit_code(value: object) -> str:
+    """Normalise a cost unit to the Catalog's lower-case code ("Each" -> "each", "Carton 12" ->
+    "carton_12")."""
+    if not isinstance(value, str):
+        raise TransformationError("cost unit must be text")
+    code = re.sub(r"[\s\-]+", "_", value.strip().lower())
+    if not _UNIT_CODE.fullmatch(code):
+        raise TransformationError(
+            "cost unit must start with a letter and use only letters, digits and underscores"
+        )
+    return code
+
+
 def normalize_unit(value: object, aliases: Mapping[str, object] | None = None) -> str:
     normalized = str(value).strip().upper()
     if not normalized:

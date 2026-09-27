@@ -112,6 +112,31 @@ If a worker stops after Catalog accepts a chunk but before Data Pipeline records
 retry sends the same rows with the same idempotency key and receives Catalog's stored response.
 Logical event duplicates use one deterministic event ID so consumers can deduplicate safely.
 
+## Tax basis and cost units (ADR-016, DATA-022)
+
+- Mapping targets `price_record.tax_rate_pct` and `cost_record.unit` join `price_record.tax_inclusive`.
+- Validation normalises `tax_inclusive` to a boolean and the rate to `tax_rate_bp` (7.5% = 750;
+  finer than 0.01%, negative or above 100% is refused, never rounded). Cost units become Catalog
+  codes (`"Carton 12"` -> `carton_12`).
+- Row findings: `invalid_tax_flag`, `invalid_tax_rate`, `invalid_cost_unit` (errors);
+  `tax_rate_missing_for_inclusive_price`, `cost_unit_incompatible` (warnings); `tax_basis_missing`
+  (information: Catalog applies the organisation default when it writes the price, and the
+  pipeline cannot see that default yet).
+- `below_cost` compares the price with VAT removed when the basis and rate are known
+  (`price * 10000 < cost * (10000 + rate_bp)`), and the price as written otherwise. Removing VAT
+  only lowers a price, so a price below cost as written is below cost on any basis.
+- `CatalogSnapshot.default_tax_inclusive` / `default_tax_rate_bp` stay `None` until Catalog exposes
+  its pricing settings. The normalised fields are staged in `mapped_data`; sending them to Catalog
+  needs the tax fields on `PriceWrite` / `CostWrite` (`make proto`).
+
+## Template presets (`template_presets.py`)
+
+`owomide_prices_v1` and `owomide_costs_v1` map Owómidé's own import templates with no manual
+mapping, validated by the mapping-template rules. `location` and `source` are left unmapped (no
+canonical target or code-to-id lookup yet), so Release 1 files must not carry location rows. A
+products file cannot be imported alone because every row needs a price or a cost. Exposing the
+presets through `ListMappingTemplates` needs a proto change.
+
 ## F7.3-F7.4 Intelligence Scope
 
 F7.3 provides immutable historical FX snapshots, bitemporal lookup, exact cross rates, and

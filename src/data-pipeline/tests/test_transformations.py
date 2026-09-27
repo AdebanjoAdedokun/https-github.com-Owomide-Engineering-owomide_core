@@ -7,9 +7,11 @@ from decimal import Decimal
 from owomide_data_pipeline.transformations import (
     TransformationError,
     apply_transformations,
+    cost_unit_code,
     decimal_to_minor_units,
     parse_date,
     parse_money,
+    percent_to_basis_points,
 )
 
 
@@ -122,6 +124,24 @@ class TransformationsTest(unittest.TestCase):
             [("USD", "NGN", "treasury", datetime(2026, 7, 31, tzinfo=UTC))],
         )
         self.assertEqual(failures, [])
+
+
+class TaxRateAndUnitTest(unittest.TestCase):
+    def test_tax_rates_become_exact_basis_points(self) -> None:
+        for raw, expected in (("7.5", 750), ("7.5%", 750), (" 7.50 % ", 750), ("0", 0), (15, 1500)):
+            with self.subTest(raw=raw):
+                self.assertEqual(percent_to_basis_points(raw), expected)
+        for bad in ("7.505", "-0.5", "100.01", "", 7.5, True):
+            with self.subTest(bad=bad), self.assertRaises(TransformationError):
+                percent_to_basis_points(bad)
+
+    def test_cost_units_become_catalog_codes(self) -> None:
+        self.assertEqual(cost_unit_code(" Each "), "each")
+        self.assertEqual(cost_unit_code("Carton 12"), "carton_12")
+        self.assertEqual(cost_unit_code("kg"), "kg")
+        for bad in ("", "12-pack", "carton/12", 5):
+            with self.subTest(bad=bad), self.assertRaises(TransformationError):
+                cost_unit_code(bad)
 
 
 if __name__ == "__main__":

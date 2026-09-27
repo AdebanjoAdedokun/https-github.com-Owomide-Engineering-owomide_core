@@ -34,6 +34,10 @@ class CatalogSnapshot:
     segment_ids: frozenset[str]
     sku_ids: frozenset[str]
     costs: dict[tuple[str, str | None], CostReference]
+    # The organisation's default tax basis (catalog.pricing_settings, ADR-016). None until the
+    # Catalog contract exposes it; Catalog still applies the default when the price is written.
+    default_tax_inclusive: bool | None = None
+    default_tax_rate_bp: int | None = None
 
     @classmethod
     def empty(cls) -> CatalogSnapshot:

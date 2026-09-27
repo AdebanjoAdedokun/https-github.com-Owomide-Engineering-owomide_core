@@ -9,7 +9,13 @@ from uuid import UUID
 
 from owomide_data_pipeline.catalog import CatalogSnapshot, ChannelReference
 from owomide_data_pipeline.profiler import CURRENCY_CODES
-from owomide_data_pipeline.transformations import TransformationError, parse_date
+from owomide_data_pipeline.transformations import (
+    TransformationError,
+    cost_unit_code,
+    parse_date,
+    parse_tax_flag,
+    percent_to_basis_points,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -229,6 +235,156 @@ def _validate_reference(
         )
 
 
+def _validate_tax_basis(
+    price: dict[str, object],
+    snapshot: CatalogSnapshot,
+    row_number: int,
+    findings: list[ValidationFinding],
+) -> tuple[bool | None, int | None]:
+    """Normalise the row's tax basis (DATA-022, ADR-016) and return the basis that will apply.
+
+    Stores `tax_inclusive` as a boolean and `tax_rate_bp` as basis points (7.5% -> 750). A row
+    without a flag takes the organisation default when Catalog writes it; when no default is
+    known the price is stored without a basis and no margin can be calculated from it.
+    """
+    inclusive: bool | None = None
+    flag = price.get("tax_inclusive")
+    if flag not in (None, ""):
+        try:
+            inclusive = parse_tax_flag(flag)
+            price["tax_inclusive"] = inclusive
+        except TransformationError:
+            _finding(
+                findings,
+                row_number=row_number,
+                severity="error",
+                code="invalid_tax_flag",
+                message='field "price_record.tax_inclusive" is not a recognised yes/no value.',
+                field="price_record.tax_inclusive",
+                raw_value=flag,
+                suggested_fix='Use values such as "inclusive"/"exclusive" or "yes"/"no".',
+            )
+            return None, None
+    else:
+        price.pop("tax_inclusive", None)
+
+    rate_bp: int | None = None
+    raw_rate = price.pop("tax_rate_pct", None)
+    if raw_rate not in (None, ""):
+        try:
+            rate_bp = percent_to_basis_points(raw_rate)
+        except TransformationError as exc:
+            _finding(
+                findings,
+                row_number=row_number,
+                severity="error",
+                code="invalid_tax_rate",
+                message=f'field "price_record.tax_rate_pct" is invalid: {exc}.',
+                field="price_record.tax_rate_pct",
+                raw_value=raw_rate,
+                suggested_fix="Give the rate as a percentage such as 7.5.",
+            )
+            return None, None
+
+    if inclusive is None:
+        # A rate on its own cannot be stored (Catalog requires a basis with a rate).
+        if snapshot.default_tax_inclusive is None:
+            # Information, not a warning: Catalog applies the organisation default when it
+            # writes the price, and the pipeline cannot see that default yet (ADR-016).
+            _finding(
+                findings,
+                row_number=row_number,
+                severity="info",
+                code="tax_basis_missing",
+                message=(
+                    "the file does not say whether this price includes VAT. The organisation "
+                    "default applies if one is set; otherwise no margin can be calculated from it."
+                ),
+                field="price_record.tax_inclusive",
+                suggested_fix="Map a VAT-inclusive column or set the organisation's default.",
+            )
+            return None, None
+        inclusive = snapshot.default_tax_inclusive
+        if rate_bp is None:
+            # Leave the row silent: Catalog stamps the default flag and rate together.
+            rate_bp = snapshot.default_tax_rate_bp
+        else:
+            # The file states a rate, so state the (default) basis alongside it.
+            price["tax_inclusive"] = inclusive
+            price["tax_rate_bp"] = rate_bp
+    elif rate_bp is not None:
+        price["tax_rate_bp"] = rate_bp
+    if inclusive and rate_bp is None:
+        _finding(
+            findings,
+            row_number=row_number,
+            severity="warning",
+            code="tax_rate_missing_for_inclusive_price",
+            message="the price includes VAT but no VAT rate is known, so VAT cannot be removed.",
+            field="price_record.tax_rate_pct",
+            suggested_fix="Map a VAT rate column or set the organisation's default rate.",
+        )
+    return inclusive, rate_bp
+
+
+def _validate_cost_unit(
+    cost: dict[str, object],
+    sku: Mapping[str, object],
+    row_number: int,
+    findings: list[ValidationFinding],
+) -> None:
+    raw_unit = cost.get("unit")
+    if raw_unit in (None, ""):
+        cost.pop("unit", None)
+        return
+    try:
+        unit = cost_unit_code(raw_unit)
+    except TransformationError as exc:
+        _finding(
+            findings,
+            row_number=row_number,
+            severity="error",
+            code="invalid_cost_unit",
+            message=f'field "cost_record.unit" is invalid: {exc}.',
+            field="cost_record.unit",
+            raw_value=raw_unit,
+            suggested_fix='Use a unit such as "each", "carton" or "kg".',
+        )
+        return
+    cost["unit"] = unit
+    sku_unit = _text(sku.get("unit"))
+    if sku_unit is not None:
+        try:
+            comparable = cost_unit_code(sku_unit)
+        except TransformationError:
+            comparable = None
+        if comparable != unit:
+            _finding(
+                findings,
+                row_number=row_number,
+                severity="warning",
+                code="cost_unit_incompatible",
+                message=(
+                    f'cost is per "{unit}" but the SKU is sold per "{sku_unit}", so this cost is '
+                    "kept as context and not used for margins."
+                ),
+                field="cost_record.unit",
+                raw_value=raw_unit,
+                suggested_fix="Convert the cost to the selling unit or correct the unit.",
+            )
+
+
+def _below_cost(price_minor: int, inclusive: bool | None, rate_bp: int | None, cost: int) -> bool:
+    """True when the price, with VAT removed, is below cost (decision D-04: margins on VAT-
+    exclusive prices). Exact integer comparison: price * 10000 / (10000 + rate) < cost.
+
+    When the basis or the rate is unknown the price is compared as written. Removing VAT can
+    only lower a price, so a price below cost as written is below cost on any basis."""
+    if inclusive and rate_bp is not None:
+        return price_minor * 10_000 < cost * (10_000 + rate_bp)
+    return price_minor < cost
+
+
 def validate_row(
     mapped_data: dict[str, object],
     *,
@@ -292,8 +448,13 @@ def validate_row(
 
     price_amount: int | None = None
     price_currency: str | None = None
+    price_tax_inclusive: bool | None = None
+    price_tax_rate_bp: int | None = None
     channel: ChannelReference | None = None
     if price is not None:
+        price_tax_inclusive, price_tax_rate_bp = _validate_tax_basis(
+            price, snapshot, row_number, findings
+        )
         price_amount = _minor_units(price.get("price_minor"))
         if price_amount is None or price_amount < 0:
             _finding(
@@ -376,6 +537,7 @@ def validate_row(
             )
         cost_currency = _validate_currency(cost, "cost_record", row_number, findings)
         _validate_date(cost, "cost_record", row_number, findings)
+        _validate_cost_unit(cost, sku, row_number, findings)
         _validate_reference(
             cost,
             "location_id",
@@ -400,14 +562,21 @@ def validate_row(
         and comparison_cost is not None
         and price_currency
         and comparison_currency == price_currency
-        and price_amount < comparison_cost
+        and _below_cost(price_amount, price_tax_inclusive, price_tax_rate_bp, comparison_cost)
     ):
         _finding(
             findings,
             row_number=row_number,
             severity="error",
             code="below_cost",
-            message=f"price {price_amount} is below known cost {comparison_cost} minor units.",
+            message=(
+                f"price {price_amount} is below known cost {comparison_cost} minor units"
+                + (
+                    " once VAT is removed."
+                    if price_tax_inclusive and price_tax_rate_bp is not None
+                    else "."
+                )
+            ),
             field="price_record.price_minor",
             raw_value=price_amount,
             suggested_fix="Increase the price, correct the cost, or exclude the row.",

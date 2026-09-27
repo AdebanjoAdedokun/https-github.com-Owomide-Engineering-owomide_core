@@ -835,7 +835,14 @@ class ImportIntegrationTest(unittest.TestCase):
             (report.row_counts.ok, report.row_counts.warned, report.row_counts.errored),
             (0, 1, 0),
         )
-        self.assertEqual([event.code for event in report.events], ["invalid_cost"])
+        # tax_basis_missing is information only (the file has no VAT column; ADR-016).
+        self.assertCountEqual(
+            [(event.code, event.severity) for event in report.events],
+            [
+                ("invalid_cost", data_pipeline_pb2.VALIDATION_SEVERITY_WARNING),
+                ("tax_basis_missing", data_pipeline_pb2.VALIDATION_SEVERITY_INFO),
+            ],
+        )
 
     def test_validated_rows_commit_to_catalog_and_create_transactional_event(self) -> None:
         upload = self._upload(
