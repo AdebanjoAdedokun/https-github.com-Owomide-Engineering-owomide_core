@@ -25,6 +25,7 @@ DECISIONS_PATH = DELIVERY / "DECISIONS.md"
 PRD_PATH = BASE / "source" / "prototype-prd.pdf"
 OUTPUT_PATH = DELIVERY / "CT-01_REQUIREMENT_DISPOSITIONS.json"
 EXPECTED_REQUIREMENTS = 379
+TEXT_SUFFIXES = {".json", ".md"}
 STATUS_FIELDS = {
     "frontendStatus": {
         "absent",
@@ -69,7 +70,11 @@ def sha256_bytes(content):
 
 
 def file_sha256(path):
-    return sha256_bytes(path.read_bytes())
+    content = path.read_bytes()
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        # The committed inventory hashes use CRLF text inputs from Windows checkouts.
+        content = content.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+    return sha256_bytes(content)
 
 
 def index_unique(rows, key, label):
