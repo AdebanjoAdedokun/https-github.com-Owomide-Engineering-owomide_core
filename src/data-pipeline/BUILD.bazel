@@ -15,7 +15,9 @@ py_library(
         "owomide_data_pipeline/events.py",
         "owomide_data_pipeline/health.py",
         "owomide_data_pipeline/intelligence/__init__.py",
+        "owomide_data_pipeline/intelligence/build.py",
         "owomide_data_pipeline/intelligence/currencies.py",
+        "owomide_data_pipeline/intelligence/exposure.py",
         "owomide_data_pipeline/intelligence/fx.py",
         "owomide_data_pipeline/intelligence/pricing.py",
         "owomide_data_pipeline/intelligence/readiness.py",
@@ -79,6 +81,13 @@ py_test(
     srcs = ["tests/test_pricing_engine.py"],
     data = ["tests/fixtures/pricing/cases.json"],
     main = "tests/test_pricing_engine.py",
+    deps = [":runtime"],
+)
+
+py_test(
+    name = "journeys_test",
+    srcs = ["tests/test_journeys.py"],
+    main = "tests/test_journeys.py",
     deps = [":runtime"],
 )
 

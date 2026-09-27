@@ -139,11 +139,29 @@ python -m owomide_data_pipeline.intelligence.readiness \
   --at 2026-10-01T00:00:00+01:00 --min-margin 15 [--json]
 ```
 
+`--markdown --title "..."` writes a plain-English report to send to the design partner: the
+numbers, the products whose margin cannot be calculated yet, and each problem with its rows.
+
 Verdicts: `ready` (at least 95% computable and no errors), `ready_with_gaps`, `not_ready`
 (products file errors or under half computable; exit code 1). With `OWOMIDE_TEST_CATALOGUE` set
 to the pilot test catalogue, `tests/test_readiness.py` also reproduces its independent results:
 4,975 of 5,000 ready, then 40 breaches and the same 10 rejected or held rows after the supplier
 update.
+
+## Proposal build and Margin Exposure View (`intelligence/build.py`, `intelligence/exposure.py`)
+
+- `exposure(members, guardrail)` evaluates every product at its Current Price: breaches with the
+  measured value and gap (largest gap first), members that cannot be evaluated with the reason,
+  and a count within. Unknown is never counted as within.
+- `build(members, request)` applies one action (with entity-level exceptions and optional
+  commercial rounding) to every scope member and returns each evaluated line with a status:
+  `blocked` (a Blocking breach, or anything Unable to Evaluate), `needs_escalation`, `warning` or
+  `clear`.
+- `readiness.current_members(...)` reads the import-template files into members, so exposure and
+  builds use exactly the file reading of the readiness check.
+- With `OWOMIDE_TEST_CATALOGUE` set, `tests/test_journeys.py` checks every line of Journeys J1
+  (40 lines) and J2 (120 store and online lines) and both exposure views against answers computed
+  independently by the calculation test pack, to four decimal places.
 
 ## Public RPCs
 
