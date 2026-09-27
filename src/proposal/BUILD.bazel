@@ -44,6 +44,7 @@ ts_project(
     tsconfig = ":tsconfig",
     visibility = ["//visibility:public"],
     deps = [
+        ":node_modules/@anthropic-ai/sdk",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@connectrpc/connect-node",
@@ -79,6 +80,7 @@ ts_project(
     tsconfig = ":tsconfig_test",
     deps = [
         ":proposal_ts",
+        ":node_modules/@anthropic-ai/sdk",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@types/node",
@@ -110,6 +112,7 @@ ts_project(
     source_map = True,
     tsconfig = ":tsconfig_integration",
     deps = [
+        ":node_modules/@anthropic-ai/sdk",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@connectrpc/connect-node",
@@ -132,6 +135,7 @@ js_test(
     chdir = package_name(),
     data = [
         ":integration_tests_ts",
+        ":node_modules/@anthropic-ai/sdk",
         ":node_modules/@bufbuild/protobuf",
         ":node_modules/@connectrpc/connect",
         ":node_modules/@testcontainers/postgresql",

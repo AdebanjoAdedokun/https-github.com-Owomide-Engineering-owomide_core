@@ -4,6 +4,12 @@ import { fileURLToPath } from "node:url";
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { prepareSummaryInput } from "../../ai/proposal-summary.js";
+import {
+  applySuggestion,
+  listSuggestions,
+  recordSummary,
+} from "../../repo/ai-suggestion-repository.js";
 import {
   ALLOWED_TRANSITIONS,
   INITIATIVE_STATES,
@@ -360,6 +366,57 @@ describe("Initiative lifecycle, cycle times and AI suggestions", () => {
       one(c, `SELECT count(*)::int AS n FROM proposal.ai_suggestion`)
     );
     expect(hidden.n).toBe(0);
+  });
+
+  it("records a summary through the repository and lets a person apply it once", async () => {
+    const versionId = await asOrg(ORG, async (c) => {
+      const p = await one(
+        c,
+        `INSERT INTO proposal.proposal (org_id, state, actor_id, title) VALUES ($1, 'draft', $2, 'Repo') RETURNING id`,
+        [ORG, ADA]
+      );
+      const v = await one(
+        c,
+        `INSERT INTO proposal.proposal_version (org_id, proposal_id, version_number, created_by)
+         VALUES ($1, $2, 1, $3) RETURNING id`,
+        [ORG, p.id, ADA]
+      );
+      await c.query(
+        `UPDATE proposal.proposal_version SET status = 'awaiting_approval', submitted_by = $2,
+                submitted_at = clock_timestamp(), snapshot = '{"lines": 1}', snapshot_hash = 'sha256:z'
+          WHERE id = $1`,
+        [v.id, ADA]
+      );
+      return v.id as string;
+    });
+    const input = prepareSummaryInput(
+      { lines: [{ sku_id: "BEV-1", cost: 1 }] },
+      "enabled_without_cost_margin"
+    );
+    const stored = await asOrg(ORG, (c) =>
+      recordSummary(c, {
+        orgId: ORG,
+        proposalVersionId: versionId,
+        requestedBy: TUNDE,
+        input,
+        result: { model: "claude-opus-5", text: "One price rises." },
+      })
+    );
+    expect(stored).toMatchObject({ dataPolicy: "enabled_without_cost_margin", appliedAt: null });
+    const applied = await asOrg(ORG, (c) =>
+      applySuggestion(c, {
+        suggestionId: stored.id,
+        appliedBy: TUNDE,
+        appliedText: "One price rises by 9.8%.",
+      })
+    );
+    expect(applied).toMatchObject({ appliedBy: TUNDE, appliedText: "One price rises by 9.8%." });
+    const again = await asOrg(ORG, (c) =>
+      applySuggestion(c, { suggestionId: stored.id, appliedBy: ADA, appliedText: "Other" })
+    );
+    expect(again).toBeNull();
+    const list = await asOrg(ORG, (c) => listSuggestions(c, versionId));
+    expect(list.map((x) => x.outputText)).toEqual(["One price rises."]);
   });
 
   it("rolls back cleanly", async () => {

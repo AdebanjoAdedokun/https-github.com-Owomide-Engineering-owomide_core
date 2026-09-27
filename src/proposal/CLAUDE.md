@@ -165,6 +165,21 @@ Decision D-06. The execution file goes to store staff and never carries cost, ma
   suggest-only). A person applies it once (`applied_by`, `applied_at`, `applied_text`, the only
   columns the service may update). Never deleted.
 
+### AI proposal summary (`src/ai/proposal-summary.ts`)
+
+- Summarises a frozen version for the approver with `@anthropic-ai/sdk`, model `claude-opus-5`,
+  adaptive thinking at medium effort, server-side refusal fallbacks (`fallbacks: "default"`,
+  beta `server-side-fallback-2026-07-01`), 60-second timeout and two retries. The system prompt is
+  below the minimum cacheable size, so no prompt caching is configured.
+- The organisation's AI data policy is applied first: `disabled` sends nothing,
+  `enabled_without_cost_margin` removes every field whose name mentions cost, margin, markup or
+  profit, at any depth. Free-text fields (objectives, reasons) are sent as written.
+- Customer data goes in the user turn inside `<proposal>` tags, as data. A refusal, an empty or an
+  over-long answer stores nothing. `src/repo/ai-suggestion-repository.ts` records the result
+  (with the model that actually answered) and applies it once.
+- Needs `ANTHROPIC_API_KEY` in the Proposal service's environment, and the AI provider terms and
+  data-processing review (open founder decision) before it is switched on for a pilot.
+
 ### Frozen snapshot
 
 - `src/domain/snapshot.ts` builds the frozen version document in canonical JSON (sorted keys,
