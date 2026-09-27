@@ -26,6 +26,19 @@ The six separate `source_modal_flags` are deterministic, case-insensitive phrase
 
 These are literal source-text occurrences, not a machine claim that every occurrence is normative in context. The `semantic_review.needs_modal_review` flag calls out absent explicit modals and specific ambiguous wording cues (including choice-framed “should” and “may include” examples). Conditional terms are separately surfaced with snippets; their presence does not resolve the condition's scope. For example, DATA-010 remains flagged for modal review and ORG-014 has no explicit modal phrase. Human interpretation and all product dispositions remain open; this crosswalk does not ratify D-01–08, choose a pilot, or decide whether any Should/May behaviour will be delivered.
 
+## Exhaustive 379-row owner disposition inventory — generated, not ratified
+
+[CT-01_REQUIREMENT_DISPOSITIONS.json](CT-01_REQUIREMENT_DISPOSITIONS.json) contains exactly one auditable row for each benchmark requirement ID. Each row keeps the exact benchmark-extracted PRD text and PDF page/hash reference, occurrence-level source-modal evidence, the benchmark's recorded implementation states/evidence, its corresponding domain-matrix text and assessment, and the frontend/backend/integration/final-disposition evidence owners in distinct fields. Source disagreements and occurrence-crosswalk review cues are visible without choosing which version is correct.
+
+Every owner disposition is `open`; decision, decider, date, authoritative reference, rationale, and compatibility impact remain empty because D-01–08 are not ratified. `owner-review-required` identifies rows with a recorded textual/assessment difference or a crosswalk wording cue; `no-automated-review-cue` is not an interpretation or approval. The inventory makes no implementation claim and does not decide which Should/May items ship.
+
+The inventory is reproducible and checked with the Python standard library:
+
+```sh
+python docs/product/mvp-2026-09/delivery/scripts/ct01_disposition_inventory.py
+python docs/product/mvp-2026-09/delivery/scripts/ct01_disposition_inventory.py --check
+```
+
 ## Partial hand-curated source-class notes — AGENT DRAFT, not ratified
 
 The grouped notes below are a source-backed but partial human-curated interpretation. They are retained as an unratified decision aid and must not be mistaken for the exhaustive occurrence-level crosswalk linked above. The prior grouped counts describe only those hand-curated notes; they do not establish complete semantic interpretation or product dispositions.
@@ -188,7 +201,7 @@ The following **12 listed requirement rows** state explicit minimum-scope bounda
 | EXPORT-021 | Should + Must Not | An external implementation reference should be recordable where available; one must not be required where the organization does not use one. |
 | EXPORT-028 | Must + Not Required | Bounded selected integration is required, but broad connector coverage, universal bidirectional sync, and autonomous stack-wide execution are not required; manual/import/export/handoff must remain usable. |
 
-**Coverage gap and validation limit:** the generated crosswalk now reconciles the exact benchmark ID set against all four domain matrices (379 rows, 379 unique IDs) and records each explicit modal phrase occurrence deterministically. The partial hand-curated summaries above are still not a complete semantic interpretation: example language, choice-framed modals, and the interaction of conditional clauses may require human review, as surfaced in each row's review fields. Therefore this artifact establishes source-string coverage and extraction reproducibility, not owner acceptance, final normative interpretation, any D-01–08 choice, pilot scope, row disposition, delivery commitment, or ratification.
+**Coverage and validation limit:** the generated crosswalk and owner inventory each reconcile the exact benchmark ID set against all four domain matrices (379 rows, 379 unique IDs), and record source-text/modal evidence deterministically. The hand-curated summaries above remain partial and are not a complete semantic interpretation. Example language, choice-framed modals, conditional clauses, and source disagreements remain visible for owner review. These artifacts establish row coverage and extraction reproducibility, not owner acceptance, final normative interpretation, any D-01–08 choice, pilot scope, row disposition, delivery commitment, or ratification. Human owner disposition and ratification remain outstanding.
 
 ## Known decision candidates
 
@@ -204,7 +217,7 @@ The audit already identifies the following rows as requiring explicit selection 
 | FLOW-028 | Withdrawal before irreversible execution is **May** / optional. | **AGENT DRAFT question:** D-08 must state whether permitted, deferred, or excluded. If permitted, specify the point of irreversibility and preserve historical authority and execution evidence. |
 | BUILD-019, ANALYSIS-020, AI-001/005 | The audit records bounded assistive AI and contextual interpretation as required by the replacement PRD; an earlier CEO AI deferral conflicts with this target. Optional AI examples remain separate. | **AGENT DRAFT question:** D-01 must ratify the full-PRD target or an explicit narrower pilot deviation. Do not relabel mandatory AI as optional or let AI decide, authorise, or execute. |
 
-This partial inventory is not a set of settled decisions. The product owner and delivery lead still need a validated full-source crosswalk, decisions on any expected Should deferral, and selection of any optional/excluded scope. Do not infer a disposition from P0–P3 priority, a missing implementation, an audit recommendation, or another row's decision.
+This partial candidate list is not a set of settled decisions and is not a substitute for the exhaustive linked row inventory. The product owner and delivery lead still need to interpret ambiguous/source-conflicting rows, decide any expected Should deferral, and select any optional/excluded scope. Do not infer a disposition from P0–P3 priority, a missing implementation, an audit recommendation, or another row's decision.
 
 ## Ratification ledger
 
