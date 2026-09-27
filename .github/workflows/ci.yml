@@ -35,6 +35,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Verify CT-01 source classification
+        run: python docs/product/mvp-2026-09/delivery/scripts/ct01_source_classification.py --check
+
+      - name: Verify CT-01 requirement dispositions
+        run: python docs/product/mvp-2026-09/delivery/scripts/ct01_disposition_inventory.py --check
+
       - name: Install ruff
         run: pip install ruff
 
