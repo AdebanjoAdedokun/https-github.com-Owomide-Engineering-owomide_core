@@ -1,4 +1,4 @@
-load("@aspect_rules_js//js:defs.bzl", "js_test")
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 
@@ -45,11 +45,20 @@ ts_project(
     visibility = ["//visibility:public"],
     deps = [
         ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/bus",
         ":node_modules/@owomide/proto",
         ":node_modules/@types/node",
         ":node_modules/@types/pg",
         ":node_modules/pg",
+        ":node_modules/pino",
     ],
+)
+
+js_binary(
+    name = "server",
+    data = [":notify_ts"],
+    entry_point = "dist/server.js",
+    visibility = ["//visibility:public"],
 )
 
 ts_project(
@@ -64,10 +73,12 @@ ts_project(
     tsconfig = ":tsconfig_test",
     deps = [
         ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/bus",
         ":node_modules/@owomide/proto",
         ":node_modules/@types/node",
         ":node_modules/@types/pg",
         ":node_modules/pg",
+        ":node_modules/pino",
         ":node_modules/vitest",
         "//src/lib/proto:pkg",
     ],
@@ -77,6 +88,7 @@ js_test(
     name = "unit_tests",
     data = [
         ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/bus",
         ":node_modules/@owomide/proto",
         ":node_modules/vitest",
         ":unit_tests_ts",
@@ -98,11 +110,13 @@ ts_project(
     tsconfig = ":tsconfig_integration",
     deps = [
         ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/bus",
         ":node_modules/@owomide/proto",
         ":node_modules/@testcontainers/postgresql",
         ":node_modules/@types/node",
         ":node_modules/@types/pg",
         ":node_modules/pg",
+        ":node_modules/pino",
         ":node_modules/vitest",
         "//src/lib/proto:pkg",
     ],
@@ -115,10 +129,13 @@ js_test(
     data = [
         ":integration_tests_ts",
         ":node_modules/@bufbuild/protobuf",
+        ":node_modules/@owomide/bus",
         ":node_modules/@owomide/proto",
         ":node_modules/@testcontainers/postgresql",
         ":node_modules/pg",
+        ":node_modules/pino",
         ":node_modules/vitest",
+        "//src/lib/bus/js:bus_js",
         "//src/lib/proto:pkg",
         "migrations/0001_create_schema.down.sql",
         "migrations/0001_create_schema.up.sql",

@@ -5,6 +5,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const tests = [
   path.resolve(dirname, "../../../dist_unit/tests/unit/routing.test.js"),
+  path.resolve(dirname, "../../../dist_unit/tests/unit/zeptomail.test.js"),
 ];
 
 process.argv = [

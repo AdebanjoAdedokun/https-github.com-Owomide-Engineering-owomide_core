@@ -320,12 +320,18 @@ importers:
       '@bufbuild/protobuf':
         specifier: ^2.12.1
         version: 2.12.1
+      '@owomide/bus':
+        specifier: workspace:*
+        version: link:../lib/bus/js
       '@owomide/proto':
         specifier: workspace:*
         version: link:../lib/proto
       pg:
         specifier: ^8.16.3
         version: 8.22.0
+      pino:
+        specifier: ^10.3.1
+        version: 10.3.1
     devDependencies:
       '@testcontainers/postgresql':
         specifier: ^10.28.0
