@@ -402,3 +402,9 @@ REVOKE UPDATE, DELETE ON proposal.decision FROM proposal_svc;
 REVOKE DELETE ON proposal.initiative FROM proposal_svc;
 REVOKE DELETE ON proposal.initiative_scope_member FROM proposal_svc;
 REVOKE DELETE ON proposal.proposal_version FROM proposal_svc;
+
+-- Declared intent, checked by `make db-check`.
+COMMENT ON TABLE proposal.initiative_assumption IS 'Assumptions recorded on an Initiative. @append-only';
+COMMENT ON TABLE proposal.initiative_transition IS 'Initiative lifecycle moves. @append-only';
+COMMENT ON TABLE proposal.decision IS 'One decision per submitted version. @append-only';
+COMMENT ON TABLE proposal.proposal_version_line IS 'Lines of a draft version; freely edited while the version is a draft. @deletable';
