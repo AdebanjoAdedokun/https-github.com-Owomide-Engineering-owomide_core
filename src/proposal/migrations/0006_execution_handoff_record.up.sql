@@ -126,5 +126,11 @@ CREATE POLICY implementation_line_tenant_policy ON proposal.implementation_line
 
 -- Append-only: INSERT and SELECT only.
 GRANT SELECT, INSERT ON proposal.export_event, proposal.implementation_line TO proposal_svc;
+-- The migration runner grants UPDATE and DELETE on new tables by default; both records are
+-- append-only, so revoke them explicitly.
+REVOKE UPDATE, DELETE ON proposal.export_event, proposal.implementation_line FROM proposal_svc;
+REVOKE INSERT, UPDATE, DELETE ON proposal.implementation_line_current FROM proposal_svc;
+COMMENT ON TABLE proposal.export_event IS 'Who exported which approved version, when. @append-only';
+COMMENT ON TABLE proposal.implementation_line IS 'Per-line implementation results; a fix is a new row. @append-only';
 GRANT SELECT ON proposal.implementation_line_current TO proposal_svc;
 GRANT EXECUTE ON FUNCTION proposal.assert_version_executable(text, uuid) TO proposal_svc;
