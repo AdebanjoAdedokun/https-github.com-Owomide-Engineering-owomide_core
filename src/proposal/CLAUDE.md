@@ -123,6 +123,14 @@ invariants are enforced by triggers, so no code path can bypass them.
 - `proposal_version_line` — draft lines; inserts, updates and deletes are refused unless the version is a draft.
 - `decision` — one per version (Release 1 has one approval step): outcome (`approved` | `rejected` | `changes_requested`), decided_by, reason (required unless approved). Refused unless the version is awaiting approval and decided_by differs from the version's submitted_by (FLOW-013). Inserting a decision sets the version status. Append-only.
 
+### Execution tables (migration 0006)
+
+Decision D-06. The execution file goes to store staff and never carries cost, margin or values derived from them. Execution status is derived by `src/domain/execution.ts` from the current record per line, and is never stored.
+
+- `export_event` — who exported which approved version, when, kind (`execution_csv` | `handoff_summary`), line count and file SHA-256. Changes no status and no price. Append-only.
+- `implementation_line` — one row per recording of an authorised line: outcome (`implemented` | `failed` | `implemented_different`), authorised and implemented price, actual effective time, POS reference (required unless failed), failure reason (required if failed), recorded_by, request_id (unique per line: retries never add a row). Append-only; a fix is a new row. `implementation_line_current` is the latest row per line.
+- Both refuse any version that is not approved or that has been superseded.
+
 ### Bulk repricing tables
 
 - `change_set` — id, org_id, status (`draft` | `submitted` | `discarded`), **actor_id** (creator), scope JSONB, rule JSONB, created_at, updated_at, submitted_at (nullable), proposal_id (nullable, set on submit).
