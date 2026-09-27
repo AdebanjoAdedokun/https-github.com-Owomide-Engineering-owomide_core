@@ -4,7 +4,7 @@
 
 26 work items across 4 milestones. CT-01/02 are planning tasks; the remaining items are bounded domain work packages that may need smaller child tasks before coding. **Only planning is initially ready.** No live feature is marked complete.
 
-Read [decisions](DECISIONS.md), the [CT-01 PRD disposition draft](PRD_DISPOSITIONS.md), [agent execution rules](AGENT_PLAYBOOK.md), [requirement ownership](requirements-ownership.json) and the [machine-readable plan](plan.json).
+Read [decisions](DECISIONS.md), the [CT-01 PRD disposition draft](PRD_DISPOSITIONS.md), [agent execution rules](AGENT_PLAYBOOK.md), [requirement ownership](requirements-ownership.json), the [machine-readable plan](plan.json), and the [unratified CT-02 contract draft](CT-02-contract-draft.md).
 
 ## M0 — MVP 0 — Product decisions and contracts
 
