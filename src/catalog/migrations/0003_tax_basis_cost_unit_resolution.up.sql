@@ -276,7 +276,9 @@ AS $$
   ORDER BY ctx.ordinal;
 $$;
 
+-- The migration runner grants DELETE on new tables by default; settings are changed, never removed.
 GRANT SELECT, INSERT, UPDATE ON catalog.pricing_settings TO catalog_svc;
+REVOKE DELETE ON catalog.pricing_settings FROM catalog_svc;
 GRANT EXECUTE ON FUNCTION catalog.configure_pricing_settings(boolean, integer, text, text, text) TO catalog_svc;
 GRANT EXECUTE ON FUNCTION catalog.resolve_current_prices(jsonb, timestamptz) TO catalog_svc;
 GRANT EXECUTE ON FUNCTION catalog.resolve_applicable_costs(jsonb, timestamptz) TO catalog_svc;
