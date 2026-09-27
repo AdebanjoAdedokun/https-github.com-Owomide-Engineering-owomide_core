@@ -131,6 +131,17 @@ Decision D-06. The execution file goes to store staff and never carries cost, ma
 - `implementation_line` — one row per recording of an authorised line: outcome (`implemented` | `failed` | `implemented_different`), authorised and implemented price, actual effective time, POS reference (required unless failed), failure reason (required if failed), recorded_by, request_id (unique per line: retries never add a row). Append-only; a fix is a new row. `implementation_line_current` is the latest row per line.
 - Both refuse any version that is not approved or that has been superseded.
 
+### History (migration 0007)
+
+- `activity` — read-only view (security_invoker, so RLS applies) of everything that happened to
+  an Initiative and its Proposals: creation, state changes, scope removals, assumptions, versions,
+  submissions, decisions, exports, and implementation results summarised per recording request.
+  Derived from the append-only tables, so it cannot drift from them. `detail` carries ids, counts
+  and reasons, never prices, costs or margins.
+- `src/repo/activity-repository.ts` `listActivity` returns it in a stable order (time, then
+  `activity_kind_order`, then source row); `src/domain/activity.ts` `describeActivity` turns an
+  entry into one plain-language sentence for the history panel.
+
 ### Bulk repricing tables
 
 - `change_set` — id, org_id, status (`draft` | `submitted` | `discarded`), **actor_id** (creator), scope JSONB, rule JSONB, created_at, updated_at, submitted_at (nullable), proposal_id (nullable, set on submit).
